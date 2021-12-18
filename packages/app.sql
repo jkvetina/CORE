@@ -1093,6 +1093,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
+        app.log_module();
+
         -- call app specific code
         app.call_custom_procedure();
 
@@ -1101,18 +1103,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --DBMS_SESSION.RESET_PACKAGE;  -- avoid ORA-04068 exception
         --
         DBMS_APPLICATION_INFO.SET_MODULE (
-            module_name => NULL,
-            action_name => NULL
+            module_name     => NULL,
+            action_name     => NULL
         );
 
         -- mark request as done
         app.log_success (
-            in_log_id   => app.get_item(app.item_request_id),
-            in_payload  => NULL
+            in_log_id       => recent_request_id,
+            in_payload      => NULL
         );
-
-        -- cleanup for session reuse
-        app.set_item(app.item_request_id, NULL);
         --
         COMMIT;
     EXCEPTION
@@ -1158,9 +1157,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 --
 --
 -- @TODO: if not current session ???
---
---
---
 --
 --
         END IF;
@@ -1389,6 +1385,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         rec                     logs%ROWTYPE;
         callstack_hash          VARCHAR2(40);
+        callstack_depth         PLS_INTEGER                 := 4;
     BEGIN
         -- prepare record
         rec.log_id              := log_id.NEXTVAL;
@@ -1399,8 +1396,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.session_id          := COALESCE(in_session_id,  app.get_session_id());
         rec.flag                := COALESCE(in_flag,        '?');
         --
-        rec.module_name         := SUBSTR(COALESCE(in_module_name, app.get_callstack_hash()), 1, app.length_module);
-        rec.module_line         := COALESCE(in_module_line, app.get_caller_line());
+        rec.module_name         := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth)), 1, app.length_module);
+        rec.module_line         :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth));
+        --
+        IF rec.flag = app.flag_error AND rec.module_name = 'APP.RAISE_ERROR' THEN
+            -- make it more usefull for raised errors, shift by one more
+            rec.module_name     := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth + 1)), 1, app.length_module);
+            rec.module_line     :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth + 1));
+        END IF;
         --
         rec.action_name         := SUBSTR(in_action_name,   1, app.length_action);
         rec.arguments           := SUBSTR(in_arguments,     1, app.length_arguments);
@@ -1446,10 +1449,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             map_tree(callstack_hash)    := rec.log_id;
             recent_log_id               := rec.log_id;
             --
-            IF rec.flag = app.flag_request THEN
-                recent_request_id       := rec.log_id;
-            END IF;
-            --
             app.set_session (
                 in_module_name      => CASE WHEN rec.flag = app.flag_request THEN 'APEX|' || TO_CHAR(rec.app_id) || '|' || TO_CHAR(rec.page_id) ELSE rec.module_name END,
                 in_action_name      => rec.action_name,
@@ -1483,7 +1482,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         RETURN app.log__ (
             in_flag             => app.flag_request,
-            in_action_name      => app.get_request(),
+            in_action_name      => NVL(app.get_request(), '-'),
             in_arguments        => app.get_request_url()
         );
     END;
@@ -2148,33 +2147,59 @@ CREATE OR REPLACE PACKAGE BODY app AS
         in_arg3                 VARCHAR2 := NULL,
         in_arg4                 VARCHAR2 := NULL
     ) AS
-        v_object_name           VARCHAR2(64) := SUBSTR(in_name, 1, 64);
+        v_object_name           VARCHAR2(64);
+        v_args                  PLS_INTEGER;
         is_valid                CHAR;
     BEGIN
         -- determice object name from caller
-        IF v_object_name IS NULL THEN
-            v_object_name := 'A' || app.get_app_id() || '.' || app.get_caller_name();
-        END IF;
+        v_object_name := COALESCE(in_name, 'A' || app.get_app_id() || '.' || REGEXP_REPLACE(app.get_caller_name(3), '([^\.]+\.)', ''));
+        --
+        app.log_module (
+            in_action_name  => v_object_name,
+            in_args         => app.get_json_list(in_arg1, in_arg2, in_arg3, in_arg4)
+        );
 
         -- check object existance
         BEGIN
             SELECT 'Y' INTO is_valid
             FROM user_procedures p
             WHERE RTRIM(p.object_name || '.' || p.procedure_name, '.') = UPPER(v_object_name)
-                AND p.object_type   = 'PROCEDURE'
+                AND p.object_type   IN ('PACKAGE', 'PROCEDURE')
                 AND p.overload      IS NULL;
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
+            app.log_warning('PROCEDURE_MISSING');
             RETURN;
         END;
 
-    --
-    -- @TODO:
-    --
-
         -- check object arguments
-        EXECUTE IMMEDIATE
-            'CALL ' || '' || '()';
+        SELECT COUNT(*) INTO v_args
+        FROM user_arguments a
+        WHERE RTRIM(a.package_name || '.' || a.object_name, '.') = UPPER(v_object_name)
+            AND a.position      > 0
+            AND a.in_out        = 'IN';
+        --
+        BEGIN
+            CASE v_args
+                WHEN 1 THEN EXECUTE IMMEDIATE 'BEGIN ' || v_object_name || '(:1); END;'             USING in_arg1;
+                WHEN 2 THEN EXECUTE IMMEDIATE 'BEGIN ' || v_object_name || '(:1, :2); END;'         USING in_arg1, in_arg2;
+                WHEN 3 THEN EXECUTE IMMEDIATE 'BEGIN ' || v_object_name || '(:1, :2, :3); END;'     USING in_arg1, in_arg2, in_arg3;
+                WHEN 4 THEN EXECUTE IMMEDIATE 'BEGIN ' || v_object_name || '(:1, :2, :3, :4); END;' USING in_arg1, in_arg2, in_arg3, in_arg4;
+                ELSE        EXECUTE IMMEDIATE 'BEGIN ' || v_object_name || '(); END;';
+                END CASE;
+        EXCEPTION
+        WHEN app.app_exception THEN
+            RAISE;
+        WHEN OTHERS THEN
+            app.raise_error('CUSTOM_CODE_FAILED');
+        END;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 
@@ -2193,6 +2218,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         RETURN NULL;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 
@@ -2200,7 +2230,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     PROCEDURE init
     AS
     BEGIN
-        -- clear map
+        -- clear map for tracking logs hierarchy
         map_tree := arr_map_tree();
 
         -- load whitelist/blacklist data from logs_tracing table
@@ -2222,6 +2252,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
             AND (t.user_id      = app.get_user_id()     OR t.user_id    IS NULL)
             AND (t.page_id      = app.get_page_id()     OR t.page_id    IS NULL)
             AND t.is_ignored    = 'Y';
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 END;
