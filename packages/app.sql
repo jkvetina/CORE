@@ -1211,9 +1211,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2 AS
     BEGIN
         RETURN REGEXP_SUBSTR(in_interval, '(\d{2}:\d{2}:\d{2}\.\d{3})');
-    EXCEPTION
-    WHEN OTHERS THEN
-        RETURN NULL;
     END;
 
 
@@ -1224,9 +1221,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2 AS
     BEGIN
         RETURN TO_CHAR(TRUNC(SYSDATE) + in_interval, 'HH24:MI:SS');
-    EXCEPTION
-    WHEN OTHERS THEN
-        RETURN NULL;
     END;
 
 
@@ -1239,7 +1233,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         v_end                   CONSTANT logs.created_at%TYPE := SYSTIMESTAMP;  -- to prevent timezone shift, APEX_UTIL.GET_SESSION_TIME_ZONE
     BEGIN
-        RETURN TO_CHAR(COALESCE(in_end, v_end) - in_start);
+        RETURN COALESCE(in_end, v_end) - in_start;  -- need SUBSTR(..., 5, 12)
     END;
 
 
@@ -1482,7 +1476,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         RETURN app.log__ (
             in_flag             => app.flag_request,
-            in_action_name      => NVL(app.get_request(), '-'),
+            in_action_name      => app.get_request(),
             in_arguments        => app.get_request_url()
         );
     END;
@@ -2151,13 +2145,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_args                  PLS_INTEGER;
         is_valid                CHAR;
     BEGIN
-        -- determice object name from caller
+        -- determice object name from caller (based on current application)
         v_object_name := COALESCE(in_name, 'A' || app.get_app_id() || '.' || REGEXP_REPLACE(app.get_caller_name(3), '([^\.]+\.)', ''));
         --
-        app.log_module (
-            in_action_name  => v_object_name,
-            in_args         => app.get_json_list(in_arg1, in_arg2, in_arg3, in_arg4)
-        );
+        app.log_module(in_args => app.get_json_list(v_object_name, in_arg1, in_arg2, in_arg3, in_arg4));
 
         -- check object existance
         BEGIN
