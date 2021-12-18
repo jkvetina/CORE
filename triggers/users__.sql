@@ -5,6 +5,7 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'USERS';
     --
     curr_log_id             logs.log_id%TYPE;
+    curr_event_id           logs_events.log_id%TYPE;
     curr_updated_by         users.updated_by%TYPE;
     curr_updated_at         users.updated_at%TYPE;
     --
@@ -40,6 +41,8 @@ COMPOUND TRIGGER
                 UPDATE sessions s
                 SET s.user_id       = :NEW.user_id
                 WHERE s.user_id     = :OLD.user_id;
+                --
+                curr_event_id := app.log_event('USER_ID_CHANGED');
             END IF;
         END IF;
     EXCEPTION
