@@ -176,15 +176,21 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         is_valid                CHAR;
     BEGIN
+        WITH u AS (
+            SELECT app.get_user_id() AS user_id FROM DUAL UNION ALL
+            SELECT app.get_user_login()         FROM DUAL UNION ALL
+            SELECT in_user                      FROM DUAL
+        )
         SELECT 'Y' INTO is_valid
         FROM apex_workspace_developers d
         JOIN apex_applications a
             ON a.workspace                  = d.workspace_name
+        JOIN u
+            ON UPPER(u.user_id)             IN (UPPER(d.user_name), UPPER(d.email))
         WHERE a.application_id              = app.get_app_id()
             AND d.is_application_developer  = 'Yes'
             AND d.account_locked            = 'No'
-            AND COALESCE(in_user, app.get_user_id()) IN (UPPER(d.user_name), LOWER(d.email))
-            AND ROWNUM = 1;
+            AND ROWNUM                      = 1;
         --
         RETURN TRUE;
     EXCEPTION
