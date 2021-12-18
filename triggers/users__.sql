@@ -35,6 +35,12 @@ COMPOUND TRIGGER
         IF NOT DELETING THEN
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
+            --
+            IF UPDATING AND :NEW.user_id != :OLD.user_id THEN
+                UPDATE sessions s
+                SET s.user_id       = :NEW.user_id
+                WHERE s.user_id     = :OLD.user_id;
+            END IF;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
