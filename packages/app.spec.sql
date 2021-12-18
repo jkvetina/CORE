@@ -29,6 +29,8 @@ CREATE OR REPLACE PACKAGE app AS
      *
      */
 
+    schema_owner                CONSTANT VARCHAR2(30)       := 'CORE';
+
     -- code for app exception
     app_exception_code          CONSTANT PLS_INTEGER        := -20000;
     app_exception               EXCEPTION;
@@ -642,17 +644,6 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    --
-    --
-    FUNCTION get_log_parent (
-        in_offset               PLS_INTEGER     := NULL,
-        in_hash                 VARCHAR2        := NULL
-    )
-    RETURN logs.log_id%TYPE;
-
-
-
-    --
     -- Internal function which creates records in logs table; returns assigned `log_id`
     --
     FUNCTION log__ (
@@ -872,32 +863,23 @@ CREATE OR REPLACE PACKAGE app AS
     --
     -- Hashing function (internal use)
     --
-    FUNCTION get_callstack_hash__ (
+    FUNCTION get_hash (
         in_payload      VARCHAR2
     )
     RETURN VARCHAR2
-    RESULT_CACHE
-    ACCESSIBLE BY (
-        PACKAGE app,
-        PACKAGE app_ut
-    );
-
-
-
-    --
-    -- Hash callstack to track parent_id throught all log calls
-    --
-    FUNCTION get_callstack_hash (
-        in_offset               PLS_INTEGER     := NULL
-    )
-    RETURN VARCHAR2;
+    RESULT_CACHE;
 
 
 
     --
     -- Returns clean call stack
     --
-    FUNCTION get_call_stack
+    FUNCTION get_call_stack (
+        in_offset               PLS_INTEGER     := NULL,
+        in_skip_others          BOOLEAN         := FALSE,
+        in_line_numbers         BOOLEAN         := TRUE,
+        in_splitter             VARCHAR2        := CHR(10)
+    )
     RETURN logs.payload%TYPE;
 
 

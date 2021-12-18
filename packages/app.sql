@@ -14,6 +14,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BAD_DEPTH EXCEPTION;
     PRAGMA EXCEPTION_INIT(BAD_DEPTH, -64610);
 
+    --
+    raise_error_procedure       CONSTANT logs.module_name%TYPE := 'APP.RAISE_ERROR';
+
 
 
 
@@ -1339,27 +1342,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_log_parent (
-        in_offset               PLS_INTEGER     := NULL,
-        in_hash                 VARCHAR2        := NULL
-    )
-    RETURN logs.log_id%TYPE
-    AS
-        callstack_hash          VARCHAR2(40) := in_hash;
-    BEGIN
-        IF callstack_hash IS NULL THEN
-            callstack_hash := app.get_callstack_hash(in_offset);
-        END IF;
-        --
-        IF map_tree.EXISTS(callstack_hash) THEN
-            RETURN map_tree(callstack_hash);
-        END IF;
-        --
-        RETURN NULL;
-    END;
-
-
-
     FUNCTION log__ (
         in_flag                 logs.flag%TYPE,
         in_module_name          logs.module_name%TYPE       := NULL,
@@ -1393,7 +1375,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.module_name         := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth)), 1, app.length_module);
         rec.module_line         :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth));
         --
-        IF rec.flag = app.flag_error AND rec.module_name = 'APP.RAISE_ERROR' THEN
+        IF rec.flag = app.flag_error AND rec.module_name = raise_error_procedure THEN
             -- make it more usefull for raised errors, shift by one more
             rec.module_name     := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth + 1)), 1, app.length_module);
             rec.module_line     :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth + 1));
@@ -1409,10 +1391,41 @@ CREATE OR REPLACE PACKAGE BODY app AS
             RETURN NULL;
         END IF;
 
-        -- store log_id for tree
-        IF in_parent_id IS NULL THEN
-            callstack_hash := app.get_callstack_hash(3);
-            rec.log_parent := app.get_log_parent(callstack_hash);
+        -- retrieve parent log from map
+        IF in_parent_id IS NULL AND rec.flag != app.flag_request THEN
+            callstack_hash := app.get_hash(app.get_call_stack (
+                in_offset         => 4 + CASE WHEN rec.flag = app.flag_module THEN 1 ELSE 0 END,  -- magic
+                in_skip_others    => TRUE,
+                in_line_numbers   => FALSE,
+                in_splitter       => '|'
+            ));
+            --
+            IF map_tree.EXISTS(callstack_hash) THEN
+                rec.log_parent := map_tree(callstack_hash);
+            END IF;
+        END IF;
+
+        -- save new map record for log hierarchy
+        IF rec.flag = app.flag_module THEN
+            callstack_hash := app.get_hash(app.get_call_stack (
+                in_offset         => 4,
+                in_skip_others    => TRUE,
+                in_line_numbers   => FALSE,
+                in_splitter       => '|'
+            ));
+            --
+            map_tree(callstack_hash) := rec.log_id;
+        END IF;
+
+        -- set session things
+        IF rec.flag IN (app.flag_request, app.flag_module) THEN
+            recent_log_id := rec.log_id;
+            --
+            app.set_session (
+                in_module_name      => CASE WHEN rec.flag = app.flag_request THEN 'APEX|' || TO_CHAR(rec.app_id) || '|' || TO_CHAR(rec.page_id) ELSE rec.module_name END,
+                in_action_name      => rec.action_name,
+                in_log_id           => rec.log_id
+            );
         END IF;
 
         -- add call stack
@@ -1425,9 +1438,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             rec.payload := SUBSTR(rec.payload || app.get_error_stack(), 1, app.length_payload);
         END IF;
 
-        -- finally store record in table
-        INSERT INTO logs VALUES rec;
-
         -- print message to console
         IF app.is_developer() THEN
             DBMS_OUTPUT.PUT_LINE(
@@ -1438,17 +1448,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
             );
         END IF;
 
-        -- set session things
-        IF rec.flag IN (app.flag_request, app.flag_module) THEN
-            map_tree(callstack_hash)    := rec.log_id;
-            recent_log_id               := rec.log_id;
-            --
-            app.set_session (
-                in_module_name      => CASE WHEN rec.flag = app.flag_request THEN 'APEX|' || TO_CHAR(rec.app_id) || '|' || TO_CHAR(rec.page_id) ELSE rec.module_name END,
-                in_action_name      => rec.action_name,
-                in_log_id           => rec.log_id
-            );
-        END IF;
+        -- finally store record in table
+        INSERT INTO logs VALUES rec;
         --
         COMMIT;
         --
@@ -1760,7 +1761,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         NULL;
         /*
-        callstack_hash := app.get_callstack_hash();
+        callstack_hash := app.get_hash();
         IF map_tree.EXISTS(callstack_hash) THEN
             rec.log_parent := map_tree(callstack_hash);
         END IF;
@@ -2005,15 +2006,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_callstack_hash__ (
+    FUNCTION get_hash (
         in_payload      VARCHAR2
     )
     RETURN VARCHAR2
     RESULT_CACHE
-    ACCESSIBLE BY (
-        PACKAGE app,
-        PACKAGE app_ut
-    )
     AS
         out_ VARCHAR2(40);
     BEGIN
@@ -2026,41 +2023,23 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_callstack_hash (
-        in_offset               PLS_INTEGER     := NULL
+    FUNCTION get_call_stack (
+        in_offset               PLS_INTEGER     := NULL,
+        in_skip_others          BOOLEAN         := FALSE,
+        in_line_numbers         BOOLEAN         := TRUE,
+        in_splitter             VARCHAR2        := CHR(10)
     )
-    RETURN VARCHAR2
-    AS
-        out_ VARCHAR2(32767);
-    BEGIN
-        FOR i IN REVERSE NVL(in_offset, 3) .. UTL_CALL_STACK.DYNAMIC_DEPTH LOOP  -- 2 = ignore this function, 3 = ignore caller
-            out_ := out_ || UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(i)) || '|';
-        END LOOP;
-        --
-        RETURN /*RPAD(' ', (UTL_CALL_STACK.DYNAMIC_DEPTH - 3) * 2) ||*/ get_callstack_hash__(out_);
-    END;
-
-
-
-    FUNCTION get_call_stack
     RETURN logs.payload%TYPE
     AS
         out_stack       VARCHAR2(32767);
         out_module      logs.module_name%TYPE;
     BEGIN
         -- better version of DBMS_UTILITY.FORMAT_CALL_STACK
-        FOR i IN REVERSE 2 .. UTL_CALL_STACK.DYNAMIC_DEPTH LOOP  -- 2 = ignore this function
-            out_module := SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(i)), 1, app.length_module);
-            /*
-            CONTINUE WHEN
-                UTL_CALL_STACK.OWNER(i) != app.dml_tables_owner                -- different user (APEX)
-                OR UTL_CALL_STACK.UNIT_LINE(i) IS NULL                          -- skip DML queries
-                OR REGEXP_LIKE(out_module, 'UT(\.|_[A-Z0-9_]*\.)[A-Z0-9_]+')    -- skip unit tests
-                OR (out_module = internal_log_fn AND i <= 2);                   -- skip target function
-            */
-            CONTINUE WHEN UTL_CALL_STACK.OWNER(i) IS NULL;
+        FOR i IN REVERSE NVL(in_offset, 2) .. UTL_CALL_STACK.DYNAMIC_DEPTH LOOP  -- 2 = ignore this function, 3 = ignore caller
+            CONTINUE WHEN in_skip_others AND NVL(UTL_CALL_STACK.OWNER(i), '-') != app.schema_owner;
             --
-            out_stack := out_stack || out_module || ' [' || TO_CHAR(UTL_CALL_STACK.UNIT_LINE(i)) || ']' || CHR(10);
+            out_module  := SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(i)), 1, app.length_module);
+            out_stack   := out_stack || out_module || CASE WHEN in_line_numbers THEN ' [' || TO_CHAR(UTL_CALL_STACK.UNIT_LINE(i)) || ']' END || in_splitter;
         END LOOP;
         --
         RETURN out_stack;
