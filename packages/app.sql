@@ -1078,6 +1078,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- continue with standard process as from APEX
         app.create_session();
         --
+        IF in_items IS NOT NULL THEN
+            app.apply_items(in_items);
+        END IF;
+        --
         COMMIT;
     EXCEPTION
     WHEN app.app_exception THEN
