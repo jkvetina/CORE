@@ -698,7 +698,8 @@ CREATE OR REPLACE PACKAGE app AS
     --
     PROCEDURE log_debug (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     );
 
 
@@ -708,7 +709,8 @@ CREATE OR REPLACE PACKAGE app AS
     --
     PROCEDURE log_result (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     );
 
 

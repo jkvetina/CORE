@@ -1518,7 +1518,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     PROCEDURE log_debug (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     )
     AS
         curr_id                 logs.log_id%TYPE;
@@ -1526,7 +1527,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id := app.log__ (
             in_flag             => app.flag_debug,
             in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => in_args,
+            in_payload          => in_payload
         );
     END;
 
@@ -1534,7 +1536,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     PROCEDURE log_result (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     )
     AS
         curr_id                 logs.log_id%TYPE;
@@ -1542,7 +1545,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id := app.log__ (
             in_flag             => app.flag_result,
             in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => in_args,
+            in_payload          => in_payload
         );
     END;
 
