@@ -45,14 +45,37 @@ CREATE OR REPLACE PACKAGE BODY app AS
     )
     RETURN users.user_id%TYPE
     AS
+        out_user_id             users.user_id%TYPE;
+        is_valid                CHAR;
     BEGIN
-        RETURN LTRIM(RTRIM(
+        -- find existing record based on user_login
+        SELECT u.user_id INTO out_user_id
+        FROM users u
+        WHERE (u.user_login = in_user_login OR u.user_id = in_user_login);
+        --
+        RETURN out_user_id;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        -- try to shorten login if possible
+        out_user_id := LTRIM(RTRIM(
             CONVERT(
                 CASE WHEN NVL(INSTR(in_user_login, '@'), 0) > 0
                     THEN LOWER(in_user_login)                       -- emails lowercased
                     ELSE UPPER(in_user_login) END,                  -- otherwise uppercased
                 'US7ASCII')                                         -- strip special chars
         ));
+
+        -- recheck for possible conflict
+        BEGIN
+            SELECT 'Y' INTO is_valid
+            FROM users u
+            WHERE u.user_id = out_user_id;
+            --
+            RETURN NULL;  -- login not available
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RETURN out_user_id;
+        END;
     END;
 
 
@@ -63,11 +86,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         PACKAGE app_ut
     )
     AS
-        v_user_login    users.user_login%TYPE;
         v_user_id       users.user_id%TYPE;
     BEGIN
-        v_user_login    := app.get_user_id();
-        v_user_id       := app.get_user_id(v_user_login);
+        v_user_id       := app.get_user_id(in_user_login => app.get_user_id());  -- convert user_login to user_id
 
         -- set session things
         DBMS_SESSION.SET_IDENTIFIER(v_user_id);                 -- USERENV.CLIENT_IDENTIFIER
@@ -102,6 +123,25 @@ CREATE OR REPLACE PACKAGE BODY app AS
         WHERE u.user_id = COALESCE(in_user_id, app.get_user_id());
         --
         RETURN out_name;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    END;
+
+
+
+    FUNCTION get_user_login (
+        in_user_id              users.user_id%TYPE          := NULL
+    )
+    RETURN users.user_login%TYPE
+    AS
+        out_user_login          users.user_login%TYPE;
+    BEGIN
+        SELECT u.user_login INTO out_user_login
+        FROM users u
+        WHERE u.user_id = COALESCE(in_user_id, app.get_user_id());
+        --
+        RETURN out_user_login;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
@@ -870,11 +910,16 @@ CREATE OR REPLACE PACKAGE BODY app AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
         v_is_active             users.is_active%TYPE;
+        v_user_login            users.user_login%TYPE;
         rec                     sessions%ROWTYPE;
     BEGIN
+        v_user_login            := app.get_user_id();
+        --
         rec.app_id              := app.get_app_id();
-        rec.user_id             := app.get_user_id();
+        rec.user_id             := v_user_login;
         rec.session_id          := app.get_session_id();
+        rec.created_at          := SYSDATE;
+        rec.updated_at          := rec.created_at;
 
         -- this procedure is starting point in APEX after successful authentication
         -- prevent sessions for anonymous (unlogged) users
@@ -895,47 +940,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             END;
         END IF;
 
-        -- check user
-        BEGIN
-            SELECT u.user_id, u.is_active INTO rec.user_id, v_is_active
-            FROM users u
-            WHERE u.user_login = rec.user_id;
---
---
---
---
---
---
---
---
--- @TODO: LOGIN vs USER_ID
---
---
---
---
---
---
---
---
-            --
-            IF v_is_active IS NULL THEN
-                app.raise_error('ACCOUNT_DISABLED');
-            END IF;
-        EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            rec.user_id := app.get_user_id(app.get_user_id());
-            --
-            BEGIN
-                -- create user account (app specific)
-                app.call_custom_procedure('CREATE_USER', app.get_user_id(), rec.user_id);
-            EXCEPTION
-            WHEN app.app_exception THEN
-                RAISE;
-            WHEN OTHERS THEN
-                app.raise_error('CREATE_USER_FAILED');
-            END;
-        END;
-
         -- adjust user_id in APEX, init session
         DBMS_SESSION.CLEAR_IDENTIFIER();
         DBMS_APPLICATION_INFO.SET_MODULE (
@@ -943,11 +947,33 @@ CREATE OR REPLACE PACKAGE BODY app AS
             action_name => NULL
         );
         --
-        app.set_user_id();
-        app.init();
+        app.init();                             -- init setup, maps...
+        --
+        app.set_user_id();                      -- convert user_login to user_id
+        rec.user_id := app.get_user_id();       -- update needed
 
         -- store log_id of the request for further reuse
-        app.set_item(app.item_request_id, app.log_request());
+        recent_request_id := app.log_request();
+
+        -- call app specific code (to create new user for example)
+        app.call_custom_procedure (
+            in_arg1     => v_user_login,
+            in_arg2     => rec.user_id
+        );
+
+        -- check user
+        BEGIN
+            SELECT u.user_id, u.is_active INTO rec.user_id, v_is_active
+            FROM users u
+            WHERE u.user_id = app.get_user_id();
+            --
+            IF v_is_active IS NULL THEN
+                app.raise_error('ACCOUNT_DISABLED');
+            END IF;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            app.raise_error('INVALID_USER');
+        END;
 
         -- update session record, prevent app_id and user_id hijacking
         UPDATE sessions s
@@ -979,9 +1005,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 APEX_UTIL.REDIRECT_URL(APEX_PAGE.GET_URL(p_session => 0));  -- force new login
             END LOOP;
         END IF;
-
-        -- call app specific code
-        app.call_custom_procedure();
         --
         COMMIT;
     EXCEPTION

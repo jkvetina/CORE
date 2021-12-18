@@ -69,7 +69,7 @@ CREATE OR REPLACE PACKAGE app AS
     page_item_wild              CONSTANT VARCHAR2(4)        := '$';
     page_item_prefix            CONSTANT VARCHAR2(4)        := 'P';
     --
-    item_request_id             CONSTANT VARCHAR2(30)       := 'G_REQUEST_ID';
+    ------------------------item_request_id             CONSTANT VARCHAR2(30)       := 'G_REQUEST_ID';
 
     -- name of AUTH package
     auth_package                CONSTANT VARCHAR2(30)       := 'AUTH';
@@ -139,7 +139,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Transform user name
+    -- Get user name
     --
     FUNCTION get_user_name (
         in_user_id              users.user_id%TYPE          := NULL
@@ -149,7 +149,17 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Get user login
     --
+    FUNCTION get_user_login (
+        in_user_id              users.user_id%TYPE          := NULL
+    )
+    RETURN users.user_login%TYPE;
+
+
+
+    --
+    -- Get user language
     --
     FUNCTION get_user_lang
     RETURN users.lang_id%TYPE;
