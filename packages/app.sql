@@ -1853,7 +1853,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION log_event (
         in_event_id             logs_events.event_id%TYPE,
-        in_event_value          logs_events.event_value%TYPE    := NULL
+        in_event_value          logs_events.event_value%TYPE    := NULL,
+        in_parent_id            logs.log_parent%TYPE            := NULL
     )
     RETURN logs_events.log_id%TYPE
     AS
@@ -1861,22 +1862,43 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         rec                     logs_events%ROWTYPE;
     BEGIN
+        rec.app_id              := app.get_app_id();
+        rec.event_id            := in_event_id;
+
         -- check if event is active
         BEGIN
-            SELECT e.app_id, e.event_id
-            INTO rec.app_id, rec.event_id
+            SELECT e.event_id INTO rec.event_id
             FROM events e
-            WHERE e.app_id          = app.get_app_id()
-                AND e.event_id      = in_event_id
+            WHERE e.app_id          = rec.app_id
+                AND e.event_id      = rec.event_id
                 AND e.is_active     = 'Y';
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            RETURN NULL;
+
+            IF app.is_developer() THEN
+                -- create event on the fly for developers
+                BEGIN
+                    INSERT INTO events (app_id, event_id, is_active, updated_by, updated_at)
+                    VALUES (
+                        rec.app_id,
+                        rec.event_id,
+                        'Y',
+                        app.get_user_id(),
+                        SYSDATE
+                    );
+                EXCEPTION
+                WHEN DUP_VAL_ON_INDEX THEN
+                    RETURN NULL;  -- must be inactive
+                END;
+            ELSE
+app.raise_error('BINGO');
+                RETURN NULL;
+            END IF;
         END;
 
         -- store in event table
         rec.log_id          := log_id.NEXTVAL;
-        rec.log_parent      := recent_log_id;           -- pin to recent module
+        rec.log_parent      := NVL(in_parent_id, recent_log_id);
         rec.page_id         := app.get_page_id();
         rec.user_id         := app.get_user_id();
         rec.session_id      := app.get_session_id();

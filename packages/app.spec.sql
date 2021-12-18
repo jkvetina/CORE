@@ -55,7 +55,6 @@ CREATE OR REPLACE PACKAGE app AS
     flag_longops                CONSTANT logs.flag%TYPE     := 'L';     -- longops operation
     flag_scheduler              CONSTANT logs.flag%TYPE     := 'S';     -- scheduler planned
     flag_trigger                CONSTANT logs.flag%TYPE     := 'G';     -- called from trigger
-    flag_business               CONSTANT logs.flag%TYPE     := 'B';     -- business event
 
     -- specify maximum length for trim
     length_user                 CONSTANT PLS_INTEGER        := 30;      -- logs.user_id%TYPE
@@ -819,7 +818,8 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION log_event (
         in_event_id             logs_events.event_id%TYPE,
-        in_event_value          logs_events.event_value%TYPE    := NULL
+        in_event_value          logs_events.event_value%TYPE    := NULL,
+        in_parent_id            logs.log_parent%TYPE            := NULL
     )
     RETURN logs_events.log_id%TYPE;
 
