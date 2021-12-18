@@ -1406,7 +1406,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- save new map record for log hierarchy
-        IF rec.flag = app.flag_module THEN
+        IF rec.flag IN (app.flag_module, app.flag_trigger) THEN
             callstack_hash := app.get_hash(app.get_call_stack (
                 in_offset         => 4,
                 in_skip_others    => TRUE,
@@ -1745,6 +1745,23 @@ CREATE OR REPLACE PACKAGE BODY app AS
     WHEN OTHERS THEN
         ROLLBACK;
         app.raise_error();
+    END;
+
+
+
+    FUNCTION log_trigger (
+        in_action_name          logs.action_name%TYPE   := NULL,
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    RETURN logs.log_id%TYPE
+    AS
+    BEGIN
+        RETURN app.log__ (
+            in_flag             => app.flag_trigger,
+            in_action_name      => in_action_name,
+            in_arguments        => in_args
+        );
     END;
 
 

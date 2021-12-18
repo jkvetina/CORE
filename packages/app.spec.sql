@@ -65,7 +65,7 @@ CREATE OR REPLACE PACKAGE app AS
     length_payload              CONSTANT PLS_INTEGER        := 4000;    -- logs.payload%TYPE
 
     -- append callstack for these flags; % for all
-    track_callstack             CONSTANT VARCHAR2(30)       := flag_error || flag_warning || flag_module || flag_request;
+    track_callstack             CONSTANT VARCHAR2(30)       := flag_error || flag_warning || flag_module || flag_request || flag_trigger;
 
     -- transform $NAME to P500_NAME if current page_id = 500
     page_item_wild              CONSTANT VARCHAR2(4)        := '$';
@@ -787,6 +787,18 @@ CREATE OR REPLACE PACKAGE app AS
         in_rows_deleted         NUMBER                  := NULL,
         in_last_rowid           VARCHAR2                := NULL
     );
+
+
+
+    --
+    --
+    --
+    FUNCTION log_trigger (
+        in_action_name          logs.action_name%TYPE   := NULL,
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    RETURN logs.log_id%TYPE;
 
 
 
