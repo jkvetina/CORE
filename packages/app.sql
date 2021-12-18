@@ -1290,14 +1290,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_obj                   JSON_OBJECT_T;
     BEGIN
         v_obj := JSON_OBJECT_T(JSON_OBJECT (
-            CASE WHEN in_name1 IS NULL THEN '__' ELSE in_name1 END VALUE in_value1,
-            CASE WHEN in_name2 IS NULL THEN '__' ELSE in_name2 END VALUE in_value2,
-            CASE WHEN in_name3 IS NULL THEN '__' ELSE in_name3 END VALUE in_value3,
-            CASE WHEN in_name4 IS NULL THEN '__' ELSE in_name4 END VALUE in_value4,
-            CASE WHEN in_name5 IS NULL THEN '__' ELSE in_name5 END VALUE in_value5,
-            CASE WHEN in_name6 IS NULL THEN '__' ELSE in_name6 END VALUE in_value6,
-            CASE WHEN in_name7 IS NULL THEN '__' ELSE in_name7 END VALUE in_value7,
-            CASE WHEN in_name8 IS NULL THEN '__' ELSE in_name8 END VALUE in_value8
+            CASE WHEN (in_name1 IS NULL OR in_value1 IS NULL) THEN '__' ELSE in_name1 END VALUE in_value1,
+            CASE WHEN (in_name2 IS NULL OR in_value2 IS NULL) THEN '__' ELSE in_name2 END VALUE in_value2,
+            CASE WHEN (in_name3 IS NULL OR in_value3 IS NULL) THEN '__' ELSE in_name3 END VALUE in_value3,
+            CASE WHEN (in_name4 IS NULL OR in_value4 IS NULL) THEN '__' ELSE in_name4 END VALUE in_value4,
+            CASE WHEN (in_name5 IS NULL OR in_value5 IS NULL) THEN '__' ELSE in_name5 END VALUE in_value5,
+            CASE WHEN (in_name6 IS NULL OR in_value6 IS NULL) THEN '__' ELSE in_name6 END VALUE in_value6,
+            CASE WHEN (in_name7 IS NULL OR in_value7 IS NULL) THEN '__' ELSE in_name7 END VALUE in_value7,
+            CASE WHEN (in_name8 IS NULL OR in_value8 IS NULL) THEN '__' ELSE in_name8 END VALUE in_value8
         ));
         v_obj.REMOVE('__');
         RETURN v_obj.STRINGIFY;
