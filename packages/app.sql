@@ -220,28 +220,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_session_id
-    RETURN sessions.session_id%TYPE
-    AS
-    BEGIN
-        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');
-    END;
-
-
-
-    FUNCTION get_client_id (
-        in_user_id              sessions.user_id%TYPE       := NULL
-    )
-    RETURN VARCHAR2 AS          -- mimic APEX client_id
-    BEGIN
-        RETURN
-            COALESCE(in_user_id, app.get_user_id()) || ':' ||
-            COALESCE(app.get_session_id(), SYS_CONTEXT('USERENV', 'SESSIONID')
-        );
-    END;
-
-
-
     PROCEDURE create_session
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
@@ -541,6 +519,28 @@ CREATE OR REPLACE PACKAGE BODY app AS
         IF in_action_name IS NOT NULL THEN
             DBMS_APPLICATION_INFO.SET_ACTION(v_action_name);                    -- USERENV.ACTION
         END IF;
+    END;
+
+
+
+    FUNCTION get_session_id
+    RETURN sessions.session_id%TYPE
+    AS
+    BEGIN
+        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');
+    END;
+
+
+
+    FUNCTION get_client_id (
+        in_user_id              sessions.user_id%TYPE       := NULL
+    )
+    RETURN VARCHAR2 AS          -- mimic APEX client_id
+    BEGIN
+        RETURN
+            COALESCE(in_user_id, app.get_user_id()) || ':' ||
+            COALESCE(app.get_session_id(), SYS_CONTEXT('USERENV', 'SESSIONID')
+        );
     END;
 
 

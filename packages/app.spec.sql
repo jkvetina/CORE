@@ -203,24 +203,6 @@ CREATE OR REPLACE PACKAGE app AS
     --
 
     --
-    -- Returns APEX session id
-    --
-    FUNCTION get_session_id
-    RETURN sessions.session_id%TYPE;
-
-
-
-    --
-    -- Returns client_id for `DBMS_SESSION`
-    --
-    FUNCTION get_client_id (
-        in_user_id              sessions.user_id%TYPE       := NULL
-    )
-    RETURN VARCHAR2;
-
-
-
-    --
     -- Create session from APEX
     --
     PROCEDURE create_session;
@@ -262,6 +244,24 @@ CREATE OR REPLACE PACKAGE app AS
         in_action_name          logs.action_name%TYPE,
         in_log_id               logs.log_id%TYPE            := NULL
     );
+
+
+
+    --
+    -- Returns APEX session id
+    --
+    FUNCTION get_session_id
+    RETURN sessions.session_id%TYPE;
+
+
+
+    --
+    -- Returns client_id for `DBMS_SESSION`
+    --
+    FUNCTION get_client_id (
+        in_user_id              sessions.user_id%TYPE       := NULL
+    )
+    RETURN VARCHAR2;
 
 
 
