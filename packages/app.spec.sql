@@ -785,23 +785,27 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Log error and `RAISE` app exception `action_name|log_id`; pass `error_name` for user in action
+    -- Log scheduler call and link its logs to this `log_id`
+    -- Create and start one time scheduler
     --
-    PROCEDURE raise_error (
-        in_error_name           logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
-        in_rollback             BOOLEAN                 := FALSE
-    );
-
-
-
-    --
-    -- Handling errors from/in APEX
-    --
-    FUNCTION handle_apex_error (
-        p_error                 APEX_ERROR.T_ERROR
+    FUNCTION log_scheduler (
+        --in_log_id           logs.log_id%TYPE,
+        in_job_name             VARCHAR2,                   ------------------     PROCEDURE start_scheduler (
+        in_statement            VARCHAR2        := NULL,
+        in_comments             VARCHAR2        := NULL,
+        in_priority             PLS_INTEGER     := NULL
     )
-    RETURN APEX_ERROR.T_ERROR_RESULT;
+    RETURN logs.log_id%TYPE;
+
+
+
+    --
+    -- ^
+    --
+    PROCEDURE log_scheduler (
+        in_log_id               logs.log_id%TYPE
+        --in_args ???
+    );
 
 
 
@@ -832,6 +836,27 @@ CREATE OR REPLACE PACKAGE app AS
         in_row                  logs%ROWTYPE
     )
     RETURN BOOLEAN;
+
+
+
+    --
+    -- Log error and `RAISE` app exception `action_name|log_id`; pass `error_name` for user in action
+    --
+    PROCEDURE raise_error (
+        in_error_name           logs.action_name%TYPE   := NULL,
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_rollback             BOOLEAN                 := FALSE
+    );
+
+
+
+    --
+    -- Handling errors from/in APEX
+    --
+    FUNCTION handle_apex_error (
+        p_error                 APEX_ERROR.T_ERROR
+    )
+    RETURN APEX_ERROR.T_ERROR_RESULT;
 
 
 

@@ -1675,99 +1675,35 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE raise_error (
-        in_error_name           logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
-        in_rollback             BOOLEAN                 := FALSE
+    --
+    -- Log scheduler call and link its logs to this `log_id`
+    -- Create and start one time scheduler
+    --
+    FUNCTION log_scheduler (
+        --in_log_id           logs.log_id%TYPE,
+        in_job_name             VARCHAR2,                   ------------------     PROCEDURE start_scheduler (
+        in_statement            VARCHAR2        := NULL,
+        in_comments             VARCHAR2        := NULL,
+        in_priority             PLS_INTEGER     := NULL
     )
+    RETURN logs.log_id%TYPE
     AS
-        rec                     logs%ROWTYPE;
     BEGIN
-        IF in_rollback THEN
-            ROLLBACK;
-        END IF;
-        --
-        rec.action_name := COALESCE(in_error_name, app.get_caller_name(), 'UNEXPECTED_ERROR');
-        --
-        rec.log_id := app.log_error (
-            in_action_name  => rec.action_name,
-            in_args         => in_args
-        );
-        --
-        RAISE_APPLICATION_ERROR (
-            app.app_exception_code,
-            rec.action_name || ' [' || rec.log_id || ']',
-            TRUE
-        );
+        RETURN NULL;
     END;
 
 
 
-    FUNCTION handle_apex_error (
-        p_error                 APEX_ERROR.T_ERROR
+    --
+    -- ^
+    --
+    PROCEDURE log_scheduler (
+        in_log_id               logs.log_id%TYPE
+        --in_args ???
     )
-    RETURN APEX_ERROR.T_ERROR_RESULT
     AS
-        out_result              APEX_ERROR.T_ERROR_RESULT;
-        --
-        v_log_id                NUMBER;                     -- log_id from your log_error function (returning most likely sequence)
-        v_action_name           logs.action_name%TYPE;      -- short error type visible to user
-        v_component             logs.action_name%TYPE;      -- to identify source component in your app
     BEGIN
-        out_result := APEX_ERROR.INIT_ERROR_RESULT(p_error => p_error);
-
-        -- assign log_id sequence (app specific, probably from sequence)
-        IF p_error.ora_sqlcode IN (-1, -2091, -2290, -2291, -2292) THEN
-            -- handle constraint violations
-            -- ORA-00001: unique constraint violated
-            -- ORA-02091: transaction rolled back (can hide a deferred constraint)
-            -- ORA-02290: check constraint violated
-            -- ORA-02291: integrity constraint violated - parent key not found
-            -- ORA-02292: integrity constraint violated - child record found
-            v_action_name := 'CONSTRAINT_ERROR|' || APEX_ERROR.EXTRACT_CONSTRAINT_NAME (
-                p_error             => p_error,
-                p_include_schema    => FALSE
-            );
-            --
-            out_result.message          := v_action_name;
-            out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;
-            --
-        ELSIF p_error.is_internal_error THEN
-            v_action_name := 'INTERNAL_ERROR';
-        ELSE
-            v_action_name := 'UNKNOWN_ERROR';
-        END IF;
-
-        -- store incident in your log
-        v_component := TO_CHAR(APEX_APPLICATION.G_FLOW_STEP_ID) || '|' || REPLACE(p_error.component.type, 'APEX_APPLICATION_', '') || '|' || p_error.component.name;
-        --
-        v_log_id := app.log_error (
-            in_action_name  => v_action_name,
-            in_args         => v_component,
-            in_payload      => p_error.ora_sqlerrm || CHR(10) || p_error.error_statement || CHR(10) || p_error.error_backtrace
-        );
-
-        -- mark associated page item (when possible)
-        IF out_result.page_item_name IS NULL AND out_result.column_alias IS NULL THEN
-            APEX_ERROR.AUTO_SET_ASSOCIATED_ITEM (
-                p_error         => p_error,
-                p_error_result  => out_result
-            );
-        END IF;
-
-        -- show only the latest error message to common users
-        IF (app.is_developer() OR p_error.ora_sqlcode = app.app_exception_code) THEN
-            out_result.message := v_action_name || '|' || TO_CHAR(v_log_id) || '<br />' ||
-                v_component || '<br />' ||
-                out_result.message || '<br />' ||
-                APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error);
-            out_result.additional_info := '';
-        ELSIF v_action_name != 'UNKNOWN_ERROR' THEN
-            out_result.message          := v_action_name || '|' || TO_CHAR(v_log_id);
-            out_result.additional_info  := '';
-        END IF;
-        --
-        RETURN out_result;
+        NULL;
     END;
 
 
@@ -1942,6 +1878,103 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
         --
         RETURN TRUE;
+    END;
+
+
+
+    PROCEDURE raise_error (
+        in_error_name           logs.action_name%TYPE   := NULL,
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_rollback             BOOLEAN                 := FALSE
+    )
+    AS
+        rec                     logs%ROWTYPE;
+    BEGIN
+        IF in_rollback THEN
+            ROLLBACK;
+        END IF;
+        --
+        rec.action_name := COALESCE(in_error_name, app.get_caller_name(), 'UNEXPECTED_ERROR');
+        --
+        rec.log_id := app.log_error (
+            in_action_name  => rec.action_name,
+            in_args         => in_args
+        );
+        --
+        RAISE_APPLICATION_ERROR (
+            app.app_exception_code,
+            rec.action_name || ' [' || rec.log_id || ']',
+            TRUE
+        );
+    END;
+
+
+
+    FUNCTION handle_apex_error (
+        p_error                 APEX_ERROR.T_ERROR
+    )
+    RETURN APEX_ERROR.T_ERROR_RESULT
+    AS
+        out_result              APEX_ERROR.T_ERROR_RESULT;
+        --
+        v_log_id                NUMBER;                     -- log_id from your log_error function (returning most likely sequence)
+        v_action_name           logs.action_name%TYPE;      -- short error type visible to user
+        v_component             logs.action_name%TYPE;      -- to identify source component in your app
+    BEGIN
+        out_result := APEX_ERROR.INIT_ERROR_RESULT(p_error => p_error);
+
+        -- assign log_id sequence (app specific, probably from sequence)
+        IF p_error.ora_sqlcode IN (-1, -2091, -2290, -2291, -2292) THEN
+            -- handle constraint violations
+            -- ORA-00001: unique constraint violated
+            -- ORA-02091: transaction rolled back (can hide a deferred constraint)
+            -- ORA-02290: check constraint violated
+            -- ORA-02291: integrity constraint violated - parent key not found
+            -- ORA-02292: integrity constraint violated - child record found
+            v_action_name := 'CONSTRAINT_ERROR|' || APEX_ERROR.EXTRACT_CONSTRAINT_NAME (
+                p_error             => p_error,
+                p_include_schema    => FALSE
+            );
+            --
+            out_result.message          := v_action_name;
+            out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;
+            --
+        ELSIF p_error.is_internal_error THEN
+            v_action_name := 'INTERNAL_ERROR';
+        ELSE
+            v_action_name := 'UNKNOWN_ERROR';
+        END IF;
+
+        -- store incident in your log
+        v_component := TO_CHAR(APEX_APPLICATION.G_FLOW_STEP_ID) || '|' || REPLACE(p_error.component.type, 'APEX_APPLICATION_', '') || '|' || p_error.component.name;
+        --
+        v_log_id := app.log_error (
+            in_action_name  => v_action_name,
+            in_args         => v_component,
+            in_payload      => p_error.ora_sqlerrm || CHR(10) || p_error.error_statement || CHR(10) || p_error.error_backtrace
+        );
+
+        -- mark associated page item (when possible)
+        IF out_result.page_item_name IS NULL AND out_result.column_alias IS NULL THEN
+            APEX_ERROR.AUTO_SET_ASSOCIATED_ITEM (
+                p_error         => p_error,
+                p_error_result  => out_result
+            );
+        END IF;
+
+        -- show only the latest error message to common users
+        IF (app.is_developer() OR p_error.ora_sqlcode = app.app_exception_code) THEN
+            out_result.message := v_action_name || '|' || TO_CHAR(v_log_id) || '<br />' ||
+                v_component || '<br />' ||
+                out_result.message || '<br />' ||
+                APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error);
+            out_result.additional_info := '';
+        ELSIF v_action_name != 'UNKNOWN_ERROR' THEN
+            out_result.message          := v_action_name || '|' || TO_CHAR(v_log_id);
+            out_result.additional_info  := '';
+        END IF;
+        --
+        RETURN out_result;
     END;
 
 
