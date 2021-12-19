@@ -732,10 +732,11 @@ CREATE OR REPLACE PACKAGE app AS
     --
     PROCEDURE log_success (
         in_log_id               logs.log_id%TYPE,
-        in_rows_inserted        NUMBER                  := NULL,
-        in_rows_updated         NUMBER                  := NULL,
-        in_rows_deleted         NUMBER                  := NULL,
-        in_last_rowid           VARCHAR2                := NULL
+        in_rows_inserted        NUMBER,
+        in_rows_updated         NUMBER,
+        in_rows_deleted         NUMBER,
+        in_last_rowid           VARCHAR2                := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     );
 
 

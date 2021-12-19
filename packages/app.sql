@@ -265,7 +265,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         );
         --
         app.init();                             -- init setup, maps...
-        --
         app.set_user_id();                      -- convert user_login to user_id
         rec.user_id := app.get_user_id();       -- update needed
 
@@ -354,7 +353,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 'in_app_id',        in_app_id,
                 'in_items',         in_items
             )
-            --in_user_id              => in_user_id
         );
 
         -- create session from SQL Developer (not from APEX)
@@ -407,8 +405,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             app.apply_items(in_items);
         END IF;
         --
-        app.log_result('DONE');
-        app.log_success();
+        app.log_success(recent_request_id);
         --
         COMMIT;
     EXCEPTION
@@ -428,8 +425,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
-        app.log_module();
-
         -- call app specific code
         app.call_custom_procedure();
 
@@ -440,14 +435,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         DBMS_APPLICATION_INFO.SET_MODULE (
             module_name     => NULL,
             action_name     => NULL
-        );
-
-        app.log_debug('DONE, pin to EXIT_SESSION log');
-
-        -- mark request as done
-        app.log_success (
-            in_log_id       => recent_request_id,
-            in_payload      => NULL
         );
         --
         COMMIT;
@@ -491,6 +478,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
             -- may throw ORA-20987: APEX - Your session has ended
             -- not even others handler can capture this
             --APEX_SESSION.DELETE_SESSION(in_session_id);
+            --
+            -- @TODO: maybe schedule/dettach this as a job
+            --
         END IF;
         --
         app.log_success();
@@ -527,7 +517,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN sessions.session_id%TYPE
     AS
     BEGIN
-        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');
+        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');  -- APEX.G_INSTANCE
     END;
 
 
@@ -714,9 +704,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             p_plain_url          IN BOOLEAN DEFAULT FALSE )
             */
         );
-        --
-        -- @TODO: REPLACE CR in url WHEN in_reset = Y
-        --
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
@@ -1477,10 +1464,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     PROCEDURE log_success (
         in_log_id               logs.log_id%TYPE,
-        in_rows_inserted        NUMBER                  := NULL,
-        in_rows_updated         NUMBER                  := NULL,
-        in_rows_deleted         NUMBER                  := NULL,
-        in_last_rowid           VARCHAR2                := NULL
+        in_rows_inserted        NUMBER,
+        in_rows_updated         NUMBER,
+        in_rows_deleted         NUMBER,
+        in_last_rowid           VARCHAR2                := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     ) AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
@@ -1495,6 +1483,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         UPDATE logs l
         SET l.arguments     = v_args,
+            l.payload       = NVL(in_payload, l.payload),
             l.module_time   = app.get_duration(in_start => l.created_at)
         WHERE l.log_id      = in_log_id;
         --
