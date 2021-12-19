@@ -1760,7 +1760,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- retrieve parent log from map
         IF in_parent_id IS NULL AND rec.flag != app.flag_request THEN
             callstack_hash := app.get_hash(app.get_call_stack (
-                in_offset         => 4 + CASE WHEN rec.flag = app.flag_module THEN 1 ELSE 0 END,  -- magic
+                in_offset         => callstack_depth + CASE WHEN rec.flag = app.flag_module THEN 1 ELSE 0 END,  -- magic
                 in_skip_others    => TRUE,
                 in_line_numbers   => FALSE,
                 in_splitter       => '|'
@@ -1774,7 +1774,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- save new map record for log hierarchy
         IF rec.flag IN (app.flag_module, app.flag_trigger) THEN
             callstack_hash := app.get_hash(app.get_call_stack (
-                in_offset         => 4,
+                in_offset         => callstack_depth,
                 in_skip_others    => TRUE,
                 in_line_numbers   => FALSE,
                 in_splitter       => '|'
@@ -1980,8 +1980,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     PROCEDURE purge_logs (
-        in_age                  PLS_INTEGER         := NULL,
-        in_log_id               logs.log_id%TYPE    := NULL
+        in_age                  PLS_INTEGER         := NULL
     )
     AS
         data_exists             PLS_INTEGER;
@@ -1992,12 +1991,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- purge all
         IF in_age < 0 THEN
-            EXECUTE IMMEDIATE 'ALTER TABLE logs_lobs DISABLE CONSTRAINT fk_logs_lobs_logs';
-            EXECUTE IMMEDIATE 'TRUNCATE TABLE sessions';
-            EXECUTE IMMEDIATE 'TRUNCATE TABLE logs_events';
-            EXECUTE IMMEDIATE 'TRUNCATE TABLE logs_lobs';
             EXECUTE IMMEDIATE 'TRUNCATE TABLE ' || app.logs_table_name || ' CASCADE';
-            EXECUTE IMMEDIATE 'ALTER TABLE logs_lobs ENABLE CONSTRAINT fk_logs_lobs_logs';
         END IF;
 
         -- remove old sessions

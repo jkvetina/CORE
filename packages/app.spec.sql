@@ -864,8 +864,7 @@ CREATE OR REPLACE PACKAGE app AS
     -- Purge old records from `logs` table
     --
     PROCEDURE purge_logs (
-        in_age                  PLS_INTEGER         := NULL,
-        in_log_id               logs.log_id%TYPE    := NULL
+        in_age                  PLS_INTEGER         := NULL
     );
 
 
