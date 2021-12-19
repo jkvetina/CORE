@@ -199,6 +199,76 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    -- ### Session management
+    --
+
+    --
+    -- Returns APEX session id
+    --
+    FUNCTION get_session_id
+    RETURN sessions.session_id%TYPE;
+
+
+
+    --
+    -- Returns client_id for `DBMS_SESSION`
+    --
+    FUNCTION get_client_id (
+        in_user_id              sessions.user_id%TYPE       := NULL
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
+    -- Create session from APEX
+    --
+    PROCEDURE create_session;
+
+
+
+    --
+    -- Create session outside of APEX (from console, trigger, job...)
+    --
+    PROCEDURE create_session (
+        in_user_id              sessions.user_id%TYPE,
+        in_app_id               sessions.app_id%TYPE,
+        in_items                VARCHAR2                := NULL
+    );
+
+
+
+    --
+    -- Clear session at the end
+    --
+    PROCEDURE exit_session;
+
+
+
+    --
+    -- Delete logs for requested session
+    --
+    PROCEDURE delete_session (
+        in_session_id           sessions.session_id%TYPE
+    );
+
+
+
+    --
+    -- Update `DBMS_SESSION` and `DBMS_APPLICATION_INFO` with current module and action
+    --
+    PROCEDURE set_session (
+        in_module_name          logs.module_name%TYPE,
+        in_action_name          logs.action_name%TYPE,
+        in_log_id               logs.log_id%TYPE            := NULL
+    );
+
+
+
+
+
+
+
     -- ### Pages and requests
     --
 
@@ -467,76 +537,6 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
-    -- ### Session management
-    --
-
-    --
-    -- Returns APEX session id
-    --
-    FUNCTION get_session_id
-    RETURN sessions.session_id%TYPE;
-
-
-
-    --
-    -- Returns client_id for `DBMS_SESSION`
-    --
-    FUNCTION get_client_id (
-        in_user_id              sessions.user_id%TYPE       := NULL
-    )
-    RETURN VARCHAR2;
-
-
-
-    --
-    -- Create session from APEX
-    --
-    PROCEDURE create_session;
-
-
-
-    --
-    -- Create session outside of APEX (from console, trigger, job...)
-    --
-    PROCEDURE create_session (
-        in_user_id              sessions.user_id%TYPE,
-        in_app_id               sessions.app_id%TYPE,
-        in_items                VARCHAR2                := NULL
-    );
-
-
-
-    --
-    -- Clear session at the end
-    --
-    PROCEDURE exit_session;
-
-
-
-    --
-    -- Delete logs for requested session
-    --
-    PROCEDURE delete_session (
-        in_session_id           sessions.session_id%TYPE
-    );
-
-
-
-    --
-    -- Update `DBMS_SESSION` and `DBMS_APPLICATION_INFO` with current module and action
-    --
-    PROCEDURE set_session (
-        in_module_name          logs.module_name%TYPE,
-        in_action_name          logs.action_name%TYPE,
-        in_log_id               logs.log_id%TYPE            := NULL
-    );
-
-
-
-
-
-
-
     -- ### Some conversion functions
     --
 
@@ -633,36 +633,6 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Check if we log current record or not
-    --
-    FUNCTION is_log_requested (
-        in_row                  logs%ROWTYPE
-    )
-    RETURN BOOLEAN;
-
-
-
-    --
-    -- Internal function which creates records in logs table; returns assigned `log_id`
-    --
-    FUNCTION log__ (
-        in_flag                 logs.flag%TYPE,
-        in_module_name          logs.module_name%TYPE       := NULL,
-        in_module_line          logs.module_line%TYPE       := NULL,
-        in_action_name          logs.action_name%TYPE       := NULL,
-        in_arguments            logs.arguments%TYPE         := NULL,
-        in_payload              logs.payload%TYPE           := NULL,
-        in_parent_id            logs.log_parent%TYPE        := NULL,
-        in_app_id               logs.app_id%TYPE            := NULL,
-        in_page_id              logs.page_id%TYPE           := NULL,
-        in_user_id              logs.user_id%TYPE           := NULL,
-        in_session_id           logs.session_id%TYPE        := NULL
-    )
-    RETURN logs.log_id%TYPE;
-
-
-
-    --
     -- Main function called from APEX VPD init to track page requests
     -- Returned log_id is used as a parent for all subsequent calls
     --
@@ -748,27 +718,6 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Log error and `RAISE` app exception `action_name|log_id`; pass `error_name` for user in action
-    --
-    PROCEDURE raise_error (
-        in_error_name           logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
-        in_rollback             BOOLEAN                 := FALSE
-    );
-
-
-
-    --
-    -- Handling errors from/in APEX
-    --
-    FUNCTION handle_apex_error (
-        p_error                 APEX_ERROR.T_ERROR
-    )
-    RETURN APEX_ERROR.T_ERROR_RESULT;
-
-
-
-    --
     -- Update `logs.timer` for current/requested record
     --
     PROCEDURE log_success (
@@ -832,6 +781,57 @@ CREATE OR REPLACE PACKAGE app AS
         in_event_id             logs_events.event_id%TYPE,
         in_event_value          logs_events.event_value%TYPE    := NULL
     );
+
+
+
+    --
+    -- Log error and `RAISE` app exception `action_name|log_id`; pass `error_name` for user in action
+    --
+    PROCEDURE raise_error (
+        in_error_name           logs.action_name%TYPE   := NULL,
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_rollback             BOOLEAN                 := FALSE
+    );
+
+
+
+    --
+    -- Handling errors from/in APEX
+    --
+    FUNCTION handle_apex_error (
+        p_error                 APEX_ERROR.T_ERROR
+    )
+    RETURN APEX_ERROR.T_ERROR_RESULT;
+
+
+
+    --
+    -- Internal function which creates records in logs table; returns assigned `log_id`
+    --
+    FUNCTION log__ (
+        in_flag                 logs.flag%TYPE,
+        in_module_name          logs.module_name%TYPE       := NULL,
+        in_module_line          logs.module_line%TYPE       := NULL,
+        in_action_name          logs.action_name%TYPE       := NULL,
+        in_arguments            logs.arguments%TYPE         := NULL,
+        in_payload              logs.payload%TYPE           := NULL,
+        in_parent_id            logs.log_parent%TYPE        := NULL,
+        in_app_id               logs.app_id%TYPE            := NULL,
+        in_page_id              logs.page_id%TYPE           := NULL,
+        in_user_id              logs.user_id%TYPE           := NULL,
+        in_session_id           logs.session_id%TYPE        := NULL
+    )
+    RETURN logs.log_id%TYPE;
+
+
+
+    --
+    -- Check if we log current record or not
+    --
+    FUNCTION is_log_requested (
+        in_row                  logs%ROWTYPE
+    )
+    RETURN BOOLEAN;
 
 
 

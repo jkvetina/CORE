@@ -220,6 +220,331 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_session_id
+    RETURN sessions.session_id%TYPE
+    AS
+    BEGIN
+        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');
+    END;
+
+
+
+    FUNCTION get_client_id (
+        in_user_id              sessions.user_id%TYPE       := NULL
+    )
+    RETURN VARCHAR2 AS          -- mimic APEX client_id
+    BEGIN
+        RETURN
+            COALESCE(in_user_id, app.get_user_id()) || ':' ||
+            COALESCE(app.get_session_id(), SYS_CONTEXT('USERENV', 'SESSIONID')
+        );
+    END;
+
+
+
+    PROCEDURE create_session
+    AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+        --
+        v_is_active             users.is_active%TYPE;
+        v_user_login            users.user_login%TYPE;
+        rec                     sessions%ROWTYPE;
+    BEGIN
+        app.log_module();
+        --
+        v_user_login            := app.get_user_id();
+        --
+        rec.app_id              := app.get_app_id();
+        rec.user_id             := v_user_login;
+        rec.session_id          := app.get_session_id();
+        rec.created_at          := SYSDATE;
+        rec.updated_at          := rec.created_at;
+
+        -- this procedure is starting point in APEX after successful authentication
+        -- prevent sessions for anonymous (unlogged) users
+        IF (UPPER(rec.user_id) IN (USER, app.anonymous_user, 'ORDS_PUBLIC_USER', 'APEX_PUBLIC_USER') OR NVL(rec.app_id, 0) = 0) THEN
+            RETURN;
+        END IF;
+
+        -- check app availability
+        IF NOT app.is_developer() THEN
+            BEGIN
+                SELECT 'Y' INTO v_is_active
+                FROM apps a
+                WHERE a.app_id          = rec.app_id
+                    AND a.is_active     = 'Y';
+            EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                app.raise_error('APPLICATION_OFFLINE');
+            END;
+        END IF;
+
+        -- adjust user_id in APEX, init session
+        DBMS_SESSION.CLEAR_IDENTIFIER();
+        DBMS_APPLICATION_INFO.SET_MODULE (
+            module_name => NULL,
+            action_name => NULL
+        );
+        --
+        app.init();                             -- init setup, maps...
+        --
+        app.set_user_id();                      -- convert user_login to user_id
+        rec.user_id := app.get_user_id();       -- update needed
+
+        -- store log_id of the request for further reuse
+        recent_request_id := app.log_request();
+
+        -- call app specific code (to create new user for example)
+        app.call_custom_procedure (
+            in_arg1     => v_user_login,
+            in_arg2     => rec.user_id
+        );
+
+        -- check user
+        BEGIN
+            SELECT u.user_id, u.is_active INTO rec.user_id, v_is_active
+            FROM users u
+            WHERE u.user_id = app.get_user_id();
+            --
+            IF v_is_active IS NULL THEN
+                app.raise_error('ACCOUNT_DISABLED');
+            END IF;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            app.raise_error('INVALID_USER');
+        END;
+
+        -- update session record, prevent app_id and user_id hijacking
+        UPDATE sessions s
+        SET s.updated_at        = SYSDATE
+        WHERE s.app_id          = rec.app_id
+            AND s.session_id    = rec.session_id
+            AND s.user_id       = rec.user_id
+        RETURNING s.created_at INTO rec.created_at;
+        --
+        IF SQL%ROWCOUNT = 0 THEN
+            BEGIN
+                INSERT INTO sessions VALUES rec;
+            EXCEPTION
+            WHEN DUP_VAL_ON_INDEX THEN
+                app.raise_error('DUPE_SESSION');  -- redirect to logout/login page
+            END;
+        ELSIF TRUNC(rec.created_at) < TRUNC(rec.updated_at) THEN
+            -- avoid sessions spanning thru multiple days
+            FOR c IN (
+                SELECT s.session_id
+                FROM sessions s
+                WHERE s.app_id          = rec.app_id
+                    AND s.session_id    = rec.session_id
+            ) LOOP
+                app.log_warning('FORCED_SESSION');
+                --
+                COMMIT;
+                --
+                APEX_UTIL.REDIRECT_URL(APEX_PAGE.GET_URL(p_session => 0));  -- force new login
+            END LOOP;
+        END IF;
+        --
+        app.log_success();
+        --
+        COMMIT;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        ROLLBACK;
+        RAISE;
+    WHEN APEX_APPLICATION.E_STOP_APEX_ENGINE THEN
+        COMMIT;
+    WHEN OTHERS THEN
+        ROLLBACK;
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE create_session (
+        in_user_id              sessions.user_id%TYPE,
+        in_app_id               sessions.app_id%TYPE,
+        in_items                VARCHAR2                := NULL
+    ) AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+        --
+        v_workspace_id          apex_applications.workspace%TYPE;
+    BEGIN
+        app.log_module(
+            in_args => app.get_json_object (
+                'in_user_id',       in_user_id,
+                'in_app_id',        in_app_id,
+                'in_items',         in_items
+            )
+            --in_user_id              => in_user_id
+        );
+
+        -- create session from SQL Developer (not from APEX)
+        BEGIN
+            IF (in_user_id != app.get_user_id() OR in_app_id != app.get_app_id()) THEN
+                RAISE NO_DATA_FOUND;
+            END IF;
+
+            -- use existing session if possible
+            APEX_SESSION.ATTACH (
+                p_app_id        => app.get_app_id(),
+                p_page_id       => 0,
+                p_session_id    => app.get_session_id()
+            );
+        EXCEPTION
+        WHEN OTHERS THEN
+            -- find and setup workspace
+            SELECT a.workspace INTO v_workspace_id
+            FROM apex_applications a
+            WHERE a.application_id = in_app_id;
+            --
+            APEX_UTIL.SET_WORKSPACE (
+                p_workspace => v_workspace_id
+            );
+            APEX_UTIL.SET_SECURITY_GROUP_ID (
+                p_security_group_id => APEX_UTIL.FIND_SECURITY_GROUP_ID(p_workspace => v_workspace_id)
+            );
+            APEX_UTIL.SET_USERNAME (
+                p_userid    => APEX_UTIL.GET_USER_ID(in_user_id),
+                p_username  => in_user_id
+            );
+
+            -- create APEX session
+            BEGIN
+                APEX_SESSION.CREATE_SESSION (
+                    p_app_id    => in_app_id,
+                    p_page_id   => 0,
+                    p_username  => in_user_id
+                );
+            EXCEPTION
+            WHEN OTHERS THEN
+                app.raise_error('INVALID_APP', app.get_json_list(in_app_id, in_user_id));
+            END;
+        END;
+
+        -- continue with standard process as from APEX
+        app.create_session();
+        --
+        IF in_items IS NOT NULL THEN
+            app.apply_items(in_items);
+        END IF;
+        --
+        app.log_result('DONE');
+        app.log_success();
+        --
+        COMMIT;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        ROLLBACK;
+        RAISE;
+    WHEN APEX_APPLICATION.E_STOP_APEX_ENGINE THEN
+        COMMIT;
+    WHEN OTHERS THEN
+        ROLLBACK;
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE exit_session
+    AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+    BEGIN
+        app.log_module();
+
+        -- call app specific code
+        app.call_custom_procedure();
+
+        DBMS_SESSION.CLEAR_IDENTIFIER();
+        --DBMS_SESSION.CLEAR_ALL_CONTEXT(namespace);
+        --DBMS_SESSION.RESET_PACKAGE;  -- avoid ORA-04068 exception
+        --
+        DBMS_APPLICATION_INFO.SET_MODULE (
+            module_name     => NULL,
+            action_name     => NULL
+        );
+
+        app.log_debug('DONE, pin to EXIT_SESSION log');
+
+        -- mark request as done
+        app.log_success (
+            in_log_id       => recent_request_id,
+            in_payload      => NULL
+        );
+        --
+        COMMIT;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        ROLLBACK;
+        RAISE;
+    WHEN OTHERS THEN
+        ROLLBACK;
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE delete_session (
+        in_session_id           sessions.session_id%TYPE
+    ) AS
+        v_log_id                logs.log_id%TYPE;
+        v_rows_to_delete        app.arr_logs_log_id;
+    BEGIN
+        v_log_id := app.log_module();
+        --
+        SELECT l.log_id
+        BULK COLLECT INTO v_rows_to_delete
+        FROM logs l
+        WHERE l.session_id      = in_session_id;
+        --
+        IF v_rows_to_delete.FIRST IS NOT NULL THEN
+            FOR i IN v_rows_to_delete.FIRST .. v_rows_to_delete.LAST LOOP
+                CONTINUE WHEN v_rows_to_delete(i) = v_log_id;
+                --
+                DELETE FROM logs_events     WHERE log_parent    = v_rows_to_delete(i);
+                DELETE FROM logs            WHERE log_id        = v_rows_to_delete(i);
+            END LOOP;
+        END IF;
+        --
+        IF in_session_id != app.get_session_id() THEN
+            DELETE FROM sessions s
+            WHERE s.session_id = in_session_id;
+            --
+            -- may throw ORA-20987: APEX - Your session has ended
+            -- not even others handler can capture this
+            --APEX_SESSION.DELETE_SESSION(in_session_id);
+        END IF;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE set_session (
+        in_module_name          logs.module_name%TYPE,
+        in_action_name          logs.action_name%TYPE,
+        in_log_id               logs.log_id%TYPE            := NULL
+    ) AS
+        v_action_name           logs.action_name%TYPE;
+    BEGIN
+        v_action_name := SUBSTR(TO_CHAR(NVL(recent_request_id, 0)) || '|' || TO_CHAR(in_log_id) || '|' || in_action_name, 1, app.length_action);
+        --
+        IF in_module_name IS NOT NULL THEN
+            DBMS_APPLICATION_INFO.SET_MODULE(in_module_name, v_action_name);    -- USERENV.MODULE, USERENV.ACTION
+        END IF;
+        --
+        IF in_action_name IS NOT NULL THEN
+            DBMS_APPLICATION_INFO.SET_ACTION(v_action_name);                    -- USERENV.ACTION
+        END IF;
+    END;
+
+
+
     FUNCTION get_page_id
     RETURN navigation.page_id%TYPE
     AS
@@ -892,318 +1217,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_session_id
-    RETURN sessions.session_id%TYPE
-    AS
-    BEGIN
-        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');
-    END;
-
-
-
-    FUNCTION get_client_id (
-        in_user_id              sessions.user_id%TYPE       := NULL
-    )
-    RETURN VARCHAR2 AS          -- mimic APEX client_id
-    BEGIN
-        RETURN
-            COALESCE(in_user_id, app.get_user_id()) || ':' ||
-            COALESCE(app.get_session_id(), SYS_CONTEXT('USERENV', 'SESSIONID')
-        );
-    END;
-
-
-
-    PROCEDURE create_session
-    AS
-        PRAGMA AUTONOMOUS_TRANSACTION;
-        --
-        v_is_active             users.is_active%TYPE;
-        v_user_login            users.user_login%TYPE;
-        rec                     sessions%ROWTYPE;
-    BEGIN
-        v_user_login            := app.get_user_id();
-        --
-        rec.app_id              := app.get_app_id();
-        rec.user_id             := v_user_login;
-        rec.session_id          := app.get_session_id();
-        rec.created_at          := SYSDATE;
-        rec.updated_at          := rec.created_at;
-
-        -- this procedure is starting point in APEX after successful authentication
-        -- prevent sessions for anonymous (unlogged) users
-        IF (UPPER(rec.user_id) IN (USER, app.anonymous_user, 'ORDS_PUBLIC_USER', 'APEX_PUBLIC_USER') OR NVL(rec.app_id, 0) = 0) THEN
-            RETURN;
-        END IF;
-
-        -- check app availability
-        IF NOT app.is_developer() THEN
-            BEGIN
-                SELECT 'Y' INTO v_is_active
-                FROM apps a
-                WHERE a.app_id          = rec.app_id
-                    AND a.is_active     = 'Y';
-            EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                app.raise_error('APPLICATION_OFFLINE');
-            END;
-        END IF;
-
-        -- adjust user_id in APEX, init session
-        DBMS_SESSION.CLEAR_IDENTIFIER();
-        DBMS_APPLICATION_INFO.SET_MODULE (
-            module_name => NULL,
-            action_name => NULL
-        );
-        --
-        app.init();                             -- init setup, maps...
-        --
-        app.set_user_id();                      -- convert user_login to user_id
-        rec.user_id := app.get_user_id();       -- update needed
-
-        -- store log_id of the request for further reuse
-        recent_request_id := app.log_request();
-
-        -- call app specific code (to create new user for example)
-        app.call_custom_procedure (
-            in_arg1     => v_user_login,
-            in_arg2     => rec.user_id
-        );
-
-        -- check user
-        BEGIN
-            SELECT u.user_id, u.is_active INTO rec.user_id, v_is_active
-            FROM users u
-            WHERE u.user_id = app.get_user_id();
-            --
-            IF v_is_active IS NULL THEN
-                app.raise_error('ACCOUNT_DISABLED');
-            END IF;
-        EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            app.raise_error('INVALID_USER');
-        END;
-
-        -- update session record, prevent app_id and user_id hijacking
-        UPDATE sessions s
-        SET s.updated_at        = SYSDATE
-        WHERE s.app_id          = rec.app_id
-            AND s.session_id    = rec.session_id
-            AND s.user_id       = rec.user_id
-        RETURNING s.created_at INTO rec.created_at;
-        --
-        IF SQL%ROWCOUNT = 0 THEN
-            BEGIN
-                INSERT INTO sessions VALUES rec;
-            EXCEPTION
-            WHEN DUP_VAL_ON_INDEX THEN
-                app.raise_error('DUPE_SESSION');  -- redirect to logout/login page
-            END;
-        ELSIF TRUNC(rec.created_at) < TRUNC(rec.updated_at) THEN
-            -- avoid sessions spanning thru multiple days
-            FOR c IN (
-                SELECT s.session_id
-                FROM sessions s
-                WHERE s.app_id          = rec.app_id
-                    AND s.session_id    = rec.session_id
-            ) LOOP
-                app.log_warning('FORCED_SESSION');
-                --
-                COMMIT;
-                --
-                APEX_UTIL.REDIRECT_URL(APEX_PAGE.GET_URL(p_session => 0));  -- force new login
-            END LOOP;
-        END IF;
-        --
-        COMMIT;
-    EXCEPTION
-    WHEN app.app_exception THEN
-        ROLLBACK;
-        RAISE;
-    WHEN APEX_APPLICATION.E_STOP_APEX_ENGINE THEN
-        COMMIT;
-    WHEN OTHERS THEN
-        ROLLBACK;
-        app.raise_error();
-    END;
-
-
-
-    PROCEDURE create_session (
-        in_user_id              sessions.user_id%TYPE,
-        in_app_id               sessions.app_id%TYPE,
-        in_items                VARCHAR2                := NULL
-    ) AS
-        PRAGMA AUTONOMOUS_TRANSACTION;
-        --
-        v_workspace_id          apex_applications.workspace%TYPE;
-    BEGIN
-        -- create session from SQL Developer (not from APEX)
-        BEGIN
-            IF (in_user_id != app.get_user_id() OR in_app_id != app.get_app_id()) THEN
-                RAISE NO_DATA_FOUND;
-            END IF;
-
-            -- use existing session if possible
-            APEX_SESSION.ATTACH (
-                p_app_id        => app.get_app_id(),
-                p_page_id       => 0,
-                p_session_id    => app.get_session_id()
-            );
-        EXCEPTION
-        WHEN OTHERS THEN
-            -- find and setup workspace
-            SELECT a.workspace INTO v_workspace_id
-            FROM apex_applications a
-            WHERE a.application_id = in_app_id;
-            --
-            APEX_UTIL.SET_WORKSPACE (
-                p_workspace => v_workspace_id
-            );
-            APEX_UTIL.SET_SECURITY_GROUP_ID (
-                p_security_group_id => APEX_UTIL.FIND_SECURITY_GROUP_ID(p_workspace => v_workspace_id)
-            );
-            APEX_UTIL.SET_USERNAME (
-                p_userid    => APEX_UTIL.GET_USER_ID(in_user_id),
-                p_username  => in_user_id
-            );
-
-            -- create APEX session
-            BEGIN
-                APEX_SESSION.CREATE_SESSION (
-                    p_app_id    => in_app_id,
-                    p_page_id   => 0,
-                    p_username  => in_user_id
-                );
-            EXCEPTION
-            WHEN OTHERS THEN
-                app.raise_error('INVALID_APP', app.get_json_list(in_app_id, in_user_id));
-            END;
-        END;
-
-        -- continue with standard process as from APEX
-        app.create_session();
-        --
-        IF in_items IS NOT NULL THEN
-            app.apply_items(in_items);
-        END IF;
-        --
-        COMMIT;
-    EXCEPTION
-    WHEN app.app_exception THEN
-        ROLLBACK;
-        RAISE;
-    WHEN APEX_APPLICATION.E_STOP_APEX_ENGINE THEN
-        COMMIT;
-    WHEN OTHERS THEN
-        ROLLBACK;
-        app.raise_error();
-    END;
-
-
-
-    PROCEDURE exit_session
-    AS
-        PRAGMA AUTONOMOUS_TRANSACTION;
-    BEGIN
-        app.log_module();
-
-        -- call app specific code
-        app.call_custom_procedure();
-
-        DBMS_SESSION.CLEAR_IDENTIFIER();
-        --DBMS_SESSION.CLEAR_ALL_CONTEXT(namespace);
-        --DBMS_SESSION.RESET_PACKAGE;  -- avoid ORA-04068 exception
-        --
-        DBMS_APPLICATION_INFO.SET_MODULE (
-            module_name     => NULL,
-            action_name     => NULL
-        );
-
-        -- mark request as done
-        app.log_success (
-            in_log_id       => recent_request_id,
-            in_payload      => NULL
-        );
-        --
-        COMMIT;
-    EXCEPTION
-    WHEN app.app_exception THEN
-        ROLLBACK;
-        RAISE;
-    WHEN OTHERS THEN
-        ROLLBACK;
-        app.raise_error();
-    END;
-
-
-
-    PROCEDURE delete_session (
-        in_session_id           sessions.session_id%TYPE
-    ) AS
-        v_log_id                logs.log_id%TYPE;
-        v_rows_to_delete        app.arr_logs_log_id;
-    BEGIN
-        v_log_id := app.log_module();
-        --
-        SELECT l.log_id
-        BULK COLLECT INTO v_rows_to_delete
-        FROM logs l
-        WHERE l.session_id      = in_session_id;
-        --
-        IF v_rows_to_delete.FIRST IS NOT NULL THEN
-            FOR i IN v_rows_to_delete.FIRST .. v_rows_to_delete.LAST LOOP
-                CONTINUE WHEN v_rows_to_delete(i) = v_log_id;
-                --
-                DELETE FROM logs_events     WHERE log_parent    = v_rows_to_delete(i);
-                DELETE FROM logs            WHERE log_id        = v_rows_to_delete(i);
-            END LOOP;
-        END IF;
-        --
-        IF in_session_id != app.get_session_id() THEN
-            DELETE FROM sessions s
-            WHERE s.session_id = in_session_id;
-            --
-            -- may throw ORA-20987: APEX - Your session has ended
-            -- not even others handler can capture this
-            --APEX_SESSION.DELETE_SESSION(in_session_id);
---
---
--- @TODO: if not current session ???
---
---
-        END IF;
-        --
-        app.log_success();
-    EXCEPTION
-    WHEN app.app_exception THEN
-        RAISE;
-    WHEN OTHERS THEN
-        app.raise_error();
-    END;
-
-
-
-    PROCEDURE set_session (
-        in_module_name          logs.module_name%TYPE,
-        in_action_name          logs.action_name%TYPE,
-        in_log_id               logs.log_id%TYPE            := NULL
-    ) AS
-        v_action_name           logs.action_name%TYPE;
-    BEGIN
-        v_action_name := SUBSTR(TO_CHAR(NVL(recent_request_id, 0)) || '|' || TO_CHAR(in_log_id) || '|' || in_action_name, 1, app.length_action);
-        --
-        IF in_module_name IS NOT NULL THEN
-            DBMS_APPLICATION_INFO.SET_MODULE(in_module_name, v_action_name);    -- USERENV.MODULE, USERENV.ACTION
-        END IF;
-        --
-        IF in_action_name IS NOT NULL THEN
-            DBMS_APPLICATION_INFO.SET_ACTION(v_action_name);                    -- USERENV.ACTION
-        END IF;
-    END;
-
-
-
     FUNCTION get_time_bucket (
         in_date                 DATE,
         in_interval             NUMBER
@@ -1246,7 +1259,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         v_end                   CONSTANT logs.created_at%TYPE := SYSTIMESTAMP;  -- to prevent timezone shift, APEX_UTIL.GET_SESSION_TIME_ZONE
     BEGIN
-        RETURN COALESCE(in_end, v_end) - in_start;  -- need SUBSTR(..., 5, 12)
+        RETURN TO_CHAR(COALESCE(in_end, v_end) - in_start);
+        -- need SUBSTR(..., 5, 12) but
+        -- ORA-01867: the interval is invalid
     END;
 
 
@@ -1301,180 +1316,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         ));
         v_obj.REMOVE('__');
         RETURN v_obj.STRINGIFY;
-    END;
-
-
-
-    FUNCTION is_log_requested (
-        in_row                  logs%ROWTYPE
-    )
-    RETURN BOOLEAN
-    AS
-        v_proceed               BOOLEAN := TRUE;
-        --
-        FUNCTION is_listed (
-            in_list             arr_log_setup,
-            in_row              logs%ROWTYPE
-        )
-        RETURN BOOLEAN AS
-        BEGIN
-            FOR i IN 1 .. in_list.COUNT LOOP
-                IF (in_row.module_name  LIKE in_list(i).module_like OR in_list(i).module_like   IS NULL)
-                    AND (in_row.flag    = in_list(i).flag           OR in_list(i).flag          IS NULL)
-                THEN
-                    RETURN TRUE;
-                END IF;
-            END LOOP;
-            --
-            RETURN FALSE;
-        END;
-    BEGIN
-        -- check whitelist first
-        IF NOT v_proceed THEN
-            v_proceed := is_listed (
-                in_list     => log_whitelist,
-                in_row      => in_row
-            );
-        END IF;
-
-        -- check blacklist
-        IF NOT v_proceed THEN
-            IF is_listed (
-                in_list     => log_blacklist,
-                in_row      => in_row
-            ) THEN
-                RETURN FALSE;
-            END IF;
-        END IF;
-        --
-        RETURN TRUE;
-    END;
-
-
-
-    FUNCTION log__ (
-        in_flag                 logs.flag%TYPE,
-        in_module_name          logs.module_name%TYPE       := NULL,
-        in_module_line          logs.module_line%TYPE       := NULL,
-        in_action_name          logs.action_name%TYPE       := NULL,
-        in_arguments            logs.arguments%TYPE         := NULL,
-        in_payload              logs.payload%TYPE           := NULL,
-        in_parent_id            logs.log_parent%TYPE        := NULL,
-        in_app_id               logs.app_id%TYPE            := NULL,
-        in_page_id              logs.page_id%TYPE           := NULL,
-        in_user_id              logs.user_id%TYPE           := NULL,
-        in_session_id           logs.session_id%TYPE        := NULL
-    )
-    RETURN logs.log_id%TYPE
-    AS
-        PRAGMA AUTONOMOUS_TRANSACTION;
-        --
-        rec                     logs%ROWTYPE;
-        callstack_hash          VARCHAR2(40);
-        callstack_depth         PLS_INTEGER                 := 4;
-    BEGIN
-        -- prepare record
-        rec.log_id              := log_id.NEXTVAL;
-        rec.log_parent          := COALESCE(in_parent_id,   recent_request_id);
-        rec.app_id              := COALESCE(in_app_id,      app.get_app_id());
-        rec.page_id             := COALESCE(in_page_id,     app.get_page_id());
-        rec.user_id             := COALESCE(in_user_id,     app.get_user_id());
-        rec.session_id          := COALESCE(in_session_id,  app.get_session_id());
-        rec.flag                := COALESCE(in_flag,        '?');
-        --
-        rec.module_name         := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth)), 1, app.length_module);
-        rec.module_line         :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth));
-        --
-        IF rec.flag = app.flag_error AND rec.module_name = raise_error_procedure THEN
-            -- make it more usefull for raised errors, shift by one more
-            rec.module_name     := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth + 1)), 1, app.length_module);
-            rec.module_line     :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth + 1));
-        END IF;
-        --
-        rec.action_name         := SUBSTR(in_action_name,   1, app.length_action);
-        rec.arguments           := SUBSTR(in_arguments,     1, app.length_arguments);
-        rec.payload             := SUBSTR(in_payload,       1, app.length_payload);
-        rec.created_at          := SYSTIMESTAMP;
-
-        -- dont log everything
-        IF SQLCODE = 0 AND NOT app.is_log_requested(rec) AND NOT app.is_developer() THEN
-            RETURN NULL;
-        END IF;
-
-        -- retrieve parent log from map
-        IF in_parent_id IS NULL AND rec.flag != app.flag_request THEN
-            callstack_hash := app.get_hash(app.get_call_stack (
-                in_offset         => 4 + CASE WHEN rec.flag = app.flag_module THEN 1 ELSE 0 END,  -- magic
-                in_skip_others    => TRUE,
-                in_line_numbers   => FALSE,
-                in_splitter       => '|'
-            ));
-            --
-            IF map_tree.EXISTS(callstack_hash) THEN
-                rec.log_parent := map_tree(callstack_hash);
-            END IF;
-        END IF;
-
-        -- save new map record for log hierarchy
-        IF rec.flag IN (app.flag_module, app.flag_trigger) THEN
-            callstack_hash := app.get_hash(app.get_call_stack (
-                in_offset         => 4,
-                in_skip_others    => TRUE,
-                in_line_numbers   => FALSE,
-                in_splitter       => '|'
-            ));
-            --
-            map_tree(callstack_hash) := rec.log_id;
-        END IF;
-
-        -- set session things
-        IF rec.flag IN (app.flag_request, app.flag_module) THEN
-            recent_log_id := rec.log_id;
-            --
-            app.set_session (
-                in_module_name      => CASE WHEN rec.flag = app.flag_request THEN 'APEX|' || TO_CHAR(rec.app_id) || '|' || TO_CHAR(rec.page_id) ELSE rec.module_name END,
-                in_action_name      => rec.action_name,
-                in_log_id           => rec.log_id
-            );
-        END IF;
-
-        -- add call stack
-        IF SQLCODE != 0 OR INSTR(app.track_callstack, rec.flag) > 0 OR app.track_callstack = '%' THEN
-            rec.payload := SUBSTR(rec.payload || app.get_call_stack(), 1, app.length_payload);
-        END IF;
-
-        -- add error stack
-        IF SQLCODE != 0 THEN
-            rec.payload := SUBSTR(rec.payload || app.get_error_stack(), 1, app.length_payload);
-        END IF;
-
-        -- print message to console
-        IF app.is_developer() THEN
-            DBMS_OUTPUT.PUT_LINE(
-                rec.log_id || ' ^' || COALESCE(rec.log_parent, 0) || ' [' || rec.flag || ']: ' ||
-                --RPAD(' ', (rec.module_depth - 1) * 2, ' ') ||
-                rec.module_name || ' [' || rec.module_line || '] ' || rec.action_name ||
-                RTRIM(': ' || SUBSTR(rec.arguments, 1, 40), ': ')
-            );
-        END IF;
-
-        -- finally store record in table
-        INSERT INTO logs VALUES rec;
-        --
-        COMMIT;
-        --
-        RETURN rec.log_id;
-    EXCEPTION
-    WHEN OTHERS THEN
-        COMMIT;
-        --
-        DBMS_OUTPUT.PUT_LINE('-- NOT LOGGED ERROR:');
-        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_STACK);
-        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);
-        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_CALL_STACK);
-        DBMS_OUTPUT.PUT_LINE('-- ^');
-        --
-        RAISE_APPLICATION_ERROR(app.app_exception_code, 'LOG_FAILED', TRUE);
     END;
 
 
@@ -1608,103 +1449,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             in_action_name      => in_action_name,
             in_arguments        => in_args
         );
-    END;
-
-
-
-    PROCEDURE raise_error (
-        in_error_name           logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
-        in_rollback             BOOLEAN                 := FALSE
-    )
-    AS
-        rec                     logs%ROWTYPE;
-    BEGIN
-        IF in_rollback THEN
-            ROLLBACK;
-        END IF;
-        --
-        rec.action_name := COALESCE(in_error_name, app.get_caller_name(), 'UNEXPECTED_ERROR');
-        --
-        rec.log_id := app.log_error (
-            in_action_name  => rec.action_name,
-            in_args         => in_args
-        );
-        --
-        RAISE_APPLICATION_ERROR (
-            app.app_exception_code,
-            rec.action_name || ' [' || rec.log_id || ']',
-            TRUE
-        );
-    END;
-
-
-
-    FUNCTION handle_apex_error (
-        p_error                 APEX_ERROR.T_ERROR
-    )
-    RETURN APEX_ERROR.T_ERROR_RESULT
-    AS
-        out_result              APEX_ERROR.T_ERROR_RESULT;
-        --
-        v_log_id                NUMBER;                     -- log_id from your log_error function (returning most likely sequence)
-        v_action_name           logs.action_name%TYPE;      -- short error type visible to user
-        v_component             logs.action_name%TYPE;      -- to identify source component in your app
-    BEGIN
-        out_result := APEX_ERROR.INIT_ERROR_RESULT(p_error => p_error);
-
-        -- assign log_id sequence (app specific, probably from sequence)
-        IF p_error.ora_sqlcode IN (-1, -2091, -2290, -2291, -2292) THEN
-            -- handle constraint violations
-            -- ORA-00001: unique constraint violated
-            -- ORA-02091: transaction rolled back (can hide a deferred constraint)
-            -- ORA-02290: check constraint violated
-            -- ORA-02291: integrity constraint violated - parent key not found
-            -- ORA-02292: integrity constraint violated - child record found
-            v_action_name := 'CONSTRAINT_ERROR|' || APEX_ERROR.EXTRACT_CONSTRAINT_NAME (
-                p_error             => p_error,
-                p_include_schema    => FALSE
-            );
-            --
-            out_result.message          := v_action_name;
-            out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;
-            --
-        ELSIF p_error.is_internal_error THEN
-            v_action_name := 'INTERNAL_ERROR';
-        ELSE
-            v_action_name := 'UNKNOWN_ERROR';
-        END IF;
-
-        -- store incident in your log
-        v_component := TO_CHAR(APEX_APPLICATION.G_FLOW_STEP_ID) || '|' || REPLACE(p_error.component.type, 'APEX_APPLICATION_', '') || '|' || p_error.component.name;
-        --
-        v_log_id := app.log_error (
-            in_action_name  => v_action_name,
-            in_args         => v_component,
-            in_payload      => p_error.ora_sqlerrm || CHR(10) || p_error.error_statement || CHR(10) || p_error.error_backtrace
-        );
-
-        -- mark associated page item (when possible)
-        IF out_result.page_item_name IS NULL AND out_result.column_alias IS NULL THEN
-            APEX_ERROR.AUTO_SET_ASSOCIATED_ITEM (
-                p_error         => p_error,
-                p_error_result  => out_result
-            );
-        END IF;
-
-        -- show only the latest error message to common users
-        IF (app.is_developer() OR p_error.ora_sqlcode = app.app_exception_code) THEN
-            out_result.message := v_action_name || '|' || TO_CHAR(v_log_id) || '<br />' ||
-                v_component || '<br />' ||
-                out_result.message || '<br />' ||
-                APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error);
-            out_result.additional_info := '';
-        ELSIF v_action_name != 'UNKNOWN_ERROR' THEN
-            out_result.message          := v_action_name || '|' || TO_CHAR(v_log_id);
-            out_result.additional_info  := '';
-        END IF;
-        --
-        RETURN out_result;
     END;
 
 
@@ -1891,7 +1635,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     RETURN NULL;  -- must be inactive
                 END;
             ELSE
-app.raise_error('BINGO');
                 RETURN NULL;
             END IF;
         END;
@@ -1928,6 +1671,277 @@ app.raise_error('BINGO');
             in_event_id         => in_event_id,
             in_event_value      => in_event_value
         );
+    END;
+
+
+
+    PROCEDURE raise_error (
+        in_error_name           logs.action_name%TYPE   := NULL,
+        in_args                 logs.arguments%TYPE     := NULL,
+        in_rollback             BOOLEAN                 := FALSE
+    )
+    AS
+        rec                     logs%ROWTYPE;
+    BEGIN
+        IF in_rollback THEN
+            ROLLBACK;
+        END IF;
+        --
+        rec.action_name := COALESCE(in_error_name, app.get_caller_name(), 'UNEXPECTED_ERROR');
+        --
+        rec.log_id := app.log_error (
+            in_action_name  => rec.action_name,
+            in_args         => in_args
+        );
+        --
+        RAISE_APPLICATION_ERROR (
+            app.app_exception_code,
+            rec.action_name || ' [' || rec.log_id || ']',
+            TRUE
+        );
+    END;
+
+
+
+    FUNCTION handle_apex_error (
+        p_error                 APEX_ERROR.T_ERROR
+    )
+    RETURN APEX_ERROR.T_ERROR_RESULT
+    AS
+        out_result              APEX_ERROR.T_ERROR_RESULT;
+        --
+        v_log_id                NUMBER;                     -- log_id from your log_error function (returning most likely sequence)
+        v_action_name           logs.action_name%TYPE;      -- short error type visible to user
+        v_component             logs.action_name%TYPE;      -- to identify source component in your app
+    BEGIN
+        out_result := APEX_ERROR.INIT_ERROR_RESULT(p_error => p_error);
+
+        -- assign log_id sequence (app specific, probably from sequence)
+        IF p_error.ora_sqlcode IN (-1, -2091, -2290, -2291, -2292) THEN
+            -- handle constraint violations
+            -- ORA-00001: unique constraint violated
+            -- ORA-02091: transaction rolled back (can hide a deferred constraint)
+            -- ORA-02290: check constraint violated
+            -- ORA-02291: integrity constraint violated - parent key not found
+            -- ORA-02292: integrity constraint violated - child record found
+            v_action_name := 'CONSTRAINT_ERROR|' || APEX_ERROR.EXTRACT_CONSTRAINT_NAME (
+                p_error             => p_error,
+                p_include_schema    => FALSE
+            );
+            --
+            out_result.message          := v_action_name;
+            out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;
+            --
+        ELSIF p_error.is_internal_error THEN
+            v_action_name := 'INTERNAL_ERROR';
+        ELSE
+            v_action_name := 'UNKNOWN_ERROR';
+        END IF;
+
+        -- store incident in your log
+        v_component := TO_CHAR(APEX_APPLICATION.G_FLOW_STEP_ID) || '|' || REPLACE(p_error.component.type, 'APEX_APPLICATION_', '') || '|' || p_error.component.name;
+        --
+        v_log_id := app.log_error (
+            in_action_name  => v_action_name,
+            in_args         => v_component,
+            in_payload      => p_error.ora_sqlerrm || CHR(10) || p_error.error_statement || CHR(10) || p_error.error_backtrace
+        );
+
+        -- mark associated page item (when possible)
+        IF out_result.page_item_name IS NULL AND out_result.column_alias IS NULL THEN
+            APEX_ERROR.AUTO_SET_ASSOCIATED_ITEM (
+                p_error         => p_error,
+                p_error_result  => out_result
+            );
+        END IF;
+
+        -- show only the latest error message to common users
+        IF (app.is_developer() OR p_error.ora_sqlcode = app.app_exception_code) THEN
+            out_result.message := v_action_name || '|' || TO_CHAR(v_log_id) || '<br />' ||
+                v_component || '<br />' ||
+                out_result.message || '<br />' ||
+                APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error);
+            out_result.additional_info := '';
+        ELSIF v_action_name != 'UNKNOWN_ERROR' THEN
+            out_result.message          := v_action_name || '|' || TO_CHAR(v_log_id);
+            out_result.additional_info  := '';
+        END IF;
+        --
+        RETURN out_result;
+    END;
+
+
+
+    FUNCTION log__ (
+        in_flag                 logs.flag%TYPE,
+        in_module_name          logs.module_name%TYPE       := NULL,
+        in_module_line          logs.module_line%TYPE       := NULL,
+        in_action_name          logs.action_name%TYPE       := NULL,
+        in_arguments            logs.arguments%TYPE         := NULL,
+        in_payload              logs.payload%TYPE           := NULL,
+        in_parent_id            logs.log_parent%TYPE        := NULL,
+        in_app_id               logs.app_id%TYPE            := NULL,
+        in_page_id              logs.page_id%TYPE           := NULL,
+        in_user_id              logs.user_id%TYPE           := NULL,
+        in_session_id           logs.session_id%TYPE        := NULL
+    )
+    RETURN logs.log_id%TYPE
+    AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+        --
+        rec                     logs%ROWTYPE;
+        callstack_hash          VARCHAR2(40);
+        callstack_depth         PLS_INTEGER                 := 4;
+    BEGIN
+        -- prepare record
+        rec.log_id              := log_id.NEXTVAL;
+        rec.log_parent          := COALESCE(in_parent_id,   recent_request_id);
+        rec.app_id              := COALESCE(in_app_id,      app.get_app_id());
+        rec.page_id             := COALESCE(in_page_id,     app.get_page_id());
+        rec.user_id             := COALESCE(in_user_id,     app.get_user_id());
+        rec.session_id          := COALESCE(in_session_id,  app.get_session_id());
+        rec.flag                := COALESCE(in_flag,        '?');
+        --
+        rec.module_name         := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth)), 1, app.length_module);
+        rec.module_line         :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth));
+        --
+        IF rec.flag = app.flag_error AND rec.module_name = raise_error_procedure THEN
+            -- make it more usefull for raised errors, shift by one more
+            rec.module_name     := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth + 1)), 1, app.length_module);
+            rec.module_line     :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth + 1));
+        END IF;
+        --
+        rec.action_name         := SUBSTR(in_action_name,   1, app.length_action);
+        rec.arguments           := SUBSTR(in_arguments,     1, app.length_arguments);
+        rec.payload             := SUBSTR(in_payload,       1, app.length_payload);
+        rec.created_at          := SYSTIMESTAMP;
+
+        -- dont log everything
+        IF SQLCODE = 0 AND NOT app.is_log_requested(rec) AND NOT app.is_developer() THEN
+            RETURN NULL;
+        END IF;
+
+        -- retrieve parent log from map
+        IF in_parent_id IS NULL AND rec.flag != app.flag_request THEN
+            callstack_hash := app.get_hash(app.get_call_stack (
+                in_offset         => 4 + CASE WHEN rec.flag = app.flag_module THEN 1 ELSE 0 END,  -- magic
+                in_skip_others    => TRUE,
+                in_line_numbers   => FALSE,
+                in_splitter       => '|'
+            ));
+            --
+            IF map_tree.EXISTS(callstack_hash) THEN
+                rec.log_parent := map_tree(callstack_hash);
+            END IF;
+        END IF;
+
+        -- save new map record for log hierarchy
+        IF rec.flag IN (app.flag_module, app.flag_trigger) THEN
+            callstack_hash := app.get_hash(app.get_call_stack (
+                in_offset         => 4,
+                in_skip_others    => TRUE,
+                in_line_numbers   => FALSE,
+                in_splitter       => '|'
+            ));
+            --
+            map_tree(callstack_hash) := rec.log_id;
+        END IF;
+
+        -- set session things
+        IF rec.flag IN (app.flag_request, app.flag_module) THEN
+            recent_log_id := rec.log_id;
+            --
+            app.set_session (
+                in_module_name      => CASE WHEN rec.flag = app.flag_request THEN 'APEX|' || TO_CHAR(rec.app_id) || '|' || TO_CHAR(rec.page_id) ELSE rec.module_name END,
+                in_action_name      => rec.action_name,
+                in_log_id           => rec.log_id
+            );
+        END IF;
+
+        -- add call stack
+        IF SQLCODE != 0 OR INSTR(app.track_callstack, rec.flag) > 0 OR app.track_callstack = '%' THEN
+            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_call_stack(), 'WWV_FLOW', '%'), 'APEX_210100', '%'), 1, app.length_payload);
+        END IF;
+
+        -- add error stack
+        IF SQLCODE != 0 THEN
+            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_error_stack(), 'WWV_FLOW', '%'), 'APEX_210100', '%'), 1, app.length_payload);
+        END IF;
+
+        -- print message to console
+        IF app.is_developer() THEN
+            DBMS_OUTPUT.PUT_LINE(
+                rec.log_id || ' ^' || COALESCE(rec.log_parent, 0) || ' [' || rec.flag || ']: ' ||
+                --RPAD(' ', (rec.module_depth - 1) * 2, ' ') ||
+                rec.module_name || ' [' || rec.module_line || '] ' || rec.action_name ||
+                RTRIM(': ' || SUBSTR(rec.arguments, 1, 40), ': ')
+            );
+        END IF;
+
+        -- finally store record in table
+        INSERT INTO logs VALUES rec;
+        --
+        COMMIT;
+        --
+        RETURN rec.log_id;
+    EXCEPTION
+    WHEN OTHERS THEN
+        COMMIT;
+        --
+        DBMS_OUTPUT.PUT_LINE('-- NOT LOGGED ERROR:');
+        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_STACK);
+        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);
+        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_CALL_STACK);
+        DBMS_OUTPUT.PUT_LINE('-- ^');
+        --
+        RAISE_APPLICATION_ERROR(app.app_exception_code, 'LOG_FAILED', TRUE);
+    END;
+
+
+
+    FUNCTION is_log_requested (
+        in_row                  logs%ROWTYPE
+    )
+    RETURN BOOLEAN
+    AS
+        v_proceed               BOOLEAN := TRUE;
+        --
+        FUNCTION is_listed (
+            in_list             arr_log_setup,
+            in_row              logs%ROWTYPE
+        )
+        RETURN BOOLEAN AS
+        BEGIN
+            FOR i IN 1 .. in_list.COUNT LOOP
+                IF (in_row.module_name  LIKE in_list(i).module_like OR in_list(i).module_like   IS NULL)
+                    AND (in_row.flag    = in_list(i).flag           OR in_list(i).flag          IS NULL)
+                THEN
+                    RETURN TRUE;
+                END IF;
+            END LOOP;
+            --
+            RETURN FALSE;
+        END;
+    BEGIN
+        -- check whitelist first
+        IF NOT v_proceed THEN
+            v_proceed := is_listed (
+                in_list     => log_whitelist,
+                in_row      => in_row
+            );
+        END IF;
+
+        -- check blacklist
+        IF NOT v_proceed THEN
+            IF is_listed (
+                in_list     => log_blacklist,
+                in_row      => in_row
+            ) THEN
+                RETURN FALSE;
+            END IF;
+        END IF;
+        --
+        RETURN TRUE;
     END;
 
 
