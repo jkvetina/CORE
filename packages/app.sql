@@ -1246,9 +1246,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         v_end                   CONSTANT logs.created_at%TYPE := SYSTIMESTAMP;  -- to prevent timezone shift, APEX_UTIL.GET_SESSION_TIME_ZONE
     BEGIN
-        RETURN TO_CHAR(COALESCE(in_end, v_end) - in_start);
-        -- need SUBSTR(..., 5, 12) but
-        -- ORA-01867: the interval is invalid
+        RETURN SUBSTR(TO_CHAR(COALESCE(in_end, v_end) - in_start), 12, 12);     -- keep 00:00:00.000
     END;
 
 
