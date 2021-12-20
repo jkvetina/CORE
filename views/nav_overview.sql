@@ -23,14 +23,14 @@ SELECT
     CASE
         WHEN r.page_id IS NOT NULL
             THEN app.get_icon('fa-minus-square', 'Remove record from Navigation table')
-        END AS status,
+        END AS action,
     --
     app.get_page_link (
         in_page_id         => app.get_page_id(),
         in_app_id          => n.app_id,
         in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
         in_values          => 'REMOVE,' || TO_CHAR(n.page_id)
-    ) AS status_url,
+    ) AS action_url,
     --
     n.app_id,
     n.page_id,
@@ -71,14 +71,14 @@ LEFT JOIN nav_pages_to_remove r
 --
 UNION ALL
 SELECT
-    app.get_icon('fa-plus-square', 'Create record in Navigation table') AS status,
+    app.get_icon('fa-plus-square', 'Create record in Navigation table') AS action,
     --
     app.get_page_link (
         in_page_id         => app.get_page_id(),
         in_app_id          => n.app_id,
         in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
         in_values          => 'ADD,' || TO_CHAR(n.page_id)
-    ) AS status_url,
+    ) AS action_url,
     --
     n.app_id,
     n.page_id,
