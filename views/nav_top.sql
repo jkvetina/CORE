@@ -15,7 +15,6 @@ SELECT
     --
     CASE
         WHEN n.page_id > 0
-            --THEN app.get_page_name(n.page_name)
             THEN n.page_name
         ELSE '</li></ul><ul class="EMPTY"></ul><ul><li class="HIDDEN" style="display: none;">'  -- a trick to split nav menu to left and right
         END AS label,

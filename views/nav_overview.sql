@@ -38,7 +38,7 @@ SELECT
     n.order#,
     --
     t.page_alias,
-    REPLACE(LTRIM(RPAD('-', t.depth * 4), '-'), ' ', '&' || 'nbsp; ') || t.page_name AS page_name,
+    REPLACE(LTRIM(RPAD('-', t.depth * 4), '-'), ' ', '&' || 'nbsp; ') || app.get_page_name(in_name => t.page_name) AS page_name,
     t.page_title,
     --
     n.is_hidden,
@@ -85,7 +85,7 @@ SELECT
     n.parent_id,
     n.order#,
     n.page_alias,
-    REPLACE(LTRIM(RPAD('-', 4), '-'), ' ', '&' || 'nbsp; ') || n.page_name AS page_name,
+    REPLACE(LTRIM(RPAD('-', 4), '-'), ' ', '&' || 'nbsp; ') || app.get_page_name(in_name => n.page_name) AS page_name,
     n.page_title,
     --
     'Y'                     AS is_hidden,
