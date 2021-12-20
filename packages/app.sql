@@ -1943,7 +1943,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_log_id := app.log_error (
             in_action_name  => v_action_name,
             in_args         => v_component,
-            in_payload      => p_error.ora_sqlerrm || CHR(10) || p_error.error_statement || CHR(10) || p_error.error_backtrace
+            in_payload      =>
+                out_result.message || CHR(10) ||
+                APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error) || CHR(10) ||
+                p_error.ora_sqlerrm || CHR(10) ||
+                p_error.error_statement || CHR(10) ||
+                p_error.error_backtrace
         );
 
         -- mark associated page item (when possible)
@@ -1964,6 +1969,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         ELSIF v_action_name != 'UNKNOWN_ERROR' THEN
             out_result.message          := v_action_name || '|' || TO_CHAR(v_log_id);
             out_result.additional_info  := '';
+        ELSE
+           out_result.message := REGEXP_REPLACE(out_result.message, '^(ORA' || TO_CHAR(app.app_exception_code) || ': )', '');
         END IF;
         --
         RETURN out_result;
