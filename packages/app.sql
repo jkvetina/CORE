@@ -751,7 +751,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION is_page_available (
-        in_page_id              navigation.page_id%TYPE
+        in_page_id              navigation.page_id%TYPE,
+        in_app_id               navigation.app_id%TYPE          := NULL
     )
     RETURN CHAR
     AS
@@ -781,7 +782,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 AND a.argument_name             = app.auth_page_id_arg
                 AND a.data_type                 = 'NUMBER'
                 AND a.in_out                    = 'IN'
-            WHERE p.application_id              = app.get_app_id()
+            WHERE p.application_id              = COALESCE(in_app_id, app.get_app_id())
                 AND p.page_id                   = in_page_id
                 AND REGEXP_LIKE(p.authorization_scheme_id, '^(\d+)$');  -- user auth schemes only
         EXCEPTION
@@ -812,7 +813,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION is_page_visible (
-        in_page_id              navigation.page_id%TYPE
+        in_page_id              navigation.page_id%TYPE,
+        in_app_id               navigation.app_id%TYPE          := NULL
     )
     RETURN CHAR
     AS
@@ -822,7 +824,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         SELECT 'Y' INTO is_valid
         FROM navigation n
-        WHERE n.app_id          = app.get_app_id()
+        WHERE n.app_id          = COALESCE(in_app_id, app.get_app_id())
             AND n.page_id       = COALESCE(in_page_id, app.get_page_id())
             AND n.is_hidden     IS NULL;
         --

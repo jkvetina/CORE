@@ -367,7 +367,8 @@ CREATE OR REPLACE PACKAGE app AS
     -- Check if user have permissions to access the page
     --
     FUNCTION is_page_available (
-        in_page_id              navigation.page_id%TYPE
+        in_page_id              navigation.page_id%TYPE,
+        in_app_id               navigation.app_id%TYPE          := NULL
     )
     RETURN CHAR;
 
@@ -377,7 +378,8 @@ CREATE OR REPLACE PACKAGE app AS
     -- Check if page should be visible in navigation
     --
     FUNCTION is_page_visible (
-        in_page_id              navigation.page_id%TYPE
+        in_page_id              navigation.page_id%TYPE,
+        in_app_id               navigation.app_id%TYPE          := NULL
     )
     RETURN CHAR;
 
