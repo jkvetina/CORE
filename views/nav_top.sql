@@ -2,20 +2,23 @@ CREATE OR REPLACE VIEW nav_top AS
 WITH curr AS (
     SELECT
         n.app_id,
-        n.page_id,
-        n.parent_id,
-        app.get_page_root(n.page_id)    AS page_root,
-        app.get_page_group(n.page_id)   AS page_group
+        MAX(n.page_id)                          AS page_id,
+        MAX(n.parent_id)                        AS parent_id,
+        app.get_page_root(MAX(n.page_id))       AS page_root,
+        app.get_page_group(MAX(n.page_id))      AS page_group,
+        app.get_user_id()                       AS user_id,
+        app.get_user_name()                     AS user_name
     FROM navigation n
-    WHERE n.app_id      = app.get_app_id()
-        AND n.page_id   = app.get_page_id()
+    WHERE n.app_id          = app.get_app_id()
+        AND n.page_id       IN (app.get_page_id(), 0)  -- always return 1 row
+    GROUP BY n.app_id
 )
 SELECT
     CASE WHEN n.parent_id IS NULL THEN 1 ELSE 2 END AS lvl,
     --
     CASE
         WHEN n.page_id > 0
-            THEN n.page_name
+            THEN REGEXP_REPLACE(REPLACE(n.page_name, '&' || 'APP_USER.', APEX_ESCAPE.HTML(NVL(curr.user_name, curr.user_id))), '^(&' || 'nbsp; )+', '')
         ELSE '</li></ul><ul class="EMPTY"></ul><ul><li class="HIDDEN" style="display: none;">'  -- a trick to split nav menu to left and right
         END AS label,
     CASE
