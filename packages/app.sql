@@ -228,7 +228,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_user_login            users.user_login%TYPE;
         rec                     sessions%ROWTYPE;
     BEGIN
-        app.log_module();
+        --app.log_module();
         --
         v_user_login            := app.get_user_id();
         --
@@ -321,8 +321,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 APEX_UTIL.REDIRECT_URL(APEX_PAGE.GET_URL(p_session => 0));  -- force new login
             END LOOP;
         END IF;
-        --
-        app.log_success();
         --
         COMMIT;
     EXCEPTION
