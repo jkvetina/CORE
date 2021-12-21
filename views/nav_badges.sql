@@ -13,7 +13,18 @@ FROM logs l
 JOIN x
     ON x.is_developer       = 'Y'
 WHERE l.created_at          >= TRUNC(SYSDATE)
-    AND l.flag              = 'E';
+    AND l.flag              = 'E'
+--
+UNION ALL
+SELECT                              -- today users
+    902 AS page_id,
+    ' ' AS page_alias,
+    --
+    TO_CHAR(NULLIF(COUNT(DISTINCT s.user_id), 0)) AS badge
+FROM sessions s
+JOIN x
+    ON x.is_developer       = 'Y'
+WHERE s.created_at          >= TRUNC(SYSDATE);
 --
 COMMENT ON TABLE nav_badges                 IS 'View with current badges in top menu';
 --
