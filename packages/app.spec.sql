@@ -307,7 +307,8 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION get_page_name (
         in_page_id              navigation.page_id%TYPE     := NULL,
-        in_app_id               navigation.app_id%TYPE      := NULL
+        in_app_id               navigation.app_id%TYPE      := NULL,
+        in_name                 VARCHAR2                    := NULL
     )
     RETURN VARCHAR2;
 

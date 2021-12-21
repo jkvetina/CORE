@@ -37,7 +37,7 @@ SELECT
     --
     CASE
         WHEN n.page_id > 0
-            THEN n.css_class
+            THEN n.page_group || ' ' || n.css_class
             ELSE 'HIDDEN'
         END AS attribute01,
     --
@@ -63,6 +63,7 @@ SELECT
     NULL AS attribute09,
     NULL AS attribute10,
     --
+    n.group#,
     n.sort_order
 FROM nav_overview n
 CROSS JOIN curr
@@ -84,6 +85,7 @@ COMMENT ON COLUMN nav_top.attribute08   IS '</a>...';
 
 
 
+-- use this in APEX in Dynamic navigation query
 SELECT
     lvl,
     label, 
@@ -103,5 +105,5 @@ SELECT
     attribute09,
     attribute10
 FROM nav_top
-ORDER BY sort_order NULLS LAST;
+ORDER BY group#, sort_order NULLS LAST;
 

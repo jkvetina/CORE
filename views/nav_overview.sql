@@ -9,7 +9,8 @@ WITH t AS (
         p.authorization_scheme,
         p.page_css_classes,
         LEVEL - 1                                                                           AS depth,
-        SYS_CONNECT_BY_PATH(NVL(TO_CHAR(n.order#), 'Z') || '.' || TO_CHAR(n.page_id), '/')  AS order#
+        SYS_CONNECT_BY_PATH(NVL(TO_CHAR(n.order#), 'Z') || '.' || TO_CHAR(n.page_id), '/')  AS order#,
+        CONNECT_BY_ROOT n.page_id                                                           AS page_root
     FROM navigation n
     LEFT JOIN apex_application_pages p
         ON p.application_id         = n.app_id
@@ -37,16 +38,16 @@ SELECT
     n.parent_id,
     n.order#,
     --
+    COALESCE(t.page_group, (SELECT page_group FROM t WHERE t.page_id = n.parent_id)) AS page_group,
+    COALESCE(n.order#, FLOOR(t.page_root / 10)) AS group#,
+    --
     t.page_alias,
     REPLACE(LTRIM(RPAD('-', t.depth * 4), '-'), ' ', '&' || 'nbsp; ') || app.get_page_name(in_name => t.page_name) AS page_name,
     t.page_title,
+    t.page_css_classes              AS css_class,
     --
     n.is_hidden,
     n.is_reset,
-    --
-    COALESCE(t.page_group, (SELECT page_group FROM t WHERE t.page_id = n.parent_id)) AS page_group,
-    --
-    t.page_css_classes              AS css_class,
     --
     CASE WHEN t.authorization_scheme LIKE '%MUST_NOT_BE_PUBLIC_USER%'
         THEN app.get_icon('fa-check-square', 'MUST_NOT_BE_PUBLIC_USER')
@@ -84,14 +85,17 @@ SELECT
     n.page_id,
     n.parent_id,
     n.order#,
+    --
+    n.page_group,
+    COALESCE(n.order#, FLOOR(t.page_root / 10)) AS group#,
+    --
     n.page_alias,
-    REPLACE(LTRIM(RPAD('-', 4), '-'), ' ', '&' || 'nbsp; ') || app.get_page_name(in_name => n.page_name) AS page_name,
+    CASE WHEN n.parent_id IS NOT NULL THEN REPLACE(LTRIM(RPAD('-', 4), '-'), ' ', '&' || 'nbsp; ') END || app.get_page_name(in_name => n.page_name) AS page_name,
     n.page_title,
+    n.css_class,
     --
     'Y'                     AS is_hidden,
     'Y'                     AS is_reset,
-    n.page_group,
-    n.css_class,
     --
     CASE WHEN n.auth_scheme LIKE '%MUST_NOT_BE_PUBLIC_USER%'
         THEN app.get_icon('fa-check-square', 'MUST_NOT_BE_PUBLIC_USER')

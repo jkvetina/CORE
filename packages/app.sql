@@ -590,17 +590,20 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION get_page_name (
         in_page_id              navigation.page_id%TYPE     := NULL,
-        in_app_id               navigation.app_id%TYPE      := NULL
+        in_app_id               navigation.app_id%TYPE      := NULL,
+        in_name                 VARCHAR2                    := NULL
     )
     RETURN VARCHAR2
     AS
-        out_name                apex_application_pages.page_name%TYPE;
+        out_name                apex_application_pages.page_name%TYPE       := in_name;
         out_search              apex_application_pages.page_name%TYPE;
     BEGIN
-        SELECT p.page_group INTO out_name
-        FROM apex_application_pages p
-        WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
-            AND p.page_id           = COALESCE(in_page_id, app.get_page_id());
+        IF in_name IS NULL THEN
+            SELECT p.page_group INTO out_name
+            FROM apex_application_pages p
+            WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
+                AND p.page_id           = COALESCE(in_page_id, app.get_page_id());
+        END IF;
 
         -- transform icons
         FOR i IN 1 .. NVL(REGEXP_COUNT(out_name, '(#fa-)'), 0) LOOP
