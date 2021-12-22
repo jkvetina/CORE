@@ -34,21 +34,33 @@ COMMIT;
 @../sequences/log_id.sql
 
 --
+-- PACKAGES
+--
+@../packages/app.spec.sql
+
+--
 -- VIEWS
 --
 @../views/nav_pages_to_add.sql
 @../views/nav_pages_to_remove.sql
-
---
--- PACKAGES
---
-@../packages/app.spec.sql
-@../packages/app.sql
+@../views/nav_overview.sql
+@../views/nav_badges.sql
+@../views/nav_top.sql
 
 --
 -- PROCEDURES
 --
 @../procedures/recompile.sql
-@../procedures/process_dml_errors.sql
 
+--
+-- PACKAGES
+--
+@../packages/app.sql
+
+--
+-- TRIGGERS
+--
+@../triggers/users__.sql
+
+EXEC recompile;
 
