@@ -75,7 +75,7 @@ LEFT JOIN nav_badges b
 WHERE n.action          IS NULL
     AND n.is_hidden     IS NULL;
 --
-COMMENT ON TABLE nav_top                IS 'Main navigation view, column names cant be changed';
+COMMENT ON TABLE nav_top IS 'Main navigation view, column names cant be changed';
 --
 COMMENT ON COLUMN nav_top.attribute01   IS '<li class="...">';
 COMMENT ON COLUMN nav_top.attribute02   IS '<li>...<a>';

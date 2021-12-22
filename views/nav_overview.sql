@@ -54,10 +54,6 @@ SELECT
         ELSE t.authorization_scheme
         END AS auth_scheme,
     --
-    CASE WHEN n.is_reset IS NOT NULL
-        THEN app.get_icon('fa-check-square', 'Resets page items')
-        END AS reset_,
-    --
     CASE WHEN n.page_id > 0 AND r.page_id IS NULL
         THEN app.get_page_link(n.page_id, in_session_id => CASE WHEN n.page_id = 9999 THEN 0 END)
         END AS page_url,
@@ -102,11 +98,31 @@ SELECT
         ELSE n.auth_scheme
         END AS auth_scheme,
     --
-    NULL AS reset_,
-    --
     app.get_page_link(n.page_id)                        AS page_url,
     NULL                                                AS allow_changes,  -- no changes allowed
     TO_CHAR(t.order#) || '/Z.' || TO_CHAR(n.page_id)    AS sort_order
 FROM nav_pages_to_add n
 LEFT JOIN t
     ON t.page_id                    = n.parent_id;
+--
+COMMENT ON TABLE nav_overview IS 'Enriched navigation overview used also for menu rendering';
+--
+COMMENT ON COLUMN nav_overview.action           IS 'Action icon (add/remove page)';
+COMMENT ON COLUMN nav_overview.action_url       IS 'Action url target to use icon as link';
+COMMENT ON COLUMN nav_overview.app_id           IS 'Application id';
+COMMENT ON COLUMN nav_overview.page_id          IS 'Page id';
+COMMENT ON COLUMN nav_overview.parent_id        IS 'Parent page id to build a hierarchy, adjustable by the user/admin';
+COMMENT ON COLUMN nav_overview.order#           IS 'Order of the siblings, adjustable by the user/admin';
+COMMENT ON COLUMN nav_overview.page_group       IS 'Page group from APEX page specification';
+COMMENT ON COLUMN nav_overview.group#           IS 'Group number derived as (page_id / 10) if order# is empty';
+COMMENT ON COLUMN nav_overview.page_alias       IS 'Page alis from APEX page specification';
+COMMENT ON COLUMN nav_overview.page_name        IS 'Page name from APEX page specification';
+COMMENT ON COLUMN nav_overview.page_title       IS 'Page title from APEX page specification';
+COMMENT ON COLUMN nav_overview.css_class        IS 'CSS class from APEX page specification';
+COMMENT ON COLUMN nav_overview.is_hidden        IS 'Flag for hiding item in menu; Y = hide, NULL = show';
+COMMENT ON COLUMN nav_overview.is_reset         IS 'Flag for reset/clear page items; Y = clear, NULL = keep;';
+COMMENT ON COLUMN nav_overview.auth_scheme      IS 'Auth scheme from APEX page specification';
+COMMENT ON COLUMN nav_overview.page_url         IS 'Page url to use as redirection target';
+COMMENT ON COLUMN nav_overview.allow_changes    IS 'APEX column to allow edit/delete only some rows';
+COMMENT ON COLUMN nav_overview.sort_order       IS 'Calculated path to show rows in correct order';
+

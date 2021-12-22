@@ -5,8 +5,8 @@ CREATE TABLE navigation (
     --
     parent_id           NUMBER(6),
     order#              NUMBER(4),
-    is_hidden           VARCHAR2(1),
-    is_reset            VARCHAR2(1),
+    is_hidden           CHAR(1),
+    is_reset            CHAR(1),
     --
     updated_by          VARCHAR2(30),
     updated_at          DATE,
@@ -34,8 +34,8 @@ COMMENT ON TABLE  navigation                IS 'Navigation items';
 --
 COMMENT ON COLUMN navigation.app_id         IS 'APEX application ID';
 COMMENT ON COLUMN navigation.page_id        IS 'APEX page ID';
-COMMENT ON COLUMN navigation.parent_id      IS 'Parent id for tree structure';
+COMMENT ON COLUMN navigation.parent_id      IS 'Parent page id for tree structure';
 COMMENT ON COLUMN navigation.order#         IS 'Order of siblings';
 COMMENT ON COLUMN navigation.is_hidden      IS 'Y = dont show in menu';
-COMMENT ON COLUMN navigation.is_reset       IS 'Y = reset all items not passed in url';
+COMMENT ON COLUMN navigation.is_reset       IS 'Y = reset/clear all items not passed in url';
 
