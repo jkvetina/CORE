@@ -24,7 +24,17 @@ SELECT                              -- today users
 FROM sessions s
 JOIN x
     ON x.is_developer       = 'Y'
-WHERE s.created_at          >= TRUNC(SYSDATE);
+WHERE s.created_at          >= TRUNC(SYSDATE)
+--
+UNION ALL
+SELECT                              -- pages to add/remove
+    910 AS page_id,
+    ' ' AS page_alias,
+    --
+    TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
+FROM nav_overview n
+WHERE n.app_id              = app.get_app_id()
+    AND n.action            IS NOT NULL;
 --
 COMMENT ON TABLE nav_badges                 IS 'View with current badges in top menu';
 --
