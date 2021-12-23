@@ -14,6 +14,8 @@ prompt --install
 @@application/plugin_settings.sql
 @@application/shared_components/security/authorizations/nobody.sql
 @@application/shared_components/security/authorizations/is_developer.sql
+@@application/shared_components/security/authorizations/is_administrator.sql
+@@application/shared_components/security/authorizations/is_user.sql
 @@application/shared_components/navigation/navigation_bar.sql
 @@application/shared_components/logic/application_items/g_today.sql
 @@application/shared_components/logic/application_settings.sql
