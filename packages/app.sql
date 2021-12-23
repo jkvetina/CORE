@@ -2135,7 +2135,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- determice object name from caller (based on current application)
         v_object_name := COALESCE(in_name, 'A' || app.get_app_id() || '.' || REGEXP_REPLACE(app.get_caller_name(3), '([^\.]+\.)', ''));
         --
-        app.log_module(in_args => app.get_json_list(v_object_name, in_arg1, in_arg2, in_arg3, in_arg4));
+        --app.log_module(in_args => app.get_json_list(v_object_name, in_arg1, in_arg2, in_arg3, in_arg4));
 
         -- check object existance
         BEGIN
@@ -2172,7 +2172,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             app.raise_error('CUSTOM_CODE_FAILED');
         END;
         --
-        app.log_success();
+        --app.log_success();
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
