@@ -4,7 +4,7 @@
 
 - custom logging and error handling
 - custom user and roles management
-- custom navigation
+- [custom navigation](http://www.oneoracledeveloper.com/2021/12/custom-apex-navigation.html)
 - help functions to ease daily life
 
 
