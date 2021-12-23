@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211223202835'
+,p_last_upd_yyyymmddhh24miss=>'20211223214227'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9192009232668637)
@@ -838,7 +838,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ADD_PAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.nav_add_pages(:P910_PAGE_ID);',
+'app_actions.nav_add_pages(:P910_PAGE_ID);',
 ':P910_ACTION := NULL;',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -854,7 +854,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'REMOVE_PAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.nav_remove_pages(:P910_PAGE_ID);',
+'app_actions.nav_remove_pages(:P910_PAGE_ID);',
 ':P910_ACTION := NULL;',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -884,8 +884,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'AUTO_UPDATE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.nav_remove_pages();',
-'app.nav_add_pages();',
+'app_actions.nav_autoupdate();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'

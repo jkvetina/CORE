@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211223203814'
+,p_last_upd_yyyymmddhh24miss=>'20211223214132'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9563395243581646)
@@ -524,7 +524,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_view_id=>wwv_flow_api.id(9619064172238094)
 ,p_display_seq=>12
 ,p_column_id=>wwv_flow_api.id(9614276104237528)
-,p_is_visible=>true
+,p_is_visible=>false
 ,p_is_frozen=>false
 ,p_width=>114
 );
@@ -5120,82 +5120,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'PREP_USER_ROLES'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'DECLARE',
-'    FUNCTION get_role_name (',
-'        in_role_id              roles.role_id%TYPE',
-'    )',
-'    RETURN roles.role_name%TYPE',
-'    AS',
-'        out_name                roles.role_name%TYPE;',
-'    BEGIN',
-'        SELECT NVL(r.role_name, r.role_id) INTO out_name',
-'        FROM roles r',
-'        WHERE r.app_id      = app.get_app_id()',
-'            AND r.role_id   = in_role_id;',
-'        --',
-'        RETURN out_name;',
-'    EXCEPTION',
-'    WHEN NO_DATA_FOUND THEN',
-'        RETURN in_role_id;',
-'    END;',
-'    --',
-'    PROCEDURE user_roles_pivot_collection (',
-'        in_page_id              apex_application_pages.page_id%TYPE',
-'    ) AS',
-'        in_collection           CONSTANT apex_collections.collection_name%TYPE := ''P'' || TO_CHAR(in_page_id);',
-'        --',
-'        v_query                 VARCHAR2(32767);',
-'        v_cols                  PLS_INTEGER;',
-'        v_cursor                PLS_INTEGER                 := DBMS_SQL.OPEN_CURSOR;',
-'        v_desc                  DBMS_SQL.DESC_TAB;',
-'    BEGIN',
-'        -- build query',
-'        v_query := v_query || ''SELECT'' || CHR(10) || ''    u.user_id,'';',
-'        --',
-'        FOR r IN (',
-'            SELECT r.role_id',
-'            FROM roles r',
-'            WHERE r.app_id = app.get_app_id()',
-'            ORDER BY r.role_group NULLS LAST, r.order# NULLS LAST, r.role_id',
-'        ) LOOP',
-'            v_query := v_query || CHR(10) || ''    MAX(CASE WHEN r.role_id = '''''' || r.role_id || '''''' THEN ''''Y'''' END) AS '' || LOWER(r.role_id) || ''_, '';',
-'        END LOOP;',
-'        --',
-'        v_query := RTRIM(v_query, '', '') || CHR(10) || ''FROM users u LEFT JOIN user_roles r ON r.app_id = app.get_app_id() AND r.user_id = u.user_id'' || CHR(10) || ''GROUP BY u.user_id'';',
-'        --',
-'        DBMS_OUTPUT.PUT_LINE(v_query);',
-'',
-'        -- initialize and populate collection',
-'        IF APEX_COLLECTION.COLLECTION_EXISTS(in_collection) THEN',
-'            APEX_COLLECTION.DELETE_COLLECTION(in_collection);',
-'        END IF;',
-'        --',
-'        APEX_COLLECTION.CREATE_COLLECTION_FROM_QUERY (',
-'            p_collection_name   => in_collection,',
-'            p_query             => v_query',
-'        );',
-'',
-'        -- pass proper column names via page items',
-'        DBMS_SQL.PARSE(v_cursor, v_query, DBMS_SQL.NATIVE);',
-'        DBMS_SQL.DESCRIBE_COLUMNS(v_cursor, v_cols, v_desc);',
-'        DBMS_SQL.CLOSE_CURSOR(v_cursor);',
-'        --',
-'        FOR i IN 1 .. v_desc.COUNT LOOP',
-'            BEGIN',
-'                APEX_UTIL.SET_SESSION_STATE (',
-'                    p_name      => ''P'' || in_page_id || ''_C'' || LPAD(i, 3, 0),',
-'                    p_value     => get_role_name(RTRIM(v_desc(i).col_name, ''_'')),',
-'                    p_commit    => FALSE',
-'                );',
-'            EXCEPTION',
-'            WHEN OTHERS THEN',
-'                NULL;           -- item might not exists',
-'            END;',
-'        END LOOP;',
-'    END;',
-'BEGIN',
-'    user_roles_pivot_collection(:APP_PAGE_ID);',
-'END;',
+'app_actions.prep_user_roles_pivot(:APP_PAGE_ID);',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'

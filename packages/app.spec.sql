@@ -388,31 +388,6 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Remove missing pages from NAVIGATION table
-    --
-    PROCEDURE nav_remove_pages (
-        in_page_id              navigation.page_id%TYPE         := NULL
-    );
-
-
-
-    --
-    -- Add new pages to NAVIGATION table
-    --
-    PROCEDURE nav_add_pages (
-        in_page_id              navigation.page_id%TYPE         := NULL
-    );
-
-
-
-    --
-    -- Auto update navigation (add missing pages, remove old records)
-    --
-    PROCEDURE nav_autoupdate;
-
-
-
-    --
     -- Redirect to page and set items if needed
     --
     PROCEDURE redirect (
