@@ -4,8 +4,6 @@ CREATE TABLE user_roles (
     user_id             VARCHAR2(30)    CONSTRAINT nn_user_roles_user_id    NOT NULL,
     role_id             VARCHAR2(30)    CONSTRAINT nn_user_roles_role_id    NOT NULL,
     --
-    is_active           CHAR(1),
-    --
     updated_by          VARCHAR2(30),
     updated_at          DATE,
     --
@@ -36,5 +34,4 @@ COMMENT ON TABLE  user_roles                     IS 'List of roles assigned to u
 COMMENT ON COLUMN user_roles.app_id              IS 'APEX application ID';
 COMMENT ON COLUMN user_roles.user_id             IS 'User ID from USERS table';
 COMMENT ON COLUMN user_roles.role_id             IS 'Role ID from ROLES table';
-COMMENT ON COLUMN user_roles.is_active           IS 'Flag to deactivate permission temporarly';
 
