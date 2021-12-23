@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211222211437'
+,p_last_upd_yyyymmddhh24miss=>'20211223202835'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9192009232668637)
@@ -753,8 +753,21 @@ wwv_flow_api.create_ig_report_column(
 ,p_break_sort_nulls=>'LAST'
 );
 wwv_flow_api.create_page_button(
- p_id=>wwv_flow_api.id(9261437105429015)
+ p_id=>wwv_flow_api.id(10238277616352483)
 ,p_button_sequence=>10
+,p_button_plug_id=>wwv_flow_api.id(9192009232668637)
+,p_button_name=>'REFRESH'
+,p_button_action=>'REDIRECT_PAGE'
+,p_button_template_options=>'#DEFAULT#'
+,p_button_template_id=>wwv_flow_api.id(9144574670569995)
+,p_button_image_alt=>'Refresh'
+,p_button_position=>'RIGHT_OF_TITLE'
+,p_button_redirect_url=>'f?p=&APP_ID.:910:&SESSION.::&DEBUG.:::'
+,p_icon_css_classes=>'fa-refresh'
+);
+wwv_flow_api.create_page_button(
+ p_id=>wwv_flow_api.id(9261437105429015)
+,p_button_sequence=>20
 ,p_button_plug_id=>wwv_flow_api.id(9192009232668637)
 ,p_button_name=>'AUTO_UPDATE'
 ,p_button_action=>'SUBMIT'
@@ -774,15 +787,23 @@ wwv_flow_api.create_page_item(
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(9261032697429011)
-,p_name=>'P910_PAGE'
+,p_name=>'P910_PAGE_ID'
 ,p_item_sequence=>20
+,p_item_plug_id=>wwv_flow_api.id(9192009232668637)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(9964444742802043)
+,p_name=>'P910_AUTH_SCHEME'
+,p_item_sequence=>30
 ,p_item_plug_id=>wwv_flow_api.id(9192009232668637)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(9615275595237538)
-,p_name=>'SAVE_GRID'
+,p_name=>'SAVE_NAVIGATION'
 ,p_event_sequence=>10
 ,p_triggering_element_type=>'REGION'
 ,p_triggering_region_id=>wwv_flow_api.id(9192134749668638)
@@ -817,7 +838,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ADD_PAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.nav_add_pages(:P910_PAGE);',
+'app.nav_add_pages(:P910_PAGE_ID);',
 ':P910_ACTION := NULL;',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -833,7 +854,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'REMOVE_PAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.nav_remove_pages(:P910_PAGE);',
+'app.nav_remove_pages(:P910_PAGE_ID);',
 ':P910_ACTION := NULL;',
 ''))
 ,p_process_clob_language=>'PLSQL'
