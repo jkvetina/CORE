@@ -161,5 +161,154 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         END LOOP;
     END;
 
+
+
+    PROCEDURE save_user_roles (
+        in_action       CHAR,
+        in_c001         VARCHAR2 := NULL,
+        in_c002         VARCHAR2 := NULL,
+        in_c003         VARCHAR2 := NULL,
+        in_c004         VARCHAR2 := NULL,
+        in_c005         VARCHAR2 := NULL,
+        in_c006         VARCHAR2 := NULL,
+        in_c007         VARCHAR2 := NULL,
+        in_c008         VARCHAR2 := NULL,
+        in_c009         VARCHAR2 := NULL,
+        in_c010         VARCHAR2 := NULL,
+        in_c011         VARCHAR2 := NULL,
+        in_c012         VARCHAR2 := NULL,
+        in_c013         VARCHAR2 := NULL,
+        in_c014         VARCHAR2 := NULL,
+        in_c015         VARCHAR2 := NULL,
+        in_c016         VARCHAR2 := NULL,
+        in_c017         VARCHAR2 := NULL,
+        in_c018         VARCHAR2 := NULL,
+        in_c019         VARCHAR2 := NULL,
+        in_c020         VARCHAR2 := NULL,
+        in_c021         VARCHAR2 := NULL,
+        in_c022         VARCHAR2 := NULL,
+        in_c023         VARCHAR2 := NULL,
+        in_c024         VARCHAR2 := NULL,
+        in_c025         VARCHAR2 := NULL,
+        in_c026         VARCHAR2 := NULL,
+        in_c027         VARCHAR2 := NULL,
+        in_c028         VARCHAR2 := NULL,
+        in_c029         VARCHAR2 := NULL,
+        in_c030         VARCHAR2 := NULL,
+        in_c031         VARCHAR2 := NULL,
+        in_c032         VARCHAR2 := NULL,
+        in_c033         VARCHAR2 := NULL,
+        in_c034         VARCHAR2 := NULL,
+        in_c035         VARCHAR2 := NULL,
+        in_c036         VARCHAR2 := NULL,
+        in_c037         VARCHAR2 := NULL,
+        in_c038         VARCHAR2 := NULL,
+        in_c039         VARCHAR2 := NULL,
+        in_c040         VARCHAR2 := NULL,
+        in_c041         VARCHAR2 := NULL,
+        in_c042         VARCHAR2 := NULL,
+        in_c043         VARCHAR2 := NULL,
+        in_c044         VARCHAR2 := NULL,
+        in_c045         VARCHAR2 := NULL,
+        in_c046         VARCHAR2 := NULL,
+        in_c047         VARCHAR2 := NULL,
+        in_c048         VARCHAR2 := NULL,
+        in_c049         VARCHAR2 := NULL,
+        in_c050         VARCHAR2 := NULL
+    ) AS
+        rec user_roles%ROWTYPE;
+    BEGIN
+        app.log_module(app.get_json_list(in_action, in_c001));
+        --
+        rec.app_id          := app.get_app_id();
+        rec.user_id         := in_c001;
+        rec.role_id         := NULL;
+        rec.updated_by      := app.get_user_id();
+        rec.updated_at      := SYSDATE;
+
+        -- cleanup all roles
+        DELETE FROM user_roles t
+        WHERE t.app_id      = rec.app_id
+            AND t.user_id   = rec.user_id;
+        --
+        IF in_action = 'D' THEN
+            app.log_success();
+            RETURN;
+        END IF;
+
+        -- match order with view on page
+        FOR r IN (
+            SELECT
+                r.role_id,
+                'C' || SUBSTR(1001 + ROW_NUMBER() OVER(ORDER BY r.role_group NULLS LAST, r.order# NULLS LAST, r.role_id), 2, 3) AS arg
+            FROM roles r
+            WHERE r.app_id = rec.app_id
+        ) LOOP
+            rec.role_id := CASE
+                WHEN r.arg = 'C002' AND in_c002 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C003' AND in_c003 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C004' AND in_c004 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C005' AND in_c005 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C006' AND in_c006 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C007' AND in_c007 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C008' AND in_c008 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C009' AND in_c009 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C010' AND in_c010 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C011' AND in_c011 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C012' AND in_c012 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C013' AND in_c013 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C014' AND in_c014 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C015' AND in_c015 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C016' AND in_c016 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C017' AND in_c017 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C018' AND in_c018 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C019' AND in_c019 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C020' AND in_c020 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C021' AND in_c021 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C022' AND in_c022 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C023' AND in_c023 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C024' AND in_c024 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C025' AND in_c025 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C026' AND in_c026 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C027' AND in_c027 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C028' AND in_c028 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C029' AND in_c029 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C030' AND in_c030 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C031' AND in_c031 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C032' AND in_c032 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C033' AND in_c033 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C034' AND in_c034 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C035' AND in_c035 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C036' AND in_c036 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C037' AND in_c037 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C038' AND in_c038 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C039' AND in_c039 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C040' AND in_c040 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C041' AND in_c041 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C042' AND in_c042 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C043' AND in_c043 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C044' AND in_c044 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C045' AND in_c045 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C046' AND in_c046 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C047' AND in_c047 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C048' AND in_c048 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C049' AND in_c049 = 'Y' THEN r.role_id
+                WHEN r.arg = 'C050' AND in_c050 = 'Y' THEN r.role_id
+                END;
+            --
+            IF rec.role_id IS NOT NULL THEN
+                INSERT INTO user_roles
+                VALUES rec;
+            END IF;
+        END LOOP;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
 END;
 /
