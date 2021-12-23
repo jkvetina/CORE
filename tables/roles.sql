@@ -5,6 +5,7 @@ CREATE TABLE roles (
     --
     description_        VARCHAR2(1000),
     is_active           CHAR(1),
+    order#              NUMBER(4),
     --
     updated_by          VARCHAR2(30),
     updated_at          DATE,
@@ -27,4 +28,5 @@ COMMENT ON COLUMN roles.app_id              IS 'Application ID';
 COMMENT ON COLUMN roles.role_id             IS 'Role ID';
 COMMENT ON COLUMN roles.description_        IS 'Description';
 COMMENT ON COLUMN roles.is_active           IS 'Flag to disable role';
+COMMENT ON COLUMN roles.order#              IS 'Roles order in any form of list/report';
 
