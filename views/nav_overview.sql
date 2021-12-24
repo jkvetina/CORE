@@ -20,18 +20,6 @@ WITH t AS (
     START WITH n.parent_id          IS NULL
 )
 SELECT
-    CASE
-        WHEN r.page_id IS NOT NULL
-            THEN app.get_icon('fa-minus-square', 'Remove record from Navigation table')
-        END AS action,
-    --
-    app.get_page_link (
-        in_page_id         => app.get_page_id(),
-        in_app_id          => n.app_id,
-        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
-        in_values          => 'REMOVE,' || TO_CHAR(n.page_id)
-    ) AS action_url,
-    --
     n.app_id,
     n.page_id,
     n.parent_id,
@@ -59,7 +47,19 @@ SELECT
         END AS page_url,
     --
     'UD'                                                                AS allow_changes,  -- U = update, D = delete
-    t.page_root || '.' || t.depth || '.' || NVL(n.order#, n.page_id)    AS sort_order
+    t.page_root || '.' || t.depth || '.' || NVL(n.order#, n.page_id)    AS sort_order,
+    --
+    CASE
+        WHEN r.page_id IS NOT NULL
+            THEN app.get_icon('fa-minus-square', 'Remove record from Navigation table')
+        END AS action,
+    --
+    app.get_page_link (
+        in_page_id         => app.get_page_id(),
+        in_app_id          => n.app_id,
+        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
+        in_values          => 'REMOVE,' || TO_CHAR(n.page_id)
+    ) AS action_url
 FROM navigation n
 LEFT JOIN t
     ON t.page_id                    = n.page_id
@@ -68,15 +68,6 @@ LEFT JOIN nav_pages_to_remove r
 --
 UNION ALL
 SELECT
-    app.get_icon('fa-plus-square', 'Create record in Navigation table') AS action,
-    --
-    app.get_page_link (
-        in_page_id         => app.get_page_id(),
-        in_app_id          => n.app_id,
-        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
-        in_values          => 'ADD,' || TO_CHAR(n.page_id)
-    ) AS action_url,
-    --
     n.app_id,
     n.page_id,
     n.parent_id,
@@ -97,10 +88,19 @@ SELECT
     --
     app.get_page_link(n.page_id)                                            AS page_url,
     NULL                                                                    AS allow_changes,  -- no changes allowed
-    t.page_root || '.' || (t.depth + 1) || '.' || NVL(n.order#, n.page_id)  AS sort_order
+    t.page_root || '.' || (t.depth + 1) || '.' || NVL(n.order#, n.page_id)  AS sort_order,
+    --
+    app.get_icon('fa-plus-square', 'Create record in Navigation table') AS action,
+    --
+    app.get_page_link (
+        in_page_id         => app.get_page_id(),
+        in_app_id          => n.app_id,
+        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
+        in_values          => 'ADD,' || TO_CHAR(n.page_id)
+    ) AS action_url
 FROM nav_pages_to_add n
 LEFT JOIN t
-    ON t.page_id                    = n.parent_id;
+    ON t.page_id = n.parent_id;
 --
 COMMENT ON TABLE nav_overview IS 'Enriched navigation overview used also for menu rendering';
 --
