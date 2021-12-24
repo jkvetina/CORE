@@ -1,0 +1,7 @@
+CREATE OR REPLACE PACKAGE a770 AS
+
+    FUNCTION is_administrator
+    RETURN CHAR;
+
+END;
+/

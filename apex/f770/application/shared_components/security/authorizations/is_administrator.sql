@@ -15,7 +15,7 @@ wwv_flow_api.create_security_scheme(
  p_id=>wwv_flow_api.id(9823062898204869)
 ,p_name=>'IS_ADMINISTRATOR'
 ,p_scheme_type=>'NATIVE_FUNCTION_BODY'
-,p_attribute_01=>'RETURN TRUE;'
+,p_attribute_01=>'RETURN a770.is_administrator() = ''Y'';'
 ,p_error_message=>'ACCESS_DENIED'
 ,p_caching=>'BY_USER_BY_PAGE_VIEW'
 );
