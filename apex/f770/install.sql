@@ -115,6 +115,7 @@ prompt --install
 @@application/pages/page_00905.sql
 @@application/pages/page_00910.sql
 @@application/pages/page_00920.sql
+@@application/pages/page_00921.sql
 @@application/pages/page_00990.sql
 @@application/pages/page_09999.sql
 @@application/end_environment.sql
