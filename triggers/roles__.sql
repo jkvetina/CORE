@@ -36,6 +36,15 @@ COMPOUND TRIGGER
         IF NOT DELETING THEN
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
+            --
+            IF UPDATING AND :NEW.role_id != :OLD.role_id THEN
+                UPDATE user_roles u
+                SET u.role_id       = :NEW.role_id
+                WHERE u.app_id      = :OLD.app_id
+                    AND u.role_id   = :OLD.role_id;
+                --
+                curr_event_id := app.log_event('ROLE_ID_CHANGED');
+            END IF;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
