@@ -1,12 +1,37 @@
 CREATE OR REPLACE VIEW nav_pages_to_add AS
+WITH g AS (
+    SELECT
+        p.page_group,
+        n.page_id,
+        n.parent_id,
+        n.order#
+    FROM navigation n
+    JOIN apex_application_pages p
+        ON p.application_id     = n.app_id
+        AND p.page_id           = n.page_id
+    WHERE n.app_id              = app.get_app_id()
+)
 SELECT
-    p.application_id        AS app_id,
+    p.application_id AS app_id,
     p.page_id,
-    g.parent_id,
+    --
+    (
+        SELECT MIN(g.parent_id)
+        FROM g
+        WHERE g.page_group      = p.page_group
+    ) AS parent_id,
+    --
     p.page_alias,
     p.page_name,
     p.page_title,
-    NULL                    AS order#,
+    --
+    (
+        SELECT MAX(g.order#)
+        FROM g
+        WHERE g.page_group      = p.page_group
+            AND g.page_id       < p.page_id
+    ) AS order#,
+    --
     p.page_css_classes      AS css_class,
     --
     'Y'                     AS is_hidden,       -- hide page on default
@@ -19,17 +44,5 @@ FROM apex_application_pages p
 LEFT JOIN navigation n
     ON n.app_id             = p.application_id
     AND n.page_id           = p.page_id
-LEFT JOIN (
-    -- find parent in the same group
-    SELECT
-        p.page_group,
-        NVL(MIN(n.parent_id), MAX(n.page_id)) AS parent_id
-    FROM navigation n
-    JOIN apex_application_pages p
-        ON p.application_id     = n.app_id
-        AND p.page_id           = n.page_id
-    GROUP BY p.page_group
-) g
-    ON g.page_group         = p.page_group
 WHERE p.application_id      = app.get_app_id()
     AND n.page_id           IS NULL;

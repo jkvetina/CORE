@@ -8,9 +8,8 @@ WITH t AS (
         p.page_group,
         p.authorization_scheme,
         p.page_css_classes,
-        LEVEL - 1                                                                           AS depth,
-        SYS_CONNECT_BY_PATH(NVL(TO_CHAR(n.order#), 'Z') || '.' || TO_CHAR(n.page_id), '/')  AS order#,
-        CONNECT_BY_ROOT NVL(n.order#, FLOOR(n.page_id / 10))                                AS page_root
+        LEVEL - 1                                   AS depth,
+        CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
     FROM navigation n
     LEFT JOIN apex_application_pages p
         ON p.application_id         = n.app_id
@@ -37,15 +36,15 @@ SELECT
     n.page_id,
     n.parent_id,
     n.order#,
-    --
-    COALESCE(t.page_group, (SELECT page_group FROM t WHERE t.page_id = n.parent_id)) AS page_group,
-    --
-    t.page_root                     AS group#,
-    --
+    t.page_root || ' ' || COALESCE(t.page_group, (SELECT page_group FROM t WHERE t.page_id = n.parent_id)) AS page_group,
     t.page_alias,
-    REPLACE(LTRIM(RPAD('-', t.depth * 4), '-'), ' ', '&' || 'nbsp; ') || app.get_page_name(in_name => t.page_name) AS page_name,
+    --
+    CASE WHEN r.page_id IS NULL
+        THEN REPLACE(LTRIM(RPAD('-', t.depth * 4), '-'), ' ', '&' || 'nbsp; ') || app.get_page_name(in_name => t.page_name)
+        END AS page_name,
+    --
     t.page_title,
-    t.page_css_classes              AS css_class,
+    t.page_css_classes AS css_class,
     --
     n.is_hidden,
     n.is_reset,
@@ -59,8 +58,8 @@ SELECT
         THEN app.get_page_link(n.page_id, in_session_id => CASE WHEN n.page_id = 9999 THEN 0 END)
         END AS page_url,
     --
-    'UD'                            AS allow_changes,  -- U = update, D = delete
-    t.order#                        AS sort_order
+    'UD'                                                                AS allow_changes,  -- U = update, D = delete
+    t.page_root || '.' || t.depth || '.' || NVL(n.order#, n.page_id)    AS sort_order
 FROM navigation n
 LEFT JOIN t
     ON t.page_id                    = n.page_id
@@ -82,10 +81,7 @@ SELECT
     n.page_id,
     n.parent_id,
     n.order#,
-    --
-    n.page_group,
-    COALESCE(n.order#, FLOOR(t.page_root / 10)) AS group#,
-    --
+    t.page_root || ' ' || n.page_group AS page_group,
     n.page_alias,
     CASE WHEN n.parent_id IS NOT NULL THEN REPLACE(LTRIM(RPAD('-', 4), '-'), ' ', '&' || 'nbsp; ') END || app.get_page_name(in_name => n.page_name) AS page_name,
     n.page_title,
@@ -99,9 +95,9 @@ SELECT
         ELSE n.auth_scheme
         END AS auth_scheme,
     --
-    app.get_page_link(n.page_id)                        AS page_url,
-    NULL                                                AS allow_changes,  -- no changes allowed
-    TO_CHAR(t.order#) || '/Z.' || TO_CHAR(n.page_id)    AS sort_order
+    app.get_page_link(n.page_id)                                            AS page_url,
+    NULL                                                                    AS allow_changes,  -- no changes allowed
+    t.page_root || '.' || (t.depth + 1) || '.' || NVL(n.order#, n.page_id)  AS sort_order
 FROM nav_pages_to_add n
 LEFT JOIN t
     ON t.page_id                    = n.parent_id;
@@ -114,8 +110,7 @@ COMMENT ON COLUMN nav_overview.app_id           IS 'Application id';
 COMMENT ON COLUMN nav_overview.page_id          IS 'Page id';
 COMMENT ON COLUMN nav_overview.parent_id        IS 'Parent page id to build a hierarchy, adjustable by the user/admin';
 COMMENT ON COLUMN nav_overview.order#           IS 'Order of the siblings, adjustable by the user/admin';
-COMMENT ON COLUMN nav_overview.page_group       IS 'Page group from APEX page specification';
-COMMENT ON COLUMN nav_overview.group#           IS 'Group number derived as (page_id / 10) if order# is empty';
+COMMENT ON COLUMN nav_overview.page_group       IS 'Page group from APEX page specification; sorted';
 COMMENT ON COLUMN nav_overview.page_alias       IS 'Page alis from APEX page specification';
 COMMENT ON COLUMN nav_overview.page_name        IS 'Page name from APEX page specification';
 COMMENT ON COLUMN nav_overview.page_title       IS 'Page title from APEX page specification';

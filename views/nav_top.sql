@@ -66,7 +66,7 @@ SELECT
     NULL AS attribute09,
     NULL AS attribute10,
     --
-    n.group#,
+    n.page_group,
     n.sort_order
 FROM nav_overview n
 CROSS JOIN curr
@@ -108,5 +108,5 @@ SELECT
     attribute09,
     attribute10
 FROM nav_top
-ORDER BY group#, sort_order NULLS LAST;
+ORDER BY page_group, sort_order;
 

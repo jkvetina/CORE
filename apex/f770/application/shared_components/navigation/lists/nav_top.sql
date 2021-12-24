@@ -35,8 +35,7 @@ wwv_flow_api.create_list(
 '    attribute09,',
 '    attribute10',
 'FROM nav_top',
-'ORDER BY group#, sort_order NULLS LAST;',
-''))
+'ORDER BY page_group, sort_order;'))
 ,p_list_status=>'PUBLIC'
 );
 wwv_flow_api.component_end;
