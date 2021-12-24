@@ -5,9 +5,9 @@ SELECT
     --
     MAX(LTRIM(s.object_name || '.' || s.procedure_name, '.')) AS auth_procedure,
     --
-    NULLIF(COUNT(p.page_id), 0)         AS count_pages,
-    NULL                                AS count_regions,
-    NULLIF(COUNT(u.user_id), 0)         AS count_users,
+    NULLIF(COUNT(p.page_id), 0)             AS count_pages,
+    NULL                                    AS count_regions,
+    NULLIF(COUNT(DISTINCT u.user_id), 0)    AS count_users,
     --
     MAX(CASE WHEN a.caching = 'Once per session'    THEN 'Y' END) AS cache_session,
     MAX(CASE WHEN a.caching = 'Once per page view'  THEN 'Y' END) AS cache_page_view,
