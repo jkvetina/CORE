@@ -10,7 +10,7 @@ WITH t AS (
         p.page_css_classes,
         LEVEL - 1                                                                           AS depth,
         SYS_CONNECT_BY_PATH(NVL(TO_CHAR(n.order#), 'Z') || '.' || TO_CHAR(n.page_id), '/')  AS order#,
-        CONNECT_BY_ROOT n.page_id                                                           AS page_root
+        CONNECT_BY_ROOT NVL(n.order#, FLOOR(n.page_id / 10))                                AS page_root
     FROM navigation n
     LEFT JOIN apex_application_pages p
         ON p.application_id         = n.app_id
@@ -39,7 +39,8 @@ SELECT
     n.order#,
     --
     COALESCE(t.page_group, (SELECT page_group FROM t WHERE t.page_id = n.parent_id)) AS page_group,
-    COALESCE(n.order#, FLOOR(t.page_root / 10)) AS group#,
+    --
+    t.page_root                     AS group#,
     --
     t.page_alias,
     REPLACE(LTRIM(RPAD('-', t.depth * 4), '-'), ' ', '&' || 'nbsp; ') || app.get_page_name(in_name => t.page_name) AS page_name,
