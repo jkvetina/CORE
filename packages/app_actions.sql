@@ -80,6 +80,29 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         nav_remove_pages();
         nav_add_pages();
+
+        -- renumber sublings
+        MERGE INTO navigation g
+        USING (
+            SELECT n.app_id, n.page_id, n.new_order#
+            FROM (
+                SELECT
+                    n.app_id,
+                    n.page_id,
+                    n.order#,
+                    ROW_NUMBER() OVER (PARTITION BY n.parent_id ORDER BY n.order#, n.page_id) * 5 + 5 AS new_order#
+                FROM navigation n
+                WHERE n.app_id          = app.get_app_id()
+                    AND n.parent_id     IS NOT NULL
+            ) n
+            WHERE n.new_order# != n.order#
+        ) n
+            ON (
+                g.app_id        = n.app_id
+            AND g.page_id       = n.page_id
+        )
+        WHEN MATCHED THEN
+        UPDATE SET g.order#     = n.new_order#;
         --
         app.log_success();
     END;
