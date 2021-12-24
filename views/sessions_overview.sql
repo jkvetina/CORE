@@ -20,7 +20,7 @@ l AS (
     FROM logs l
     JOIN s
         ON l.created_at     >= s.today
-        AND l.created_at    < s.today
+        AND l.created_at    < s.today + 1
         AND s.app_id        = l.app_id
     GROUP BY l.session_id
 ),
@@ -31,7 +31,7 @@ b AS (
     FROM logs_events l
     JOIN s
         ON l.created_at     >= s.today
-        AND l.created_at    < s.today
+        AND l.created_at    < s.today + 1
         AND s.app_id        = l.app_id
     GROUP BY l.session_id
 )
