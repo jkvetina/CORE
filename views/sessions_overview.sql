@@ -23,6 +23,7 @@ l AS (
         ON l.created_at     >= s.today
         AND l.created_at    < s.today + 1
         AND s.app_id        = l.app_id
+        AND s.session_id    = l.session_id
     GROUP BY l.session_id
 ),
 b AS (
