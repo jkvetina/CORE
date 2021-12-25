@@ -1,13 +1,14 @@
 CREATE OR REPLACE VIEW logs_overview AS
 WITH x AS (
     SELECT
-        app.get_item('$FLAG')               AS flag,
-        app.get_item('$PAGE_ID')            AS page_id,
-        app.get_item('$USER_ID')            AS user_id,
-        app.get_item('$SESSION_ID')         AS session_id,
-        TRUNC(app.get_date_item('$TODAY'))  AS today
+        app.get_item('$FLAG')           AS flag,
+        app.get_item('$PAGE_ID')        AS page_id,
+        app.get_item('$USER_ID')        AS user_id,
+        app.get_item('$SESSION_ID')     AS session_id,
+        --
+        TRUNC(COALESCE(app.get_date_item('$TODAY'), app.get_date_item('G_TODAY'), SYSDATE)) AS today
     FROM users u
-    WHERE u.user_id         = app.get_user_id()
+    WHERE u.user_id = app.get_user_id()
 )
 SELECT
     l.log_id,
