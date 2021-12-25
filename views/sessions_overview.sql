@@ -2,7 +2,6 @@ CREATE OR REPLACE VIEW sessions_overview AS
 WITH s AS (
     SELECT
         s.*,
-        app.get_item('$PAGE_ID')    AS page_id,
         TRUNC(s.created_at)         AS today
     FROM sessions s
     WHERE s.app_id          = app.get_app_id()
