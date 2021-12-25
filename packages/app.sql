@@ -1025,7 +1025,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         APEX_UTIL.SET_SESSION_STATE (
-            p_name      => app.get_item(in_name, in_raise),
+            p_name      => app.get_item_name(in_name),
             p_value     => in_value,
             p_commit    => FALSE
         );
@@ -1044,7 +1044,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         APEX_UTIL.SET_SESSION_STATE (
-            p_name      => app.get_item(in_name, in_raise),
+            p_name      => app.get_item_name(in_name),
             p_value     => TO_CHAR(in_value, app.format_date_time),
             p_commit    => FALSE
         );
