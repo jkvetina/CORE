@@ -7,7 +7,7 @@ SELECT
     l.user_id,
     l.flag,
     l.action_name,
-    LPAD(' ', (LEVEL - 1) * 4) || l.module_name AS module_name,
+    LPAD(' ', (LEVEL - 1) * 6) || l.module_name AS module_name,
     l.module_line,
     l.module_time,
     l.arguments,
