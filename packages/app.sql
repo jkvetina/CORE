@@ -985,7 +985,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     RETURN TO_DATE(l_value, app.format_date);       -- YYYY-MM-DD
                 EXCEPTION
                 WHEN OTHERS THEN
-                    app.raise_error('INVALID_DATE', app.get_json_list(in_value, in_format));
+                    BEGIN
+                        RETURN TO_DATE(l_value, 'DD/MM/YYYY');
+                    EXCEPTION
+                    WHEN OTHERS THEN
+                        app.raise_error('INVALID_DATE', app.get_json_list(in_value, in_format));
+                    END;
                 END;
             END;
         END;
