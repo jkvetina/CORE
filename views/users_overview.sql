@@ -64,5 +64,13 @@ SELECT
 FROM users u
 LEFT JOIN s ON s.user_id = u.user_id
 LEFT JOIN l ON l.user_id = u.user_id
-LEFT JOIN r ON r.user_id = u.user_id;
+LEFT JOIN r ON r.user_id = u.user_id
+WHERE (
+    u.user_id IN (
+        SELECT r.user_id
+        FROM user_roles r
+        WHERE r.role_id = app.get_item('$ROLE_ID')
+    )
+    OR app.get_item('$ROLE_ID') IS NULL
+);
 
