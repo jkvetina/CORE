@@ -6,10 +6,8 @@ WITH x AS (
         app.get_item('$USER_ID')            AS user_id,
         app.get_item('$SESSION_ID')         AS session_id,
         TRUNC(app.get_date_item('$TODAY'))  AS today
-    FROM sessions s
-    WHERE s.app_id          = app.get_app_id()
-        AND s.session_id    = app.get_item('$SESSION_ID')
-        
+    FROM users u
+    WHERE u.user_id         = app.get_user_id()
 )
 SELECT
     l.log_id,
