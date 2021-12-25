@@ -44,6 +44,9 @@ COMPOUND TRIGGER
                 --
                 curr_event_id := app.log_event('USER_ID_CHANGED');
             END IF;
+        ELSE
+            DELETE FROM user_roles r
+            WHERE r.user_id = :OLD.user_id;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
