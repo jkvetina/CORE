@@ -1028,12 +1028,39 @@ CREATE OR REPLACE PACKAGE BODY app AS
         in_raise                BOOLEAN         := TRUE
     )
     AS
+        v_item_name             apex_application_items.item_name%TYPE;
+        is_valid                CHAR(1);
     BEGIN
-        APEX_UTIL.SET_SESSION_STATE (
-            p_name      => app.get_item_name(in_name),
-            p_value     => in_value,
-            p_commit    => FALSE
-        );
+        v_item_name := app.get_item_name(in_name);
+        --
+        BEGIN
+            SELECT 'Y' INTO is_valid
+            FROM apex_application_page_items p
+            WHERE p.application_id      = app.get_app_id()
+                AND p.page_id           = app.get_page_id()
+                AND p.item_name         = v_item_name;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            BEGIN
+                SELECT 'Y' INTO is_valid
+                FROM apex_application_items g
+                WHERE g.application_id      = app.get_app_id()
+                    AND g.item_name         = in_name;
+            EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                NULL;
+            END;
+        END;
+        --
+        IF is_valid = 'Y' THEN
+            APEX_UTIL.SET_SESSION_STATE (
+                p_name      => v_item_name,
+                p_value     => in_value,
+                p_commit    => FALSE
+            );
+        ELSIF in_raise THEN
+            app.raise_error('INVALID_ITEM', app.get_json_list(in_name, in_value));
+        END IF;
     EXCEPTION
     WHEN OTHERS THEN
         app.raise_error('INVALID_ITEM', app.get_json_list(in_name, in_value));
@@ -1048,14 +1075,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
     )
     AS
     BEGIN
-        APEX_UTIL.SET_SESSION_STATE (
-            p_name      => app.get_item_name(in_name),
-            p_value     => TO_CHAR(in_value, app.format_date_time),
-            p_commit    => FALSE
+        app.set_item (
+            in_name             => in_name,
+            in_value            => TO_CHAR(in_value, app.format_date_time),
+            in_raise            => in_raise
         );
-    EXCEPTION
-    WHEN OTHERS THEN
-        app.raise_error('INVALID_ITEM', app.get_json_list(in_name, in_value));
     END;
 
 
