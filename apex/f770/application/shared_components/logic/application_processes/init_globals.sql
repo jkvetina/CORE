@@ -28,7 +28,7 @@ wwv_flow_api.create_flow_process(
 '    app.set_item(''G_YESTERDAY'',     app.get_date(v_date - 1));',
 '    app.set_item(''G_TOMORROW'',      app.get_date(v_date + 1));',
 '    --',
-'    app.set_item(''$TODAY'');',
+'    app.set_item(''$TODAY'', in_raise => FALSE);',
 'END;'))
 ,p_process_clob_language=>'PLSQL'
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'

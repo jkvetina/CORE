@@ -56,10 +56,10 @@ wwv_flow_api.create_flow(
 ,p_error_handling_function=>'#OWNER#.app.handle_apex_error'
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'CORE'
-,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211222211519'
+,p_last_updated_by=>'DEV_ID'
+,p_last_upd_yyyymmddhh24miss=>'20211225135307'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
-,p_files_version=>21
+,p_files_version=>24
 ,p_ui_type_name => null
 ,p_print_server_type=>'NATIVE'
 );
