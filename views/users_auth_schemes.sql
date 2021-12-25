@@ -5,8 +5,8 @@ SELECT
     --
     MAX(LTRIM(s.object_name || '.' || s.procedure_name, '.')) AS auth_procedure,
     --
-    NULLIF(COUNT(p.page_id), 0)             AS count_pages,
-    NULL                                    AS count_regions,
+    NULLIF(COUNT(DISTINCT p.page_id), 0)    AS count_pages,
+    NULLIF(COUNT(DISTINCT g.region_id), 0)  AS count_regions,
     NULLIF(COUNT(DISTINCT u.user_id), 0)    AS count_users,
     --
     MAX(CASE WHEN a.caching = 'Once per session'    THEN 'Y' END) AS cache_session,
@@ -19,6 +19,9 @@ FROM apex_application_authorization a
 LEFT JOIN apex_application_pages p
     ON p.application_id                 = a.application_id
     AND p.authorization_scheme          = a.authorization_scheme_name
+LEFT JOIN apex_application_page_regions g
+    ON g.application_id                 = a.application_id
+    AND g.authorization_scheme          = a.authorization_scheme_name
 LEFT JOIN roles r
     ON r.role_id                        = a.authorization_scheme_name
 LEFT JOIN user_roles u
@@ -29,5 +32,4 @@ LEFT JOIN user_procedures s
     AND UPPER(a.attribute_01)           LIKE '%' || s.object_name || '.' || s.procedure_name || '%'
 WHERE a.application_id                  = app.get_app_id()
 GROUP BY a.authorization_scheme_name;
-
 
