@@ -993,6 +993,30 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_date (
+        in_date                 DATE            := NULL,
+        in_format               VARCHAR2        := NULL
+    )
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN TO_CHAR(COALESCE(in_date, SYSDATE), NVL(in_format, app.format_date));
+    END;
+
+
+
+    FUNCTION get_date_time (
+        in_date                 DATE            := NULL,
+        in_format               VARCHAR2        := NULL
+    )
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN TO_CHAR(COALESCE(in_date, SYSDATE), NVL(in_format, app.format_date_time));
+    END;
+
+
+
     PROCEDURE set_item (
         in_name                 VARCHAR2,
         in_value                VARCHAR2        := NULL,

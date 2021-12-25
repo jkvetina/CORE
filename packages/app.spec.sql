@@ -454,6 +454,28 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    --
+    --
+    FUNCTION get_date (
+        in_date                 DATE            := NULL,
+        in_format               VARCHAR2        := NULL
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
+    --
+    --
+    FUNCTION get_date_time (
+        in_date                 DATE            := NULL,
+        in_format               VARCHAR2        := NULL
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
     -- Set item
     --
     PROCEDURE set_item (
