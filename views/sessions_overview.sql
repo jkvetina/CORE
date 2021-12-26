@@ -28,7 +28,7 @@ l AS (
 b AS (
     SELECT
         l.session_id,
-        COUNT(*)            AS count_business
+        COUNT(*)            AS count_events
     FROM logs_events l
     JOIN s
         ON l.created_at     >= s.today
@@ -45,7 +45,7 @@ SELECT
     l.count_requests,
     l.count_logs,
     l.count_errors,
-    b.count_business,
+    b.count_events,
     --
     s.created_at,
     s.updated_at,
