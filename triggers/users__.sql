@@ -38,9 +38,17 @@ COMPOUND TRIGGER
             :NEW.updated_at := curr_updated_at;
             --
             IF UPDATING AND :NEW.user_id != :OLD.user_id THEN
+                UPDATE user_roles r
+                SET r.user_id       = :NEW.user_id
+                WHERE r.user_id     = :OLD.user_id;
+                --
                 UPDATE sessions s
                 SET s.user_id       = :NEW.user_id
                 WHERE s.user_id     = :OLD.user_id;
+                --
+                UPDATE logs_events l
+                SET l.user_id       = :NEW.user_id
+                WHERE l.user_id     = :OLD.user_id;
                 --
                 curr_event_id := app.log_event('USER_ID_CHANGED');
             END IF;
