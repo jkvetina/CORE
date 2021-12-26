@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW user_roles_cards AS
+CREATE OR REPLACE VIEW roles_cards AS
 SELECT
     r.role_id,
     r.role_name,
@@ -26,7 +26,7 @@ FROM (
         app.get_app_id()        AS app_id,
         'IS_DEVELOPER'          AS role_id,
         'Developer'             AS role_name,
-        'Basically a God',
+        '',
         'Y'                     AS is_active,
         0                       AS sort#
     FROM DUAL
