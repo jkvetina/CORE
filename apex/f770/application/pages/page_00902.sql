@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211225183552'
+,p_last_upd_yyyymmddhh24miss=>'20211226115104'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9264033779429041)
@@ -229,20 +229,20 @@ wwv_flow_api.create_region_column(
 );
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(10242881011410317)
-,p_name=>'COUNT_BUSINESS'
+,p_name=>'COUNT_EVENTS'
 ,p_source_type=>'DB_COLUMN'
-,p_source_expression=>'COUNT_BUSINESS'
+,p_source_expression=>'COUNT_EVENTS'
 ,p_data_type=>'NUMBER'
 ,p_is_query_only=>true
 ,p_item_type=>'NATIVE_NUMBER_FIELD'
-,p_heading=>'Business'
+,p_heading=>'Events'
 ,p_heading_alignment=>'RIGHT'
 ,p_display_sequence=>70
 ,p_value_alignment=>'RIGHT'
 ,p_attribute_03=>'right'
 ,p_is_required=>false
 ,p_link_target=>'f?p=&APP_ID.:921:&SESSION.::&DEBUG.::P921_TODAY:&P902_TODAY.'
-,p_link_text=>'&COUNT_BUSINESS.'
+,p_link_text=>'&COUNT_EVENTS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_lov_type=>'NONE'
@@ -520,7 +520,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(10746895084850208)
 ,p_plug_name=>'Activity'
-,p_region_template_options=>'#DEFAULT#:t-Region--scrollBody'
+,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader js-removeLandmark:t-Region--scrollBody'
 ,p_escape_on_http_output=>'Y'
 ,p_plug_template=>wwv_flow_api.id(9080157814569926)
 ,p_plug_display_sequence=>40
