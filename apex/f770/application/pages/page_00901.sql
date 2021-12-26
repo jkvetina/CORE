@@ -21,15 +21,15 @@ wwv_flow_api.create_page(
 ,p_group_id=>wwv_flow_api.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
-,p_last_updated_by=>'DEV_ID'
-,p_last_upd_yyyymmddhh24miss=>'20211225154724'
+,p_last_updated_by=>'DEV'
+,p_last_upd_yyyymmddhh24miss=>'20211226082957'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9262174270429022)
 ,p_plug_name=>'Logs'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
-,p_plug_display_sequence=>20
+,p_plug_display_sequence=>30
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
@@ -639,7 +639,7 @@ wwv_flow_api.create_page_plug(
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
-,p_plug_display_sequence=>40
+,p_plug_display_sequence=>20
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
@@ -1228,21 +1228,6 @@ wwv_flow_api.create_ig_report_column(
 ,p_is_visible=>true
 ,p_is_frozen=>false
 ,p_width=>112
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(10581686033928843)
-,p_plug_name=>'Logs Tree'
-,p_icon_css_classes=>'fa-tree'
-,p_region_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(9070356145569920)
-,p_plug_display_sequence=>30
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_display_point=>'BODY'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_plug_display_condition_type=>'ITEM_IS_NOT_NULL'
-,p_plug_display_when_condition=>'P901_LOG_ID'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(10602598226436337)
