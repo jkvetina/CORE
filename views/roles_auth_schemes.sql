@@ -24,8 +24,8 @@ SELECT
     MAX(CASE WHEN a.caching = 'BY_COMPONENT'        THEN 'Y' END)   AS cache_component,
     MAX(CASE WHEN a.caching = 'NOCACHE'             THEN 'Y' END)   AS cache_no,
     --
-    MAX(a.error_message)                                            AS error_message,
-    TO_CHAR(MAX(r.order#)) || a.authorization_scheme_name           AS sort#
+    MAX(a.error_message)                    AS error_message,
+    MAX(r.order#)                           AS order#
 FROM apex_application_authorization a
 LEFT JOIN apex_application_pages p
     ON p.application_id                 = a.application_id
@@ -49,20 +49,20 @@ SELECT
     r.role_id,
     r.role_group,
     --
-    NULL                                AS auth_scheme,
-    'fa fa-warning'                     AS auth_scheme_icon,
-    NULL                                AS auth_procedure,
-    'fa fa-warning'                     AS auth_procedure_icon,
-    NULL                                AS auth_source_code,
-    NULL                                AS count_pages,
-    NULL                                AS count_regions,
-    u.count_users                       AS count_users,
-    NULL                                AS cache_session,
-    NULL                                AS cache_page_view,
-    NULL                                AS cache_component,
-    NULL                                AS cache_no,
-    NULL                                AS error_message,
-    TO_CHAR(r.order#) || r.role_id      AS sort#
+    NULL                AS auth_scheme,
+    'fa fa-warning'     AS auth_scheme_icon,
+    NULL                AS auth_procedure,
+    'fa fa-warning'     AS auth_procedure_icon,
+    NULL                AS auth_source_code,
+    NULL                AS count_pages,
+    NULL                AS count_regions,
+    u.count_users       AS count_users,
+    NULL                AS cache_session,
+    NULL                AS cache_page_view,
+    NULL                AS cache_component,
+    NULL                AS cache_no,
+    NULL                AS error_message,
+    r.order#
 FROM roles r
 LEFT JOIN apex_application_authorization a
     ON a.application_id                 = r.app_id
