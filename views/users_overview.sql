@@ -23,9 +23,9 @@ s AS (
 l AS (
     SELECT
         l.user_id,
-        SUM(CASE WHEN l.flag = 'A' THEN 1 ELSE 0 END) AS count_requests,
-        --
-        COUNT(*)            AS count_logs
+        SUM(CASE WHEN l.flag = 'A' THEN 1 ELSE 0 END)   AS count_pages,
+        COUNT(*)                                        AS count_logs,
+        SUM(CASE WHEN l.flag = 'E' THEN 1 ELSE 0 END)   AS count_errors
     FROM logs l
     JOIN x
         ON x.app_id         = l.app_id
@@ -41,6 +41,17 @@ r AS (
     JOIN x
         ON x.app_id         = r.app_id
     GROUP BY r.user_id
+),
+b AS (
+    SELECT
+        l.user_id,
+        COUNT(*)            AS count_events
+    FROM logs_events l
+    JOIN x
+        ON x.app_id         = l.app_id
+        AND l.created_at    >= x.today_ts
+        AND l.created_at    < x.today_ts + 1
+    GROUP BY l.user_id
 )
 SELECT
     u.user_id,
@@ -55,8 +66,10 @@ SELECT
         END AS is_dev,
     --
     s.count_sessions,
-    l.count_requests,
+    l.count_pages,
     l.count_logs,
+    l.count_errors,
+    b.count_events,
     r.count_roles,
     --
     u.updated_by,
@@ -65,12 +78,14 @@ FROM users u
 LEFT JOIN s ON s.user_id = u.user_id
 LEFT JOIN l ON l.user_id = u.user_id
 LEFT JOIN r ON r.user_id = u.user_id
-WHERE (
-    u.user_id IN (
-        SELECT r.user_id
-        FROM user_roles r
-        WHERE r.role_id = app.get_item('$ROLE_ID')
-    )
-    OR app.get_item('$ROLE_ID') IS NULL
-);
+LEFT JOIN b ON b.user_id = u.user_id
+WHERE u.user_id = NVL(app.get_item('$USER_ID'), u.user_id)
+    AND (
+        u.user_id IN (
+            SELECT r.user_id
+            FROM user_roles r
+            WHERE r.role_id = app.get_item('$ROLE_ID')
+        )
+        OR app.get_item('$ROLE_ID') IS NULL
+    );
 
