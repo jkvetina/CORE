@@ -23,9 +23,9 @@ s AS (
 l AS (
     SELECT
         l.user_id,
-        SUM(CASE WHEN l.flag = 'A' THEN 1 ELSE 0 END)   AS count_pages,
-        COUNT(*)                                        AS count_logs,
-        SUM(CASE WHEN l.flag = 'E' THEN 1 ELSE 0 END)   AS count_errors
+        SUM(CASE WHEN l.flag = 'A' THEN 1 ELSE 0 END)               AS count_pages,
+        COUNT(*)                                                    AS count_logs,
+        NULLIF(SUM(CASE WHEN l.flag = 'E' THEN 1 ELSE 0 END), 0)    AS count_errors
     FROM logs l
     JOIN x
         ON x.app_id         = l.app_id
@@ -45,7 +45,7 @@ r AS (
 b AS (
     SELECT
         l.user_id,
-        COUNT(*)            AS count_events
+        NULLIF(COUNT(*), 0) AS count_events
     FROM logs_events l
     JOIN x
         ON x.app_id         = l.app_id
