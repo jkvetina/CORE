@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211227152331'
+,p_last_upd_yyyymmddhh24miss=>'20211227201142'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9263989035429040)
@@ -95,7 +95,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'CENTER'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_link_target=>'f?p=&APP_ID.:900:&SESSION.::&DEBUG.::G_TODAY:&TODAY.'
+,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:G_TODAY:&TODAY.'
 ,p_link_text=>'&TODAY.'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
@@ -784,6 +784,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'SHRINK'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_module(''SHRINK'');',
+'--',
 'EXECUTE IMMEDIATE ''ALTER TABLE #OWNER#.logs ENABLE ROW MOVEMENT'';',
 'EXECUTE IMMEDIATE ''ALTER TABLE #OWNER#.logs SHRINK SPACE'';',
 'EXECUTE IMMEDIATE ''ALTER TABLE #OWNER#.logs DISABLE ROW MOVEMENT'';',
@@ -797,6 +799,8 @@ wwv_flow_api.create_page_process(
 '--',
 'DBMS_STATS.GATHER_TABLE_STATS(''#OWNER#'', ''SESSIONS'');',
 'EXECUTE IMMEDIATE ''ANALYZE TABLE #OWNER#.sessions COMPUTE STATISTICS FOR TABLE'';',
+'--',
+'app.log_success();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
