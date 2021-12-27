@@ -169,6 +169,37 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION is_active_user (
+        in_user_id              users.user_id%TYPE          := NULL
+    )
+    RETURN BOOLEAN
+    AS
+        is_valid                CHAR;
+    BEGIN
+        SELECT 'Y' INTO is_valid
+        FROM users u
+        WHERE u.user_id         = COALESCE(in_user_id, app.get_user_id())
+            AND u.is_active     = 'Y';
+        --
+        RETURN TRUE;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN FALSE;
+    END;
+
+
+
+    FUNCTION is_active_user_y (
+        in_user_id              users.user_id%TYPE          := NULL
+    )
+    RETURN CHAR
+    AS
+    BEGIN
+        RETURN CASE WHEN app.is_active_user(in_user_id) THEN 'Y' END;
+    END;
+
+
+
     FUNCTION is_developer (
         in_user                 users.user_login%TYPE       := NULL
     )

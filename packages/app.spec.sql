@@ -168,6 +168,26 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    --
+    --
+    FUNCTION is_active_user (
+        in_user_id              users.user_id%TYPE          := NULL
+    )
+    RETURN BOOLEAN;
+
+
+
+    --
+    --
+    --
+    FUNCTION is_active_user_y (
+        in_user_id              users.user_id%TYPE          := NULL
+    )
+    RETURN CHAR;
+
+
+
+    --
     -- Check if current/requested user is APEX developer
     --
     FUNCTION is_developer (

@@ -14,12 +14,8 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_security_scheme(
  p_id=>wwv_flow_api.id(9844735592500475)
 ,p_name=>'IS_ACTIVE_USER'
-,p_scheme_type=>'NATIVE_EXISTS'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT 1',
-'FROM users u',
-'WHERE u.user_id     = app.get_user_id()',
-'    AND u.is_active = ''Y'''))
+,p_scheme_type=>'NATIVE_FUNCTION_BODY'
+,p_attribute_01=>'RETURN app.is_active_user();'
 ,p_error_message=>'ACCESS_DENIED'
 ,p_caching=>'BY_USER_BY_PAGE_VIEW'
 );
