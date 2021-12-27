@@ -901,6 +901,15 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Purge specific day
+    --
+    PROCEDURE purge_logs (
+        in_date                 DATE
+    );
+
+
+
+    --
     -- Returns procedure name which called this function with possible offset
     --
     FUNCTION get_caller_name (

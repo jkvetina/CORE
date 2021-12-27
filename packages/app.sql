@@ -2070,6 +2070,28 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    PROCEDURE purge_logs (
+        in_date                 DATE
+    ) AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+    BEGIN
+        DELETE FROM logs l
+        WHERE l.created_at      >= in_date
+            AND l.created_at    <  in_date + 1;
+        --
+        DELETE FROM sessions s
+        WHERE s.created_at      >= in_date
+            AND s.created_at    <  in_date + 1;
+        --
+        COMMIT;
+    EXCEPTION
+    WHEN OTHERS THEN
+        COMMIT;
+        app.raise_error();
+    END;
+
+
+
     FUNCTION get_caller_name (
         in_offset               PLS_INTEGER     := NULL
     )
