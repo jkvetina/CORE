@@ -1318,7 +1318,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN app.log__ (
             in_flag             => app.flag_request,
             in_action_name      => app.get_request(),
-            in_arguments        => app.get_request_url()
+            in_payload          => app.get_request_url() || CHR(10)
         );
     END;
 
