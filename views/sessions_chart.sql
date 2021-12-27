@@ -28,7 +28,8 @@ WITH t AS (
     WHERE a.application_id                  = NVL(app.get_app_id(), a.application_id)
         AND l.page_view_type                IN ('Rendering', 'Processing', 'Ajax')
         AND l.apex_user                     NOT IN ('nobody')
-        AND l.view_timestamp                >= TRUNC(SYSDATE) - 1       -- G_TODAY
+        AND l.view_timestamp                >= TRUNC(app.get_date_item('G_TODAY'))
+        AND l.view_timestamp                < TRUNC(app.get_date_item('G_TODAY')) + 1
 ),
 z AS (
     SELECT
