@@ -57,8 +57,8 @@ SELECT
     app.get_page_link (
         in_page_id         => app.get_page_id(),
         in_app_id          => n.app_id,
-        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
-        in_values          => 'REMOVE,' || TO_CHAR(n.page_id)
+        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_REMOVE_PAGE',
+        in_values          => TO_CHAR(n.page_id)
     ) AS action_url
 FROM navigation n
 LEFT JOIN t
@@ -95,8 +95,8 @@ SELECT
     app.get_page_link (
         in_page_id         => app.get_page_id(),
         in_app_id          => n.app_id,
-        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ACTION,P' || TO_CHAR(app.get_page_id()) || '_PAGE',
-        in_values          => 'ADD,' || TO_CHAR(n.page_id)
+        in_names           => 'P' || TO_CHAR(app.get_page_id()) || '_ADD_PAGE',
+        in_values          => TO_CHAR(n.page_id)
     ) AS action_url
 FROM nav_pages_to_add n
 LEFT JOIN t
