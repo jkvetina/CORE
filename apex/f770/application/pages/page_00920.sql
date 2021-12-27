@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211227171131'
+,p_last_upd_yyyymmddhh24miss=>'20211227191200'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9563395243581646)
@@ -389,7 +389,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'NUMBER'
 ,p_is_query_only=>true
 ,p_item_type=>'NATIVE_DISPLAY_ONLY'
-,p_heading=>'Pages'
+,p_heading=>'Requests'
 ,p_heading_alignment=>'RIGHT'
 ,p_display_sequence=>80
 ,p_value_alignment=>'RIGHT'
