@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9844735592500475)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211226110603'
+,p_last_upd_yyyymmddhh24miss=>'20211227165819'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9264299805429043)
@@ -40,7 +40,8 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9519532707540348)
-,p_plug_name=>'User'
+,p_plug_name=>'User [FORM]'
+,p_region_name=>'FORM_USERS'
 ,p_region_template_options=>'#DEFAULT#:margin-left-md:margin-right-md'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
 ,p_plug_display_sequence=>30
@@ -285,6 +286,19 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_FORM'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'/*',
+'FOR c IN (',
+'    SELECT u.*, ROWID AS rid',
+'    FROM users u',
+'    WHERE u.user_id = app.get_user_id()',
+') LOOP',
+'    app.set_item(''$USER_ID'',    c.user_id);',
+'    app.set_item(''$USER_LOGIN'', c.user_login);',
+'    app.set_item(''$USER_NAME'',  c.user_name);',
+'    app.set_item(''$LANG_ID'',    c.lang_id);',
+'    app.set_item(''$ROWID'',      c.rid);',
+'END LOOP;',
+'*/',
 'SELECT',
 '    u.user_id,',
 '    u.user_login,',
