@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW scheduler_scheduled AS
+CREATE OR REPLACE VIEW scheduler_planned AS
 SELECT
     j.job_name,
     j.job_type,
