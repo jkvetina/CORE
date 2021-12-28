@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211227191200'
+,p_last_upd_yyyymmddhh24miss=>'20211228171430'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9563395243581646)
@@ -317,7 +317,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_link_target=>'f?p=&APP_ID.:902:&SESSION.::&DEBUG.:902:P902_USER_ID:&USER_ID.'
+,p_link_target=>'f?p=&APP_ID.:915:&SESSION.::&DEBUG.:915:P915_USER_ID:&USER_ID.'
 ,p_link_text=>'&COUNT_SESSIONS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
