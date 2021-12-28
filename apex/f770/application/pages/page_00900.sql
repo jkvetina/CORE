@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211227201142'
+,p_last_upd_yyyymmddhh24miss=>'20211228171447'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9263989035429040)
@@ -341,7 +341,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_link_target=>'f?p=&APP_ID.:902:&SESSION.::&DEBUG.:902:G_TODAY:&TODAY.'
+,p_link_target=>'f?p=&APP_ID.:915:&SESSION.::&DEBUG.:915:G_TODAY:&TODAY.'
 ,p_link_text=>'&COUNT_SESSIONS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -422,6 +422,8 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
+,p_link_target=>'f?p=&APP_ID.:905:&SESSION.::&DEBUG.:905:G_TODAY:&TODAY.'
+,p_link_text=>'&COUNT_SCHEDULERS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_lov_type=>'NONE'
@@ -705,10 +707,11 @@ wwv_flow_api.create_page_button(
 ,p_button_name=>'PURGE_OLD'
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
-,p_button_template_id=>wwv_flow_api.id(9145249029569999)
+,p_button_template_id=>wwv_flow_api.id(9144574670569995)
 ,p_button_image_alt=>'Purge Old'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:900:&SESSION.::&DEBUG.::P900_PURGE:Y'
+,p_icon_css_classes=>'fa-trash-o'
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(11233118896343630)
@@ -717,10 +720,11 @@ wwv_flow_api.create_page_button(
 ,p_button_name=>'SHRINK'
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
-,p_button_template_id=>wwv_flow_api.id(9145249029569999)
+,p_button_template_id=>wwv_flow_api.id(9144574670569995)
 ,p_button_image_alt=>'Shrink'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:900:&SESSION.::&DEBUG.::P900_SHRINK:Y'
+,p_icon_css_classes=>'fa-scissors'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(11141932052125831)
