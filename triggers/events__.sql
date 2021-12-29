@@ -37,13 +37,13 @@ COMPOUND TRIGGER
             :NEW.updated_at := curr_updated_at;
             --
             IF UPDATING AND :NEW.event_id != :OLD.event_id THEN
-                UPDATE logs_events e
+                UPDATE log_events e
                 SET e.event_id      = :NEW.event_id
                 WHERE e.app_id      = :OLD.app_id
                     AND e.event_id  = :OLD.event_id;
             END IF;
         ELSE
-            DELETE FROM logs_events e
+            DELETE FROM log_events e
             WHERE e.app_id      = :OLD.app_id
                 AND e.event_id  = :OLD.event_id;
         END IF;

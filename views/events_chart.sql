@@ -22,7 +22,7 @@ SELECT
     NULLIF(COUNT(e.event_id), 0)                AS count_events
 FROM z
 CROSS JOIN x
-LEFT JOIN logs_events e
+LEFT JOIN log_events e
     ON e.app_id         = x.app_id
     AND e.created_at    >= x.today
     AND e.created_at    < x.today + 1

@@ -29,7 +29,7 @@ b AS (
     SELECT
         l.session_id,
         COUNT(*)            AS count_events
-    FROM logs_events l
+    FROM log_events l
     JOIN s
         ON l.created_at     >= s.today
         AND l.created_at    < s.today + 1

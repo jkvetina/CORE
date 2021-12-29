@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211227184122'
+,p_last_upd_yyyymmddhh24miss=>'20211229182832'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21640682102592259)
@@ -40,20 +40,20 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21641234808592265)
 ,p_plug_name=>'Events (log) [GRID]'
-,p_region_name=>'LOGS_EVENTS'
+,p_region_name=>'LOG_EVENTS'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
 ,p_plug_display_sequence=>30
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
-,p_query_table=>'LOGS_EVENTS'
+,p_query_table=>'LOG_EVENTS'
 ,p_query_where=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app_id = app.get_app_id()',
-'AND user_id = NVL(app.get_item(''$USER_ID''), user_id)',
-'AND event_id = NVL(app.get_item(''$EVENT_ID''), event_id)',
-'AND created_at >= TRUNC(app.get_date_item(''G_TODAY''))',
-'AND created_at < TRUNC(app.get_date_item(''G_TODAY'')) + 1'))
+'app_id          = app.get_app_id()',
+'AND user_id     = NVL(app.get_item(''$USER_ID''), user_id)',
+'AND event_id    = NVL(app.get_item(''$EVENT_ID''), event_id)',
+'AND created_at  >= TRUNC(app.get_date_item(''G_TODAY''))',
+'AND created_at  < TRUNC(app.get_date_item(''G_TODAY'')) + 1'))
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -358,6 +358,7 @@ wwv_flow_api.create_ig_report(
 ,p_static_id=>'105370'
 ,p_type=>'PRIMARY'
 ,p_default_view=>'GRID'
+,p_rows_per_page=>20
 ,p_show_row_number=>false
 ,p_settings_area_expanded=>true
 );

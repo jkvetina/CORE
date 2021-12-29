@@ -19,7 +19,7 @@ e AS (
     SELECT
         TRUNC(e.created_at)                     AS today,
         NULLIF(COUNT(e.event_id), 0)            AS count_events
-    FROM logs_events e
+    FROM log_events e
     JOIN x
         ON x.app_id = e.app_id
     GROUP BY TRUNC(e.created_at)

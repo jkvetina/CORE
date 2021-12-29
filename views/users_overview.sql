@@ -46,7 +46,7 @@ b AS (
     SELECT
         l.user_id,
         NULLIF(COUNT(*), 0) AS count_events
-    FROM logs_events l
+    FROM log_events l
     JOIN x
         ON x.app_id         = l.app_id
         AND l.created_at    >= x.today_ts

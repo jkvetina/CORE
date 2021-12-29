@@ -788,11 +788,11 @@ CREATE OR REPLACE PACKAGE app AS
     -- Log business event
     --
     FUNCTION log_event (
-        in_event_id             logs_events.event_id%TYPE,
-        in_event_value          logs_events.event_value%TYPE    := NULL,
+        in_event_id             log_events.event_id%TYPE,
+        in_event_value          log_events.event_value%TYPE     := NULL,
         in_parent_id            logs.log_parent%TYPE            := NULL
     )
-    RETURN logs_events.log_id%TYPE;
+    RETURN log_events.log_id%TYPE;
 
 
 
@@ -800,8 +800,8 @@ CREATE OR REPLACE PACKAGE app AS
     -- Log business event
     --
     PROCEDURE log_event (
-        in_event_id             logs_events.event_id%TYPE,
-        in_event_value          logs_events.event_value%TYPE    := NULL
+        in_event_id             log_events.event_id%TYPE,
+        in_event_value          log_events.event_value%TYPE     := NULL
     );
 
 

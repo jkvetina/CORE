@@ -495,7 +495,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             FOR i IN v_rows_to_delete.FIRST .. v_rows_to_delete.LAST LOOP
                 CONTINUE WHEN v_rows_to_delete(i) = v_log_id;
                 --
-                DELETE FROM logs_events     WHERE log_parent    = v_rows_to_delete(i);
+                DELETE FROM log_events      WHERE log_parent    = v_rows_to_delete(i);
                 DELETE FROM logs            WHERE log_id        = v_rows_to_delete(i);
             END LOOP;
         END IF;
@@ -1587,15 +1587,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION log_event (
-        in_event_id             logs_events.event_id%TYPE,
-        in_event_value          logs_events.event_value%TYPE    := NULL,
+        in_event_id             log_events.event_id%TYPE,
+        in_event_value          log_events.event_value%TYPE     := NULL,
         in_parent_id            logs.log_parent%TYPE            := NULL
     )
-    RETURN logs_events.log_id%TYPE
+    RETURN log_events.log_id%TYPE
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
-        rec                     logs_events%ROWTYPE;
+        rec                     log_events%ROWTYPE;
     BEGIN
         rec.app_id              := app.get_app_id();
         rec.event_id            := in_event_id;
@@ -1609,7 +1609,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 AND e.is_active     = 'Y';
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
-
             IF app.is_developer() THEN
                 -- create event on the fly for developers
                 BEGIN
@@ -1639,8 +1638,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.event_value     := in_event_value;
         rec.created_at      := SYSDATE;
         --
-        INSERT INTO logs_events VALUES rec;
         COMMIT;
+        INSERT INTO log_events VALUES rec;
         --
         RETURN rec.log_id;
     EXCEPTION
@@ -1652,11 +1651,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     PROCEDURE log_event (
-        in_event_id             logs_events.event_id%TYPE,
-        in_event_value          logs_events.event_value%TYPE    := NULL
+        in_event_id             log_events.event_id%TYPE,
+        in_event_value          log_events.event_value%TYPE     := NULL
     )
     AS
-        out_log_id              logs_events.log_id%TYPE;
+        out_log_id              log_events.log_id%TYPE;
     BEGIN
         out_log_id := app.log_event (
             in_event_id         => in_event_id,
