@@ -17,7 +17,7 @@ WHERE l.created_at          >= TRUNC(SYSDATE)
 --
 UNION ALL
 SELECT                              -- today users
-    902 AS page_id,
+    915 AS page_id,
     ' ' AS page_alias,
     --
     TO_CHAR(NULLIF(COUNT(DISTINCT s.user_id), 0)) AS badge
@@ -34,7 +34,15 @@ SELECT                              -- pages to add/remove
     TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
 FROM nav_overview n
 WHERE n.app_id              = app.get_app_id()
-    AND n.action            IS NOT NULL;
+    AND n.action            IS NOT NULL
+--
+UNION ALL
+SELECT                              -- running jobs
+    905 AS page_id,
+    ' ' AS page_alias,
+    --
+    TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
+FROM user_scheduler_running_jobs j;
 --
 COMMENT ON TABLE nav_badges                 IS 'View with current badges in top menu';
 --
