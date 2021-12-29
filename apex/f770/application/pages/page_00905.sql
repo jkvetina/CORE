@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211229064556'
+,p_last_upd_yyyymmddhh24miss=>'20211229065258'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(11425322549377813)
@@ -1716,7 +1716,7 @@ wwv_flow_api.create_page_button(
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
 ,p_button_image_alt=>'Stop All'
 ,p_button_position=>'RIGHT_OF_TITLE'
-,p_button_redirect_url=>'f?p=&APP_ID.:905:&SESSION.::&DEBUG.:905:P905_JOB_NAME,P905_JOB_ACTION:,STOP_ALL'
+,p_button_redirect_url=>'f?p=&APP_ID.:905:&SESSION.::&DEBUG.:905:P905_JOB_NAME,P905_JOB_ACTION,G_TODAY:,STOP_ALL,'
 ,p_icon_css_classes=>'fa-tank'
 );
 wwv_flow_api.create_page_button(

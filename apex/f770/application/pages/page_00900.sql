@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211228171447'
+,p_last_upd_yyyymmddhh24miss=>'20211229065041'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9263989035429040)
@@ -449,6 +449,8 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
+,p_link_target=>'f?p=&APP_ID.:905:&SESSION.::&DEBUG.::P905_JOB_STATUS:FAILED'
+,p_link_text=>'&COUNT_FAILED.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_lov_type=>'NONE'

@@ -68,8 +68,8 @@ SELECT
     s.count_users,
     e.count_events,
     --
-    j.count_schedulers,
-    j.count_failed,
+    NULLIF(j.count_schedulers, 0)   AS count_schedulers,
+    NULLIF(j.count_failed, 0)       AS count_failed,
     --
     app.get_icon('fa-trash-o', 'Delete related logs') AS action
 FROM l
