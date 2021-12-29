@@ -1593,8 +1593,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
     )
     RETURN log_events.log_id%TYPE
     AS
-        PRAGMA AUTONOMOUS_TRANSACTION;
-        --
         rec                     log_events%ROWTYPE;
     BEGIN
         rec.app_id              := app.get_app_id();
@@ -1638,13 +1636,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.event_value     := in_event_value;
         rec.created_at      := SYSDATE;
         --
-        COMMIT;
         INSERT INTO log_events VALUES rec;
         --
         RETURN rec.log_id;
     EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK;
         app.raise_error();
     END;
 
