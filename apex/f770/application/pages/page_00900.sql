@@ -589,6 +589,7 @@ wwv_flow_api.create_ig_report(
 ,p_static_id=>'111743'
 ,p_type=>'PRIMARY'
 ,p_default_view=>'GRID'
+,p_rows_per_page=>20
 ,p_show_row_number=>false
 ,p_settings_area_expanded=>false
 );

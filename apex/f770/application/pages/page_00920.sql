@@ -5770,7 +5770,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>10
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PREP_USER_ROLES'
+,p_process_name=>'PREP_USER_ROLES_PIVOT'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app_actions.prep_user_roles_pivot(:APP_PAGE_ID);',
 ''))
