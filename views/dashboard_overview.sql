@@ -43,7 +43,7 @@ l AS (
 j AS (
     SELECT
         TRUNC(d.actual_start_date)                                  AS today,
-        COUNT(d.log_id)                                             AS count_schedulers,
+        COUNT(d.log_id)                                             AS count_succeeded,
         SUM(CASE WHEN d.status = 'SUCCEEDED' THEN 0 ELSE 1 END)     AS count_failed
     FROM user_scheduler_job_run_details d
     WHERE d.actual_start_date >= TRUNC(SYSDATE) - 7
@@ -68,10 +68,10 @@ SELECT
     s.count_users,
     e.count_events,
     --
-    NULLIF(j.count_schedulers, 0)   AS count_schedulers,
-    NULLIF(j.count_failed, 0)       AS count_failed,
+    NULLIF(j.count_succeeded - j.count_failed, 0)       AS count_succeeded,
+    NULLIF(j.count_failed, 0)                           AS count_failed,
     --
-    app.get_icon('fa-trash-o', 'Delete related logs') AS action
+    app.get_icon('fa-trash-o', 'Delete related logs')   AS action
 FROM l
 LEFT JOIN s ON s.today = l.today
 LEFT JOIN e ON e.today = l.today
