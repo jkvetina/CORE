@@ -143,7 +143,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
     -- Get value from Settings table
     --
     FUNCTION get_setting (
-        in_name                 settings.setting_id%TYPE,
+        in_name                 settings.setting_name%TYPE,
         in_context              settings.setting_context%TYPE       := NULL
     )
     RETURN settings.setting_value%TYPE;
@@ -156,7 +156,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
     PROCEDURE set_setting (
         in_action                       CHAR,
         in_out_rowid    IN OUT NOCOPY   VARCHAR2,
-        in_name                         settings.setting_id%TYPE,
+        in_name                         settings.setting_name%TYPE,
         in_context                      settings.setting_context%TYPE       := NULL,
         in_group                        settings.setting_group%TYPE         := NULL,
         in_value                        settings.setting_value%TYPE         := NULL,

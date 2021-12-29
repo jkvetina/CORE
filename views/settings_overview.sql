@@ -29,34 +29,38 @@ r AS (
 )
 SELECT
     s.ROWID                 AS rid,
-    s.setting_id,
-    s.setting_context,
     s.setting_group,
+    s.setting_name,
     s.setting_value,
-    s.description_,
+    s.setting_context,
     s.is_numeric,
     s.is_date,
     --
     p.procedure_name,
     p.data_type,
     --
-    CASE
-        WHEN (p.procedure_name IS NULL
-            OR (s.is_numeric    = 'Y' AND p.data_type != 'NUMBER')
-            OR (s.is_date       = 'Y' AND p.data_type != 'DATE')
-        )
-        THEN app.get_icon('fa-warning', 'Rebuild needed')
-        END AS action,
-    --
     r.references,
     --
+    CASE
+        WHEN p.procedure_name IS NOT NULL
+            AND (
+                (p.data_type    = 'VARCHAR2'    AND s.is_numeric IS NULL AND s.is_date IS NULL)
+                OR (p.data_type = 'NUMBER'      AND s.is_numeric = 'Y')
+                OR (p.data_type = 'DATE'        AND s.is_date = 'Y')
+            )
+        THEN NULL
+        ELSE app.get_icon('fa-warning', 'Rebuild needed')
+        END AS action_check,
+    --
+    s.description_,
     s.updated_by,
     s.updated_at
 FROM settings s
 CROSS JOIN x
 LEFT JOIN p
-    ON p.procedure_name     = x.prefix || s.setting_id
+    ON p.procedure_name     = x.prefix || s.setting_name
 LEFT JOIN r
-    ON r.procedure_name     = x.prefix || s.setting_id
-WHERE s.app_id              = app.get_app_id();
+    ON r.procedure_name     = x.prefix || s.setting_name
+WHERE s.app_id              = app.get_app_id()
+    AND s.setting_context   IS NULL;
 

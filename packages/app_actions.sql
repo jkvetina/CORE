@@ -336,7 +336,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
     FUNCTION get_setting (
-        in_name                 settings.setting_id%TYPE,
+        in_name                 settings.setting_name%TYPE,
         in_context              settings.setting_context%TYPE       := NULL
     )
     RETURN settings.setting_value%TYPE
@@ -346,7 +346,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         SELECT s.setting_value INTO out_value
         FROM settings s
         WHERE s.app_id              = app.get_app_id()
-            AND s.setting_id        = in_name
+            AND s.setting_name        = in_name
             AND s.setting_context   = in_context;
         --
         RETURN out_value;
@@ -356,7 +356,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             SELECT s.setting_value INTO out_value
             FROM settings s
             WHERE s.app_id              = app.get_app_id()
-                AND s.setting_id        = in_name
+                AND s.setting_name        = in_name
                 AND s.setting_context   IS NULL;
             --
             RETURN out_value;
@@ -371,7 +371,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     PROCEDURE set_setting (
         in_action                       CHAR,
         in_out_rowid    IN OUT NOCOPY   VARCHAR2,
-        in_name                         settings.setting_id%TYPE,
+        in_name                         settings.setting_name%TYPE,
         in_context                      settings.setting_context%TYPE       := NULL,
         in_group                        settings.setting_group%TYPE         := NULL,
         in_value                        settings.setting_value%TYPE         := NULL,
@@ -393,7 +393,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         ));
         --
         rec.app_id              := app.get_app_id();
-        rec.setting_id          := RTRIM(RTRIM(UPPER(in_name)));
+        rec.setting_name        := RTRIM(RTRIM(UPPER(in_name)));
         rec.setting_context     := RTRIM(RTRIM(in_context));
         rec.setting_group       := in_group;
         rec.setting_value       := in_value;
@@ -447,16 +447,16 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         FOR c IN (
             SELECT
-                s.setting_id,
+                s.setting_name,
                 MAX(s.is_numeric)   AS is_numeric,
                 MAX(s.is_date)      AS is_date
             FROM settings s
             WHERE s.app_id          = app.get_app_id()
-            GROUP BY s.setting_id
-            ORDER BY s.setting_id
+            GROUP BY s.setting_name
+            ORDER BY s.setting_name
         ) LOOP
             q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_id) || ' (' || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
             q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             q := q || '    )' || CHR(10);
             q := q || '    RETURN ' || CASE
@@ -475,16 +475,16 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         FOR c IN (
             SELECT
-                s.setting_id,
+                s.setting_name,
                 MAX(s.is_numeric)   AS is_numeric,
                 MAX(s.is_date)      AS is_date
             FROM settings s
             WHERE s.app_id          = app.get_app_id()
-            GROUP BY s.setting_id
-            ORDER BY s.setting_id
+            GROUP BY s.setting_name
+            ORDER BY s.setting_name
         ) LOOP
             q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_id) || ' (' || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
             q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             q := q || '    )' || CHR(10);
             q := q || '    RETURN ' || CASE
@@ -497,7 +497,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                                     WHEN c.is_numeric   = 'Y' THEN 'TO_NUMBER('
                                     WHEN c.is_date      = 'Y' THEN 'app.get_date('
                                     END || 'app_actions.get_setting (' || CHR(10);
-            q := q || '            in_name             => ''' || c.setting_id || ''',' || CHR(10);
+            q := q || '            in_name             => ''' || c.setting_name || ''',' || CHR(10);
             q := q || '            in_context          => in_context' || CHR(10);
             q := q || '        ' || CASE
                                     WHEN NVL(c.is_numeric, c.is_date) = 'Y' THEN ')'
