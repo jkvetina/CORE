@@ -1451,7 +1451,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         -- update timer
         UPDATE logs l
-        SET l.module_time   = app.get_duration(in_start => l.created_at),
+        SET l.module_timer  = app.get_duration(in_start => l.created_at),
             l.payload       = NVL(in_payload, l.payload)
         WHERE l.log_id      = NVL(in_log_id, recent_log_id);
         --
@@ -1486,7 +1486,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         UPDATE logs l
         SET l.arguments     = v_args,
             l.payload       = NVL(in_payload, l.payload),
-            l.module_time   = app.get_duration(in_start => l.created_at)
+            l.module_timer  = app.get_duration(in_start => l.created_at)
         WHERE l.log_id      = in_log_id;
         --
         COMMIT;
@@ -1560,7 +1560,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             UPDATE logs l
             SET l.arguments     = ROUND(NVL(in_progress, 0) * 100, 2) || '%',
                 l.payload       = rec.payload,
-                l.module_time   = app.get_duration(in_start => rec.created_at)
+                l.module_timer  = app.get_duration(in_start => rec.created_at)
             WHERE l.log_id      = rec.log_id;
         END IF;
 

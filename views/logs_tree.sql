@@ -9,7 +9,7 @@ SELECT
     l.action_name,
     LPAD(' ', (LEVEL - 1) * 6) || l.module_name AS module_name,
     l.module_line,
-    l.module_time,
+    l.module_timer,
     l.arguments,
     l.payload,
     l.session_id,
@@ -30,7 +30,7 @@ COMMENT ON COLUMN logs_tree.flag                IS 'Type of error listed in `tre
 COMMENT ON COLUMN logs_tree.action_name         IS 'Action name to distinguish position in module or use it as warning/error names';
 COMMENT ON COLUMN logs_tree.module_name         IS 'Module name (procedure or function name)';
 COMMENT ON COLUMN logs_tree.module_line         IS 'Line in the module';
-COMMENT ON COLUMN logs_tree.module_time         IS 'Timer for current row in seconds';
+COMMENT ON COLUMN logs_tree.module_timer        IS 'Timer for current row in seconds';
 COMMENT ON COLUMN logs_tree.arguments           IS 'Arguments passed to module';
 COMMENT ON COLUMN logs_tree.payload             IS 'Formatted call stack, error stack or query with DML error';
 COMMENT ON COLUMN logs_tree.session_id          IS 'Session id from `sessions` table';

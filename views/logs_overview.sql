@@ -21,7 +21,7 @@ SELECT
     l.action_name,
     l.module_name,
     l.module_line,
-    l.module_time,
+    l.module_timer,
     l.arguments,
     l.payload,
     l.session_id,
