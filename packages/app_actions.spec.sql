@@ -29,6 +29,13 @@ CREATE OR REPLACE PACKAGE app_actions AS
      *
      */
 
+    in_settings_package         CONSTANT VARCHAR2(30) := 'SETT';
+    in_settings_prefix          CONSTANT VARCHAR2(30) := 'get_';
+
+
+
+
+
     --
     -- Remove missing pages from NAVIGATION table
     --
@@ -129,6 +136,41 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_c049         VARCHAR2 := NULL,
         in_c050         VARCHAR2 := NULL
     );
+
+
+
+    --
+    -- Get value from Settings table
+    --
+    FUNCTION get_setting (
+        in_name                 settings.setting_id%TYPE,
+        in_context              settings.setting_context%TYPE       := NULL
+    )
+    RETURN settings.setting_value%TYPE;
+
+
+
+    --
+    -- Store/update settings
+    --
+    PROCEDURE set_setting (
+        in_action                       CHAR,
+        in_out_rowid    IN OUT NOCOPY   VARCHAR2,
+        in_name                         settings.setting_id%TYPE,
+        in_context                      settings.setting_context%TYPE       := NULL,
+        in_group                        settings.setting_group%TYPE         := NULL,
+        in_value                        settings.setting_value%TYPE         := NULL,
+        in_description                  settings.description_%TYPE          := NULL,
+        in_is_numeric                   settings.is_numeric%TYPE            := NULL,
+        in_is_date                      settings.is_date%TYPE               := NULL
+    );
+
+
+
+    --
+    -- Rebuild package containing function matching Settings table
+    --
+    PROCEDURE rebuild_settings;
 
 END;
 /

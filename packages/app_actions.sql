@@ -333,5 +333,193 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         app.raise_error();
     END;
 
+
+
+    FUNCTION get_setting (
+        in_name                 settings.setting_id%TYPE,
+        in_context              settings.setting_context%TYPE       := NULL
+    )
+    RETURN settings.setting_value%TYPE
+    AS
+        out_value               settings.setting_value%TYPE;
+    BEGIN
+        SELECT s.setting_value INTO out_value
+        FROM settings s
+        WHERE s.app_id              = app.get_app_id()
+            AND s.setting_id        = in_name
+            AND s.setting_context   = in_context;
+        --
+        RETURN out_value;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        BEGIN
+            SELECT s.setting_value INTO out_value
+            FROM settings s
+            WHERE s.app_id              = app.get_app_id()
+                AND s.setting_id        = in_name
+                AND s.setting_context   IS NULL;
+            --
+            RETURN out_value;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RETURN NULL;
+        END;
+    END;
+
+
+
+    PROCEDURE set_setting (
+        in_action                       CHAR,
+        in_out_rowid    IN OUT NOCOPY   VARCHAR2,
+        in_name                         settings.setting_id%TYPE,
+        in_context                      settings.setting_context%TYPE       := NULL,
+        in_group                        settings.setting_group%TYPE         := NULL,
+        in_value                        settings.setting_value%TYPE         := NULL,
+        in_description                  settings.description_%TYPE          := NULL,
+        in_is_numeric                   settings.is_numeric%TYPE            := NULL,
+        in_is_date                      settings.is_date%TYPE               := NULL
+    )
+    AS
+        rec                     settings%ROWTYPE;
+    BEGIN
+        app.log_module(app.get_json_object(
+            'in_action',        in_action,
+            'in_rowid',         in_out_rowid,
+            'in_name',          in_name,
+            'in_context',       in_context,
+            'in_value',         in_value,
+            'in_is_numeric',    in_is_numeric,
+            'in_is_date',       in_is_date
+        ));
+        --
+        rec.app_id              := app.get_app_id();
+        rec.setting_id          := RTRIM(RTRIM(UPPER(in_name)));
+        rec.setting_context     := RTRIM(RTRIM(in_context));
+        rec.setting_group       := in_group;
+        rec.setting_value       := in_value;
+        rec.description_        := in_description;
+        rec.is_numeric          := in_is_numeric;
+        rec.is_date             := in_is_date;
+        rec.updated_by          := app.get_user_id();
+        rec.updated_at          := SYSDATE;
+        --
+        CASE in_action
+        WHEN 'D' THEN
+            DELETE FROM settings s
+            WHERE s.app_id              = rec.app_id
+                AND ROWID               = in_out_rowid;
+        --
+        WHEN 'U' THEN
+            UPDATE settings s
+            SET ROW                     = rec
+            WHERE s.app_id              = rec.app_id
+                AND ROWID               = in_out_rowid;
+            --
+            IF SQL%ROWCOUNT = 0 THEN
+                app.raise_error('SETTINGS_UPDATE_FAILED');
+            END IF;
+        --
+        ELSE
+            BEGIN
+                INSERT INTO settings VALUES rec
+                RETURNING ROWID INTO in_out_rowid;
+            EXCEPTION
+            WHEN DUP_VAL_ON_INDEX THEN
+                app.raise_error('SETTINGS_EXISTS');
+            END;
+        END CASE;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE rebuild_settings AS
+        q VARCHAR2(32767);
+    BEGIN
+        app.log_module();
+
+        -- create specification
+        q := 'CREATE OR REPLACE PACKAGE ' || LOWER(in_settings_package) || ' AS' || CHR(10);
+        --
+        FOR c IN (
+            SELECT
+                s.setting_id,
+                MAX(s.is_numeric)   AS is_numeric,
+                MAX(s.is_date)      AS is_date
+            FROM settings s
+            WHERE s.app_id          = app.get_app_id()
+            GROUP BY s.setting_id
+            ORDER BY s.setting_id
+        ) LOOP
+            q := q || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_id) || ' (' || CHR(10);
+            q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
+            q := q || '    )' || CHR(10);
+            q := q || '    RETURN ' || CASE
+                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
+                                WHEN c.is_date      = 'Y' THEN 'DATE'
+                                ELSE 'VARCHAR2' END || CHR(10);
+            q := q || '    RESULT_CACHE;' || CHR(10);                   ---------- howto invalidate RESULT_CACHE ???
+        END LOOP;
+        --
+        q := q || CHR(10) || 'END;';
+        --
+        EXECUTE IMMEDIATE q;
+
+        -- create package body
+        q := 'CREATE OR REPLACE PACKAGE BODY ' || LOWER(in_settings_package) || ' AS' || CHR(10);
+        --
+        FOR c IN (
+            SELECT
+                s.setting_id,
+                MAX(s.is_numeric)   AS is_numeric,
+                MAX(s.is_date)      AS is_date
+            FROM settings s
+            WHERE s.app_id          = app.get_app_id()
+            GROUP BY s.setting_id
+            ORDER BY s.setting_id
+        ) LOOP
+            q := q || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_id) || ' (' || CHR(10);
+            q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
+            q := q || '    )' || CHR(10);
+            q := q || '    RETURN ' || CASE
+                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
+                                WHEN c.is_date      = 'Y' THEN 'DATE'
+                                ELSE 'VARCHAR2' END || CHR(10);
+            q := q || '    RESULT_CACHE AS' || CHR(10);
+            q := q || '    BEGIN' || CHR(10);
+            q := q || '        RETURN ' || CASE
+                                    WHEN c.is_numeric   = 'Y' THEN 'TO_NUMBER('
+                                    WHEN c.is_date      = 'Y' THEN 'app.get_date('
+                                    END || 'app_actions.get_setting (' || CHR(10);
+            q := q || '            in_name             => ''' || c.setting_id || ''',' || CHR(10);
+            q := q || '            in_context          => in_context' || CHR(10);
+            q := q || '        ' || CASE
+                                    WHEN NVL(c.is_numeric, c.is_date) = 'Y' THEN ')'
+                                    END || ');' || CHR(10);
+            q := q || '    EXCEPTION' || CHR(10);
+            q := q || '    WHEN NO_DATA_FOUND THEN' || CHR(10);
+            q := q || '        RETURN NULL;' || CHR(10);
+            q := q || '    END;' || CHR(10);
+        END LOOP;
+        --
+        q := q || CHR(10) || 'END;';
+        --
+        DBMS_OUTPUT.PUT_LINE(q);
+        EXECUTE IMMEDIATE q;
+        --
+        recompile();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
 END;
 /
