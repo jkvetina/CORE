@@ -2475,7 +2475,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(22397759808564727)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'Whitelist [GRID]'
+,p_process_name=>'WHITELIST'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'LOGS_SETUP'
 ,p_attribute_05=>'Y'
@@ -2489,7 +2489,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(22404604748565554)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'Blacklist [GRID]'
+,p_process_name=>'BLACKLIST'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'LOGS_SETUP'
 ,p_attribute_05=>'Y'

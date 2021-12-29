@@ -1172,7 +1172,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(21826177875427641)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'Events'
+,p_process_name=>'EVENTS'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'EVENTS'
 ,p_attribute_05=>'Y'
