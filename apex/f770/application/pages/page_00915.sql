@@ -441,7 +441,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(22146308473551358)
 ,p_view_id=>wwv_flow_api.id(22143051252551344)
-,p_display_seq=>3
+,p_display_seq=>4
 ,p_column_id=>wwv_flow_api.id(22117230137769049)
 ,p_is_visible=>true
 ,p_is_frozen=>false
@@ -450,7 +450,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(22147170537551360)
 ,p_view_id=>wwv_flow_api.id(22143051252551344)
-,p_display_seq=>4
+,p_display_seq=>3
 ,p_column_id=>wwv_flow_api.id(22117286286769050)
 ,p_is_visible=>true
 ,p_is_frozen=>false
