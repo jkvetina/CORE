@@ -442,8 +442,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    PROCEDURE rebuild_settings AS
-        q VARCHAR2(32767);
     PROCEDURE set_setting_bulk (
         in_c001         settings.setting_value%TYPE,
         in_c002         settings.setting_value%TYPE,
@@ -500,38 +498,10 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec             settings%ROWTYPE;
         v_offset        CONSTANT PLS_INTEGER := 3;  -- used columns (name, group, default)
     BEGIN
-        app.log_module();
-
-        -- create specification
-        q := 'CREATE OR REPLACE PACKAGE ' || LOWER(in_settings_package) || ' AS' || CHR(10);
-        --
-        FOR c IN (
-            SELECT
-                s.setting_name,
-                MAX(s.is_numeric)   AS is_numeric,
-                MAX(s.is_date)      AS is_date
-            FROM settings s
-            WHERE s.app_id          = app.get_app_id()
-            GROUP BY s.setting_name
-            ORDER BY s.setting_name
-        ) LOOP
-            q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
-            q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
-            q := q || '    )' || CHR(10);
-            q := q || '    RETURN ' || CASE
-                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
-                                WHEN c.is_date      = 'Y' THEN 'DATE'
-                                ELSE 'VARCHAR2' END || CHR(10);
-            q := q || '    RESULT_CACHE;' || CHR(10);                   ---------- howto invalidate RESULT_CACHE ???
-        END LOOP;
-        --
-        q := q || CHR(10) || 'END;';
         app.log_module(in_args => app.get_json_list(
             in_c001, in_c002, in_c003, in_c004, in_c005, in_c006
         ));
         --
-        EXECUTE IMMEDIATE q;
         rec.app_id              := app.get_app_id();
         rec.setting_name        := in_c001;
         rec.setting_value       := in_c003;                 -- fill in the loop
@@ -553,48 +523,14 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             AND s.setting_name      = rec.setting_name
             AND s.setting_context   IS NULL;
 
-        -- create package body
-        q := 'CREATE OR REPLACE PACKAGE BODY ' || LOWER(in_settings_package) || ' AS' || CHR(10);
-        --
-        FOR c IN (
         -- match order with view on page
         FOR r IN (
             SELECT
-                s.setting_name,
-                MAX(s.is_numeric)   AS is_numeric,
-                MAX(s.is_date)      AS is_date
-            FROM settings s
-            WHERE s.app_id          = app.get_app_id()
-            GROUP BY s.setting_name
-            ORDER BY s.setting_name
                 s.context_id,
                 'C' || SUBSTR(1000 + v_offset + ROW_NUMBER() OVER(ORDER BY s.order# NULLS LAST, s.context_id), 2, 3) AS arg
             FROM setting_contexts s
             WHERE s.app_id = rec.app_id
         ) LOOP
-            q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
-            q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
-            q := q || '    )' || CHR(10);
-            q := q || '    RETURN ' || CASE
-                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
-                                WHEN c.is_date      = 'Y' THEN 'DATE'
-                                ELSE 'VARCHAR2' END || CHR(10);
-            q := q || '    RESULT_CACHE AS' || CHR(10);
-            q := q || '    BEGIN' || CHR(10);
-            q := q || '        RETURN ' || CASE
-                                    WHEN c.is_numeric   = 'Y' THEN 'TO_NUMBER('
-                                    WHEN c.is_date      = 'Y' THEN 'app.get_date('
-                                    END || 'app_actions.get_setting (' || CHR(10);
-            q := q || '            in_name             => ''' || c.setting_name || ''',' || CHR(10);
-            q := q || '            in_context          => in_context' || CHR(10);
-            q := q || '        ' || CASE
-                                    WHEN NVL(c.is_numeric, c.is_date) = 'Y' THEN ')'
-                                    END || ');' || CHR(10);
-            q := q || '    EXCEPTION' || CHR(10);
-            q := q || '    WHEN NO_DATA_FOUND THEN' || CHR(10);
-            q := q || '        RETURN NULL;' || CHR(10);
-            q := q || '    END;' || CHR(10);
             CONTINUE WHEN r.arg IN ('C001', 'C002', 'C003');
             --
             rec.setting_context := CASE
@@ -659,13 +595,89 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             VALUES rec;
         END LOOP;
         --
-        q := q || CHR(10) || 'END;';
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE rebuild_settings
+    AS
+        q       VARCHAR2(32767);
+        b       VARCHAR2(32767);
+    BEGIN
+        app.log_module();
         --
-        DBMS_OUTPUT.PUT_LINE(q);
+        app_actions.refresh_user_source_views();
+        --
+        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(in_settings_package) || ' AS' || CHR(10);
+        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(in_settings_package) || ' AS' || CHR(10);
+        --
+        FOR c IN (
+            SELECT
+                s.setting_name,
+                s.is_numeric,
+                s.is_date
+            FROM settings s
+            WHERE s.app_id              = app.get_app_id()
+                AND s.setting_context   IS NULL
+            ORDER BY s.setting_name
+        ) LOOP
+            -- create specification
+            q := q || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
+            q := q || '    )' || CHR(10);
+            q := q || '    RETURN ' || CASE
+                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
+                                WHEN c.is_date      = 'Y' THEN 'DATE'
+                                ELSE 'VARCHAR2' END || CHR(10);
+            q := q || '    RESULT_CACHE;' || CHR(10);
+
+            -- create package body
+            b := b || CHR(10);
+            b := b || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            b := b || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
+            b := b || '    )' || CHR(10);
+            b := b || '    RETURN ' || CASE
+                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
+                                WHEN c.is_date      = 'Y' THEN 'DATE'
+                                ELSE 'VARCHAR2' END || CHR(10);
+            b := b || '    RESULT_CACHE AS' || CHR(10);
+            b := b || '    BEGIN' || CHR(10);
+            b := b || '        RETURN ' || CASE
+                                    WHEN c.is_numeric   = 'Y' THEN 'TO_NUMBER('
+                                    WHEN c.is_date      = 'Y' THEN 'app.get_date('
+                                    END || 'app_actions.get_setting (' || CHR(10);
+            b := b || '            in_name             => ''' || c.setting_name || ''',' || CHR(10);
+            b := b || '            in_context          => in_context' || CHR(10);
+            b := b || '        ' || CASE
+                                    WHEN NVL(c.is_numeric, c.is_date) = 'Y' THEN ')'
+                                    END || ');' || CHR(10);
+            b := b || '    EXCEPTION' || CHR(10);
+            b := b || '    WHEN NO_DATA_FOUND THEN' || CHR(10);
+            b := b || '        RETURN NULL;' || CHR(10);
+            b := b || '    END;' || CHR(10);
+        END LOOP;
+        --
+        q := q || CHR(10) || 'END;';
+        b := b || CHR(10) || 'END;';
+        --
         EXECUTE IMMEDIATE q;
+        EXECUTE IMMEDIATE b;
         --
         recompile();
-        app.log_success();
+        --
+        /*
+        DBMS_RESULT_CACHE.INVALIDATE (
+            owner   => app.schema_owner,
+            name    => app_actions.in_settings_package
+        );
+        */
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
@@ -684,11 +696,13 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         v_cols                  PLS_INTEGER;
         v_cursor                PLS_INTEGER                 := DBMS_SQL.OPEN_CURSOR;
         v_desc                  DBMS_SQL.DESC_TAB;
+        --
+        v_context_name          setting_contexts.context_name%TYPE;
     BEGIN
         -- build query
         v_query := v_query || 'SELECT' || CHR(10);
         v_query := v_query || '    s.setting_name,' || CHR(10);
-        v_query := v_query || '    s.setting_group,' || CHR(10);
+        v_query := v_query || '    MAX(s.setting_group) AS setting_group,' || CHR(10);
         --
         v_query := v_query || '    MAX(CASE WHEN s.setting_context IS NULL THEN s.setting_value END) AS null__,' || CHR(10);
         --
@@ -704,7 +718,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         v_query := RTRIM(RTRIM(v_query, CHR(10)), ',') || CHR(10);
         v_query := v_query || 'FROM settings s' || CHR(10);
         v_query := v_query || 'WHERE s.app_id = app.get_app_id()' || CHR(10);
-        v_query := v_query || 'GROUP BY s.setting_name, s.setting_group';
+        v_query := v_query || 'GROUP BY s.setting_name';
         --
         app.log_debug(in_payload => v_query);
         DBMS_OUTPUT.PUT_LINE(v_query);
@@ -726,9 +740,14 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         FOR i IN 1 .. v_desc.COUNT LOOP
             BEGIN
+                SELECT NVL(c.context_name, c.context_id) INTO v_context_name
+                FROM setting_contexts c
+                WHERE c.app_id          = app.get_app_id()
+                    AND c.context_id    = RTRIM(v_desc(i).col_name, '_');
+                --
                 APEX_UTIL.SET_SESSION_STATE (
                     p_name      => 'P' || in_page_id || '_C' || LPAD(i, 3, 0),
-                    p_value     => get_role_name(RTRIM(v_desc(i).col_name, '_')),
+                    p_value     => v_context_name,
                     p_commit    => FALSE
                 );
             EXCEPTION
@@ -736,6 +755,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 NULL;           -- item might not exists
             END;
         END LOOP;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 
