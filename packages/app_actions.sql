@@ -586,5 +586,75 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         END LOOP;
     END;
 
+
+
+    PROCEDURE refresh_user_source_views
+    AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+        --
+        PROCEDURE clob_to_lines (
+            in_name         VARCHAR2,
+            in_clob         CLOB
+        ) AS
+            clob_len        PLS_INTEGER     := DBMS_LOB.GETLENGTH(in_clob);
+            clob_line       PLS_INTEGER     := 1;
+            offset          PLS_INTEGER     := 1;
+            amount          PLS_INTEGER     := 32767;
+            buffer          VARCHAR2(32767);
+        BEGIN
+            WHILE offset < clob_len LOOP
+                IF INSTR(in_clob, CHR(10), offset) = 0 THEN
+                    amount := clob_len - offset + 1;
+                ELSE
+                    amount := INSTR(in_clob, CHR(10), offset) - offset;
+                END IF;
+                --
+                IF amount = 0 THEN
+                    buffer := '';
+                ELSE
+                    DBMS_LOB.READ(in_clob, amount, offset, buffer);
+                END IF;
+                --
+                INSERT INTO user_source_views (name, line, text)
+                VALUES (
+                    in_name,
+                    clob_line,
+                    REPLACE(REPLACE(buffer, CHR(13), ''), CHR(10), '')
+                );
+                --
+                clob_line := clob_line + 1;
+                IF INSTR(in_clob, CHR(10), offset) = clob_len THEN
+                    buffer := '';
+                END IF;
+                offset := offset + amount + 1;
+            END LOOP;
+        END;
+    BEGIN
+        app.log_module();
+        --
+        DELETE FROM user_source_views;
+        --
+        FOR c IN (
+            SELECT
+                v.view_name,
+                DBMS_METADATA.GET_DDL('VIEW', v.view_name) AS content
+            FROM user_views v
+        ) LOOP
+            DBMS_OUTPUT.PUT_LINE(c.view_name);
+            clob_to_lines(c.view_name, REGEXP_REPLACE(c.content, '^(\s*)', ''));
+        END LOOP;
+        --
+        COMMIT;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        ROLLBACK;
+        RAISE;
+    WHEN OTHERS THEN
+        ROLLBACK;
+        app.raise_error();
+    END;
+
 END;
 /

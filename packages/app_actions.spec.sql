@@ -181,5 +181,12 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_page_id              apex_application_pages.page_id%TYPE
     );
 
+
+
+    --
+    -- Refresh views source (convert views source to lines)
+    --
+    PROCEDURE refresh_user_source_views;
+
 END;
 /
