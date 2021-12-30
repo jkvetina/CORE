@@ -36,6 +36,31 @@ COMPOUND TRIGGER
         IF NOT DELETING THEN
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
+
+            -- check name
+            IF NOT REGEXP_LIKE(:NEW.setting_name, '^[A-Z0-9_]{1,' || TO_CHAR(30 - NVL(LENGTH(app_actions.in_settings_prefix), 0)) || '}$') THEN
+                app.raise_error('WRONG_NAME', :NEW.setting_name);
+            END IF;
+
+            -- check date value
+            IF :NEW.is_date = 'Y' THEN
+                BEGIN
+                    :NEW.setting_value := app.get_date(app.get_date(:NEW.setting_value));
+                EXCEPTION
+                WHEN OTHERS THEN
+                    app.raise_error('WRONG_DATE');
+                END;
+            END IF;
+
+            -- check numeric value
+            IF :NEW.is_numeric = 'Y' THEN
+                BEGIN
+                    :NEW.setting_value := TO_NUMBER(REPLACE(:NEW.setting_value, ',', '.'));
+                EXCEPTION
+                WHEN OTHERS THEN
+                    app.raise_error('WRONG_NUMBER');
+                END;
+            END IF;
         END IF;
         --
         curr_event_id := app.log_event('SETTINGS_CHANGED');
