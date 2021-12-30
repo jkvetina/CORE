@@ -1,7 +1,7 @@
-prompt --application/shared_components/security/authentications/application_express_accounts
+prompt --application/shared_components/security/authentications/apex_accounts
 begin
 --   Manifest
---     AUTHENTICATION: Application Express Accounts
+--     AUTHENTICATION: APEX_ACCOUNTS
 --   Manifest End
 wwv_flow_api.component_begin (
  p_version_yyyy_mm_dd=>'2021.04.15'
@@ -13,7 +13,7 @@ wwv_flow_api.component_begin (
 );
 wwv_flow_api.create_authentication(
  p_id=>wwv_flow_api.id(9022228209569811)
-,p_name=>'Application Express Accounts'
+,p_name=>'APEX_ACCOUNTS'
 ,p_scheme_type=>'NATIVE_APEX_ACCOUNTS'
 ,p_invalid_session_type=>'LOGIN'
 ,p_use_secure_cookie_yn=>'N'
