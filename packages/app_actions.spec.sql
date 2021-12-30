@@ -172,5 +172,14 @@ CREATE OR REPLACE PACKAGE app_actions AS
     --
     PROCEDURE rebuild_settings;
 
+
+
+    --
+    --
+    --
+    PROCEDURE prep_settings_pivot (
+        in_page_id              apex_application_pages.page_id%TYPE
+    );
+
 END;
 /

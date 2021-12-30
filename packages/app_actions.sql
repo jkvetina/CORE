@@ -521,5 +521,70 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         app.raise_error();
     END;
 
+
+
+    PROCEDURE prep_settings_pivot (
+        in_page_id              apex_application_pages.page_id%TYPE
+    ) AS
+        in_collection           CONSTANT apex_collections.collection_name%TYPE := 'P' || TO_CHAR(in_page_id);
+        --
+        v_query                 VARCHAR2(32767);
+        v_cols                  PLS_INTEGER;
+        v_cursor                PLS_INTEGER                 := DBMS_SQL.OPEN_CURSOR;
+        v_desc                  DBMS_SQL.DESC_TAB;
+    BEGIN
+        -- build query
+        v_query := v_query || 'SELECT' || CHR(10);
+        v_query := v_query || '    s.setting_name,' || CHR(10);
+        v_query := v_query || '    s.setting_group,' || CHR(10);
+        --
+        v_query := v_query || '    MAX(CASE WHEN s.setting_context IS NULL THEN s.setting_value END) AS null__,' || CHR(10);
+        --
+        FOR c IN (
+            SELECT c.context_id
+            FROM setting_contexts c
+            WHERE c.app_id = app.get_app_id()
+            ORDER BY c.order#, c.context_id
+        ) LOOP
+            v_query := v_query || '    MAX(CASE WHEN s.setting_context = ''' || c.context_id || ''' THEN s.setting_value END) AS ' || LOWER(c.context_id) || '_,' || CHR(10);
+        END LOOP;
+        --
+        v_query := RTRIM(RTRIM(v_query, CHR(10)), ',') || CHR(10);
+        v_query := v_query || 'FROM settings s' || CHR(10);
+        v_query := v_query || 'WHERE s.app_id = app.get_app_id()' || CHR(10);
+        v_query := v_query || 'GROUP BY s.setting_name, s.setting_group';
+        --
+        app.log_debug(in_payload => v_query);
+        DBMS_OUTPUT.PUT_LINE(v_query);
+
+        -- initialize and populate collection
+        IF APEX_COLLECTION.COLLECTION_EXISTS(in_collection) THEN
+            APEX_COLLECTION.DELETE_COLLECTION(in_collection);
+        END IF;
+        --
+        APEX_COLLECTION.CREATE_COLLECTION_FROM_QUERY (
+            p_collection_name   => in_collection,
+            p_query             => v_query
+        );
+
+        -- pass proper column names via page items
+        DBMS_SQL.PARSE(v_cursor, v_query, DBMS_SQL.NATIVE);
+        DBMS_SQL.DESCRIBE_COLUMNS(v_cursor, v_cols, v_desc);
+        DBMS_SQL.CLOSE_CURSOR(v_cursor);
+        --
+        FOR i IN 1 .. v_desc.COUNT LOOP
+            BEGIN
+                APEX_UTIL.SET_SESSION_STATE (
+                    p_name      => 'P' || in_page_id || '_C' || LPAD(i, 3, 0),
+                    p_value     => get_role_name(RTRIM(v_desc(i).col_name, '_')),
+                    p_commit    => FALSE
+                );
+            EXCEPTION
+            WHEN OTHERS THEN
+                NULL;           -- item might not exists
+            END;
+        END LOOP;
+    END;
+
 END;
 /
