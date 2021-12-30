@@ -346,9 +346,14 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     BEGIN
         SELECT s.setting_value INTO out_value
         FROM settings s
-        WHERE s.app_id              = app.get_app_id()
-            AND s.setting_name        = in_name
-            AND s.setting_context   = in_context;
+        WHERE s.app_id                  = app.get_app_id()
+            AND s.setting_name          = in_name
+            AND (s.setting_context      = in_context
+                OR (
+                    s.setting_context   IS NULL
+                    AND in_context      IS NULL
+                )
+            );
         --
         RETURN out_value;
     EXCEPTION
@@ -356,8 +361,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         BEGIN
             SELECT s.setting_value INTO out_value
             FROM settings s
+            JOIN setting_contexts c
+                ON c.app_id             = s.app_id
+                AND c.context_id        = in_context
             WHERE s.app_id              = app.get_app_id()
-                AND s.setting_name        = in_name
+                AND s.setting_name      = in_name
                 AND s.setting_context   IS NULL;
             --
             RETURN out_value;
