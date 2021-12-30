@@ -370,37 +370,36 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
     PROCEDURE set_setting (
-        in_action                       CHAR,
-        in_out_rowid    IN OUT NOCOPY   VARCHAR2,
-        in_name                         settings.setting_name%TYPE,
-        in_context                      settings.setting_context%TYPE       := NULL,
-        in_group                        settings.setting_group%TYPE         := NULL,
-        in_value                        settings.setting_value%TYPE         := NULL,
-        in_description                  settings.description_%TYPE          := NULL,
-        in_is_numeric                   settings.is_numeric%TYPE            := NULL,
-        in_is_date                      settings.is_date%TYPE               := NULL
+        in_action               CHAR,
+        in_setting_name_old     settings.setting_name%TYPE,
+        in_setting_name         settings.setting_name%TYPE,
+        in_setting_group        settings.setting_group%TYPE         := NULL,
+        in_setting_value        settings.setting_value%TYPE         := NULL,
+        in_is_numeric           settings.is_numeric%TYPE            := NULL,
+        in_is_date              settings.is_date%TYPE               := NULL,
+        in_description          settings.description_%TYPE          := NULL
     )
     AS
         rec                     settings%ROWTYPE;
     BEGIN
-        app.log_module(app.get_json_object(
+        app.log_module(in_args => app.get_json_object(
             'in_action',        in_action,
-            'in_rowid',         in_out_rowid,
-            'in_name',          in_name,
-            'in_context',       in_context,
-            'in_value',         in_value,
+            'in_name_old',      in_setting_name_old,
+            'in_name',          in_setting_name,
+            'in_value',         in_setting_value,
+            'in_group',         in_setting_group,
             'in_is_numeric',    in_is_numeric,
             'in_is_date',       in_is_date
         ));
         --
         rec.app_id              := app.get_app_id();
-        rec.setting_name        := RTRIM(RTRIM(UPPER(in_name)));
-        rec.setting_context     := RTRIM(RTRIM(in_context));
-        rec.setting_group       := in_group;
-        rec.setting_value       := in_value;
-        rec.description_        := in_description;
+        rec.setting_name        := UPPER(in_setting_name);
+        rec.setting_value       := in_setting_value;
+        rec.setting_context     := NULL;
+        rec.setting_group       := in_setting_group;
         rec.is_numeric          := in_is_numeric;
         rec.is_date             := in_is_date;
+        rec.description_        := in_description;
         rec.updated_by          := app.get_user_id();
         rec.updated_at          := SYSDATE;
         --
@@ -408,22 +407,27 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         WHEN 'D' THEN
             DELETE FROM settings s
             WHERE s.app_id              = rec.app_id
-                AND ROWID               = in_out_rowid;
+                AND s.setting_name      = in_setting_name_old;
         --
         WHEN 'U' THEN
             UPDATE settings s
             SET ROW                     = rec
             WHERE s.app_id              = rec.app_id
-                AND ROWID               = in_out_rowid;
+                AND s.setting_name      = in_setting_name_old
+                AND s.setting_context   IS NULL;
             --
             IF SQL%ROWCOUNT = 0 THEN
                 app.raise_error('SETTINGS_UPDATE_FAILED');
             END IF;
+            --
+            UPDATE settings s
+            SET s.setting_name          = rec.setting_name
+            WHERE s.app_id              = rec.app_id
+                AND s.setting_name      = in_setting_name_old;
         --
         ELSE
             BEGIN
-                INSERT INTO settings VALUES rec
-                RETURNING ROWID INTO in_out_rowid;
+                INSERT INTO settings VALUES rec;
             EXCEPTION
             WHEN DUP_VAL_ON_INDEX THEN
                 app.raise_error('SETTINGS_EXISTS');

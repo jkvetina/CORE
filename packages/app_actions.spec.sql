@@ -154,15 +154,15 @@ CREATE OR REPLACE PACKAGE app_actions AS
     -- Store/update settings
     --
     PROCEDURE set_setting (
-        in_action                       CHAR,
-        in_out_rowid    IN OUT NOCOPY   VARCHAR2,
-        in_name                         settings.setting_name%TYPE,
-        in_context                      settings.setting_context%TYPE       := NULL,
-        in_group                        settings.setting_group%TYPE         := NULL,
-        in_value                        settings.setting_value%TYPE         := NULL,
-        in_description                  settings.description_%TYPE          := NULL,
-        in_is_numeric                   settings.is_numeric%TYPE            := NULL,
-        in_is_date                      settings.is_date%TYPE               := NULL
+        in_action               CHAR,
+        in_setting_name_old     settings.setting_name%TYPE,
+        in_setting_name         settings.setting_name%TYPE,
+        in_setting_group        settings.setting_group%TYPE         := NULL,
+        in_setting_value        settings.setting_value%TYPE         := NULL,
+        in_is_numeric           settings.is_numeric%TYPE            := NULL,
+        in_is_date              settings.is_date%TYPE               := NULL,
+        in_description          settings.description_%TYPE          := NULL
+    );
     );
 
 
@@ -175,7 +175,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
     --
-    --
+    -- Prepare pivot for Settings page
     --
     PROCEDURE prep_settings_pivot (
         in_page_id              apex_application_pages.page_id%TYPE
