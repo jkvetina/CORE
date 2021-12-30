@@ -239,9 +239,10 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_c049         VARCHAR2 := NULL,
         in_c050         VARCHAR2 := NULL
     ) AS
-        rec user_roles%ROWTYPE;
+        rec             user_roles%ROWTYPE;
+        v_offset        CONSTANT PLS_INTEGER := 1;  -- used columns
     BEGIN
-        app.log_module(app.get_json_list(in_action, in_c001));
+        app.log_module(in_args => app.get_json_list(in_action, in_c001));
         --
         rec.app_id          := app.get_app_id();
         rec.user_id         := in_c001;
@@ -263,7 +264,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         FOR r IN (
             SELECT
                 r.role_id,
-                'C' || SUBSTR(1001 + ROW_NUMBER() OVER(ORDER BY r.role_group NULLS LAST, r.order# NULLS LAST, r.role_id), 2, 3) AS arg
+                'C' || SUBSTR(1000 + v_offset + ROW_NUMBER() OVER(ORDER BY r.role_group NULLS LAST, r.order# NULLS LAST, r.role_id), 2, 3) AS arg
             FROM roles r
             WHERE r.app_id = rec.app_id
         ) LOOP
