@@ -163,6 +163,63 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_is_date              settings.is_date%TYPE               := NULL,
         in_description          settings.description_%TYPE          := NULL
     );
+
+
+
+    --
+    -- Store/update settings for specific contexts (pivot), including default
+    --
+    PROCEDURE set_setting_bulk (
+        in_c001         settings.setting_value%TYPE,
+        in_c002         settings.setting_value%TYPE,
+        in_c003         settings.setting_value%TYPE         := NULL,
+        in_c004         settings.setting_value%TYPE         := NULL,
+        in_c005         settings.setting_value%TYPE         := NULL,
+        in_c006         settings.setting_value%TYPE         := NULL,
+        in_c007         settings.setting_value%TYPE         := NULL,
+        in_c008         settings.setting_value%TYPE         := NULL,
+        in_c009         settings.setting_value%TYPE         := NULL,
+        in_c010         settings.setting_value%TYPE         := NULL,
+        in_c011         settings.setting_value%TYPE         := NULL,
+        in_c012         settings.setting_value%TYPE         := NULL,
+        in_c013         settings.setting_value%TYPE         := NULL,
+        in_c014         settings.setting_value%TYPE         := NULL,
+        in_c015         settings.setting_value%TYPE         := NULL,
+        in_c016         settings.setting_value%TYPE         := NULL,
+        in_c017         settings.setting_value%TYPE         := NULL,
+        in_c018         settings.setting_value%TYPE         := NULL,
+        in_c019         settings.setting_value%TYPE         := NULL,
+        in_c020         settings.setting_value%TYPE         := NULL,
+        in_c021         settings.setting_value%TYPE         := NULL,
+        in_c022         settings.setting_value%TYPE         := NULL,
+        in_c023         settings.setting_value%TYPE         := NULL,
+        in_c024         settings.setting_value%TYPE         := NULL,
+        in_c025         settings.setting_value%TYPE         := NULL,
+        in_c026         settings.setting_value%TYPE         := NULL,
+        in_c027         settings.setting_value%TYPE         := NULL,
+        in_c028         settings.setting_value%TYPE         := NULL,
+        in_c029         settings.setting_value%TYPE         := NULL,
+        in_c030         settings.setting_value%TYPE         := NULL,
+        in_c031         settings.setting_value%TYPE         := NULL,
+        in_c032         settings.setting_value%TYPE         := NULL,
+        in_c033         settings.setting_value%TYPE         := NULL,
+        in_c034         settings.setting_value%TYPE         := NULL,
+        in_c035         settings.setting_value%TYPE         := NULL,
+        in_c036         settings.setting_value%TYPE         := NULL,
+        in_c037         settings.setting_value%TYPE         := NULL,
+        in_c038         settings.setting_value%TYPE         := NULL,
+        in_c039         settings.setting_value%TYPE         := NULL,
+        in_c040         settings.setting_value%TYPE         := NULL,
+        in_c041         settings.setting_value%TYPE         := NULL,
+        in_c042         settings.setting_value%TYPE         := NULL,
+        in_c043         settings.setting_value%TYPE         := NULL,
+        in_c044         settings.setting_value%TYPE         := NULL,
+        in_c045         settings.setting_value%TYPE         := NULL,
+        in_c046         settings.setting_value%TYPE         := NULL,
+        in_c047         settings.setting_value%TYPE         := NULL,
+        in_c048         settings.setting_value%TYPE         := NULL,
+        in_c049         settings.setting_value%TYPE         := NULL,
+        in_c050         settings.setting_value%TYPE         := NULL
     );
 
 

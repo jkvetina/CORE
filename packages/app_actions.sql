@@ -444,6 +444,61 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
     PROCEDURE rebuild_settings AS
         q VARCHAR2(32767);
+    PROCEDURE set_setting_bulk (
+        in_c001         settings.setting_value%TYPE,
+        in_c002         settings.setting_value%TYPE,
+        in_c003         settings.setting_value%TYPE         := NULL,
+        in_c004         settings.setting_value%TYPE         := NULL,
+        in_c005         settings.setting_value%TYPE         := NULL,
+        in_c006         settings.setting_value%TYPE         := NULL,
+        in_c007         settings.setting_value%TYPE         := NULL,
+        in_c008         settings.setting_value%TYPE         := NULL,
+        in_c009         settings.setting_value%TYPE         := NULL,
+        in_c010         settings.setting_value%TYPE         := NULL,
+        in_c011         settings.setting_value%TYPE         := NULL,
+        in_c012         settings.setting_value%TYPE         := NULL,
+        in_c013         settings.setting_value%TYPE         := NULL,
+        in_c014         settings.setting_value%TYPE         := NULL,
+        in_c015         settings.setting_value%TYPE         := NULL,
+        in_c016         settings.setting_value%TYPE         := NULL,
+        in_c017         settings.setting_value%TYPE         := NULL,
+        in_c018         settings.setting_value%TYPE         := NULL,
+        in_c019         settings.setting_value%TYPE         := NULL,
+        in_c020         settings.setting_value%TYPE         := NULL,
+        in_c021         settings.setting_value%TYPE         := NULL,
+        in_c022         settings.setting_value%TYPE         := NULL,
+        in_c023         settings.setting_value%TYPE         := NULL,
+        in_c024         settings.setting_value%TYPE         := NULL,
+        in_c025         settings.setting_value%TYPE         := NULL,
+        in_c026         settings.setting_value%TYPE         := NULL,
+        in_c027         settings.setting_value%TYPE         := NULL,
+        in_c028         settings.setting_value%TYPE         := NULL,
+        in_c029         settings.setting_value%TYPE         := NULL,
+        in_c030         settings.setting_value%TYPE         := NULL,
+        in_c031         settings.setting_value%TYPE         := NULL,
+        in_c032         settings.setting_value%TYPE         := NULL,
+        in_c033         settings.setting_value%TYPE         := NULL,
+        in_c034         settings.setting_value%TYPE         := NULL,
+        in_c035         settings.setting_value%TYPE         := NULL,
+        in_c036         settings.setting_value%TYPE         := NULL,
+        in_c037         settings.setting_value%TYPE         := NULL,
+        in_c038         settings.setting_value%TYPE         := NULL,
+        in_c039         settings.setting_value%TYPE         := NULL,
+        in_c040         settings.setting_value%TYPE         := NULL,
+        in_c041         settings.setting_value%TYPE         := NULL,
+        in_c042         settings.setting_value%TYPE         := NULL,
+        in_c043         settings.setting_value%TYPE         := NULL,
+        in_c044         settings.setting_value%TYPE         := NULL,
+        in_c045         settings.setting_value%TYPE         := NULL,
+        in_c046         settings.setting_value%TYPE         := NULL,
+        in_c047         settings.setting_value%TYPE         := NULL,
+        in_c048         settings.setting_value%TYPE         := NULL,
+        in_c049         settings.setting_value%TYPE         := NULL,
+        in_c050         settings.setting_value%TYPE         := NULL
+    )
+    AS
+        rec             settings%ROWTYPE;
+        v_offset        CONSTANT PLS_INTEGER := 3;  -- used columns (name, group, default)
     BEGIN
         app.log_module();
 
@@ -472,13 +527,38 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         END LOOP;
         --
         q := q || CHR(10) || 'END;';
+        app.log_module(in_args => app.get_json_list(
+            in_c001, in_c002, in_c003, in_c004, in_c005, in_c006
+        ));
         --
         EXECUTE IMMEDIATE q;
+        rec.app_id              := app.get_app_id();
+        rec.setting_name        := in_c001;
+        rec.setting_value       := in_c003;                 -- fill in the loop
+        rec.setting_context     := NULL;                    -- fill in the loop
+        rec.setting_group       := in_c002;
+        rec.updated_by          := app.get_user_id();
+        rec.updated_at          := SYSDATE;
+    
+        -- cleanup setting
+        DELETE FROM settings s
+        WHERE s.app_id              = rec.app_id
+            AND s.setting_name      = rec.setting_name
+            AND s.setting_context   IS NOT NULL;
+
+        -- update default value
+        UPDATE settings s
+        SET ROW                     = rec
+        WHERE s.app_id              = rec.app_id
+            AND s.setting_name      = rec.setting_name
+            AND s.setting_context   IS NULL;
 
         -- create package body
         q := 'CREATE OR REPLACE PACKAGE BODY ' || LOWER(in_settings_package) || ' AS' || CHR(10);
         --
         FOR c IN (
+        -- match order with view on page
+        FOR r IN (
             SELECT
                 s.setting_name,
                 MAX(s.is_numeric)   AS is_numeric,
@@ -487,6 +567,10 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             WHERE s.app_id          = app.get_app_id()
             GROUP BY s.setting_name
             ORDER BY s.setting_name
+                s.context_id,
+                'C' || SUBSTR(1000 + v_offset + ROW_NUMBER() OVER(ORDER BY s.order# NULLS LAST, s.context_id), 2, 3) AS arg
+            FROM setting_contexts s
+            WHERE s.app_id = rec.app_id
         ) LOOP
             q := q || CHR(10);
             q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
@@ -511,6 +595,68 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             q := q || '    WHEN NO_DATA_FOUND THEN' || CHR(10);
             q := q || '        RETURN NULL;' || CHR(10);
             q := q || '    END;' || CHR(10);
+            CONTINUE WHEN r.arg IN ('C001', 'C002', 'C003');
+            --
+            rec.setting_context := CASE
+                WHEN r.arg = 'C003' THEN r.context_id       WHEN r.arg = 'C004' THEN r.context_id
+                WHEN r.arg = 'C005' THEN r.context_id       WHEN r.arg = 'C006' THEN r.context_id
+                WHEN r.arg = 'C007' THEN r.context_id       WHEN r.arg = 'C008' THEN r.context_id
+                WHEN r.arg = 'C009' THEN r.context_id       WHEN r.arg = 'C010' THEN r.context_id
+                WHEN r.arg = 'C011' THEN r.context_id       WHEN r.arg = 'C012' THEN r.context_id
+                WHEN r.arg = 'C013' THEN r.context_id       WHEN r.arg = 'C014' THEN r.context_id
+                WHEN r.arg = 'C015' THEN r.context_id       WHEN r.arg = 'C016' THEN r.context_id
+                WHEN r.arg = 'C017' THEN r.context_id       WHEN r.arg = 'C018' THEN r.context_id
+                WHEN r.arg = 'C019' THEN r.context_id       WHEN r.arg = 'C020' THEN r.context_id
+                WHEN r.arg = 'C021' THEN r.context_id       WHEN r.arg = 'C022' THEN r.context_id
+                WHEN r.arg = 'C023' THEN r.context_id       WHEN r.arg = 'C024' THEN r.context_id
+                WHEN r.arg = 'C025' THEN r.context_id       WHEN r.arg = 'C026' THEN r.context_id
+                WHEN r.arg = 'C027' THEN r.context_id       WHEN r.arg = 'C028' THEN r.context_id
+                WHEN r.arg = 'C029' THEN r.context_id       WHEN r.arg = 'C030' THEN r.context_id
+                WHEN r.arg = 'C031' THEN r.context_id       WHEN r.arg = 'C032' THEN r.context_id
+                WHEN r.arg = 'C033' THEN r.context_id       WHEN r.arg = 'C034' THEN r.context_id
+                WHEN r.arg = 'C035' THEN r.context_id       WHEN r.arg = 'C036' THEN r.context_id
+                WHEN r.arg = 'C037' THEN r.context_id       WHEN r.arg = 'C038' THEN r.context_id
+                WHEN r.arg = 'C039' THEN r.context_id       WHEN r.arg = 'C040' THEN r.context_id
+                WHEN r.arg = 'C041' THEN r.context_id       WHEN r.arg = 'C042' THEN r.context_id
+                WHEN r.arg = 'C043' THEN r.context_id       WHEN r.arg = 'C044' THEN r.context_id
+                WHEN r.arg = 'C045' THEN r.context_id       WHEN r.arg = 'C046' THEN r.context_id
+                WHEN r.arg = 'C047' THEN r.context_id       WHEN r.arg = 'C048' THEN r.context_id
+                WHEN r.arg = 'C049' THEN r.context_id       WHEN r.arg = 'C050' THEN r.context_id
+                END;
+            --
+            rec.setting_value := CASE
+                WHEN r.arg = 'C003' THEN in_c003            WHEN r.arg = 'C004' THEN in_c004
+                WHEN r.arg = 'C005' THEN in_c005            WHEN r.arg = 'C006' THEN in_c006
+                WHEN r.arg = 'C007' THEN in_c007            WHEN r.arg = 'C008' THEN in_c008
+                WHEN r.arg = 'C009' THEN in_c009            WHEN r.arg = 'C010' THEN in_c010
+                WHEN r.arg = 'C011' THEN in_c011            WHEN r.arg = 'C012' THEN in_c012
+                WHEN r.arg = 'C013' THEN in_c013            WHEN r.arg = 'C014' THEN in_c014
+                WHEN r.arg = 'C015' THEN in_c015            WHEN r.arg = 'C016' THEN in_c016
+                WHEN r.arg = 'C017' THEN in_c017            WHEN r.arg = 'C018' THEN in_c018
+                WHEN r.arg = 'C019' THEN in_c019            WHEN r.arg = 'C020' THEN in_c020
+                WHEN r.arg = 'C021' THEN in_c021            WHEN r.arg = 'C022' THEN in_c022
+                WHEN r.arg = 'C023' THEN in_c023            WHEN r.arg = 'C024' THEN in_c024
+                WHEN r.arg = 'C025' THEN in_c025            WHEN r.arg = 'C026' THEN in_c026
+                WHEN r.arg = 'C027' THEN in_c027            WHEN r.arg = 'C028' THEN in_c028
+                WHEN r.arg = 'C029' THEN in_c029            WHEN r.arg = 'C030' THEN in_c030
+                WHEN r.arg = 'C031' THEN in_c031            WHEN r.arg = 'C032' THEN in_c032
+                WHEN r.arg = 'C033' THEN in_c033            WHEN r.arg = 'C034' THEN in_c034
+                WHEN r.arg = 'C035' THEN in_c035            WHEN r.arg = 'C036' THEN in_c036
+                WHEN r.arg = 'C037' THEN in_c037            WHEN r.arg = 'C038' THEN in_c038
+                WHEN r.arg = 'C039' THEN in_c039            WHEN r.arg = 'C040' THEN in_c040
+                WHEN r.arg = 'C041' THEN in_c041            WHEN r.arg = 'C042' THEN in_c042
+                WHEN r.arg = 'C043' THEN in_c043            WHEN r.arg = 'C044' THEN in_c044
+                WHEN r.arg = 'C045' THEN in_c045            WHEN r.arg = 'C046' THEN in_c046
+                WHEN r.arg = 'C047' THEN in_c047            WHEN r.arg = 'C048' THEN in_c048
+                WHEN r.arg = 'C049' THEN in_c049            WHEN r.arg = 'C050' THEN in_c050
+                END;
+            --
+            app.log_result(in_args => app.get_json_list(r.arg, rec.setting_name, rec.setting_context, rec.setting_value));
+            --
+            CONTINUE WHEN (rec.setting_context IS NULL OR rec.setting_value IS NULL);
+            --
+            INSERT INTO settings
+            VALUES rec;
         END LOOP;
         --
         q := q || CHR(10) || 'END;';
@@ -519,6 +665,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         EXECUTE IMMEDIATE q;
         --
         recompile();
+        app.log_success();
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
