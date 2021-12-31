@@ -496,6 +496,49 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Convert date or timestamp into time bucket
+    --
+    FUNCTION get_time_bucket (
+        in_date                 DATE,
+        in_interval             NUMBER
+    )
+    RETURN NUMBER
+    RESULT_CACHE;
+
+
+
+    --
+    -- Convert interval to human readable form
+    --
+    FUNCTION get_duration (
+        in_interval             INTERVAL DAY TO SECOND
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
+    -- Convert interval to human readable form
+    --
+    FUNCTION get_duration (
+        in_interval             NUMBER
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
+    -- Calculate human readable difference within two timestamps
+    --
+    FUNCTION get_duration (
+        in_start                TIMESTAMP,
+        in_end                  TIMESTAMP       := NULL
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
     -- Set item
     --
     PROCEDURE set_item (
@@ -551,56 +594,6 @@ CREATE OR REPLACE PACKAGE app AS
     PROCEDURE apply_items (
         in_items                VARCHAR2
     );
-
-
-
-
-
-
-
-    -- ### Some conversion functions
-    --
-
-    --
-    -- Convert date or timestamp into time bucket
-    --
-    FUNCTION get_time_bucket (
-        in_date                 DATE,
-        in_interval             NUMBER
-    )
-    RETURN NUMBER
-    RESULT_CACHE;
-
-
-
-    --
-    -- Convert interval to human readable form
-    --
-    FUNCTION get_duration (
-        in_interval             INTERVAL DAY TO SECOND
-    )
-    RETURN VARCHAR2;
-
-
-
-    --
-    -- Convert interval to human readable form
-    --
-    FUNCTION get_duration (
-        in_interval             NUMBER
-    )
-    RETURN VARCHAR2;
-
-
-
-    --
-    -- Calculate human readable difference within two timestamps
-    --
-    FUNCTION get_duration (
-        in_start                TIMESTAMP,
-        in_end                  TIMESTAMP       := NULL
-    )
-    RETURN VARCHAR2;
 
 
 

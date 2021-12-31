@@ -1053,6 +1053,53 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_time_bucket (
+        in_date                 DATE,
+        in_interval             NUMBER
+    )
+    RETURN NUMBER
+    RESULT_CACHE
+    AS
+        PRAGMA UDF;
+    BEGIN
+        RETURN FLOOR((in_date - TRUNC(in_date)) * 1440 / in_interval) + 1;
+    END;
+
+
+
+    FUNCTION get_duration (
+        in_interval             INTERVAL DAY TO SECOND
+    )
+    RETURN VARCHAR2 AS
+    BEGIN
+        RETURN REGEXP_SUBSTR(in_interval, '(\d{2}:\d{2}:\d{2}\.\d{3})');
+    END;
+
+
+
+    FUNCTION get_duration (
+        in_interval             NUMBER
+    )
+    RETURN VARCHAR2 AS
+    BEGIN
+        RETURN TO_CHAR(TRUNC(SYSDATE) + in_interval, 'HH24:MI:SS');
+    END;
+
+
+
+    FUNCTION get_duration (
+        in_start                TIMESTAMP,
+        in_end                  TIMESTAMP       := NULL
+    )
+    RETURN VARCHAR2
+    AS
+        v_end                   CONSTANT logs.created_at%TYPE := SYSTIMESTAMP;  -- to prevent timezone shift, APEX_UTIL.GET_SESSION_TIME_ZONE
+    BEGIN
+        RETURN SUBSTR(TO_CHAR(COALESCE(in_end, v_end) - in_start), 12, 12);     -- keep 00:00:00.000
+    END;
+
+
+
     PROCEDURE set_item (
         in_name                 VARCHAR2,
         in_value                VARCHAR2        := NULL,
@@ -1204,53 +1251,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 NULL;
             END;
         END LOOP;
-    END;
-
-
-
-    FUNCTION get_time_bucket (
-        in_date                 DATE,
-        in_interval             NUMBER
-    )
-    RETURN NUMBER
-    RESULT_CACHE
-    AS
-        PRAGMA UDF;
-    BEGIN
-        RETURN FLOOR((in_date - TRUNC(in_date)) * 1440 / in_interval) + 1;
-    END;
-
-
-
-    FUNCTION get_duration (
-        in_interval             INTERVAL DAY TO SECOND
-    )
-    RETURN VARCHAR2 AS
-    BEGIN
-        RETURN REGEXP_SUBSTR(in_interval, '(\d{2}:\d{2}:\d{2}\.\d{3})');
-    END;
-
-
-
-    FUNCTION get_duration (
-        in_interval             NUMBER
-    )
-    RETURN VARCHAR2 AS
-    BEGIN
-        RETURN TO_CHAR(TRUNC(SYSDATE) + in_interval, 'HH24:MI:SS');
-    END;
-
-
-
-    FUNCTION get_duration (
-        in_start                TIMESTAMP,
-        in_end                  TIMESTAMP       := NULL
-    )
-    RETURN VARCHAR2
-    AS
-        v_end                   CONSTANT logs.created_at%TYPE := SYSTIMESTAMP;  -- to prevent timezone shift, APEX_UTIL.GET_SESSION_TIME_ZONE
-    BEGIN
-        RETURN SUBSTR(TO_CHAR(COALESCE(in_end, v_end) - in_start), 12, 12);     -- keep 00:00:00.000
     END;
 
 
