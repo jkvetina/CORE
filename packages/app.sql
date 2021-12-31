@@ -1782,65 +1782,79 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     PROCEDURE log_progress (
         in_action_name          logs.action_name%TYPE           := NULL,
-        in_progress             NUMBER                          := NULL  -- in percent (0-1)
+        in_progress             NUMBER                          := NULL,  -- percentage (1 = 100%)
+        in_note                 VARCHAR2                        := NULL,
+        in_parent_id            logs.log_id%TYPE                := NULL
     )
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
-        slno                    BINARY_INTEGER;
+        callstack_hash          VARCHAR2(40);
+        callstack_depth         PLS_INTEGER         := 2;
+        v_rindex                PLS_INTEGER;
+        v_slno                  PLS_INTEGER;
         rec                     logs%ROWTYPE;
     BEGIN
-        NULL;
-        /*
-        callstack_hash := app.get_hash();
-        IF map_tree.EXISTS(callstack_hash) THEN
-            rec.log_parent := map_tree(callstack_hash);
+        rec.log_parent          := in_parent_id;
+
+        -- find parent from callstack
+        IF rec.log_parent IS NULL THEN
+            callstack_hash := app.get_hash(app.get_call_stack (
+                in_offset         => callstack_depth,
+                in_skip_others    => TRUE,
+                in_line_numbers   => FALSE,
+                in_splitter       => '|'
+            ));
+            --
+            IF map_tree.EXISTS(callstack_hash) THEN
+                rec.log_parent := map_tree(callstack_hash);
+            END IF;
         END IF;
         --
         IF rec.log_parent IS NULL THEN
+            rec.log_parent := recent_log_id;
         END IF;
 
-
-        -- find longops record
-        IF NVL(in_progress, 0) = 0 THEN
-            -- first visit
-            SELECT l.* INTO rec
+        -- find parent to get rindex, module and action names
+        BEGIN
+            SELECT l.log_id, l.module_name, l.action_name, l.arguments, l.created_at
+            INTO rec.log_id, rec.module_name, rec.action_name, rec.arguments, rec.created_at
             FROM logs l
-            WHERE l.log_id      = rec.log_parent;
+            WHERE l.log_id          > rec.log_parent
+                AND l.log_parent    = rec.log_parent
+                AND l.flag          = app.flag_longops;
             --
-            rec.log_id          := log_id.NEXTVAL;
-            rec.log_parent      := rec.log_id;  -- create fresh child
-            rec.flag            := app.flag_longops;
-            rec.payload         := DBMS_APPLICATION_INFO.SET_SESSION_LONGOPS_NOHINT;    -- rindex
-            --
-            INSERT INTO logs
-            VALUES rec;
-        ELSE
-            SELECT l.* INTO rec
-            FROM logs l
-            WHERE l.log_parent  = rec.log_parent
-                AND l.flag      = app.flag_longops;
+            v_rindex := REPLACE(REGEXP_SUBSTR(rec.arguments, '\|[^\|]*$'), '|', '');
 
             -- update progress in log
             UPDATE logs l
-            SET l.arguments     = ROUND(NVL(in_progress, 0) * 100, 2) || '%',
-                l.payload       = rec.payload,
+            SET l.arguments     = ROUND(NVL(in_progress, 0) * 100, 2) || '%|' || in_note || '|' || v_rindex,
                 l.module_timer  = app.get_duration(in_start => rec.created_at)
             WHERE l.log_id      = rec.log_id;
-        END IF;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            v_rindex := DBMS_APPLICATION_INFO.SET_SESSION_LONGOPS_NOHINT;
+
+            -- create new longops record
+            rec.log_id := app.log__ (
+                in_flag             => app.flag_longops,
+                in_action_name      => in_action_name,
+                in_arguments        => ROUND(NVL(in_progress, 0) * 100, 2) || '%|' || in_note || '|' || v_rindex,
+                in_parent_id        => rec.log_parent
+            );
+        END;
 
         -- update progress for system views
         DBMS_APPLICATION_INFO.SET_SESSION_LONGOPS (
-            rindex          => rec.payload,
-            slno            => slno,
+            rindex          => v_rindex,
+            slno            => v_slno,
             op_name         => rec.module_name,     -- 64 chars
             target_desc     => rec.action_name,     -- 32 chars
             context         => rec.log_id,
-            sofar           => LEAST(NVL(in_progress, 0), 1)
+            sofar           => LEAST(NVL(in_progress, 0), 1),
             totalwork       => 1,                   -- 1 = 100%
             units           => '%'
         );
-*/
         --
         COMMIT;
     EXCEPTION

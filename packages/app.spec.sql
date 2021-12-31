@@ -931,7 +931,9 @@ CREATE OR REPLACE PACKAGE app AS
     --
     PROCEDURE log_progress (
         in_action_name          logs.action_name%TYPE           := NULL,
-        in_progress             NUMBER                          := NULL  -- in percent (0-1)
+        in_progress             NUMBER                          := NULL,  -- percentage (1 = 100%)
+        in_note                 VARCHAR2                        := NULL,
+        in_parent_id            logs.log_id%TYPE                := NULL
     );
 
 
