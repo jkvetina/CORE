@@ -4437,6 +4437,8 @@ wwv_flow_api.create_page_process(
 ,p_process_name=>'SAVE_SETTINGS'
 ,p_attribute_01=>'PLSQL_CODE'
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''SAVE_SETTINGS'');',
+'--',
 'app_actions.set_setting (',
 '    in_action               => :APEX$ROW_STATUS,',
 '    in_setting_name         => :SETTING_NAME,',
@@ -4455,6 +4457,18 @@ wwv_flow_api.create_page_process(
 ,p_attribute_06=>'N'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
+wwv_flow_api.component_end;
+end;
+/
+begin
+wwv_flow_api.component_begin (
+ p_version_yyyy_mm_dd=>'2021.04.15'
+,p_release=>'21.1.6'
+,p_default_workspace_id=>9014660246496943
+,p_default_application_id=>770
+,p_default_id_offset=>0
+,p_default_owner=>'CORE'
+);
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(12114467667376343)
 ,p_process_sequence=>20
@@ -4464,6 +4478,8 @@ wwv_flow_api.create_page_process(
 ,p_process_name=>'SAVE_CONTEXT_VALUES'
 ,p_attribute_01=>'PLSQL_CODE'
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''SAVE_CONTEXT_VALUES'');',
+'--',
 'app_actions.set_setting_bulk (',
 '    in_c001     => :C001,',
 '    in_c002     => :C002,',
@@ -4521,18 +4537,6 @@ wwv_flow_api.create_page_process(
 ,p_attribute_06=>'N'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
-wwv_flow_api.component_end;
-end;
-/
-begin
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.6'
-,p_default_workspace_id=>9014660246496943
-,p_default_application_id=>770
-,p_default_id_offset=>0
-,p_default_owner=>'CORE'
-);
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(12111866180376317)
 ,p_process_sequence=>30
@@ -4554,6 +4558,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'REBUILD_PACKAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''REBUILD_PACKAGE'');',
+'--',
 'app_actions.rebuild_settings();',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -4567,7 +4573,11 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_DEFAULTS'
-,p_process_sql_clob=>':P970_REBUILD_TITLE := ''Rebuild '' || UPPER(app_actions.in_settings_package) || '' package with '' || UPPER(app_actions.in_settings_prefix) || ''* functions'';'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''INIT_DEFAULTS'');',
+'--',
+':P970_REBUILD_TITLE := ''Rebuild '' || UPPER(app_actions.in_settings_package) || '' package with '' || UPPER(app_actions.in_settings_prefix) || ''* functions'';',
+''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
@@ -4578,6 +4588,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'PREP_SETTINGS_PIVOT'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''PREP_SETTINGS_PIVOT'');',
+'--',
 'app_actions.prep_settings_pivot(:APP_PAGE_ID);',
 ''))
 ,p_process_clob_language=>'PLSQL'

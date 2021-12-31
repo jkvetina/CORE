@@ -286,6 +286,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_FORM'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''INIT_FORM'');',
+'--',
 '/*',
 'FOR c IN (',
 '    SELECT u.*, ROWID AS rid',

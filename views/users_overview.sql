@@ -23,7 +23,7 @@ s AS (
 l AS (
     SELECT
         l.user_id,
-        SUM(CASE WHEN l.flag = 'A' THEN 1 ELSE 0 END)               AS count_pages,
+        SUM(CASE WHEN l.flag = 'P' THEN 1 ELSE 0 END)               AS count_requests,
         COUNT(*)                                                    AS count_logs,
         NULLIF(SUM(CASE WHEN l.flag = 'E' THEN 1 ELSE 0 END), 0)    AS count_errors
     FROM logs l
@@ -66,7 +66,7 @@ SELECT
         END AS is_dev,
     --
     s.count_sessions,
-    l.count_pages,
+    l.count_requests,
     l.count_logs,
     l.count_errors,
     b.count_events,

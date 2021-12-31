@@ -166,7 +166,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_attribute_03=>'right'
 ,p_is_required=>false
-,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_SESSION_ID:A,&SESSION_ID.'
+,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_SESSION_ID:P,&SESSION_ID.'
 ,p_link_text=>'&COUNT_REQUESTS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -763,6 +763,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'DELETE_SESSION'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''DELETE_SESSION'', app.get_item(''$DELETE''));',
+'--',
 'app.delete_session (',
 '    in_session_id   => app.get_item(''$DELETE'')',
 ');',

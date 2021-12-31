@@ -139,7 +139,7 @@ wwv_flow_api.create_region_column(
 ,p_use_group_for=>'BOTH'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:G_TODAY,P901_FLAG:&TODAY.,A'
+,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:G_TODAY,P901_FLAG:&TODAY.,P'
 ,p_link_text=>'&COUNT_REQUESTS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -801,6 +801,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'PURGE_OLD'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''PURGE_OLD'');',
+'--',
 'app.purge_logs();',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -815,6 +817,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'PURGE_DAY'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''PURGE_DAY'');',
+'--',
 'app.purge_logs(app.get_date(:P900_DELETE));',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -829,7 +833,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'SHRINK'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''SHRINK'');',
+'app.log_action(''SHRINK'');',
 '--',
 'EXECUTE IMMEDIATE ''ALTER TABLE #OWNER#.logs ENABLE ROW MOVEMENT'';',
 'EXECUTE IMMEDIATE ''ALTER TABLE #OWNER#.logs SHRINK SPACE'';',
@@ -844,8 +848,6 @@ wwv_flow_api.create_page_process(
 '--',
 'DBMS_STATS.GATHER_TABLE_STATS(''#OWNER#'', ''SESSIONS'');',
 'EXECUTE IMMEDIATE ''ANALYZE TABLE #OWNER#.sessions COMPUTE STATISTICS FOR TABLE'';',
-'--',
-'app.log_success();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'

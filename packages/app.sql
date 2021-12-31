@@ -1349,8 +1349,69 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         curr_id := app.log__ (
             in_flag             => app.flag_module,
+    FUNCTION log_action (
+        in_action_name          logs.action_name%TYPE,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    RETURN logs.log_id%TYPE
+    AS
+    BEGIN
+        RETURN app.log__ (
+            in_flag             => app.flag_action,
             in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
+        );
+    END;
+
+
+
+    PROCEDURE log_action (
+        in_action_name          logs.action_name%TYPE,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    AS
+        curr_id                 logs.log_id%TYPE;
+    BEGIN
+        curr_id := app.log__ (
+            in_flag             => app.flag_action,
+            in_action_name      => in_action_name,
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 

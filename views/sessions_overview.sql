@@ -15,7 +15,7 @@ l AS (
     SELECT
         l.session_id,
         COUNT(*)                                                    AS count_logs,
-        NULLIF(SUM(CASE WHEN l.flag = 'A' THEN 1 ELSE 0 END), 0)    AS count_requests,
+        NULLIF(SUM(CASE WHEN l.flag = 'P' THEN 1 ELSE 0 END), 0)    AS count_requests,
         NULLIF(SUM(CASE WHEN l.flag = 'E' THEN 1 ELSE 0 END), 0)    AS count_errors
     FROM logs l
     JOIN s

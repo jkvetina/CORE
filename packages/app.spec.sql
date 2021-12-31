@@ -46,8 +46,9 @@ CREATE OR REPLACE PACKAGE app AS
     anonymous_user              CONSTANT VARCHAR2(30)       := 'NOBODY';  -- ORDS_PUBLIC_USER, APEX_APP.G_PUBLIC
 
     -- flags
-    flag_request                CONSTANT logs.flag%TYPE     := 'A';     -- APEX request (page rendering, form processing)
+    flag_request                CONSTANT logs.flag%TYPE     := 'P';     -- APEX request (page rendering, form processing)
     flag_module                 CONSTANT logs.flag%TYPE     := 'M';     -- start of any module (procedure/function)
+    flag_action                 CONSTANT logs.flag%TYPE     := 'A';     -- start of any APEX action
     flag_debug                  CONSTANT logs.flag%TYPE     := 'D';     -- debug
     flag_result                 CONSTANT logs.flag%TYPE     := 'R';     -- result of procedure for debugging purposes
     flag_warning                CONSTANT logs.flag%TYPE     := 'W';     -- warning
@@ -672,6 +673,49 @@ CREATE OR REPLACE PACKAGE app AS
     PROCEDURE log_module (
         in_action_name          logs.action_name%TYPE   := NULL,
         in_args                 logs.arguments%TYPE     := NULL
+    );
+
+
+
+    --
+    -- Same as log_module but with action_name, designated for APEX calls
+    --
+    FUNCTION log_action (
+        in_action_name          logs.action_name%TYPE,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    RETURN logs.log_id%TYPE;
+
+
+
+    --
+    -- ^
+    --
+    PROCEDURE log_action (
+        in_action_name          logs.action_name%TYPE,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     );
 
 

@@ -817,6 +817,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'AUTO_UPDATE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''AUTO_UPDATE'');',
+'--',
 'app_actions.nav_autoupdate();',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -830,6 +832,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ADD_PAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''ADD_PAGE'');',
+'--',
 'app_actions.nav_add_pages(:P910_ADD_PAGE);',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -844,6 +848,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'REMOVE_PAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''REMOVE_PAGE'');',
+'--',
 'app_actions.nav_remove_pages(:P910_REMOVE_PAGE);',
 ''))
 ,p_process_clob_language=>'PLSQL'
@@ -858,6 +864,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ADD_FILTER'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''ADD_FILTER'');',
+'--',
 'DECLARE',
 '    in_static_id            CONSTANT VARCHAR2(30)   := ''NAVIGATION'';',
 '    in_column_name          CONSTANT VARCHAR2(30)   := ''AUTH_SCHEME'';',

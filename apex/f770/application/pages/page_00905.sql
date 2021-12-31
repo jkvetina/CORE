@@ -1975,11 +1975,9 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ACTION_START'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''JOB_START'', app.get_item(''$JOB_NAME''));',
+'app.log_action(''JOB_START'', app.get_item(''$JOB_NAME''));',
 '--',
 'DBMS_SCHEDULER.RUN_JOB(''#OWNER#.'' || app.get_item(''$JOB_NAME''));',
-'--',
-'app.log_success();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
@@ -1994,11 +1992,9 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ACTION_STOP'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''JOB_STOP'', app.get_item(''$JOB_NAME''));',
+'app.log_action(''JOB_STOP'', app.get_item(''$JOB_NAME''));',
 '--',
 'DBMS_SCHEDULER.STOP_JOB(''#OWNER#.'' || app.get_item(''$JOB_NAME''));',
-'--',
-'app.log_success();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
@@ -2013,11 +2009,9 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ACTION_ENABLE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''JOB_ENABLE'', app.get_item(''$JOB_NAME''));',
+'app.log_action(''JOB_ENABLE'', app.get_item(''$JOB_NAME''));',
 '--',
 'DBMS_SCHEDULER.ENABLE(''#OWNER#.'' || app.get_item(''$JOB_NAME''));',
-'--',
-'app.log_success();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
@@ -2032,11 +2026,9 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ACTION_DISABLE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''JOB_DISABLE'', app.get_item(''$JOB_NAME''));',
+'app.log_action(''JOB_DISABLE'', app.get_item(''$JOB_NAME''));',
 '--',
 'DBMS_SCHEDULER.DISABLE(''#OWNER#.'' || app.get_item(''$JOB_NAME''));',
-'--',
-'app.log_success();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
@@ -2051,6 +2043,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'GET_DETAILS'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''GET_DETAILS'', app.get_item(''$JOB_NAME''));',
+'--',
 'FOR c IN (',
 '    SELECT j.*',
 '    FROM user_scheduler_jobs j',
@@ -2074,7 +2068,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'GET_OUTPUT'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''GET_OUTPUT'', APEX_APPLICATION.G_X01);',
+'app.log_action(''GET_OUTPUT'', APEX_APPLICATION.G_X01);',
 '--',
 'FOR c IN (',
 '    SELECT REPLACE(d.output, CHR(10), ''<br>'') AS line',
@@ -2094,7 +2088,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'GET_ADDITIONAL_INFO'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''GET_ADDITIONAL_INFO'', APEX_APPLICATION.G_X01);',
+'app.log_action(''GET_ADDITIONAL_INFO'', APEX_APPLICATION.G_X01);',
 '--',
 'FOR c IN (',
 '    SELECT REPLACE(d.additional_info, CHR(10), ''<br>'') AS line',

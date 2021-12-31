@@ -2533,22 +2533,15 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_DEFAULTS'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''INIT_DEFAULTS'');',
+'--',
 'IF :P901_LOG_ID IS NOT NULL THEN',
 '    app.set_log_tree_id(app.get_log_root(:P901_LOG_ID));',
 'END IF;',
 '--',
 ':P901_IS_TODAY := CASE WHEN NVL(app.get_date_item(''G_TODAY''), TRUNC(SYSDATE)) = TRUNC(SYSDATE) THEN ''Y'' END;',
-''))
-,p_process_clob_language=>'PLSQL'
-,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-);
-wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(10582068084928847)
-,p_process_sequence=>20
-,p_process_point=>'BEFORE_HEADER'
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'INIT_RECENT_LOG_ID'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'',
+'-- init recent log',
 'IF :P901_IS_TODAY IS NULL THEN',
 '    :P901_CURR_LOG_ID       := NULL;',
 '    :P901_RECENT_LOG_ID     := NULL;',
@@ -2564,7 +2557,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'GET_ACTION_NAME'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''GET_ACTION_NAME'', APEX_APPLICATION.G_X01);',
+'app.log_action(''GET_ACTION_NAME'', APEX_APPLICATION.G_X01);',
 '--',
 'FOR c IN (',
 '    SELECT l.action_name AS line',
@@ -2584,7 +2577,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'GET_ARGUMENTS'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''GET_ARGUMENTS'', APEX_APPLICATION.G_X01);',
+'app.log_action(''GET_ARGUMENTS'', APEX_APPLICATION.G_X01);',
 '--',
 'DECLARE',
 '    out_line logs.arguments%TYPE;',
@@ -2614,7 +2607,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'GET_PAYLOAD'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_module(''GET_PAYLOAD'', APEX_APPLICATION.G_X01);',
+'app.log_action(''GET_PAYLOAD'', APEX_APPLICATION.G_X01);',
 '--',
 'FOR c IN (',
 '    SELECT l.payload AS line',
