@@ -242,7 +242,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec             user_roles%ROWTYPE;
         v_offset        CONSTANT PLS_INTEGER := 1;  -- used columns
     BEGIN
-        app.log_module(in_args => app.get_json_list(in_action, in_c001));
+        app.log_module(in_action, in_c001);
         --
         rec.app_id          := app.get_app_id();
         rec.user_id         := in_c001;
@@ -390,7 +390,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     AS
         rec                     settings%ROWTYPE;
     BEGIN
-        app.log_module(in_args => app.get_json_object(
+        app.log_module_json (
             'in_action',        in_action,
             'in_name_old',      in_setting_name_old,
             'in_name',          in_setting_name,
@@ -398,7 +398,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             'in_group',         in_setting_group,
             'in_is_numeric',    in_is_numeric,
             'in_is_date',       in_is_date
-        ));
+        );
         --
         rec.app_id              := app.get_app_id();
         rec.setting_name        := UPPER(in_setting_name);
@@ -506,9 +506,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec             settings%ROWTYPE;
         v_offset        CONSTANT PLS_INTEGER := 3;  -- used columns (name, group, default)
     BEGIN
-        app.log_module(in_args => app.get_json_list(
-            in_c001, in_c002, in_c003, in_c004, in_c005, in_c006
-        ));
+        app.log_module(in_c001, in_c002, in_c003, in_c004, in_c005, in_c006, in_c007, in_c008);
         --
         rec.app_id              := app.get_app_id();
         rec.setting_name        := in_c001;
@@ -594,8 +592,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 WHEN r.arg = 'C047' THEN in_c047            WHEN r.arg = 'C048' THEN in_c048
                 WHEN r.arg = 'C049' THEN in_c049            WHEN r.arg = 'C050' THEN in_c050
                 END;
-            --
-            app.log_result(in_args => app.get_json_list(r.arg, rec.setting_name, rec.setting_context, rec.setting_value));
             --
             CONTINUE WHEN (rec.setting_context IS NULL OR rec.setting_value IS NULL);
             --

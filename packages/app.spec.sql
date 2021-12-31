@@ -660,8 +660,17 @@ CREATE OR REPLACE PACKAGE app AS
     -- Function called at the very start of every procedure or function
     --
     FUNCTION log_module (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     )
     RETURN logs.log_id%TYPE;
 
@@ -671,8 +680,56 @@ CREATE OR REPLACE PACKAGE app AS
     -- ^
     --
     PROCEDURE log_module (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    );
+
+
+
+    --
+    -- Same as log_module function but args are stored as JSON object
+    --
+    FUNCTION log_module_json (
+        in_name1                logs.arguments%TYPE     := NULL,        in_value1   logs.arguments%TYPE     := NULL,
+        in_name2                logs.arguments%TYPE     := NULL,        in_value2   logs.arguments%TYPE     := NULL,
+        in_name3                logs.arguments%TYPE     := NULL,        in_value3   logs.arguments%TYPE     := NULL,
+        in_name4                logs.arguments%TYPE     := NULL,        in_value4   logs.arguments%TYPE     := NULL,
+        in_name5                logs.arguments%TYPE     := NULL,        in_value5   logs.arguments%TYPE     := NULL,
+        in_name6                logs.arguments%TYPE     := NULL,        in_value6   logs.arguments%TYPE     := NULL,
+        in_name7                logs.arguments%TYPE     := NULL,        in_value7   logs.arguments%TYPE     := NULL,
+        in_name8                logs.arguments%TYPE     := NULL,        in_value8   logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    RETURN logs.log_id%TYPE;
+
+
+
+    --
+    -- ^
+    --
+    PROCEDURE log_module_json (
+        in_name1                logs.arguments%TYPE     := NULL,        in_value1   logs.arguments%TYPE     := NULL,
+        in_name2                logs.arguments%TYPE     := NULL,        in_value2   logs.arguments%TYPE     := NULL,
+        in_name3                logs.arguments%TYPE     := NULL,        in_value3   logs.arguments%TYPE     := NULL,
+        in_name4                logs.arguments%TYPE     := NULL,        in_value4   logs.arguments%TYPE     := NULL,
+        in_name5                logs.arguments%TYPE     := NULL,        in_value5   logs.arguments%TYPE     := NULL,
+        in_name6                logs.arguments%TYPE     := NULL,        in_value6   logs.arguments%TYPE     := NULL,
+        in_name7                logs.arguments%TYPE     := NULL,        in_value7   logs.arguments%TYPE     := NULL,
+        in_name8                logs.arguments%TYPE     := NULL,        in_value8   logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     );
 
 
@@ -724,8 +781,16 @@ CREATE OR REPLACE PACKAGE app AS
     -- Store record in log with `D` flag
     --
     PROCEDURE log_debug (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     );
 
@@ -735,8 +800,16 @@ CREATE OR REPLACE PACKAGE app AS
     -- Store record in log with `R` flag
     --
     PROCEDURE log_result (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     );
 
@@ -746,8 +819,19 @@ CREATE OR REPLACE PACKAGE app AS
     -- Store record in log with `W` flag; pass `action_name`
     --
     PROCEDURE log_warning (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_action_name          logs.action_name%TYPE,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     );
 
 
@@ -757,7 +841,17 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION log_error (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     RETURN logs.log_id%TYPE;
@@ -769,7 +863,17 @@ CREATE OR REPLACE PACKAGE app AS
     --
     PROCEDURE log_error (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     );
 
@@ -780,6 +884,7 @@ CREATE OR REPLACE PACKAGE app AS
     --
     PROCEDURE log_success (
         in_log_id               logs.log_id%TYPE        := NULL,
+        in_action_name          logs.action_name%TYPE   := NULL,
         in_payload              logs.payload%TYPE       := NULL
     );
 
@@ -800,11 +905,21 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    --
+    -- Same as log_module but designated for triggers
     --
     FUNCTION log_trigger (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     RETURN logs.log_id%TYPE;
@@ -902,8 +1017,18 @@ CREATE OR REPLACE PACKAGE app AS
     -- Log error and `RAISE` app exception `action_name|log_id`; pass `error_name` for user in action
     --
     PROCEDURE raise_error (
-        in_error_name           logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        in_action_name          logs.action_name%TYPE   := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_payload              logs.payload%TYPE       := NULL,
         in_rollback             BOOLEAN                 := FALSE
     );
 

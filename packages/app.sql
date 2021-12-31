@@ -376,12 +376,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         v_workspace_id          apex_applications.workspace%TYPE;
     BEGIN
-        app.log_module(
-            in_args => app.get_json_object (
-                'in_user_id',       in_user_id,
-                'in_app_id',        in_app_id,
-                'in_items',         in_items
-            )
+        app.log_module_json (
+            'in_user_id',       in_user_id,
+            'in_app_id',        in_app_id,
+            'in_items',         in_items
         );
 
         -- create session from SQL Developer (not from APEX)
@@ -1327,30 +1325,137 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION log_module (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     )
     RETURN logs.log_id%TYPE
     AS
     BEGIN
         RETURN app.log__ (
             in_flag             => app.flag_module,
-            in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => app.get_json_object (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 
 
 
     PROCEDURE log_module (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     )
     AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
             in_flag             => app.flag_module,
+            in_arguments        => app.get_json_object (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
+        );
+    END;
+
+
+
+    FUNCTION log_module_json (
+        in_name1                logs.arguments%TYPE     := NULL,        in_value1   logs.arguments%TYPE     := NULL,
+        in_name2                logs.arguments%TYPE     := NULL,        in_value2   logs.arguments%TYPE     := NULL,
+        in_name3                logs.arguments%TYPE     := NULL,        in_value3   logs.arguments%TYPE     := NULL,
+        in_name4                logs.arguments%TYPE     := NULL,        in_value4   logs.arguments%TYPE     := NULL,
+        in_name5                logs.arguments%TYPE     := NULL,        in_value5   logs.arguments%TYPE     := NULL,
+        in_name6                logs.arguments%TYPE     := NULL,        in_value6   logs.arguments%TYPE     := NULL,
+        in_name7                logs.arguments%TYPE     := NULL,        in_value7   logs.arguments%TYPE     := NULL,
+        in_name8                logs.arguments%TYPE     := NULL,        in_value8   logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    RETURN logs.log_id%TYPE
+    AS
+    BEGIN
+        RETURN app.log__ (
+            in_flag             => app.flag_module,
+            in_arguments        => app.get_json_object (
+                in_name1,       in_value1,
+                in_name2,       in_value2,
+                in_name3,       in_value3,
+                in_name4,       in_value4,
+                in_name5,       in_value5,
+                in_name6,       in_value6,
+                in_name7,       in_value7,
+                in_name8,       in_value8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
+        );
+    END;
+
+
+
+    PROCEDURE log_module_json (
+        in_name1                logs.arguments%TYPE     := NULL,        in_value1   logs.arguments%TYPE     := NULL,
+        in_name2                logs.arguments%TYPE     := NULL,        in_value2   logs.arguments%TYPE     := NULL,
+        in_name3                logs.arguments%TYPE     := NULL,        in_value3   logs.arguments%TYPE     := NULL,
+        in_name4                logs.arguments%TYPE     := NULL,        in_value4   logs.arguments%TYPE     := NULL,
+        in_name5                logs.arguments%TYPE     := NULL,        in_value5   logs.arguments%TYPE     := NULL,
+        in_name6                logs.arguments%TYPE     := NULL,        in_value6   logs.arguments%TYPE     := NULL,
+        in_name7                logs.arguments%TYPE     := NULL,        in_value7   logs.arguments%TYPE     := NULL,
+        in_name8                logs.arguments%TYPE     := NULL,        in_value8   logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
+    )
+    AS
+        curr_id                 logs.log_id%TYPE;
+    BEGIN
+        curr_id := app.log__ (
+            in_flag             => app.flag_module,
+            in_arguments        => app.get_json_object (
+                in_name1,       in_value1,
+                in_name2,       in_value2,
+                in_name3,       in_value3,
+                in_name4,       in_value4,
+                in_name5,       in_value5,
+                in_name6,       in_value6,
+                in_name7,       in_value7,
+                in_name8,       in_value8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
+        );
+    END;
+
+
+
     FUNCTION log_action (
         in_action_name          logs.action_name%TYPE,
         --
@@ -1420,8 +1525,16 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     PROCEDURE log_debug (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     AS
@@ -1429,17 +1542,30 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         curr_id := app.log__ (
             in_flag             => app.flag_debug,
-            in_action_name      => in_action_name,
-            in_arguments        => in_args,
-            in_payload          => in_payload
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 
 
 
     PROCEDURE log_result (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     AS
@@ -1447,17 +1573,33 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         curr_id := app.log__ (
             in_flag             => app.flag_result,
-            in_action_name      => in_action_name,
-            in_arguments        => in_args,
-            in_payload          => in_payload
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 
 
 
     PROCEDURE log_warning (
-        in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL
+        in_action_name          logs.action_name%TYPE,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
+        in_payload              logs.payload%TYPE       := NULL
     )
     AS
         curr_id                 logs.log_id%TYPE;
@@ -1465,7 +1607,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id := app.log__ (
             in_flag             => app.flag_warning,
             in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 
@@ -1473,7 +1622,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION log_error (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     RETURN logs.log_id%TYPE
@@ -1482,7 +1641,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN app.log__ (
             in_flag             => app.flag_error,
             in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 
@@ -1490,7 +1656,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     PROCEDURE log_error (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     AS
@@ -1499,7 +1675,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id := app.log__ (
             in_flag             => app.flag_error,
             in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 
@@ -1507,15 +1690,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     PROCEDURE log_success (
         in_log_id               logs.log_id%TYPE        := NULL,
+        in_action_name          logs.action_name%TYPE   := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
-        -- update timer
+        -- mark module success by updating timer
         UPDATE logs l
-        SET l.module_timer  = app.get_duration(in_start => l.created_at),
-            l.payload       = NVL(in_payload, l.payload)
+        SET l.action_name   = NVL(in_action_name, l.action_name),
+            l.payload       = NVL(in_payload, l.payload),
+            l.module_timer  = app.get_duration(in_start => l.created_at)
         WHERE l.log_id      = NVL(in_log_id, recent_log_id);
         --
         COMMIT;
@@ -1563,7 +1748,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION log_trigger (
         in_action_name          logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
     )
     RETURN logs.log_id%TYPE
@@ -1572,7 +1767,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN app.log__ (
             in_flag             => app.flag_trigger,
             in_action_name      => in_action_name,
-            in_arguments        => in_args
+            in_arguments        => app.get_json_list (
+                in_arg1,        in_arg2,
+                in_arg3,        in_arg4,
+                in_arg5,        in_arg6,
+                in_arg7,        in_arg8
+            ),
+            in_payload          => in_payload,
+            in_parent_id        => in_parent_id
         );
     END;
 
@@ -1932,28 +2134,47 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     PROCEDURE raise_error (
-        in_error_name           logs.action_name%TYPE   := NULL,
-        in_args                 logs.arguments%TYPE     := NULL,
+        in_action_name          logs.action_name%TYPE   := NULL,
+        --
+        in_arg1                 logs.arguments%TYPE     := NULL,
+        in_arg2                 logs.arguments%TYPE     := NULL,
+        in_arg3                 logs.arguments%TYPE     := NULL,
+        in_arg4                 logs.arguments%TYPE     := NULL,
+        in_arg5                 logs.arguments%TYPE     := NULL,
+        in_arg6                 logs.arguments%TYPE     := NULL,
+        in_arg7                 logs.arguments%TYPE     := NULL,
+        in_arg8                 logs.arguments%TYPE     := NULL,
+        --
+        in_payload              logs.payload%TYPE       := NULL,
         in_rollback             BOOLEAN                 := FALSE
     )
     AS
-        rec                     logs%ROWTYPE;
+        v_log_id                logs.log_id%TYPE;
+        v_action_name           logs.action_name%TYPE;
     BEGIN
         IF in_rollback THEN
             ROLLBACK;
         END IF;
         --
-        rec.action_name := COALESCE(in_error_name, app.get_caller_name(), 'UNEXPECTED_ERROR');
+        v_action_name := COALESCE(in_action_name, app.get_caller_name(), 'UNEXPECTED_ERROR');
         --
-        rec.log_id := app.log_error (
-            in_action_name  => rec.action_name,
-            in_args         => in_args
+        v_log_id := app.log_error (
+            in_action_name          => v_action_name,
+            in_arg1                 => in_arg1,
+            in_arg2                 => in_arg2,
+            in_arg3                 => in_arg3,
+            in_arg4                 => in_arg4,
+            in_arg5                 => in_arg5,
+            in_arg6                 => in_arg6,
+            in_arg7                 => in_arg7,
+            in_arg8                 => in_arg8,
+            in_payload              => in_payload
         );
         --
         RAISE_APPLICATION_ERROR (
             app.app_exception_code,
-            rec.action_name || ' [' || rec.log_id || ']',
-            TRUE
+            v_action_name || ' [' || v_log_id || ']',
+            FALSE  -- dont stack, we have that in log
         );
     END;
 
@@ -1999,10 +2220,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         v_log_id := app.log_error (
             in_action_name  => v_action_name,
-            in_args         => v_component,
+            in_arg1         => v_component,
+            in_arg2         => APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error),
             in_payload      =>
-                out_result.message || CHR(10) ||
-                APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error) || CHR(10) ||
+                out_result.message || CHR(10) ||            -- SWITCH^  ?
                 p_error.ora_sqlerrm || CHR(10) ||
                 p_error.error_statement || CHR(10) ||
                 p_error.error_backtrace
@@ -2299,7 +2520,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- determice object name from caller (based on current application)
         v_object_name := COALESCE(in_name, 'A' || app.get_app_id() || '.' || REGEXP_REPLACE(app.get_caller_name(3), '([^\.]+\.)', ''));
         --
-        --app.log_module(in_args => app.get_json_list(v_object_name, in_arg1, in_arg2, in_arg3, in_arg4));
+        --app.log_module(v_object_name, in_arg1, in_arg2, in_arg3, in_arg4);
 
         -- check object existance
         BEGIN
