@@ -802,7 +802,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(9192134749668638)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'NAVIGATION'
+,p_process_name=>'SAVE_NAVIGATION'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'NAVIGATION'
 ,p_attribute_05=>'Y'
@@ -815,7 +815,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>20
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'NAV_AUTO_UPDATE'
+,p_process_name=>'AUTO_UPDATE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app_actions.nav_autoupdate();',
 ''))

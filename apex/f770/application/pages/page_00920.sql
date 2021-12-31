@@ -5783,7 +5783,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(9563449091581647)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'USERS'
+,p_process_name=>'SAVE_USERS'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'USERS'
 ,p_attribute_05=>'Y'
@@ -5797,7 +5797,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(9904026934658832)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'USER_ROLES'
+,p_process_name=>'SAVE_USER_ROLES'
 ,p_attribute_01=>'PLSQL_CODE'
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app_actions.save_user_roles (',
@@ -5864,7 +5864,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(19160020814813939)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'USER_ROLES_RAW'
+,p_process_name=>'SAVE_USER_ROLES_RAW'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'USER_ROLES'
 ,p_attribute_05=>'Y'
@@ -5878,7 +5878,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(19158887874813927)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'ROLES'
+,p_process_name=>'SAVE_ROLES'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'ROLES'
 ,p_attribute_05=>'Y'

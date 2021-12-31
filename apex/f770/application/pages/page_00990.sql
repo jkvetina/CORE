@@ -271,7 +271,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(9519532707540348)
 ,p_process_type=>'NATIVE_FORM_DML'
-,p_process_name=>'PROCESS_FORM'
+,p_process_name=>'SAVE_FORM_USERS'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'USERS'
 ,p_attribute_05=>'N'

@@ -4434,7 +4434,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(11853720141169128)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'SETTINGS'
+,p_process_name=>'SAVE_SETTINGS'
 ,p_attribute_01=>'PLSQL_CODE'
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app_actions.set_setting (',
@@ -4461,7 +4461,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(12112390093376322)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'CONTEXT_VALUES'
+,p_process_name=>'SAVE_CONTEXT_VALUES'
 ,p_attribute_01=>'PLSQL_CODE'
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app_actions.set_setting_bulk (',
@@ -4539,7 +4539,7 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(12110948961376308)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'CONTEXTS'
+,p_process_name=>'SAVE_CONTEXTS'
 ,p_attribute_01=>'TABLE'
 ,p_attribute_03=>'SETTING_CONTEXTS'
 ,p_attribute_05=>'Y'
