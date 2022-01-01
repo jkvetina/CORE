@@ -7,7 +7,7 @@ WITH x AS (
     WHERE u.user_id = app.get_user_id()
 )
 SELECT
-    p.page_group,
+    p.page_group || ' ' || r.page_id || ' ' || p.page_title AS page_group,
     r.page_id,
     --r.region_id,
     --
