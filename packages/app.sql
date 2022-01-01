@@ -5,9 +5,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
     recent_tree_id              logs.log_id%TYPE;       -- for logs_tree view
     --
     map_tree                    app.arr_map_tree;
-
-    -- arrays to specify adhoc requests
-    log_whitelist               app.arr_log_setup := app.arr_log_setup();
     log_blacklist               app.arr_log_setup := app.arr_log_setup();
 
     -- possible exception when parsing call stack
@@ -370,7 +367,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
     PROCEDURE create_session (
         in_user_id              sessions.user_id%TYPE,
         in_app_id               sessions.app_id%TYPE,
-        in_items                VARCHAR2                := NULL
+        in_page_id              navigation.page_id%TYPE     := NULL,
+        in_items                VARCHAR2                    := NULL
     ) AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
@@ -379,6 +377,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         app.log_module_json (
             'in_user_id',       in_user_id,
             'in_app_id',        in_app_id,
+            'in_page_id',       in_page_id,
             'in_items',         in_items
         );
 
@@ -391,7 +390,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             -- use existing session if possible
             APEX_SESSION.ATTACH (
                 p_app_id        => app.get_app_id(),
-                p_page_id       => 0,
+                p_page_id       => NVL(in_page_id, 0),
                 p_session_id    => app.get_session_id()
             );
         EXCEPTION
@@ -416,7 +415,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             BEGIN
                 APEX_SESSION.CREATE_SESSION (
                     p_app_id    => in_app_id,
-                    p_page_id   => 0,
+                    p_page_id   => NVL(in_page_id, 0),
                     p_username  => in_user_id
                 );
             EXCEPTION

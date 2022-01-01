@@ -236,7 +236,8 @@ CREATE OR REPLACE PACKAGE app AS
     PROCEDURE create_session (
         in_user_id              sessions.user_id%TYPE,
         in_app_id               sessions.app_id%TYPE,
-        in_items                VARCHAR2                := NULL
+        in_page_id              navigation.page_id%TYPE     := NULL,
+        in_items                VARCHAR2                    := NULL
     );
 
 
