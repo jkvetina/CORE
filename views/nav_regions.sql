@@ -11,9 +11,9 @@ SELECT
     r.page_id,
     --r.region_id,
     --
-    REPLACE(RPAD(' ', 3 * CASE WHEN r.template = 'Hero' THEN 0 ELSE 1 END), ' ', '&' || 'nbsp; ') ||
-        CASE WHEN r.icon_css_classes IS NOT NULL THEN app.get_icon(r.icon_css_classes) || '&' || 'nbsp; ' END || r.region_name
-        AS region_name,
+    CASE WHEN r.icon_css_classes IS NOT NULL THEN app.get_icon(r.icon_css_classes) END AS region_icon,
+    --
+    r.region_name,
     --
     --r.parent_region_id,
     --r.source_type,
