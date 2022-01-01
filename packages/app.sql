@@ -2059,13 +2059,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- add call stack
-        IF SQLCODE != 0 OR INSTR(app.track_callstack, rec.flag) > 0 OR app.track_callstack = '%' THEN
-            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_call_stack(), 'WWV_FLOW', '%'), 'APEX_210100', '%'), 1, app.length_payload);
+        IF (SQLCODE != 0 OR INSTR(app.track_callstack, rec.flag) > 0) THEN
+            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_call_stack(), 'WWV_FLOW', '%'), app.schema_apex, '%'), 1, app.length_payload);
         END IF;
 
         -- add error stack
         IF SQLCODE != 0 THEN
-            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_error_stack(), 'WWV_FLOW', '%'), 'APEX_210100', '%'), 1, app.length_payload);
+            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_error_stack(), 'WWV_FLOW', '%'), app.schema_apex, '%'), 1, app.length_payload);
         END IF;
 
         -- print message to console

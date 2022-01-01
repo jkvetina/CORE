@@ -30,6 +30,7 @@ CREATE OR REPLACE PACKAGE app AS
      */
 
     schema_owner                CONSTANT VARCHAR2(30)       := 'CORE';
+    schema_apex                 CONSTANT VARCHAR2(30)       := 'APEX_210100';
 
     -- code for app exception
     app_exception_code          CONSTANT PLS_INTEGER        := -20000;
