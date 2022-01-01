@@ -2104,36 +2104,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
     )
     RETURN BOOLEAN
     AS
-        v_proceed               BOOLEAN := TRUE;
-        --
-        FUNCTION is_listed (
-            in_list             arr_log_setup,
-            in_row              logs%ROWTYPE
-        )
-        RETURN BOOLEAN AS
-        BEGIN
-            FOR i IN 1 .. in_list.COUNT LOOP
-                IF (in_row.module_name  LIKE in_list(i).module_like OR in_list(i).module_like   IS NULL)
-                    AND (in_row.flag    = in_list(i).flag           OR in_list(i).flag          IS NULL)
-                THEN
-                    RETURN TRUE;
-                END IF;
-            END LOOP;
-            --
-            RETURN FALSE;
-        END;
     BEGIN
-        -- check blacklist
-        IF NOT v_proceed THEN
-            IF is_listed (
-                in_list     => log_blacklist,
-                in_row      => in_row
-            ) THEN
-                RETURN FALSE;
+        FOR i IN 1 .. log_blacklist.COUNT LOOP
+            IF (in_row.flag             = log_blacklist(i).flag             OR log_blacklist(i).flag          IS NULL)
+                AND (in_row.module_name LIKE log_blacklist(i).module_like   OR log_blacklist(i).module_like   IS NULL)
+                AND (in_row.action_name LIKE log_blacklist(i).action_like   OR log_blacklist(i).action_like   IS NULL)
+            THEN
+                RETURN TRUE;
             END IF;
-        END IF;
+        END LOOP;
         --
-        RETURN TRUE;
+        RETURN FALSE;
     END;
 
 
