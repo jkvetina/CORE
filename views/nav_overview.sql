@@ -1,5 +1,11 @@
 CREATE OR REPLACE VIEW nav_overview AS
-WITH t AS (
+WITH x AS (
+    SELECT
+        app.get_item('$PAGE_ID')        AS page_id
+    FROM users u
+    WHERE u.user_id = app.get_user_id()
+),
+t AS (
     SELECT
         n.page_id,
         p.page_name,
@@ -61,10 +67,12 @@ SELECT
         in_values          => TO_CHAR(n.page_id)
     ) AS action_url
 FROM navigation n
+CROSS JOIN x
 LEFT JOIN t
-    ON t.page_id                    = n.page_id
+    ON t.page_id           = n.page_id
 LEFT JOIN nav_pages_to_remove r
-    ON r.page_id                    = n.page_id
+    ON r.page_id           = n.page_id
+WHERE (x.page_id           = n.page_id OR x.page_id IS NULL)
 --
 UNION ALL
 SELECT
@@ -99,8 +107,10 @@ SELECT
         in_values          => TO_CHAR(n.page_id)
     ) AS action_url
 FROM nav_pages_to_add n
+CROSS JOIN x
 LEFT JOIN t
-    ON t.page_id = n.parent_id;
+    ON t.page_id            = n.parent_id
+WHERE (x.page_id            = n.page_id OR x.page_id IS NULL);
 --
 COMMENT ON TABLE nav_overview IS 'Enriched navigation overview used also for menu rendering';
 --

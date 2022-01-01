@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211230181850'
+,p_last_upd_yyyymmddhh24miss=>'20220101080054'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(11425322549377813)
@@ -1120,7 +1120,6 @@ wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(11554639700084105)
 ,p_plug_name=>'History [GRID]'
 ,p_region_name=>'HISTORY'
-,p_icon_css_classes=>'fa-server-search'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
