@@ -73,6 +73,7 @@ LEFT JOIN t
 LEFT JOIN nav_pages_to_remove r
     ON r.page_id           = n.page_id
 WHERE (x.page_id           = n.page_id OR x.page_id IS NULL)
+    AND n.app_id           = app.get_app_id()
 --
 UNION ALL
 SELECT
@@ -112,7 +113,7 @@ LEFT JOIN t
     ON t.page_id            = n.parent_id
 WHERE (x.page_id            = n.page_id OR x.page_id IS NULL);
 --
-COMMENT ON TABLE nav_overview IS 'Enriched navigation overview used also for menu rendering';
+COMMENT ON TABLE nav_overview                   IS 'Enriched navigation overview used also for menu rendering';
 --
 COMMENT ON COLUMN nav_overview.action           IS 'Action icon (add/remove page)';
 COMMENT ON COLUMN nav_overview.action_url       IS 'Action url target to use icon as link';
