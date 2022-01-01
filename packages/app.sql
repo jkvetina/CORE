@@ -2235,11 +2235,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
             in_action_name  => v_action_name,
             in_arg1         => v_component,
             in_arg2         => APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error),
-            in_payload      =>
-                out_result.message || CHR(10) ||            -- SWITCH^  ?
-                p_error.ora_sqlerrm || CHR(10) ||
-                p_error.error_statement || CHR(10) ||
-                p_error.error_backtrace
+            in_payload      => REPLACE (
+                out_result.message      || CHR(10) || '--' || CHR(10) ||
+                p_error.error_statement || CHR(10) || '--' || CHR(10) ||
+                --p_error.error_backtrace || CHR(10) || '--' || CHR(10)
+                p_error.ora_sqlerrm     || CHR(10) || '--' || CHR(10), app.schema_apex, '%')
         );
 
         -- mark associated page item (when possible)
