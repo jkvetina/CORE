@@ -275,13 +275,30 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- check app availability
         IF NOT app.is_developer() THEN
             BEGIN
-                SELECT 'Y' INTO v_is_active
+                SELECT a.is_active INTO v_is_active
                 FROM apps a
                 WHERE a.app_id          = rec.app_id
                     AND a.is_active     = 'Y';
             EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 app.raise_error('APPLICATION_OFFLINE');
+            END;
+        ELSE
+            -- create app record if developers login
+            BEGIN
+                SELECT a.is_active INTO v_is_active
+                FROM apps a
+                WHERE a.app_id          = rec.app_id;
+            EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                INSERT INTO apps (app_id, app_name, is_active, updated_by, updated_at)
+                VALUES (
+                    rec.app_id,
+                    rec.app_id,
+                    'Y',
+                    rec.user_id,
+                    rec.updated_at
+                );
             END;
         END IF;
 
