@@ -65,7 +65,7 @@ CREATE OR REPLACE PACKAGE app AS
     length_arguments            CONSTANT PLS_INTEGER        := 2000;    -- logs.arguments%TYPE
     length_payload              CONSTANT PLS_INTEGER        := 4000;    -- logs.payload%TYPE
 
-    -- append callstack for these flags; % for all
+    -- append callstack for these flags
     track_callstack             CONSTANT VARCHAR2(30)       := flag_error || flag_warning || flag_module || flag_request || flag_trigger;
 
     -- transform $NAME to P500_NAME if current page_id = 500
@@ -83,7 +83,7 @@ CREATE OR REPLACE PACKAGE app AS
     logs_max_age                CONSTANT PLS_INTEGER        := 7;           -- max logs age in days
 
     -- arrays to specify adhoc requests
-    TYPE arr_log_setup          IS VARRAY(100) OF logs_setup%ROWTYPE;
+    TYPE arr_log_setup          IS VARRAY(100) OF logs_blacklist%ROWTYPE;
 
     -- list/array of log_id
     TYPE arr_logs_log_id IS
@@ -1010,7 +1010,7 @@ CREATE OR REPLACE PACKAGE app AS
     --
     -- Check if we log current record or not
     --
-    FUNCTION is_log_requested (
+    FUNCTION is_blacklisted (
         in_row                  logs%ROWTYPE
     )
     RETURN BOOLEAN;

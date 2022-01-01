@@ -1312,7 +1312,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN logs.log_id%TYPE
     AS
     BEGIN
-        map_tree := arr_map_tree();
+        map_tree := app.arr_map_tree();
         --
         RETURN app.log__ (
             in_flag             => app.flag_request,
@@ -2016,8 +2016,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.payload             := SUBSTR(in_payload,       1, app.length_payload);
         rec.created_at          := SYSTIMESTAMP;
 
-        -- dont log everything
-        IF SQLCODE = 0 AND NOT app.is_log_requested(rec) AND NOT app.is_developer() THEN
+        -- dont log blacklisted records
+        IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec) THEN
             RETURN NULL;
         END IF;
 
@@ -2099,7 +2099,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION is_log_requested (
+    FUNCTION is_blacklisted (
         in_row                  logs%ROWTYPE
     )
     RETURN BOOLEAN
@@ -2123,14 +2123,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             RETURN FALSE;
         END;
     BEGIN
-        -- check whitelist first
-        IF NOT v_proceed THEN
-            v_proceed := is_listed (
-                in_list     => log_whitelist,
-                in_row      => in_row
-            );
-        END IF;
-
         -- check blacklist
         IF NOT v_proceed THEN
             IF is_listed (
@@ -2607,27 +2599,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         -- clear map for tracking logs hierarchy
-        map_tree := arr_map_tree();
+        map_tree := app.arr_map_tree();
 
-        -- load whitelist/blacklist data from logs_tracing table
-        -- prepare arrays when session starts
+        -- load blacklisted records from logs_blacklist table when session starts
         -- this block is initialized with every APEX request
-        -- so user_id and page_id, debug mode wont change until next request
-        SELECT t.*
-        BULK COLLECT INTO log_whitelist
-        FROM logs_setup t
-        WHERE t.app_id          = app.get_app_id()
-            AND (t.user_id      = app.get_user_id()     OR t.user_id    IS NULL)
-            AND (t.page_id      = app.get_page_id()     OR t.page_id    IS NULL)
-            AND t.is_ignored    IS NULL;
-        --
+        -- so app_id, user_id and page_id wont change until next request
         SELECT t.*
         BULK COLLECT INTO log_blacklist
-        FROM logs_setup t
+        FROM logs_blacklist t
         WHERE t.app_id          = app.get_app_id()
             AND (t.user_id      = app.get_user_id()     OR t.user_id    IS NULL)
-            AND (t.page_id      = app.get_page_id()     OR t.page_id    IS NULL)
-            AND t.is_ignored    = 'Y';
+            AND (t.page_id      = app.get_page_id()     OR t.page_id    IS NULL);
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
