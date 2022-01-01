@@ -13,7 +13,10 @@ SELECT
     --
     CASE WHEN r.icon_css_classes IS NOT NULL THEN app.get_icon(r.icon_css_classes) END AS region_icon,
     --
-    r.region_name,
+    CASE
+        WHEN r.template != 'Hero'
+            THEN REPLACE(RPAD(' ', 3), ' ', '&' || 'nbsp; ')
+            END || r.region_name AS region_name,
     --
     --r.parent_region_id,
     --r.source_type,
@@ -51,6 +54,7 @@ JOIN apex_application_pages p
     AND p.page_id               = r.page_id
 CROSS JOIN x
 WHERE r.application_id          = app.get_app_id()
+    AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
     AND (x.auth_scheme          = r.authorization_scheme OR x.auth_scheme IS NULL);
 

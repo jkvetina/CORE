@@ -33,6 +33,7 @@ LEFT JOIN apex_application_pages p
 LEFT JOIN apex_application_page_regions g
     ON g.application_id                 = a.application_id
     AND g.authorization_scheme          = a.authorization_scheme_name
+    AND g.parent_region_id              IS NULL
 LEFT JOIN roles r
     ON r.role_id                        = a.authorization_scheme_name
 LEFT JOIN user_roles u
