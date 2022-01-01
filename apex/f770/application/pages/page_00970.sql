@@ -1070,7 +1070,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(12112390093376322)
-,p_plug_name=>'Context Values [GRID]'
+,p_plug_name=>'Context Values (DYNAMIC PIVOT) [GRID]'
 ,p_region_name=>'CONTEXT_VALUES'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
@@ -1098,12 +1098,14 @@ wwv_flow_api.create_page_plug(
 'SELECT 1',
 'FROM setting_contexts',
 'WHERE ROWNUM = 1'))
+,p_prn_content_disposition=>'ATTACHMENT'
+,p_prn_document_header=>'APEX'
 ,p_prn_units=>'MILLIMETERS'
 ,p_prn_paper_size=>'A4'
 ,p_prn_width=>297
 ,p_prn_height=>210
 ,p_prn_orientation=>'HORIZONTAL'
-,p_prn_page_header=>'Context Values [GRID]'
+,p_prn_page_header=>'Context Values (DYNAMIC PIVOT) [GRID]'
 ,p_prn_page_header_font_color=>'#000000'
 ,p_prn_page_header_font_family=>'Helvetica'
 ,p_prn_page_header_font_weight=>'normal'
