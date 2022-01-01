@@ -2287,7 +2287,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- remove old sessions
         DELETE FROM sessions s
-        WHERE s.created_at < TRUNC(SYSDATE) - NVL(in_age, app.logs_max_age);
+        WHERE s.created_at <= TRUNC(SYSDATE) - NVL(in_age, app.logs_max_age);
 
         -- remove old partitions
         FOR c IN (
@@ -2304,13 +2304,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     COLUMNS high_value VARCHAR2(4000) PATH 'HIGH_VALUE'
                 ) h
             WHERE p.table_name = app.logs_table_name
-                AND TO_DATE(REGEXP_SUBSTR(h.high_value, '(\d{4}-\d{2}-\d{2})'), 'YYYY-MM-DD') < TRUNC(SYSDATE) - COALESCE(in_age, app.logs_max_age)
+                AND TO_DATE(REGEXP_SUBSTR(h.high_value, '(\d{4}-\d{2}-\d{2})'), 'YYYY-MM-DD') <= TRUNC(SYSDATE) - COALESCE(in_age, app.logs_max_age)
         ) LOOP
             -- delete old data in batches
-            FOR i IN 1 .. 10 LOOP
+            FOR i IN 1 .. 100 LOOP
                 EXECUTE IMMEDIATE
                     'DELETE FROM ' || c.table_name ||
-                    ' PARTITION (' || c.partition_name || ') WHERE ROWNUM < 100000';
+                    ' PARTITION (' || c.partition_name || ') WHERE ROWNUM <= 100000';
                 --
                 COMMIT;  -- to reduce UNDO violations
             END LOOP;
