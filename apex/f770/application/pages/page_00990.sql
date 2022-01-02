@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9844735592500475)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220102172319'
+,p_last_upd_yyyymmddhh24miss=>'20220102192922'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9264299805429043)
@@ -119,6 +119,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
 ,p_query_table=>'USERS_APPS'
+,p_query_where=>'is_available = ''Y'''
 ,p_query_order_by=>'APP_ID'
 ,p_include_rowid_column=>false
 ,p_lazy_loading=>false
@@ -140,7 +141,7 @@ wwv_flow_api.create_card(
 ,p_body_column_name=>'DESCRIPTION_'
 ,p_second_body_adv_formatting=>false
 ,p_second_body_column_name=>'APP_ICON'
-,p_badge_column_name=>'IS_VISIBLE'
+,p_badge_column_name=>'COUNT_PAGES'
 ,p_media_adv_formatting=>false
 ,p_pk1_column_name=>'APP_ID'
 );
