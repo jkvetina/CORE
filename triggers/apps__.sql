@@ -13,6 +13,8 @@ COMPOUND TRIGGER
     rows_updated            PLS_INTEGER := 0;
     rows_deleted            PLS_INTEGER := 0;
     --
+    deleted_app_id          apps.app_id%TYPE;
+    --
     last_rowid              ROWID;
 
 
@@ -36,38 +38,6 @@ COMPOUND TRIGGER
         IF NOT DELETING THEN
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
-        ELSE
-            IF app.is_developer() THEN
-                DELETE FROM logs t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM logs_blacklist t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM log_events t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM events t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM sessions t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM navigation t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM user_roles t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM roles t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM setting_contexts t
-                WHERE t.app_id = :OLD.app_id;
-                --
-                DELETE FROM settings t
-                WHERE t.app_id = :OLD.app_id;
-            END IF;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
@@ -91,6 +61,10 @@ COMPOUND TRIGGER
         ELSIF DELETING THEN
             rows_deleted        := rows_deleted + 1;
             last_rowid          := :OLD.ROWID;
+            --
+            IF app.is_developer() THEN
+                deleted_app_id := :OLD.app_id;
+            END IF;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
@@ -110,6 +84,38 @@ COMPOUND TRIGGER
             in_rows_deleted         => rows_deleted,
             in_last_rowid           => last_rowid
         );
+        --
+        IF rows_deleted > 0 AND deleted_app_id IS NOT NULL THEN
+            DELETE FROM logs t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM logs_blacklist t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM log_events t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM events t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM sessions t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM navigation t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM user_roles t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM roles t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM setting_contexts t
+            WHERE t.app_id = deleted_app_id;
+            --
+            DELETE FROM settings t
+            WHERE t.app_id = deleted_app_id;
+        END IF;
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
