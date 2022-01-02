@@ -125,9 +125,9 @@ SELECT
     n.page_title,
     n.css_class,
     --
-    'Y'                     AS is_hidden,
-    'Y'                     AS is_reset,
-    NULL                    AS is_shared,
+    n.is_hidden,
+    n.is_reset,
+    n.is_shared,
     --
     CASE WHEN n.auth_scheme LIKE '%MUST_NOT_BE_PUBLIC_USER%'
         THEN app.get_icon('fa-check-square', 'MUST_NOT_BE_PUBLIC_USER')
@@ -173,6 +173,7 @@ COMMENT ON COLUMN nav_overview.page_title       IS 'Page title from APEX page sp
 COMMENT ON COLUMN nav_overview.css_class        IS 'CSS class from APEX page specification';
 COMMENT ON COLUMN nav_overview.is_hidden        IS 'Flag for hiding item in menu; Y = hide, NULL = show';
 COMMENT ON COLUMN nav_overview.is_reset         IS 'Flag for reset/clear page items; Y = clear, NULL = keep;';
+COMMENT ON COLUMN nav_overview.is_shared        IS 'Flag for sharing record with other apps';
 COMMENT ON COLUMN nav_overview.auth_scheme      IS 'Auth scheme from APEX page specification';
 COMMENT ON COLUMN nav_overview.page_url         IS 'Page url to use as redirection target';
 COMMENT ON COLUMN nav_overview.allow_changes    IS 'APEX column to allow edit/delete only some rows';

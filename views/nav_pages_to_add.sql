@@ -34,8 +34,9 @@ SELECT
     --
     p.page_css_classes      AS css_class,
     --
-    'Y'                     AS is_hidden,       -- hide page on default
+    NULL                    AS is_hidden,       -- hide page on default
     'Y'                     AS is_reset,        -- reset page items
+    NULL                    AS is_shared,
     --
     p.page_group,
     p.page_id               AS page_link,
