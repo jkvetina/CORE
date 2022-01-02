@@ -29,60 +29,60 @@ CREATE OR REPLACE PACKAGE app AS
      *
      */
 
-    schema_owner                CONSTANT VARCHAR2(30)       := 'CORE';
-    schema_apex                 CONSTANT VARCHAR2(30)       := 'APEX_210100';
+    schema_owner                CONSTANT VARCHAR2(30)           := 'CORE';
+    schema_apex                 CONSTANT VARCHAR2(30)           := 'APEX_210100';
     --
     core_app_id                 CONSTANT sessions.app_id%TYPE   := 770;  -- for sharing pages between apps
 
     -- code for app exception
-    app_exception_code          CONSTANT PLS_INTEGER        := -20000;
+    app_exception_code          CONSTANT PLS_INTEGER            := -20000;
     app_exception               EXCEPTION;
     --
-    PRAGMA EXCEPTION_INIT(app_exception, app_exception_code);           -- as a side effect this will disable listing constants in tree on the left
+    PRAGMA EXCEPTION_INIT(app_exception, app_exception_code);   -- as a side effect this will disable listing constants in tree on the left
 
     -- internal date formats
-    format_date                 CONSTANT VARCHAR2(30)       := 'YYYY-MM-DD';
-    format_date_time            CONSTANT VARCHAR2(30)       := 'YYYY-MM-DD HH24:MI:SS';
-    format_date_short           CONSTANT VARCHAR2(30)       := 'YYYY-MM-DD HH24:MI';
+    format_date                 CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD';
+    format_date_time            CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD HH24:MI:SS';
+    format_date_short           CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD HH24:MI';
 
     -- anonymous user used on login pages in APEX
-    anonymous_user              CONSTANT VARCHAR2(30)       := 'NOBODY';  -- ORDS_PUBLIC_USER, APEX_APP.G_PUBLIC
+    anonymous_user              CONSTANT VARCHAR2(30)           := 'NOBODY';  -- ORDS_PUBLIC_USER, APEX_APP.G_PUBLIC
 
     -- flags
-    flag_request                CONSTANT logs.flag%TYPE     := 'P';     -- APEX request (page rendering, form processing)
-    flag_module                 CONSTANT logs.flag%TYPE     := 'M';     -- start of any module (procedure/function)
-    flag_action                 CONSTANT logs.flag%TYPE     := 'A';     -- start of any APEX action
-    flag_debug                  CONSTANT logs.flag%TYPE     := 'D';     -- debug
-    flag_result                 CONSTANT logs.flag%TYPE     := 'R';     -- result of procedure for debugging purposes
-    flag_warning                CONSTANT logs.flag%TYPE     := 'W';     -- warning
-    flag_error                  CONSTANT logs.flag%TYPE     := 'E';     -- error
-    flag_longops                CONSTANT logs.flag%TYPE     := 'L';     -- longops operation
-    flag_scheduler              CONSTANT logs.flag%TYPE     := 'S';     -- scheduler planned
-    flag_trigger                CONSTANT logs.flag%TYPE     := 'G';     -- called from trigger
+    flag_request                CONSTANT logs.flag%TYPE         := 'P';     -- APEX request (page rendering, form processing)
+    flag_module                 CONSTANT logs.flag%TYPE         := 'M';     -- start of any module (procedure/function)
+    flag_action                 CONSTANT logs.flag%TYPE         := 'A';     -- start of any APEX action
+    flag_debug                  CONSTANT logs.flag%TYPE         := 'D';     -- debug
+    flag_result                 CONSTANT logs.flag%TYPE         := 'R';     -- result of procedure for debugging purposes
+    flag_warning                CONSTANT logs.flag%TYPE         := 'W';     -- warning
+    flag_error                  CONSTANT logs.flag%TYPE         := 'E';     -- error
+    flag_longops                CONSTANT logs.flag%TYPE         := 'L';     -- longops operation
+    flag_scheduler              CONSTANT logs.flag%TYPE         := 'S';     -- scheduler planned
+    flag_trigger                CONSTANT logs.flag%TYPE         := 'G';     -- called from trigger
 
     -- specify maximum length for trim
-    length_user                 CONSTANT PLS_INTEGER        := 30;      -- logs.user_id%TYPE
-    length_action               CONSTANT PLS_INTEGER        := 32;      -- logs.action_name%TYPE
-    length_module               CONSTANT PLS_INTEGER        := 48;      -- logs.module_name%TYPE
-    length_arguments            CONSTANT PLS_INTEGER        := 2000;    -- logs.arguments%TYPE
-    length_payload              CONSTANT PLS_INTEGER        := 4000;    -- logs.payload%TYPE
+    length_user                 CONSTANT PLS_INTEGER            := 30;      -- logs.user_id%TYPE
+    length_action               CONSTANT PLS_INTEGER            := 32;      -- logs.action_name%TYPE
+    length_module               CONSTANT PLS_INTEGER            := 48;      -- logs.module_name%TYPE
+    length_arguments            CONSTANT PLS_INTEGER            := 2000;    -- logs.arguments%TYPE
+    length_payload              CONSTANT PLS_INTEGER            := 4000;    -- logs.payload%TYPE
 
     -- append callstack for these flags
-    track_callstack             CONSTANT VARCHAR2(30)       := flag_error || flag_warning || flag_module || flag_request || flag_trigger;
+    track_callstack             CONSTANT VARCHAR2(30)           := flag_error || flag_warning || flag_module || flag_request || flag_trigger;
 
     -- transform $NAME to P500_NAME if current page_id = 500
-    page_item_wild              CONSTANT VARCHAR2(4)        := '$';
-    page_item_prefix            CONSTANT VARCHAR2(4)        := 'P';
+    page_item_wild              CONSTANT VARCHAR2(4)            := '$';
+    page_item_prefix            CONSTANT VARCHAR2(4)            := 'P';
     --
     ------------------------item_request_id             CONSTANT VARCHAR2(30)       := 'G_REQUEST_ID';
 
     -- name of AUTH package
-    auth_package                CONSTANT VARCHAR2(30)       := 'AUTH';
-    auth_page_id_arg            CONSTANT VARCHAR2(30)       := 'IN_PAGE_ID';
+    auth_package                CONSTANT VARCHAR2(30)           := 'AUTH';
+    auth_page_id_arg            CONSTANT VARCHAR2(30)           := 'IN_PAGE_ID';
 
     -- error log table name and max age fo records
-    logs_table_name             CONSTANT VARCHAR2(30)       := 'LOGS';      -- used in purge_old
-    logs_max_age                CONSTANT PLS_INTEGER        := 7;           -- max logs age in days
+    logs_table_name             CONSTANT VARCHAR2(30)           := 'LOGS';      -- used in purge_old
+    logs_max_age                CONSTANT PLS_INTEGER            := 7;           -- max logs age in days
 
     -- arrays to specify adhoc requests
     TYPE arr_log_setup          IS VARRAY(100) OF logs_blacklist%ROWTYPE;
