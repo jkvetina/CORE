@@ -673,7 +673,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         out_search              apex_application_pages.page_name%TYPE;
     BEGIN
         IF in_name IS NULL THEN
-            SELECT p.page_group INTO out_name
+            SELECT p.page_name INTO out_name
             FROM apex_application_pages p
             WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
                 AND p.page_id           = COALESCE(in_page_id, app.get_page_id());
