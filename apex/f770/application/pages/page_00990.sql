@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9844735592500475)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220102192922'
+,p_last_upd_yyyymmddhh24miss=>'20220102213123'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9264299805429043)
@@ -189,7 +189,7 @@ wwv_flow_api.create_page_button(
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
 ,p_button_image_alt=>'Clone Session'
 ,p_button_position=>'RIGHT_OF_TITLE'
-,p_button_redirect_url=>'javascript:window.open(''f?p=&APP_ID.:990:&SESSION.: APEX_CLONE_SESSION:NO:1::'', ''_blank'');'
+,p_button_redirect_url=>'javascript:window.open(''f?p=&APP_ID.:990:&SESSION.:APEX_CLONE_SESSION::::'', ''_blank'');'
 ,p_icon_css_classes=>'fa-window-new'
 ,p_button_cattributes=>'target="_blank"'
 );
