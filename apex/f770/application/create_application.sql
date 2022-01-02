@@ -16,7 +16,7 @@ wwv_flow_api.create_flow(
 ,p_owner=>nvl(wwv_flow_application_install.get_schema,'CORE')
 ,p_name=>nvl(wwv_flow_application_install.get_application_name,'CORE')
 ,p_alias=>nvl(wwv_flow_application_install.get_application_alias,'CORE')
-,p_page_view_logging=>'YES'
+,p_page_view_logging=>'NO'
 ,p_page_protection_enabled_y_n=>'Y'
 ,p_checksum_salt=>'C62B537B70AC296B7152F7F57C0D56DDDC653FBD3506844F47C8CF0F37321184'
 ,p_bookmark_checksum_function=>'SH512'
@@ -50,6 +50,7 @@ wwv_flow_api.create_flow(
 ,p_deep_linking=>'Y'
 ,p_vpd=>'#OWNER#.app.create_session'
 ,p_vpd_teardown_code=>'#OWNER#.app.exit_session'
+,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_rejoin_existing_sessions=>'N'
 ,p_csv_encoding=>'Y'
 ,p_auto_time_zone=>'N'
@@ -57,9 +58,9 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'CORE'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211227212837'
+,p_last_upd_yyyymmddhh24miss=>'20220102123620'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
-,p_files_version=>35
+,p_files_version=>42
 ,p_ui_type_name => null
 ,p_print_server_type=>'NATIVE'
 );
