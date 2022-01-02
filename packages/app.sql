@@ -317,14 +317,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 WHERE a.app_id          = rec.app_id;
             EXCEPTION
             WHEN NO_DATA_FOUND THEN
+                app.log_warning('CREATING_APP', rec.app_id);
+                --
                 INSERT INTO apps (app_id, app_name, is_active, updated_by, updated_at)
-                VALUES (
-                    rec.app_id,
-                    rec.app_id,
+                SELECT
+                    a.application_id,
+                    a.application_name,
                     'Y',
                     rec.user_id,
                     rec.updated_at
-                );
+                FROM apex_applications a
+                WHERE a.application_id = rec.app_id;
             END;
         END IF;
 
@@ -1952,6 +1955,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
             IF app.is_developer() THEN
                 -- create event on the fly for developers
                 BEGIN
+                    app.log_warning('CREATING_EVENT', rec.event_id);
+                    --
                     INSERT INTO events (app_id, event_id, is_active, updated_by, updated_at)
                     VALUES (
                         rec.app_id,
