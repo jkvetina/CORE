@@ -657,6 +657,27 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_page_parent (
+        in_page_id              navigation.page_id%TYPE     := NULL,
+        in_app_id               navigation.app_id%TYPE      := NULL
+    )
+    RETURN navigation.page_id%TYPE
+    AS
+        out_id                  apex_application_pages.page_id%TYPE;
+    BEGIN
+        SELECT n.parent_id INTO out_id
+        FROM navigation n
+        WHERE n.app_id          = COALESCE(in_app_id, app.get_app_id())
+            AND n.page_id       = COALESCE(in_page_id, app.get_page_id());
+        --
+        RETURN out_id;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    END;
+
+
+
     FUNCTION get_page_name (
         in_page_id              navigation.page_id%TYPE     := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL,

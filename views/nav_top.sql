@@ -1,17 +1,15 @@
 CREATE OR REPLACE VIEW nav_top AS
 WITH curr AS (
     SELECT
-        n.app_id,
-        MAX(n.page_id)                          AS page_id,
-        MAX(n.parent_id)                        AS parent_id,
-        app.get_page_root(MAX(n.page_id))       AS page_root,
-        app.get_page_group(MAX(n.page_id))      AS page_group,
-        app.get_user_id()                       AS user_id,
-        app.get_user_name()                     AS user_name
-    FROM navigation n
-    WHERE n.app_id          = app.get_app_id()
-        AND n.page_id       IN (app.get_page_id(), 0)  -- always return 1 row
-    GROUP BY n.app_id
+        app.get_app_id()            AS app_id,
+        app.get_page_id()           AS page_id,
+        app.get_page_parent()       AS parent_id,
+        app.get_page_root()         AS page_root,
+        app.get_page_group()        AS page_group,
+        app.get_user_id()           AS user_id,
+        app.get_user_name()         AS user_name
+    FROM users u
+    WHERE u.user_id = app.get_user_id()
 )
 SELECT
     CASE WHEN n.parent_id IS NULL THEN 1 ELSE 2 END AS lvl,

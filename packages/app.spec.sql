@@ -344,6 +344,17 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Returns parent page ID for requested or current page
+    --
+    FUNCTION get_page_parent (
+        in_page_id              navigation.page_id%TYPE     := NULL,
+        in_app_id               navigation.app_id%TYPE      := NULL
+    )
+    RETURN navigation.page_id%TYPE;
+
+
+
+    --
     -- Get page name from APEX dictionary
     --
     FUNCTION get_page_name (
