@@ -7,6 +7,7 @@ CREATE TABLE navigation (
     order#              NUMBER(4),
     is_hidden           CHAR(1),
     is_reset            CHAR(1),
+    is_shared           CHAR(1),        -- only for CORE app
     --
     updated_by          VARCHAR2(30),
     updated_at          DATE,
@@ -26,7 +27,10 @@ CREATE TABLE navigation (
         CHECK (is_hidden = 'Y' OR is_hidden IS NULL),
     --
     CONSTRAINT ch_navigation_is_reset
-        CHECK (is_reset = 'Y' OR is_reset IS NULL)
+        CHECK (is_reset = 'Y' OR is_reset IS NULL),
+    --
+    CONSTRAINT ch_navigation_is_shared
+        CHECK ((is_shared = 'Y' AND app_id = 770) OR is_shared IS NULL)     -- CORE app_id
 )
 STORAGE (BUFFER_POOL KEEP);
 --
@@ -38,4 +42,5 @@ COMMENT ON COLUMN navigation.parent_id      IS 'Parent page id for tree structur
 COMMENT ON COLUMN navigation.order#         IS 'Order of siblings';
 COMMENT ON COLUMN navigation.is_hidden      IS 'Y = dont show in menu';
 COMMENT ON COLUMN navigation.is_reset       IS 'Y = reset/clear all items not passed in url';
+COMMENT ON COLUMN navigation.is_shared      IS 'Y = show these items in other apps, only for CORE app';
 

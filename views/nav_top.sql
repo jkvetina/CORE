@@ -21,9 +21,11 @@ SELECT
             THEN REGEXP_REPLACE(REPLACE(n.page_name, '&' || 'APP_USER.', APEX_ESCAPE.HTML(NVL(curr.user_name, curr.user_id))), '^(&' || 'nbsp; )+', '')
         ELSE '</li></ul><ul class="EMPTY"></ul><ul><li class="HIDDEN" style="display: none;">'  -- a trick to split nav menu to left and right
         END AS label,
+    --
     CASE
         WHEN n.page_id > 0
             THEN APEX_PAGE.GET_URL (
+                p_application   => n.app_id,
                 p_page          => NVL(n.page_alias, TO_CHAR(n.page_id)),
                 p_clear_cache   => CASE WHEN n.is_reset = 'Y' THEN n.page_id END,
                 p_session       => CASE WHEN n.page_id != 9999 THEN app.get_session_id() ELSE 0 END
