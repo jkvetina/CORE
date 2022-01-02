@@ -3,9 +3,8 @@ WITH x AS (
     SELECT
         app.get_item('$PAGE_ID')    AS filter_page_id,
         app.get_page_id()           AS page_id,
-        app.get_core_app_id()       AS core_app_id,
-        --
-        COALESCE(CASE WHEN app.get_app_id() = app.get_core_app_id() THEN app.get_proxy_app_id() END, app.get_app_id()) AS app_id
+        app.get_app_id()            AS app_id,
+        app.get_core_app_id()       AS core_app_id
     FROM users u
     WHERE u.user_id = app.get_user_id()
 ),
@@ -13,12 +12,15 @@ t AS (
     SELECT
         n.app_id,
         n.page_id,
+        --
         REPLACE(p.page_name,  '&' || 'APP_NAME.', a.application_name) AS page_name,
         REPLACE(p.page_title, '&' || 'APP_NAME.', a.application_name) AS page_title,
+        --
         p.page_alias,
         p.page_group,
         p.authorization_scheme,
         p.page_css_classes,
+        --
         LEVEL - 1                                   AS depth,
         CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
     FROM navigation n
@@ -81,7 +83,7 @@ SELECT
     --
     app.get_page_link (
         in_page_id          => x.page_id,
-        in_app_id           => n.app_id,
+        in_app_id           => x.core_app_id,
         in_names            => 'P' || TO_CHAR(x.page_id) || '_REMOVE_PAGE',
         in_values           => TO_CHAR(n.page_id)
     ) AS action_url
@@ -102,7 +104,7 @@ WHERE (x.filter_page_id     = n.page_id OR x.filter_page_id IS NULL)
                 -- if page from CORE has same page number in current app, then skip it
                 SELECT n.page_id
                 FROM navigation n
-                WHERE n.app_id = x.app_id
+                WHERE n.app_id      = x.app_id
             )
         )
     )
@@ -145,7 +147,7 @@ SELECT
     --
     app.get_page_link (
         in_page_id         => x.page_id,
-        in_app_id          => n.app_id,
+        in_app_id          => x.core_app_id,
         in_names           => 'P' || TO_CHAR(x.page_id) || '_ADD_PAGE',
         in_values          => TO_CHAR(n.page_id)
     ) AS action_url

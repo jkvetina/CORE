@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9844735592500475)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220102123620'
+,p_last_upd_yyyymmddhh24miss=>'20220102143830'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9264299805429043)
@@ -186,6 +186,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
 ,p_query_table=>'APPS'
+,p_query_where=>'app_id != app.get_core_app_id()'
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -608,6 +609,20 @@ wwv_flow_api.create_page_button(
 ,p_button_redirect_url=>'f?p=&APP_ID.:990:&SESSION.::&DEBUG.:990::'
 ,p_icon_css_classes=>'fa-refresh'
 );
+wwv_flow_api.create_page_button(
+ p_id=>wwv_flow_api.id(12997055906936930)
+,p_button_sequence=>10
+,p_button_plug_id=>wwv_flow_api.id(9264299805429043)
+,p_button_name=>'CLONE_SESSION'
+,p_button_action=>'REDIRECT_URL'
+,p_button_template_options=>'#DEFAULT#'
+,p_button_template_id=>wwv_flow_api.id(9144574670569995)
+,p_button_image_alt=>'Clone Session'
+,p_button_position=>'RIGHT_OF_TITLE'
+,p_button_redirect_url=>'javascript:window.open(''f?p=&APP_ID.:990:&SESSION.: APEX_CLONE_SESSION:NO:1::'', ''_blank'');'
+,p_icon_css_classes=>'fa-window-new'
+,p_button_cattributes=>'target="_blank"'
+);
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(9519736699540350)
 ,p_name=>'P990_USER_ID'
@@ -781,7 +796,7 @@ wwv_flow_api.create_page_computation(
 ,p_computation_point=>'BEFORE_BOX_BODY'
 ,p_computation_type=>'EXPRESSION'
 ,p_computation_language=>'PLSQL'
-,p_computation=>'app.get_proxy_app_id()'
+,p_computation=>'app.get_app_id()'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(12996704930936927)
@@ -838,10 +853,10 @@ wwv_flow_api.create_page_process(
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(12995058195936910)
 ,p_process_type=>'NATIVE_IG_DML'
-,p_process_name=>'Applications - Save Interactive Grid Data'
+,p_process_name=>'SAVE_APPLICATIONS'
 ,p_attribute_01=>'REGION_SOURCE'
 ,p_attribute_05=>'Y'
-,p_attribute_06=>'Y'
+,p_attribute_06=>'N'
 ,p_attribute_08=>'Y'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );

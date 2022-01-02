@@ -107,7 +107,7 @@ CREATE OR REPLACE PACKAGE app AS
     --
 
     --
-    -- Returns APEX application id
+    -- Returns APEX application id (for proxy app)
     --
     FUNCTION get_app_id
     RETURN sessions.app_id%TYPE;
@@ -115,9 +115,9 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- When using multiple apps in same workspace/schema return previous app
+    -- When using multiple apps in same workspace/schema return the real application id
     --
-    FUNCTION get_proxy_app_id
+    FUNCTION get_real_app_id
     RETURN sessions.app_id%TYPE;
 
 
