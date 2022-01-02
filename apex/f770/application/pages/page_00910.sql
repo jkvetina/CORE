@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220102090736'
+,p_last_upd_yyyymmddhh24miss=>'20220102135221'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9192009232668637)
@@ -1509,6 +1509,9 @@ wwv_flow_api.create_page_process(
 '            p_report_id         => NULL',
 '        );',
 '    END IF;',
+'EXCEPTION',
+'WHEN NO_DATA_FOUND THEN',
+'    NULL;',
 'END;',
 ''))
 ,p_process_clob_language=>'PLSQL'
