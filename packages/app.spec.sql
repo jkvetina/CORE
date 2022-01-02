@@ -31,6 +31,8 @@ CREATE OR REPLACE PACKAGE app AS
 
     schema_owner                CONSTANT VARCHAR2(30)       := 'CORE';
     schema_apex                 CONSTANT VARCHAR2(30)       := 'APEX_210100';
+    --
+    core_app_id                 CONSTANT sessions.app_id%TYPE   := 770;  -- for sharing pages between apps
 
     -- code for app exception
     app_exception_code          CONSTANT PLS_INTEGER        := -20000;
@@ -108,6 +110,22 @@ CREATE OR REPLACE PACKAGE app AS
     -- Returns APEX application id
     --
     FUNCTION get_app_id
+    RETURN sessions.app_id%TYPE;
+
+
+
+    --
+    -- When using multiple apps in same workspace/schema return previous app
+    --
+    FUNCTION get_proxy_app_id
+    RETURN sessions.app_id%TYPE;
+
+
+
+    --
+    --
+    --
+    FUNCTION get_core_app_id
     RETURN sessions.app_id%TYPE;
 
 

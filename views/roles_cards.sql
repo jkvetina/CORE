@@ -1,4 +1,12 @@
 CREATE OR REPLACE VIEW roles_cards AS
+WITH x AS (
+    SELECT
+        u.user_id,
+        COALESCE(app.get_proxy_app_id(), app.get_app_id())  AS app_id,
+        app.is_developer_y()                                AS is_developer
+    FROM users u
+    WHERE u.user_id = app.get_user_id()
+)
 SELECT
     r.role_id,
     r.role_name,
@@ -19,18 +27,19 @@ FROM (
     JOIN user_roles u
         ON u.app_id             = r.app_id
         AND u.role_id           = r.role_id
-    WHERE u.app_id              = app.get_app_id()
-        AND u.user_id           = app.get_user_id()
+    JOIN x
+        ON x.app_id             = u.app_id
+        AND x.user_id           = u.user_id
     UNION ALL
     SELECT
-        app.get_app_id()        AS app_id,
+        x.app_id,
         'IS_DEVELOPER'          AS role_id,
         'Developer'             AS role_name,
         '',
         'Y'                     AS is_active,
         0                       AS sort#
-    FROM DUAL
-    WHERE app.is_developer_y()  = 'Y'
+    FROM x
+    WHERE x.is_developer        = 'Y'
 ) r
 LEFT JOIN navigation n
     ON n.app_id                 = r.app_id

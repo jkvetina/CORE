@@ -27,6 +27,37 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_proxy_app_id
+    RETURN sessions.app_id%TYPE
+    AS
+        out_app_id              sessions.app_id%TYPE;
+    BEGIN
+        --IF app.get_app_id() = app.get_core_app_id() THEN
+        --    RETURN NULL;
+        --END IF;
+        --
+        SELECT MIN(s.app_id) KEEP (DENSE_RANK FIRST ORDER BY s.updated_at DESC) INTO out_app_id
+        FROM sessions s
+        WHERE s.session_id  = app.get_session_id()
+            AND s.app_id    != app.get_app_id();
+        --
+        RETURN out_app_id;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    END;
+
+
+
+    FUNCTION get_core_app_id
+    RETURN sessions.app_id%TYPE
+    AS
+    BEGIN
+        RETURN COALESCE(app.core_app_id, 0);
+    END;
+
+
+
     FUNCTION get_user_id
     RETURN users.user_id%TYPE
     AS
