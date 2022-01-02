@@ -23,7 +23,8 @@ SELECT
     --
     app.get_page_link (
         in_page_id      => p.page_id,
-        in_app_id       => a.app_id
+        in_app_id       => a.app_id,
+        in_session_id   => CASE WHEN a.app_id = app.get_core_app_id() THEN 0 END
     ) AS app_url,
     --
     p.authentication_scheme,
@@ -33,18 +34,24 @@ SELECT
     a.is_active,
     a.is_visible,
     --
-    CASE WHEN (
-        a.is_visible    = 'Y'
-        OR a.app_id IN (
-            SELECT r.app_id
-            FROM user_roles r
-            WHERE r.user_id = app.get_user_id()
+    CASE WHEN
+        p.app_schema                IS NOT NULL
+        AND (
+            a.is_visible            = 'Y'
+            OR a.app_id IN (
+                SELECT r.app_id
+                FROM user_roles r
+                WHERE r.user_id     = app.get_user_id()
+            )
         )
-    ) THEN 'Y' END AS is_available,
+        AND (
+            app.is_developer_y()    = 'Y'
+            OR a.app_id             != app.get_core_app_id()
+        )
+        THEN 'Y' END AS is_available,
     --
     a.description_,
     a.message
 FROM apps a
-JOIN p
-    ON p.app_id         = a.app_id
-WHERE a.app_id          != app.get_core_app_id();
+LEFT JOIN p
+    ON p.app_id = a.app_id;
