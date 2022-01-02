@@ -120,9 +120,13 @@ prompt --install
 @@application/pages/page_00910.sql
 @@application/pages/page_00915.sql
 @@application/pages/page_00920.sql
+@@application/pages/page_00922.sql
 @@application/pages/page_00925.sql
 @@application/pages/page_00940.sql
 @@application/pages/page_00970.sql
 @@application/pages/page_00990.sql
 @@application/pages/page_09999.sql
+@@application/deployment/definition.sql
+@@application/deployment/checks.sql
+@@application/deployment/buildoptions.sql
 @@application/end_environment.sql
