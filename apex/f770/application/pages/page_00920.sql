@@ -3620,6 +3620,21 @@ wwv_flow_api.create_jet_chart_series(
 ,p_assigned_to_y2=>'off'
 ,p_items_label_rendered=>false
 );
+wwv_flow_api.create_jet_chart_series(
+ p_id=>wwv_flow_api.id(13239592666910332)
+,p_chart_id=>wwv_flow_api.id(10893251519121641)
+,p_seq=>20
+,p_name=>'Sessions'
+,p_location=>'REGION_SOURCE'
+,p_items_value_column_name=>'COUNT_SESSIONS'
+,p_items_label_column_name=>'CHART_LABEL'
+,p_line_style=>'solid'
+,p_line_type=>'auto'
+,p_marker_rendered=>'auto'
+,p_marker_shape=>'circle'
+,p_assigned_to_y2=>'off'
+,p_items_label_rendered=>false
+);
 wwv_flow_api.create_jet_chart_axis(
  p_id=>wwv_flow_api.id(10893487984121643)
 ,p_chart_id=>wwv_flow_api.id(10893251519121641)

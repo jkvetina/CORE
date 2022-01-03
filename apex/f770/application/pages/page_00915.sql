@@ -561,7 +561,7 @@ wwv_flow_api.create_jet_chart_series(
  p_id=>wwv_flow_api.id(11885852966358762)
 ,p_chart_id=>wwv_flow_api.id(11884191829358759)
 ,p_seq=>10
-,p_name=>'Sessions'
+,p_name=>'Users'
 ,p_location=>'REGION_SOURCE'
 ,p_items_value_column_name=>'COUNT_USERS'
 ,p_items_label_column_name=>'CHART_LABEL'
@@ -573,9 +573,24 @@ wwv_flow_api.create_jet_chart_series(
 ,p_items_label_rendered=>false
 );
 wwv_flow_api.create_jet_chart_series(
- p_id=>wwv_flow_api.id(11886438944358762)
+ p_id=>wwv_flow_api.id(13239464881910331)
 ,p_chart_id=>wwv_flow_api.id(11884191829358759)
 ,p_seq=>20
+,p_name=>'Pages'
+,p_location=>'REGION_SOURCE'
+,p_items_value_column_name=>'COUNT_PAGES'
+,p_items_label_column_name=>'CHART_LABEL'
+,p_line_style=>'solid'
+,p_line_type=>'auto'
+,p_marker_rendered=>'auto'
+,p_marker_shape=>'circle'
+,p_assigned_to_y2=>'off'
+,p_items_label_rendered=>false
+);
+wwv_flow_api.create_jet_chart_series(
+ p_id=>wwv_flow_api.id(11886438944358762)
+,p_chart_id=>wwv_flow_api.id(11884191829358759)
+,p_seq=>30
 ,p_name=>'Requests'
 ,p_location=>'REGION_SOURCE'
 ,p_items_value_column_name=>'COUNT_REQUESTS'
