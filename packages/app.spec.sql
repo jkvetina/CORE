@@ -461,6 +461,16 @@ CREATE OR REPLACE PACKAGE app AS
     --
 
     --
+    -- Get name of item and check if it is valid
+    --
+    FUNCTION get_item_name (
+        in_name                 VARCHAR2
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
     -- Get (global and page) item
     --
     FUNCTION get_item (

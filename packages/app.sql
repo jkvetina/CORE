@@ -974,9 +974,38 @@ CREATE OR REPLACE PACKAGE BODY app AS
     FUNCTION get_item_name (
         in_name                 VARCHAR2
     )
-    RETURN VARCHAR2 AS
+    RETURN VARCHAR2
+    AS
+        v_item_name             apex_application_page_items.item_name%TYPE;
+        is_valid                CHAR;
     BEGIN
-        RETURN REPLACE(in_name, app.page_item_wild, app.page_item_prefix || app.get_page_id() || '_');
+        v_item_name := REPLACE(in_name, app.page_item_wild, app.page_item_prefix || app.get_page_id() || '_');
+
+        -- check if item exists
+        BEGIN
+            SELECT 'Y' INTO is_valid
+            FROM apex_application_page_items p
+            WHERE p.application_id      = app.get_app_id()
+                AND p.page_id           = app.get_page_id()
+                AND p.item_name         = v_item_name;
+            --
+            RETURN v_item_name;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            BEGIN
+                SELECT 'Y' INTO is_valid
+                FROM apex_application_items g
+                WHERE g.application_id      = app.get_app_id()
+                    AND g.item_name         = in_name;
+                --
+                RETURN v_item_name;
+            EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                NULL;
+            END;
+        END;
+        --
+        RETURN NULL;
     END;
 
 
@@ -988,33 +1017,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
         v_item_name             apex_application_page_items.item_name%TYPE;
-        is_valid                CHAR;
     BEGIN
         v_item_name := app.get_item_name(in_name);
 
         -- check item existence to avoid hidden errors
-        IF in_raise THEN
-            BEGIN
-                SELECT 'Y' INTO is_valid
-                FROM apex_application_page_items p
-                WHERE p.application_id      = app.get_app_id()
-                    AND p.page_id           = app.get_page_id()
-                    AND p.item_name         = v_item_name;
-            EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                BEGIN
-                    SELECT 'Y' INTO is_valid
-                    FROM apex_application_items g
-                    WHERE g.application_id      = app.get_app_id()
-                        AND g.item_name         = in_name;
-                EXCEPTION
-                WHEN NO_DATA_FOUND THEN
-                    app.raise_error('ITEM_NOT_FOUND', app.get_json_list(in_name));
-                END;
-            END;
+        IF v_item_name IS NOT NULL THEN
+            RETURN APEX_UTIL.GET_SESSION_STATE(v_item_name);    -- throws error
+        ELSIF in_raise THEN
+            app.raise_error('ITEM_NOT_FOUND', v_item_name);
         END IF;
         --
-        RETURN APEX_UTIL.GET_SESSION_STATE(v_item_name);
+        RETURN NULL;
     END;
 
 
@@ -1170,42 +1183,19 @@ CREATE OR REPLACE PACKAGE BODY app AS
         in_raise                BOOLEAN         := TRUE
     )
     AS
-        v_item_name             apex_application_items.item_name%TYPE;
-        is_valid                CHAR(1);
+        v_item_name             apex_application_page_items.item_name%TYPE;
     BEGIN
         v_item_name := app.get_item_name(in_name);
         --
-        BEGIN
-            SELECT 'Y' INTO is_valid
-            FROM apex_application_page_items p
-            WHERE p.application_id      = app.get_app_id()
-                AND p.page_id           = app.get_page_id()
-                AND p.item_name         = v_item_name;
-        EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            BEGIN
-                SELECT 'Y' INTO is_valid
-                FROM apex_application_items g
-                WHERE g.application_id      = app.get_app_id()
-                    AND g.item_name         = in_name;
-            EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                NULL;
-            END;
-        END;
-        --
-        IF is_valid = 'Y' THEN
+        IF v_item_name IS NOT NULL THEN
             APEX_UTIL.SET_SESSION_STATE (
                 p_name      => v_item_name,
                 p_value     => in_value,
                 p_commit    => FALSE
             );
         ELSIF in_raise THEN
-            app.raise_error('INVALID_ITEM', app.get_json_list(in_name, in_value));
+            app.raise_error('ITEM_MISSING', v_item_name);
         END IF;
-    EXCEPTION
-    WHEN OTHERS THEN
-        app.raise_error('INVALID_ITEM', app.get_json_list(in_name, in_value));
     END;
 
 
