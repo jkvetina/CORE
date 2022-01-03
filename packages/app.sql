@@ -985,27 +985,23 @@ CREATE OR REPLACE PACKAGE BODY app AS
         BEGIN
             SELECT 'Y' INTO is_valid
             FROM apex_application_page_items p
-            WHERE p.application_id      = app.get_app_id()
+            WHERE p.application_id      = app.get_real_app_id()
                 AND p.page_id           = app.get_page_id()
                 AND p.item_name         = v_item_name;
-            --
-            RETURN v_item_name;
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
             BEGIN
                 SELECT 'Y' INTO is_valid
                 FROM apex_application_items g
-                WHERE g.application_id      = app.get_app_id()
+                WHERE g.application_id      = app.get_real_app_id()
                     AND g.item_name         = in_name;
-                --
-                RETURN v_item_name;
             EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                NULL;
+                RETURN NULL;
             END;
         END;
         --
-        RETURN NULL;
+        RETURN v_item_name;
     END;
 
 
@@ -1022,9 +1018,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- check item existence to avoid hidden errors
         IF v_item_name IS NOT NULL THEN
-            RETURN APEX_UTIL.GET_SESSION_STATE(v_item_name);    -- throws error
+            RETURN APEX_UTIL.GET_SESSION_STATE(v_item_name);
         ELSIF in_raise THEN
-            app.raise_error('ITEM_NOT_FOUND', v_item_name);
+            app.raise_error('ITEM_MISSING', v_item_name);
         END IF;
         --
         RETURN NULL;
@@ -1188,11 +1184,16 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_item_name := app.get_item_name(in_name);
         --
         IF v_item_name IS NOT NULL THEN
-            APEX_UTIL.SET_SESSION_STATE (
-                p_name      => v_item_name,
-                p_value     => in_value,
-                p_commit    => FALSE
-            );
+            BEGIN
+                APEX_UTIL.SET_SESSION_STATE (
+                    p_name      => v_item_name,
+                    p_value     => in_value,
+                    p_commit    => FALSE
+                );
+            EXCEPTION
+            WHEN OTHERS THEN
+                app.raise_error('ITEM_ERROR_' || v_item_name || '_' || app.get_app_id());
+            END;
         ELSIF in_raise THEN
             app.raise_error('ITEM_MISSING', v_item_name);
         END IF;
@@ -1252,7 +1253,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         SELECT JSON_OBJECTAGG(t.item_name VALUE APEX_UTIL.GET_SESSION_STATE(t.item_name) ABSENT ON NULL)
         INTO out_payload
         FROM apex_application_page_items t
-        WHERE t.application_id  = app.get_app_id()
+        WHERE t.application_id  = app.get_real_app_id()
             AND t.page_id       = COALESCE(in_page_id, app.get_page_id())
             AND t.item_name     LIKE in_filter;
         --
@@ -1274,7 +1275,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         SELECT JSON_OBJECTAGG(t.item_name VALUE APEX_UTIL.GET_SESSION_STATE(t.item_name) ABSENT ON NULL)
         INTO out_payload
         FROM apex_application_items t
-        WHERE t.application_id  = app.get_app_id()
+        WHERE t.application_id  = app.get_real_app_id()
             AND t.item_name     LIKE in_filter;
         --
         RETURN out_payload;
