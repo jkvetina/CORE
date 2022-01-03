@@ -421,10 +421,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_workspace_id          apex_applications.workspace%TYPE;
     BEGIN
         app.log_module_json (
-            'in_user_id',       in_user_id,
-            'in_app_id',        in_app_id,
-            'in_page_id',       in_page_id,
-            'in_items',         in_items
+            'user_id',          in_user_id,
+            'app_id',           in_app_id,
+            'page_id',          in_page_id,
+            'items',            in_items
         );
 
         -- create session from SQL Developer (not from APEX)

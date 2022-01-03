@@ -391,13 +391,13 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec                     settings%ROWTYPE;
     BEGIN
         app.log_module_json (
-            'in_action',        in_action,
-            'in_name_old',      in_setting_name_old,
-            'in_name',          in_setting_name,
-            'in_value',         in_setting_value,
-            'in_group',         in_setting_group,
-            'in_is_numeric',    in_is_numeric,
-            'in_is_date',       in_is_date
+            'action',           in_action,
+            'name_old',         in_setting_name_old,
+            'name',             in_setting_name,
+            'value',            in_setting_value,
+            'group',            in_setting_group,
+            'is_numeric',       in_is_numeric,
+            'is_date',          in_is_date
         );
         --
         rec.app_id              := app.get_app_id();

@@ -29,7 +29,7 @@ t AS (
         ON p.application_id         = n.app_id
         AND p.page_id               = n.page_id
     LEFT JOIN apex_applications a
-        ON a.application_id = p.application_id
+        ON a.application_id         = p.application_id
     WHERE n.app_id                  IN (x.app_id, x.core_app_id)
     CONNECT BY n.parent_id          = PRIOR n.page_id
         AND n.app_id                = PRIOR n.app_id
