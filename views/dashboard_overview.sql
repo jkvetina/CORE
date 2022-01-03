@@ -51,7 +51,7 @@ j AS (
 )
 --
 SELECT
-    LPAD(' ', TO_NUMBER(TO_CHAR(l.today, 'YYIW') - 2000)) || TO_CHAR(l.today, 'YYYY-IW') AS week,
+    LPAD(' ', TO_NUMBER(TO_CHAR(l.today, 'IYIW') - 2000)) || SUBSTR(TO_CHAR(l.today, 'YYYY'), 1, 2) || TO_CHAR(l.today, 'IY-IW') AS week,
     --
     TO_CHAR(l.today, 'YYYY-MM-DD') AS today,
     --
