@@ -6,6 +6,7 @@ WITH x AS (
         app.get_item('$PAGE_ID')        AS page_id,
         app.get_item('$USER_ID')        AS user_id,
         app.get_item('$SESSION_ID')     AS session_id,
+        app.get_app_id()                AS app_id,
         --
         TRUNC(COALESCE(app.get_date_item('$TODAY'), app.get_date_item('G_TODAY'), SYSDATE)) AS today
     FROM users u
@@ -30,6 +31,7 @@ FROM logs l
 JOIN x
     ON  l.created_at    >= x.today
     AND l.created_at    < x.today + 1
+    AND l.app_id        = x.app_id
     AND l.log_id        > NVL(x.recent_log_id, 0)
     AND l.flag          = NVL(x.flag, l.flag)
     AND l.page_id       = NVL(x.page_id, l.page_id)

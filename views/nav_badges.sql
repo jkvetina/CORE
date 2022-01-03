@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW nav_badges AS
 WITH x AS (
     SELECT
+        app.get_app_id()            AS app_id,
         app.is_developer_y()        AS is_developer
     FROM users u
     WHERE u.user_id = app.get_user_id()
@@ -14,6 +15,7 @@ JOIN x
     ON x.is_developer       = 'Y'
 WHERE l.created_at          >= TRUNC(SYSDATE)
     AND l.flag              = 'E'
+    AND l.app_id            = x.app_id
 --
 UNION ALL
 SELECT                              -- today users
@@ -25,6 +27,7 @@ FROM sessions s
 JOIN x
     ON x.is_developer       = 'Y'
 WHERE s.created_at          >= TRUNC(SYSDATE)
+    AND s.app_id            = x.app_id
 --
 UNION ALL
 SELECT                              -- pages to add/remove
@@ -33,7 +36,9 @@ SELECT                              -- pages to add/remove
     --
     TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
 FROM nav_overview n
-WHERE n.app_id              = app.get_app_id()
+JOIN x
+    ON x.is_developer       = 'Y'
+WHERE n.app_id              = x.app_id
     AND n.action            IS NOT NULL
 --
 UNION ALL

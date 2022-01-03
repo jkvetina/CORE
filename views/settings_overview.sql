@@ -3,8 +3,10 @@ WITH x AS (
     SELECT
         UPPER('SETT')                   AS package_name,        -- app_actions spec
         UPPER('GET_')                   AS prefix,
-        app.get_item('$SETTING_NAME')   AS setting_name
-    FROM DUAL
+        app.get_item('$SETTING_NAME')   AS setting_name,
+        app.get_app_id()                AS app_id
+    FROM users u
+    WHERE u.user_id = app.get_user_id()
 ),
 p AS (
     SELECT p.procedure_name, a.data_type
@@ -69,14 +71,14 @@ SELECT
     s.updated_by,
     s.updated_at
 FROM settings s
-CROSS JOIN x
+JOIN x
+    ON x.app_id             = s.app_id
 LEFT JOIN p
     ON p.procedure_name     = x.prefix || s.setting_name
 LEFT JOIN r
     ON r.procedure_name     = x.prefix || s.setting_name
 LEFT JOIN v
     ON v.procedure_name     = x.prefix || s.setting_name
-WHERE s.app_id              = app.get_app_id()
-    AND s.setting_name      = NVL(x.setting_name, s.setting_name)
+WHERE s.setting_name        = NVL(x.setting_name, s.setting_name)
     AND s.setting_context   IS NULL;
 
