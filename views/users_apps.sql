@@ -5,6 +5,7 @@ WITH p AS (
         a.alias                 AS app_alias,
         a.application_group     AS app_group,
         a.owner                 AS app_schema,
+        a.application_name      AS app_name,
         a.authentication_scheme,
         a.last_updated_on,
         a.pages                 AS count_pages,
@@ -16,7 +17,7 @@ WITH p AS (
 )
 SELECT
     a.app_id,
-    a.app_name,
+    NVL(p.app_name, a.app_name) AS app_name,
     p.app_alias,
     p.app_group,
     p.app_schema,

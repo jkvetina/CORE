@@ -2120,12 +2120,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- add call stack
         IF (SQLCODE != 0 OR INSTR(app.track_callstack, rec.flag) > 0) THEN
-            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_call_stack(), 'WWV_FLOW', '%'), app.schema_apex, '%'), 1, app.length_payload);
+            rec.payload := SUBSTR(rec.payload || app.get_shorter_stack(app.get_call_stack()), 1, app.length_payload);
         END IF;
 
         -- add error stack
         IF SQLCODE != 0 THEN
-            rec.payload := SUBSTR(rec.payload || REPLACE(REPLACE(app.get_error_stack(), 'WWV_FLOW', '%'), app.schema_apex, '%'), 1, app.length_payload);
+            rec.payload := SUBSTR(rec.payload || app.get_shorter_stack(app.get_error_stack()), 1, app.length_payload);
         END IF;
 
         -- print message to console
@@ -2268,11 +2268,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
             in_action_name  => v_action_name,
             in_arg1         => v_component,
             in_arg2         => APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error),
-            in_payload      => REPLACE (
-                out_result.message      || CHR(10) || '--' || CHR(10) ||
-                p_error.error_statement || CHR(10) || '--' || CHR(10) ||
-                --p_error.error_backtrace || CHR(10) || '--' || CHR(10)
-                p_error.ora_sqlerrm     || CHR(10) || '--' || CHR(10), app.schema_apex, '%')
+            in_payload      =>
+                out_result.message                                  || CHR(10) || '--' || CHR(10) ||
+                app.get_shorter_stack(p_error.error_statement)      || CHR(10) || '--' || CHR(10) ||
+                app.get_shorter_stack (p_error.ora_sqlerrm)         || CHR(10) || '--' || CHR(10)
+                --app.get_shorter_stack (p_error.error_backtrace)   || CHR(10) || '--' || CHR(10)
         );
 
         -- mark associated page item (when possible)
@@ -2511,6 +2511,27 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 NULL;
             END;
         END LOOP;
+        --
+        RETURN out_stack;
+    END;
+
+
+
+    FUNCTION get_shorter_stack (
+        in_stack                VARCHAR2
+    )
+    RETURN VARCHAR2
+    AS
+        out_stack               VARCHAR2(32767);
+    BEGIN
+        out_stack := REPLACE(REPLACE(in_stack, 'WWV_FLOW', '%'), app.schema_apex, '%');
+        --
+        out_stack := REGEXP_REPLACE(out_stack, '\s.*SQL.*\.EXEC.*\]',   '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\s%.*EXEC.*\]',         '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\s%_PROCESS.*\]',       '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\s%_ERROR.*\]',         '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\s%_SECURITY.*\]',      '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\sHTMLDB*\]',           '.');
         --
         RETURN out_stack;
     END;

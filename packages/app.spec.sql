@@ -73,8 +73,6 @@ CREATE OR REPLACE PACKAGE app AS
     -- transform $NAME to P500_NAME if current page_id = 500
     page_item_wild              CONSTANT VARCHAR2(4)            := '$';
     page_item_prefix            CONSTANT VARCHAR2(4)            := 'P';
-    --
-    ------------------------item_request_id             CONSTANT VARCHAR2(30)       := 'G_REQUEST_ID';
 
     -- name of AUTH package
     auth_package                CONSTANT VARCHAR2(30)           := 'AUTH';
@@ -1163,6 +1161,16 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION get_error_stack
     RETURN logs.payload%TYPE;
+
+
+
+    --
+    -- Remove some not interesting calls from call/error stacks
+    --
+    FUNCTION get_shorter_stack (
+        in_stack                VARCHAR2
+    )
+    RETURN VARCHAR2;
 
 
 
