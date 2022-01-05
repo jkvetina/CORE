@@ -55,3 +55,14 @@ BEGIN
 END;
 /
 
+
+
+BEGIN
+    APEX_INSTANCE_ADMIN.SET_PARAMETER (
+        p_parameter => 'CLONE_SESSION_ENABLED',
+        p_value     => 'Y'
+    );
+    COMMIT;
+END;
+/
+
