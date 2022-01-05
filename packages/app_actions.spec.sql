@@ -64,16 +64,6 @@ CREATE OR REPLACE PACKAGE app_actions AS
     --
     --
     --
-    FUNCTION get_role_name (
-        in_role_id              roles.role_id%TYPE
-    )
-    RETURN roles.role_name%TYPE;
-
-
-
-    --
-    --
-    --
     PROCEDURE prep_user_roles_pivot (
         in_page_id              apex_application_pages.page_id%TYPE
     );

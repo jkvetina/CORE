@@ -304,6 +304,16 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    --
+    -- Get role name
+    --
+    FUNCTION get_role_name (
+        in_role_id              roles.role_id%TYPE
+    )
+    RETURN roles.role_name%TYPE;
+
+
+
 
 
 

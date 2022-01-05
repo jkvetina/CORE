@@ -109,26 +109,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    FUNCTION get_role_name (
-        in_role_id              roles.role_id%TYPE
-    )
-    RETURN roles.role_name%TYPE
-    AS
-        out_name                roles.role_name%TYPE;
-    BEGIN
-        SELECT NVL(r.role_name, r.role_id) INTO out_name
-        FROM roles r
-        WHERE r.app_id          = app.get_app_id()
-            AND r.role_id       = in_role_id;
-        --
-        RETURN out_name;
-    EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN in_role_id;
-    END;
-
-
-
     PROCEDURE prep_user_roles_pivot (
         in_page_id              apex_application_pages.page_id%TYPE
     ) AS
@@ -174,7 +154,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             BEGIN
                 APEX_UTIL.SET_SESSION_STATE (
                     p_name      => 'P' || in_page_id || '_C' || LPAD(i, 3, 0),
-                    p_value     => get_role_name(RTRIM(v_desc(i).col_name, '_')),
+                    p_value     => app.get_role_name(RTRIM(v_desc(i).col_name, '_')),
                     p_commit    => FALSE
                 );
             EXCEPTION

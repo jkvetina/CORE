@@ -607,6 +607,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_role_name (
+        in_role_id              roles.role_id%TYPE
+    )
+    RETURN roles.role_name%TYPE
+    AS
+        out_name                roles.role_name%TYPE;
+    BEGIN
+        SELECT NVL(r.role_name, r.role_id) INTO out_name
+        FROM roles r
+        WHERE r.app_id          = app.get_app_id()
+            AND r.role_id       = in_role_id;
+        --
+        RETURN out_name;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN in_role_id;
+    END;
+
+
+
     FUNCTION get_page_id
     RETURN navigation.page_id%TYPE
     AS
