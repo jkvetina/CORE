@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220102135221'
+,p_last_upd_yyyymmddhh24miss=>'20220105205554'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9192009232668637)
@@ -534,9 +534,6 @@ wwv_flow_api.create_region_column(
 ,p_is_primary_key=>false
 ,p_duplicate_value=>true
 ,p_include_in_export=>true
-,p_display_condition_type=>'EXPRESSION'
-,p_display_condition=>'app.get_app_id() = app.get_core_app_id()'
-,p_display_condition2=>'PLSQL'
 ,p_security_scheme=>wwv_flow_api.id(9556407311505078)
 );
 wwv_flow_api.create_interactive_grid(

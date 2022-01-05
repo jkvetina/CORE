@@ -30,7 +30,6 @@ t AS (
         AND p.page_id               = n.page_id
     LEFT JOIN apex_applications a
         ON a.application_id         = p.application_id
-    WHERE n.app_id                  IN (x.app_id, x.core_app_id)
     CONNECT BY n.parent_id          = PRIOR n.page_id
         AND n.app_id                = PRIOR n.app_id
     START WITH n.parent_id          IS NULL
@@ -98,10 +97,9 @@ WHERE (x.filter_page_id     = n.page_id OR x.filter_page_id IS NULL)
     AND (
         n.app_id            = x.app_id
         OR (
-            n.app_id        = x.core_app_id
-            AND n.is_shared = 'Y'
+            n.is_shared     = 'Y'
             AND n.page_id   NOT IN (
-                -- if page from CORE has same page number in current app, then skip it
+                -- pages from active apps takes priority
                 SELECT n.page_id
                 FROM navigation n
                 WHERE n.app_id      = x.app_id

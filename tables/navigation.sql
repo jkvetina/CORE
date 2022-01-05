@@ -30,7 +30,7 @@ CREATE TABLE navigation (
         CHECK (is_reset = 'Y' OR is_reset IS NULL),
     --
     CONSTRAINT ch_navigation_is_shared
-        CHECK ((is_shared = 'Y' AND app_id = 770) OR is_shared IS NULL)     -- CORE app_id
+        CHECK (is_shared = 'Y' OR is_shared IS NULL)
 )
 STORAGE (BUFFER_POOL KEEP);
 --
