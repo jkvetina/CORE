@@ -618,8 +618,8 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         app_actions.refresh_user_source_views();
         --
-        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(in_settings_package) || ' AS' || CHR(10);
-        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(in_settings_package) || ' AS' || CHR(10);
+        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(settings_package) || ' AS' || CHR(10);
+        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(settings_package) || ' AS' || CHR(10);
         --
         FOR c IN (
             SELECT
@@ -633,7 +633,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         ) LOOP
             -- create specification
             q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
             q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             q := q || '    )' || CHR(10);
             q := q || '    RETURN ' || CASE
@@ -644,7 +644,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
             -- create package body
             b := b || CHR(10);
-            b := b || '    FUNCTION ' || LOWER(in_settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            b := b || '    FUNCTION ' || LOWER(settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
             b := b || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             b := b || '    )' || CHR(10);
             b := b || '    RETURN ' || CASE
@@ -679,7 +679,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         /*
         DBMS_RESULT_CACHE.INVALIDATE (
             owner   => app.schema_owner,
-            name    => app_actions.in_settings_package
+            name    => app_actions.settings_package
         );
         */
     EXCEPTION

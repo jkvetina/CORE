@@ -29,8 +29,8 @@ CREATE OR REPLACE PACKAGE app_actions AS
      *
      */
 
-    in_settings_package         CONSTANT VARCHAR2(30)       := 'SETT';
-    in_settings_prefix          CONSTANT VARCHAR2(30)       := 'get_';
+    settings_package            CONSTANT VARCHAR2(30)       := 'SETT';
+    settings_prefix             CONSTANT VARCHAR2(30)       := 'get_';
 
 
 
