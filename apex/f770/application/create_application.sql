@@ -34,6 +34,7 @@ wwv_flow_api.create_flow(
 ,p_documentation_banner=>'Application created from create application wizard 2021.12.18.'
 ,p_authentication=>'PLUGIN'
 ,p_authentication_id=>wwv_flow_api.id(9022228209569811)
+,p_populate_roles=>'A'
 ,p_application_tab_set=>0
 ,p_logo_type=>'T'
 ,p_logo_text=>'&APP_NAME.'
