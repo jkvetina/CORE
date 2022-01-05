@@ -18,7 +18,7 @@ CREATE TABLE setting_contexts (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  setting_contexts                      IS 'List of setting_contexts shared through whole app';
+COMMENT ON TABLE  setting_contexts                      IS 'List of contexts for settings overrides';
 --
 COMMENT ON COLUMN setting_contexts.app_id               IS 'Application ID';
 COMMENT ON COLUMN setting_contexts.context_id           IS 'To allow multiple values depending on context value';
