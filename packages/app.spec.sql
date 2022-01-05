@@ -1033,7 +1033,8 @@ CREATE OR REPLACE PACKAGE app AS
     PROCEDURE create_one_time_job (
         in_job_name         VARCHAR2,
         in_statement        VARCHAR2            := NULL,
-        in_comments         VARCHAR2            := NULL
+        in_comments         VARCHAR2            := NULL,
+        in_priority         PLS_INTEGER         := NULL
     );
 
 

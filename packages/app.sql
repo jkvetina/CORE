@@ -2061,21 +2061,35 @@ CREATE OR REPLACE PACKAGE BODY app AS
     PROCEDURE create_one_time_job (
         in_job_name         VARCHAR2,
         in_statement        VARCHAR2            := NULL,
-        in_comments         VARCHAR2            := NULL
+        in_comments         VARCHAR2            := NULL,
+        in_priority         PLS_INTEGER         := NULL
     ) AS
         v_log_id            logs.log_id%TYPE;
     BEGIN
-        v_log_id := app.log_module(in_job_name, in_statement, in_comments);
+        v_log_id := app.log_module(in_job_name, in_statement, in_comments, in_priority);
         --
         DBMS_SCHEDULER.CREATE_JOB (
             in_job_name,
             job_type        => 'PLSQL_BLOCK',
-            job_action      => 'BEGIN app.log_scheduler(' || v_log_id || ', ''' || in_job_name || '''); ' || RTRIM(in_statement, ';') || '; app.log_success(); END;',
+            job_action      => 'BEGIN'                                                                  || CHR(10) ||
+                               '    app.log_scheduler(' || v_log_id || ', ''' || in_job_name || ''');'  || CHR(10) ||
+                               '    ' || RTRIM(in_statement, ';') || ';'                                || CHR(10) ||
+                               '    app.log_success();'                                                 || CHR(10) ||
+                               'EXCEPTION'                                                              || CHR(10) ||
+                               'WHEN OTHERS THEN'                                                       || CHR(10) ||
+                               '    app.raise_error();'                                                 || CHR(10) ||
+                               'END;',
             start_date      => NULL,
-            enabled         => TRUE,
+            enabled         => FALSE,
             auto_drop       => TRUE,
             comments        => v_log_id || '|' || in_comments
         );
+        --
+        IF in_priority IS NOT NULL THEN
+            DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', in_priority);
+        END IF;
+        --
+        DBMS_SCHEDULER.ENABLE(in_job_name);
         --
         app.log_success(v_log_id);
     EXCEPTION
