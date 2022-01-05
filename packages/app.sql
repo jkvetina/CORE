@@ -2042,35 +2042,45 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    --
-    -- Log scheduler call and link its logs to this `log_id`
-    -- Create and start one time scheduler
-    --
-    FUNCTION log_scheduler (
-        --in_log_id           logs.log_id%TYPE,
-        in_job_name             VARCHAR2,                   ------------------     PROCEDURE start_scheduler (
-        in_statement            VARCHAR2        := NULL,
-        in_comments             VARCHAR2        := NULL,
-        in_priority             PLS_INTEGER     := NULL
+    PROCEDURE log_scheduler (
+        in_log_id               logs.log_id%TYPE,
+        in_job_name             VARCHAR2
     )
-    RETURN logs.log_id%TYPE
     AS
+        curr_id                 logs.log_id%TYPE;
     BEGIN
-        RETURN NULL;
+        curr_id := app.log__ (
+            in_flag             => app.flag_scheduler,
+            in_arguments        => in_job_name,
+            in_parent_id        => in_log_id
+        );
     END;
 
 
 
-    --
-    -- ^
-    --
-    PROCEDURE log_scheduler (
-        in_log_id               logs.log_id%TYPE
-        --in_args ???
-    )
-    AS
+    PROCEDURE create_one_time_job (
+        in_job_name         VARCHAR2,
+        in_statement        VARCHAR2            := NULL,
+        in_comments         VARCHAR2            := NULL
+    ) AS
+        v_log_id            logs.log_id%TYPE;
     BEGIN
-        NULL;
+        v_log_id := app.log_module(in_job_name, in_statement, in_comments);
+        --
+        DBMS_SCHEDULER.CREATE_JOB (
+            in_job_name,
+            job_type        => 'PLSQL_BLOCK',
+            job_action      => 'BEGIN app.log_scheduler(' || v_log_id || ', ''' || in_job_name || '''); ' || RTRIM(in_statement, ';') || '; app.log_success(); END;',
+            start_date      => NULL,
+            enabled         => TRUE,
+            auto_drop       => TRUE,
+            comments        => v_log_id || '|' || in_comments
+        );
+        --
+        app.log_success(v_log_id);
+    EXCEPTION
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 

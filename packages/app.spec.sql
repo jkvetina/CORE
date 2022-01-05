@@ -1018,26 +1018,22 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Log scheduler call and link its logs to this `log_id`
-    -- Create and start one time scheduler
-    --
-    FUNCTION log_scheduler (
-        --in_log_id           logs.log_id%TYPE,
-        in_job_name             VARCHAR2,                   ------------------     PROCEDURE start_scheduler (
-        in_statement            VARCHAR2        := NULL,
-        in_comments             VARCHAR2        := NULL,
-        in_priority             PLS_INTEGER     := NULL
-    )
-    RETURN logs.log_id%TYPE;
-
-
-
-    --
-    -- ^
+    -- Link one time scheduled jobs to specific log record (user)
     --
     PROCEDURE log_scheduler (
-        in_log_id               logs.log_id%TYPE
-        --in_args ???
+        in_log_id               logs.log_id%TYPE,
+        in_job_name             VARCHAR2
+    );
+
+
+
+    --
+    -- Proper way how to schedule one time jobs
+    --
+    PROCEDURE create_one_time_job (
+        in_job_name         VARCHAR2,
+        in_statement        VARCHAR2            := NULL,
+        in_comments         VARCHAR2            := NULL
     );
 
 
