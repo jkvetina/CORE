@@ -10,7 +10,7 @@
 @../tables/events.sql
 @../tables/log_events.sql
 @../tables/logs.sql
-@../tables/logs_setup.sql
+@../tables/logs_blacklist.sql
 --
 @../tables/navigation.sql
 @../tables/sessions.sql
@@ -18,19 +18,6 @@
 @../tables/settings.sql
 @../tables/setting_contexts.sql
 @../tables/user_source_views.sql
-
---
--- DATA
---
-INSERT INTO apps (app_id, app_name, is_active, updated_by, updated_at)
-VALUES (
-    770,
-    'CORE',
-    'Y',
-    USER,
-    SYSDATE
-);
-COMMIT;
 
 --
 -- SEQUENCES
@@ -42,6 +29,7 @@ COMMIT;
 --
 @../packages/app.spec.sql
 @../packages/app_actions.spec.sql
+@../packages/a770.spec.sql
 
 --
 -- VIEWS
@@ -51,7 +39,7 @@ COMMIT;
 @../views/roles_cards.sql
 --
 @../views/users_overview.sql
-@../views/users_chart.sql
+@../views/users_apps.sql
 --
 @../views/sessions_overview.sql
 @../views/sessions_chart.sql
@@ -67,6 +55,7 @@ COMMIT;
 @../views/nav_overview.sql
 @../views/nav_badges.sql
 @../views/nav_top.sql
+@../views/nav_regions.sql
 --
 @../views/events_chart.sql
 --
@@ -88,16 +77,25 @@ COMMIT;
 --
 @../packages/app.sql
 @../packages/app_actions.sql
+@../packages/a770.sql
 
 --
 -- TRIGGERS
 --
+@../triggers/apps__.sql
 @../triggers/events__.sql
+@../triggers/logs_blacklist__.sql
+@../triggers/navigation__.sql
 @../triggers/roles__.sql
 @../triggers/setting_contexts__.sql
 @../triggers/settings__.sql
 @../triggers/user_roles__.sql
 @../triggers/users__.sql
+
+--
+--
+--
+EXEC recompile;
 
 --
 -- JOBS
@@ -107,7 +105,49 @@ COMMIT;
 
 
 --
+-- SEED DATA
 --
+INSERT INTO apps (app_id, app_name, is_active, updated_by, updated_at)
+VALUES (
+    770,
+    'CORE',
+    'Y',
+    USER,
+    SYSDATE
+);
+COMMIT;
+
 --
-EXEC recompile;
+-- NAVIGATION
+--
+SET DEFINE OFF;
+DELETE FROM navigation;
+--
+INSERT INTO navigation (app_id, page_id, parent_id, order#)
+SELECT 770, 0,      NULL,   599     FROM DUAL UNION ALL
+SELECT 770, 100,    NULL,   100     FROM DUAL UNION ALL
+SELECT 770, 990,    NULL,   990     FROM DUAL UNION ALL
+SELECT 770, 9999,   NULL,   999     FROM DUAL UNION ALL
+SELECT 770, 900,    NULL,   900     FROM DUAL UNION ALL
+SELECT 770, 901,    900,    10      FROM DUAL UNION ALL
+SELECT 770, 915,    900,    15      FROM DUAL UNION ALL
+SELECT 770, 920,    900,    20      FROM DUAL UNION ALL
+SELECT 770, 922,    900,    25      FROM DUAL UNION ALL
+SELECT 770, 905,    900,    30      FROM DUAL UNION ALL
+SELECT 770, 940,    900,    35      FROM DUAL UNION ALL
+SELECT 770, 925,    900,    40      FROM DUAL UNION ALL
+SELECT 770, 910,    900,    45      FROM DUAL UNION ALL
+SELECT 770, 970,    900,    50      FROM DUAL;
+--
+UPDATE navigation n
+SET n.is_reset  = CASE WHEN n.page_id > 0 THEN 'Y' END,
+    n.is_shared = CASE WHEN n.page_id >= 900 AND n.page_id < 9999 THEN 'Y' END;
+--
+COMMIT;
+
+--
+-- settings
+--
+
+
 

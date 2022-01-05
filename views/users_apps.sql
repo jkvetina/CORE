@@ -6,6 +6,7 @@ WITH p AS (
         a.application_group     AS app_group,
         a.owner                 AS app_schema,
         a.application_name      AS app_name,
+        a.version               AS app_version,
         a.authentication_scheme,
         a.last_updated_on,
         a.pages                 AS count_pages,
@@ -22,12 +23,14 @@ SELECT
     p.app_group,
     p.app_schema,
     --
-    app.get_page_link (
-        in_page_id      => p.page_id,
-        in_app_id       => a.app_id,
-        in_session_id   => CASE WHEN a.app_id = app.get_core_app_id() THEN 0 END
-    ) AS app_url,
+    CASE WHEN p.page_id IS NOT NULL
+        THEN app.get_page_link (
+            in_page_id      => p.page_id,
+            in_app_id       => a.app_id,
+            in_session_id   => CASE WHEN a.app_id = app.get_core_app_id() THEN 0 END
+        ) END AS app_url,
     --
+    p.app_version,
     p.authentication_scheme,
     p.last_updated_on,
     p.count_pages,
@@ -52,7 +55,42 @@ SELECT
         THEN 'Y' END AS is_available,
     --
     a.description_,
-    a.message
+    a.message,
+    NULL                AS action,
+    a.app_id            AS action_id
 FROM apps a
 LEFT JOIN p
-    ON p.app_id = a.app_id;
+    ON p.app_id = a.app_id
+UNION ALL
+--
+SELECT
+    p.app_id,
+    p.app_name,
+    p.app_alias,
+    p.app_group,
+    p.app_schema,
+    --
+    app.get_page_link (
+        in_page_id      => p.page_id,
+        in_app_id       => p.app_id
+    ) AS app_url,
+    --
+    p.app_version,
+    p.authentication_scheme,
+    p.last_updated_on,
+    p.count_pages,
+    --
+    NULL AS is_active,
+    NULL AS is_visible,
+    NULL AS is_available,
+    --
+    NULL AS description_,
+    NULL AS message,
+    --
+    app.get_icon('fa-plus-square', 'Create new record') AS action,
+    p.app_id                                            AS action_id
+FROM p
+LEFT JOIN apps a
+    ON a.app_id         = p.app_id
+WHERE a.app_id          IS NULL;
+

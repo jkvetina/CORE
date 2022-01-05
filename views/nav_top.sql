@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW nav_top AS
+CREATE OR REPLACE FORCE VIEW nav_top AS
 WITH curr AS (
     SELECT
         app.get_app_id()            AS app_id,
