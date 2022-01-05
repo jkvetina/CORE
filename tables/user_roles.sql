@@ -21,10 +21,7 @@ CREATE TABLE user_roles (
     CONSTRAINT fk_users_roles_role_id
         FOREIGN KEY (app_id, role_id)
         REFERENCES roles (app_id, role_id)
-        DEFERRABLE INITIALLY DEFERRED,
-    --
-    CONSTRAINT ch_user_roles_is_active
-        CHECK (is_active = 'Y' OR is_active IS NULL)
+        DEFERRABLE INITIALLY DEFERRED
 )
 STORAGE (BUFFER_POOL KEEP);
 --
