@@ -38,7 +38,7 @@ COMPOUND TRIGGER
             :NEW.updated_at := curr_updated_at;
 
             -- check name
-            IF NOT REGEXP_LIKE(:NEW.setting_name, '^[A-Z0-9_]{1,' || TO_CHAR(30 - NVL(LENGTH(app_actions.settings_prefix), 0)) || '}$') THEN
+            IF NOT REGEXP_LIKE(:NEW.setting_name, '^[A-Z0-9_]{1,' || TO_CHAR(30 - NVL(LENGTH(app_actions.in_settings_prefix), 0)) || '}$') THEN
                 app.raise_error('WRONG_NAME', :NEW.setting_name);
             END IF;
 

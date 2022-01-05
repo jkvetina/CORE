@@ -4576,7 +4576,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''INIT_DEFAULTS'');',
 '--',
-':P970_REBUILD_TITLE := ''Rebuild '' || UPPER(app_actions.in_settings_package) || '' package with '' || UPPER(app_actions.in_settings_prefix) || ''* functions'';',
+':P970_REBUILD_TITLE := ''Rebuild '' || UPPER(app_actions.settings_package) || '' package with '' || UPPER(app_actions.settings_prefix) || ''* functions'';',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
