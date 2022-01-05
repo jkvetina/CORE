@@ -115,6 +115,17 @@ VALUES (
     USER,
     SYSDATE
 );
+--
+COMMIT;
+
+INSERT INTO roles (app_id, role_id, role_name, is_active)
+VALUES (
+    770,
+    'IS_ADMINISTRATOR',
+    'Administrator',
+    'Y'
+);
+--
 COMMIT;
 
 --
