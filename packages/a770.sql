@@ -173,24 +173,5 @@ CREATE OR REPLACE PACKAGE BODY a770 AS
         RETURN app.get_icon('fa-window-bookmark', out_name);
     END;
 
-
-
-    FUNCTION get_page_name (
-        in_page_name            apex_application_pages.page_name%TYPE
-    )
-    RETURN VARCHAR2
-    AS
-    BEGIN
-        RETURN in_page_name;
-        /*
-        RETURN REPLACE(REPLACE(REPLACE(REPLACE(in_page_name,
-            '${DATE}',          a100.get_date_str()),
-            '${USER_NAME}',     app.get_user_id()),
-            '${ENV_NAME}',      'D'),--app.get_env_name()),
-            '${LOGOUT}',        '<span class="fa fa-coffee"></span>'  -- app.get_logout_label
-        );
-        */
-    END;
-
 END;
 /

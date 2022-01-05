@@ -38,13 +38,6 @@ CREATE OR REPLACE PACKAGE a770 AS
 
 
 
-    FUNCTION get_page_name (
-        in_page_name            apex_application_pages.page_name%TYPE
-    )
-    RETURN VARCHAR2;
-
-
-
     FUNCTION get_env_name
     RETURN VARCHAR2;
 
