@@ -15,6 +15,8 @@ SELECT
     CASE WHEN n.parent_id IS NULL THEN 1 ELSE 2 END AS lvl,
     --
     CASE
+        WHEN n.page_id = 100  -- home page
+            THEN REPLACE(n.page_name, '&' || 'ENV_NAME.', app.get_env_name() || ' &' || 'nbsp; ')
         WHEN n.page_id > 0
             THEN REGEXP_REPLACE(REPLACE(n.page_name, '&' || 'APP_USER.', APEX_ESCAPE.HTML(NVL(curr.user_name, curr.user_id))), '^(&' || 'nbsp; )+', '')
         ELSE '</li></ul><ul class="EMPTY"></ul><ul><li style="display: none;">'  -- a trick to split nav menu to left and right

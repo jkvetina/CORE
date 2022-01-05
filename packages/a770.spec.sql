@@ -36,10 +36,5 @@ CREATE OR REPLACE PACKAGE a770 AS
     --
     PROCEDURE exit_session;
 
-
-
-    FUNCTION get_env_name
-    RETURN VARCHAR2;
-
 END;
 /

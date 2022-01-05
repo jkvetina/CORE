@@ -305,6 +305,14 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Get env name
+    --
+    FUNCTION get_env_name
+    RETURN VARCHAR2;
+
+
+
+    --
     -- Get role name
     --
     FUNCTION get_role_name (

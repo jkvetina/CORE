@@ -151,27 +151,5 @@ CREATE OR REPLACE PACKAGE BODY a770 AS
         app.raise_error();
     END;
 
-
-
-    FUNCTION get_env_name
-    RETURN VARCHAR2 AS
-        out_name VARCHAR2(4000);
-    BEGIN
-        out_name := 'Environment: ' || 'DEV';  -- retrieve value from settings
-        --
-        IF app.is_developer() THEN
-            -- details for developers
-            SELECT
-                'Oracle APEX: '     || a.version_no     || CHR(10) ||
-                'Oracle Database: ' || p.version_full   || CHR(10) ||
-                out_name
-            INTO out_name
-            FROM apex_release a
-            CROSS JOIN product_component_version p;
-        END IF;
-        --
-        RETURN app.get_icon('fa-window-bookmark', out_name);
-    END;
-
 END;
 /
