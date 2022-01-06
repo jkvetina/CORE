@@ -2,9 +2,13 @@ CREATE OR REPLACE VIEW nav_regions AS
 WITH x AS (
     SELECT
         app.get_item('$PAGE_ID')        AS page_id,
-        app.get_item('$AUTH_SCHEME')    AS auth_scheme
+        app.get_item('$AUTH_SCHEME')    AS auth_scheme,
+        a.app_id
     FROM users u
-    WHERE u.user_id = app.get_user_id()
+    JOIN apps a
+        ON a.app_id         = app.get_app_id()
+        AND a.is_active     = 'Y'
+    WHERE u.user_id         = app.get_user_id()
 )
 SELECT
     p.page_group || ' ' || r.page_id || ' ' || p.page_title AS page_group,
@@ -53,7 +57,7 @@ JOIN apex_application_pages p
     ON p.application_id         = r.application_id
     AND p.page_id               = r.page_id
 CROSS JOIN x
-WHERE r.application_id          = app.get_app_id()
+WHERE r.application_id          = x.app_id
     AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
     AND (x.auth_scheme          = r.authorization_scheme OR x.auth_scheme IS NULL);
