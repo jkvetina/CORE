@@ -24,6 +24,9 @@ t AS (
         LEVEL - 1                                   AS depth,
         CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
     FROM navigation n
+    JOIN apps a
+        ON a.app_id                 = n.app_id
+        AND a.is_active             = 'Y'
     CROSS JOIN x
     LEFT JOIN apex_application_pages p
         ON p.application_id         = n.app_id
@@ -87,6 +90,9 @@ SELECT
         in_values           => TO_CHAR(n.page_id)
     ) AS action_url
 FROM navigation n
+JOIN apps a
+    ON a.app_id             = n.app_id
+    AND a.is_active         = 'Y'
 CROSS JOIN x
 LEFT JOIN t
     ON t.app_id             = n.app_id
@@ -150,6 +156,9 @@ SELECT
         in_values          => TO_CHAR(n.page_id)
     ) AS action_url
 FROM nav_pages_to_add n
+JOIN apps a
+    ON a.app_id             = n.app_id
+    AND a.is_active         = 'Y'
 CROSS JOIN x
 LEFT JOIN t
     ON t.app_id             = n.app_id
