@@ -10,9 +10,10 @@ WITH p AS (
         a.authentication_scheme,
         a.last_updated_on,
         a.pages                 AS count_pages,
-        p.page_id
+        --
+        COALESCE(p.page_id, TO_NUMBER(REGEXP_SUBSTR(a.home_link, ':(\d+):&' || 'SESSION\.', 1, 1, NULL, 1))) AS page_id
     FROM apex_applications a
-    JOIN apex_application_pages p
+    LEFT JOIN apex_application_pages p
         ON p.application_id     = a.application_id
         AND a.home_link         LIKE '%:' || p.page_alias || ':%'
 )
