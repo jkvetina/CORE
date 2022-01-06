@@ -328,6 +328,16 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     rec.updated_at
                 FROM apex_applications a
                 WHERE a.application_id = rec.app_id;
+
+                -- also add first pages into Navigation table
+                app_actions.nav_autoupdate();
+                --
+                UPDATE navigation n
+                SET n.order# = CASE
+                    WHEN n.page_id = 0 THEN 599
+                    ELSE TO_NUMBER(SUBSTR(TO_CHAR(n.page_id), 1, 3))
+                    END
+                WHERE n.app_id = rec.app_id;
             END;
         END IF;
 
