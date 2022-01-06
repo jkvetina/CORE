@@ -11,7 +11,13 @@ WITH p AS (
         a.last_updated_on,
         a.pages                 AS count_pages,
         --
-        COALESCE(p.page_id, TO_NUMBER(REGEXP_SUBSTR(a.home_link, ':(\d+):&' || 'SESSION\.', 1, 1, NULL, 1))) AS page_id
+        COALESCE(p.page_id, TO_NUMBER(REGEXP_SUBSTR(a.home_link, ':(\d+):&' || 'SESSION\.', 1, 1, NULL, 1))) AS page_id,
+        --
+        CASE
+            WHEN a.availability_status LIKE 'Available%'        THEN NULL
+            WHEN a.availability_status LIKE 'Restricted Access' THEN NULL
+            ELSE 'Y'
+            END AS is_offline
     FROM apex_applications a
     LEFT JOIN apex_application_pages p
         ON p.application_id     = a.application_id
@@ -55,6 +61,7 @@ SELECT
         )
         THEN 'Y' END AS is_available,
     --
+    p.is_offline,
     a.description_,
     a.message,
     NULL                AS action,
@@ -84,6 +91,7 @@ SELECT
     NULL AS is_active,
     NULL AS is_visible,
     NULL AS is_available,
+    p.is_offline,
     --
     NULL AS description_,
     NULL AS message,
