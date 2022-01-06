@@ -2351,7 +2351,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- show only the latest error message to common users
-        IF (app.is_developer() OR p_error.ora_sqlcode = app.app_exception_code) THEN
+        /*
+        IF p_error.ora_sqlcode = app.app_exception_code THEN
             out_result.message := v_action_name || '|' || TO_CHAR(v_log_id) || '<br />' ||
                 v_component || '<br />' ||
                 out_result.message || '<br />' ||
@@ -2360,9 +2361,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         ELSIF v_action_name != 'UNKNOWN_ERROR' THEN
             out_result.message          := v_action_name || '|' || TO_CHAR(v_log_id);
             out_result.additional_info  := '';
-        ELSE
-           out_result.message := REGEXP_REPLACE(out_result.message, '^(ORA' || TO_CHAR(app.app_exception_code) || ': )', '');
         END IF;
+        */
+
+        out_result.message := REGEXP_REPLACE(out_result.message, '^(ORA' || TO_CHAR(app.app_exception_code) || ': )', '');
         --
         RETURN out_result;
     END;
