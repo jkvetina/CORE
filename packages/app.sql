@@ -1442,7 +1442,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         RETURN app.log__ (
             in_flag             => app.flag_module,
-            in_arguments        => app.get_json_object (
+            in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
                 in_arg3,        in_arg4,
                 in_arg5,        in_arg6,
@@ -1473,7 +1473,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         curr_id := app.log__ (
             in_flag             => app.flag_module,
-            in_arguments        => app.get_json_object (
+            in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
                 in_arg3,        in_arg4,
                 in_arg5,        in_arg6,
