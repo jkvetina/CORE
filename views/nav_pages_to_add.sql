@@ -16,7 +16,7 @@ SELECT
     p.page_id,
     --
     (
-        SELECT MIN(g.parent_id)
+        SELECT NVL(MIN(g.parent_id), MIN(g.page_id)) AS parent_id
         FROM g
         WHERE g.page_group      = p.page_group
     ) AS parent_id,
