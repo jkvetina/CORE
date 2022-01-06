@@ -25,12 +25,12 @@ SELECT
     p.page_name,
     p.page_title,
     --
-    (
-        SELECT MAX(g.order#)
+    COALESCE((
+        SELECT MAX(g.order#) AS order#
         FROM g
         WHERE g.page_group      = p.page_group
             AND g.page_id       < p.page_id
-    ) AS order#,
+    ), CASE WHEN MOD(p.page_id, 100) = 0 THEN p.page_id END) AS order#,
     --
     p.page_css_classes      AS css_class,
     --
