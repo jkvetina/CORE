@@ -119,7 +119,7 @@ CREATE OR REPLACE PACKAGE BODY a770 AS
     BEGIN
         --app.log_module();
         --
-        IF app.get_page_id() = 9999 THEN    -- only for login page
+        IF app.get_page_id() IN (9999, 100) THEN    -- only for login page and home page  -- @TODO: remove hardcoded numbers
             a770.create_user (
                 in_user_login   => in_user_login,
                 in_user_id      => in_user_id
