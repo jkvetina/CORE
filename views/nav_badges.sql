@@ -47,7 +47,16 @@ SELECT                              -- running jobs
     ' ' AS page_alias,
     --
     TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
-FROM user_scheduler_running_jobs j;
+FROM user_scheduler_running_jobs j
+--
+UNION ALL
+SELECT                              -- invalid objects
+    950 AS page_id,
+    ' ' AS page_alias,
+    --
+    TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
+FROM user_objects o
+WHERE o.status              != 'VALID';
 --
 COMMENT ON TABLE nav_badges                 IS 'View with current badges in top menu';
 --
