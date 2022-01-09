@@ -486,7 +486,7 @@ wwv_flow_api.create_region_column(
 ,p_use_group_for=>'BOTH'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_link_target=>'f?p=&APP_ID.:905:&SESSION.::&DEBUG.::P905_JOB_STATUS:FAILED'
+,p_link_target=>'f?p=&APP_ID.:905:&SESSION.::&DEBUG.:905:P905_JOB_STATUS:FAILED'
 ,p_link_text=>'&COUNT_FAILED.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
