@@ -80,6 +80,7 @@ SELECT
     CASE WHEN t.temporary = 'Y'             THEN 'Y' END AS is_temp,
     CASE WHEN t.iot_type = 'IOT'            THEN 'Y' END AS is_iot,
     CASE WHEN t.row_movement = 'ENABLED'    THEN 'Y' END AS is_row_mov,
+    CASE WHEN t.read_only = 'YES'           THEN 'Y' END AS is_read_only,
     --
     ROUND(t.num_rows * t.avg_row_len / 1024, 0) AS size_,
     --
