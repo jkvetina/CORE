@@ -23,24 +23,19 @@ z AS (
 )
 SELECT
     z.bucket_id,
-    TO_CHAR(z.start_at, 'HH24:MI')                              AS chart_label,
-    NULLIF(COUNT(DISTINCT l.session_id), 0)                     AS count_sessions,
-    NULLIF(COUNT(DISTINCT l.user_id), 0)                        AS count_users,
-    NULLIF(COUNT(DISTINCT l.page_id), 0)                        AS count_pages,
-    NULLIF(SUM(CASE WHEN l.flag = 'P' THEN 1 ELSE 0 END), 0)    AS count_requests,   -- app.flag_request
-    NULLIF(SUM(CASE WHEN o.flag = 'P' THEN 1 ELSE 0 END), 0)    AS count_others
+    TO_CHAR(z.start_at, 'HH24:MI')      AS chart_label,
+    --
+    NULLIF(COUNT(DISTINCT CASE WHEN l.app_id = z.app_id THEN l.session_id   END), 0)    AS count_sessions,
+    NULLIF(COUNT(DISTINCT CASE WHEN l.app_id = z.app_id THEN l.user_id      END), 0)    AS count_users,
+    NULLIF(COUNT(DISTINCT CASE WHEN l.app_id = z.app_id THEN l.page_id      END), 0)    AS count_pages,
+    --
+    NULLIF(SUM(CASE WHEN l.app_id  = z.app_id AND l.flag = 'P' THEN 1 ELSE 0 END), 0)   AS count_requests,   -- app.flag_request
+    NULLIF(SUM(CASE WHEN l.app_id != z.app_id AND l.flag = 'P' THEN 1 ELSE 0 END), 0)   AS count_others
 FROM z
 LEFT JOIN logs l
     ON l.created_at     >= z.today
     AND l.created_at    < z.today + 1
     AND (l.user_id      = z.user_id OR z.user_id IS NULL)
-    AND l.app_id        = z.app_id
     AND z.bucket_id     = app.get_time_bucket(l.created_at, z.buckets)
-LEFT JOIN logs o
-    ON o.created_at     >= z.today
-    AND o.created_at    < z.today + 1
-    AND o.app_id        != z.app_id
-    AND z.bucket_id     = app.get_time_bucket(o.created_at, z.buckets)
-    AND o.user_id       = z.user_id
 GROUP BY z.bucket_id, TO_CHAR(z.start_at, 'HH24:MI');
 
