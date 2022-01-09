@@ -42,7 +42,7 @@ SELECT
     n.page_id,
     n.parent_id,
     n.order#,
-    t.page_root || ' ' || COALESCE(t.page_group, (SELECT page_group FROM t WHERE t.page_id = n.parent_id)) AS page_group,
+    t.page_root || ' ' || COALESCE(t.page_group, (SELECT t.page_group FROM t WHERE t.app_id = n.app_id AND t.page_id = n.parent_id)) AS page_group,
     t.page_alias,
     --
     CASE WHEN r.page_id IS NULL
