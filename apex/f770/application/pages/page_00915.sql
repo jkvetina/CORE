@@ -602,6 +602,21 @@ wwv_flow_api.create_jet_chart_series(
 ,p_assigned_to_y2=>'off'
 ,p_items_label_rendered=>false
 );
+wwv_flow_api.create_jet_chart_series(
+ p_id=>wwv_flow_api.id(14219367382378941)
+,p_chart_id=>wwv_flow_api.id(11884191829358759)
+,p_seq=>40
+,p_name=>'Others'
+,p_location=>'REGION_SOURCE'
+,p_items_value_column_name=>'COUNT_OTHERS'
+,p_items_label_column_name=>'CHART_LABEL'
+,p_line_style=>'solid'
+,p_line_type=>'auto'
+,p_marker_rendered=>'auto'
+,p_marker_shape=>'circle'
+,p_assigned_to_y2=>'off'
+,p_items_label_rendered=>false
+);
 wwv_flow_api.create_jet_chart_axis(
  p_id=>wwv_flow_api.id(11884682966358760)
 ,p_chart_id=>wwv_flow_api.id(11884191829358759)

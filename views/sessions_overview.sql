@@ -8,8 +8,8 @@ WITH s AS (
         AND (s.session_id   = app.get_item('$SESSION_ID')   OR app.get_item('$SESSION_ID')  IS NULL)
         AND (s.user_id      = app.get_item('$USER_ID')      OR app.get_item('$USER_ID')     IS NULL)
         --
-        AND s.created_at    >= COALESCE(app.get_date_item('$TODAY'), TRUNC(SYSDATE))
-        AND s.created_at    < COALESCE(app.get_date_item('$TODAY'), TRUNC(SYSDATE)) + 1
+        AND s.created_at    >= app.get_date_item('G_TODAY')
+        AND s.created_at    < app.get_date_item('G_TODAY') + 1
 ),
 l AS (
     SELECT
