@@ -35,7 +35,6 @@ FROM z
 LEFT JOIN logs l
     ON l.created_at     >= z.today
     AND l.created_at    < z.today + 1
-    AND (l.user_id      = z.user_id OR z.user_id IS NULL)
     AND z.bucket_id     = app.get_time_bucket(l.created_at, z.buckets)
 GROUP BY z.bucket_id, TO_CHAR(z.start_at, 'HH24:MI');
 
