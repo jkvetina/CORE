@@ -96,7 +96,7 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>10
 ,p_value_alignment=>'LEFT'
-,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_TABLE,P951_RESET:&TABLE_NAME.,Y'
+,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_TABLE_NAME:&TABLE_NAME.'
 ,p_link_text=>'&TABLE_NAME.'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
@@ -223,7 +223,7 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>20
 ,p_value_alignment=>'LEFT'
-,p_link_target=>'f?p=&APP_ID.:952:&SESSION.::&DEBUG.::P952_TABLE,P952_TRIGGER,P952_RESET:&TABLE_NAME.,&TRIGGER_NAME.,Y'
+,p_link_target=>'f?p=&APP_ID.:952:&SESSION.::&DEBUG.:952:P952_TABLE_NAME,P952_TRIGGER_NAME:&TABLE_NAME.,&TRIGGER_NAME.'
 ,p_link_text=>'&TRIGGER_NAME.'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'

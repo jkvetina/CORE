@@ -65,7 +65,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_plug_display_condition_type=>'ITEM_IS_NOT_NULL'
-,p_plug_display_when_condition=>'P951_TABLE'
+,p_plug_display_when_condition=>'P951_TABLE_NAME'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
@@ -154,7 +154,7 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>30
 ,p_value_alignment=>'LEFT'
-,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_TABLE:&TABLE_NAME.'
+,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_TABLE_NAME:&TABLE_NAME.'
 ,p_link_text=>'&TABLE_NAME.'
 ,p_link_attributes=>'title="&COMMENTS."'
 ,p_enable_filter=>true
@@ -315,7 +315,7 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'RIGHT'
 ,p_display_sequence=>110
 ,p_value_alignment=>'RIGHT'
-,p_link_target=>'f?p=&APP_ID.:952:&SESSION.::&DEBUG.:952:P952_TABLE:&TABLE_NAME.'
+,p_link_target=>'f?p=&APP_ID.:952:&SESSION.::&DEBUG.:952:P952_TABLE_NAME:&TABLE_NAME.'
 ,p_link_text=>'&COUNT_TRG.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -502,7 +502,7 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'RIGHT'
 ,p_display_sequence=>120
 ,p_value_alignment=>'RIGHT'
-,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_TABLE,P951_SHOW_PARTITIONS:&TABLE_NAME.,Y'
+,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_TABLE_NAME:&TABLE_NAME.'
 ,p_link_text=>'&PARTITIONS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -527,7 +527,7 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'RIGHT'
 ,p_display_sequence=>40
 ,p_value_alignment=>'RIGHT'
-,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_TABLE,P951_SHOW_COLUMNS:&TABLE_NAME.,Y'
+,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_TABLE_NAME:&TABLE_NAME.'
 ,p_link_text=>'&COUNT_COLS.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -993,7 +993,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_plug_display_condition_type=>'ITEM_IS_NOT_NULL'
-,p_plug_display_when_condition=>'P951_TABLE'
+,p_plug_display_when_condition=>'P951_TABLE_NAME'
 ,p_prn_content_disposition=>'ATTACHMENT'
 ,p_prn_document_header=>'APEX'
 ,p_prn_units=>'MILLIMETERS'
@@ -1717,7 +1717,7 @@ wwv_flow_api.create_region_column(
 ,p_display_sequence=>150
 ,p_value_alignment=>'CENTER'
 ,p_attribute_05=>'HTML'
-,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_TABLE,P951_DROP,P951_PARTITION,P951_SHOW_PARTITIONS:&P951_TABLE.,Y,&PARTITION_NAME.,Y'
+,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_TABLE_NAME,P951_DROP,P951_PARTITION:&P951_TABLE_NAME.,Y,&PARTITION_NAME.'
 ,p_link_text=>'&TRUNCATE_.'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
@@ -2111,7 +2111,7 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Purge recyclebin and droped columns'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_PURGE:Y'
-,p_button_condition=>'P951_TABLE'
+,p_button_condition=>'P951_TABLE_NAME'
 ,p_button_condition_type=>'ITEM_IS_NULL'
 ,p_icon_css_classes=>'fa-trash-o'
 );
@@ -2151,7 +2151,7 @@ wwv_flow_api.create_page_button(
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
 ,p_button_image_alt=>'Lock table for any changes'
 ,p_button_position=>'RIGHT_OF_TITLE'
-,p_button_redirect_url=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_TABLE,P951_LOCK,P951_UNLOCK:&P951_TABLE.,Y,'
+,p_button_redirect_url=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_TABLE_NAME,P951_LOCK,P951_UNLOCK:&P951_TABLE_NAME.,Y,'
 ,p_button_condition=>'P951_LOCKED'
 ,p_button_condition2=>'NO'
 ,p_button_condition_type=>'VAL_OF_ITEM_IN_COND_EQ_COND2'
@@ -2167,7 +2167,7 @@ wwv_flow_api.create_page_button(
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
 ,p_button_image_alt=>'Unlock table'
 ,p_button_position=>'RIGHT_OF_TITLE'
-,p_button_redirect_url=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_TABLE,P951_LOCK,P951_UNLOCK:&P951_TABLE.,,Y'
+,p_button_redirect_url=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.::P951_TABLE_NAME,P951_LOCK,P951_UNLOCK:&P951_TABLE_NAME.,,Y'
 ,p_button_condition=>'P951_LOCKED'
 ,p_button_condition2=>'YES'
 ,p_button_condition_type=>'VAL_OF_ITEM_IN_COND_EQ_COND2'
@@ -2175,7 +2175,7 @@ wwv_flow_api.create_page_button(
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(14452173432097211)
-,p_name=>'P951_TABLE'
+,p_name=>'P951_TABLE_NAME'
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(14218632930378934)
 ,p_display_as=>'NATIVE_HIDDEN'
@@ -2310,19 +2310,19 @@ wwv_flow_api.create_page_process(
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '-- rename partition',
 'IF :PARTITION_NAME != :PARTITION_NAME_OLD THEN',
-'    app.log_action(''RENAME_PARTITION'', app.get_item(''$TABLE''), :PARTITION_NAME_OLD, :PARTITION_NAME);',
+'    app.log_action(''RENAME_PARTITION'', app.get_item(''$TABLE_NAME''), :PARTITION_NAME_OLD, :PARTITION_NAME);',
 '    --',
 '    EXECUTE IMMEDIATE',
-'        ''ALTER TABLE '' || app.get_item(''$TABLE'') ||',
+'        ''ALTER TABLE '' || app.get_item(''$TABLE_NAME'') ||',
 '        '' RENAME PARTITION '' || :PARTITION_NAME_OLD || '' TO '' || :PARTITION_NAME;',
 'END IF;',
 '',
 '-- lock/unlock partition',
 'IF :READ_ONLY != :READ_ONLY_OLD THEN',
-'    app.log_action(''LOCK_PARTITION'', app.get_item(''$TABLE''), :PARTITION_NAME, :READ_ONLY);',
+'    app.log_action(''LOCK_PARTITION'', app.get_item(''$TABLE_NAME''), :PARTITION_NAME, :READ_ONLY);',
 '    --',
 '    EXECUTE IMMEDIATE',
-'        ''ALTER TABLE '' || app.get_item(''$TABLE'') ||',
+'        ''ALTER TABLE '' || app.get_item(''$TABLE_NAME'') ||',
 '        '' MODIFY PARTITION '' || :PARTITION_NAME ||',
 '        '' READ '' || CASE WHEN :READ_ONLY = ''YES'' THEN ''ONLY'' ELSE ''WRITE'' END;',
 'END IF;',
@@ -2341,7 +2341,7 @@ wwv_flow_api.create_page_process(
 'FOR t IN (',
 '    SELECT t.table_name',
 '    FROM user_tables t',
-'    WHERE t.table_name = NVL(app.get_item(''$TABLE''), t.table_name)',
+'    WHERE t.table_name = NVL(app.get_item(''$TABLE_NAME''), t.table_name)',
 '    ORDER BY 1',
 ') LOOP',
 '    app.log_action(''RECALCULATE_STATS'', t.table_name);',
@@ -2370,7 +2370,7 @@ wwv_flow_api.create_page_process(
 '    FOR t IN (',
 '        SELECT t.table_name',
 '        FROM user_tables t',
-'        WHERE t.table_name = NVL(app.get_item(''$TABLE''), t.table_name)',
+'        WHERE t.table_name = NVL(app.get_item(''$TABLE_NAME''), t.table_name)',
 '        ORDER BY 1',
 '    ) LOOP',
 '        BEGIN',
@@ -2469,14 +2469,14 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'DROP_PARTITION'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_action(''DROP_PARTITION'', app.get_item(''$TABLE''), app.get_item(''$PARTITION''));',
+'app.log_action(''DROP_PARTITION'', app.get_item(''$TABLE_NAME''), app.get_item(''$PARTITION''));',
 '--',
 'EXECUTE IMMEDIATE',
-'    ''DELETE FROM '' || app.get_item(''$TABLE'') ||',
+'    ''DELETE FROM '' || app.get_item(''$TABLE_NAME'') ||',
 '    '' PARTITION ('' || app.get_item(''$PARTITION'') || '')'';',
 '--',
 'EXECUTE IMMEDIATE',
-'    ''ALTER TABLE '' || app.get_item(''$TABLE'') ||',
+'    ''ALTER TABLE '' || app.get_item(''$TABLE_NAME'') ||',
 '    '' DROP PARTITION '' || app.get_item(''$PARTITION'') || '' UPDATE INDEXES'';',
 '--',
 'app.log_success();',
@@ -2493,7 +2493,7 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'PARTITION_HEADERS'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_action(''PARTITION_HEADERS'', app.get_item(''$TABLE''));',
+'app.log_action(''PARTITION_HEADERS'', app.get_item(''$TABLE_NAME''));',
 '--',
 'FOR c IN (',
 '    WITH x AS (',
@@ -2508,7 +2508,7 @@ wwv_flow_api.create_page_process(
 '        c.column_name                   AS item_value',
 '    FROM x',
 '    LEFT JOIN user_part_key_columns c',
-'        ON c.name                       = app.get_item(''$TABLE'')',
+'        ON c.name                       = app.get_item(''$TABLE_NAME'')',
 '        AND c.column_position           = x.column_position',
 ') LOOP',
 '    app.log_result(c.item_name, c.item_value);',
@@ -2517,7 +2517,7 @@ wwv_flow_api.create_page_process(
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when=>'P951_TABLE'
+,p_process_when=>'P951_TABLE_NAME'
 ,p_process_when_type=>'ITEM_IS_NOT_NULL'
 );
 wwv_flow_api.create_page_process(
@@ -2529,27 +2529,24 @@ wwv_flow_api.create_page_process(
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '-- lock/unlock table',
 'IF (app.get_item(''$LOCK'') = ''Y'' OR app.get_item(''$UNLOCK'') = ''Y'') THEN',
-'    app.log_action(''LOCK_TABLE'', app.get_item(''$TABLE''), app.get_item(''$LOCK''), app.get_item(''$UNLOCK''));',
+'    app.log_action(''LOCK_TABLE'', app.get_item(''$TABLE_NAME''), app.get_item(''$LOCK''), app.get_item(''$UNLOCK''));',
 '    --',
 '    EXECUTE IMMEDIATE',
-'        ''ALTER TABLE '' || app.get_item(''$TABLE'') ||',
+'        ''ALTER TABLE '' || app.get_item(''$TABLE_NAME'') ||',
 '        '' READ '' || CASE WHEN app.get_item(''$LOCK'') = ''Y'' THEN ''ONLY'' ELSE ''WRITE'' END;',
-'app.log_warning(''YEEEA'',        ''ALTER TABLE '' || app.get_item(''$TABLE'') ||',
-'        '' READ '' || CASE WHEN app.get_item(''$LOCK'') = ''Y'' THEN ''ONLY'' ELSE ''WRITE'' END',
-');',
 'END IF;',
 '--',
 'FOR c IN (',
 '    SELECT t.read_only',
 '    FROM user_tables t',
-'    WHERE t.table_name = app.get_item(''$TABLE'')',
+'    WHERE t.table_name = app.get_item(''$TABLE_NAME'')',
 ') LOOP',
 '    app.set_item(''$LOCKED'', c.read_only);',
 'END LOOP;',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when=>'P951_TABLE'
+,p_process_when=>'P951_TABLE_NAME'
 ,p_process_when_type=>'ITEM_IS_NOT_NULL'
 );
 wwv_flow_api.component_end;

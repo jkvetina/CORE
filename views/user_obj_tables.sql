@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW user_obj_tables AS
 WITH x AS (
     SELECT
-        app.get_item('$TABLE') AS table_name
+        app.get_item('$TABLE_NAME') AS table_name
     FROM users u
     WHERE u.user_id = app.get_user_id()
 ),
