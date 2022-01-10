@@ -41,6 +41,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218791374378935)
 ,p_plug_name=>'Partitions'
+,p_region_css_classes=>'SHORT'
 ,p_region_template_options=>'#DEFAULT#:t-HeroRegion--hideIcon'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>30
@@ -50,7 +51,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_condition_type=>'EXISTS'
 ,p_plug_display_when_condition=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT 1',
-'FROM user_obj_partitions p',
+'FROM obj_partitions p',
 'WHERE ROWNUM = 1;'))
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -58,6 +59,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218883229378936)
 ,p_plug_name=>'Columns'
+,p_region_css_classes=>'SHORT'
 ,p_region_template_options=>'#DEFAULT#:t-HeroRegion--hideIcon'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>50
@@ -78,7 +80,7 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
-,p_query_table=>'USER_OBJ_TABLES'
+,p_query_table=>'OBJ_TABLES'
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -988,7 +990,7 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
-,p_query_table=>'USER_OBJ_COLUMNS'
+,p_query_table=>'OBJ_COLUMNS'
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -1530,14 +1532,14 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
-,p_query_table=>'USER_OBJ_PARTITIONS'
+,p_query_table=>'OBJ_PARTITIONS'
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_plug_display_condition_type=>'EXISTS'
 ,p_plug_display_when_condition=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT 1',
-'FROM user_obj_partitions p',
+'FROM obj_partitions p',
 'WHERE ROWNUM = 1;'))
 ,p_prn_content_disposition=>'ATTACHMENT'
 ,p_prn_document_header=>'APEX'

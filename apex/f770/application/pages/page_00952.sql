@@ -40,7 +40,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(36621748366912731)
-,p_plug_name=>'Triggers'
+,p_plug_name=>'Triggers [GRID]'
 ,p_region_name=>'TRIGGERS'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
@@ -49,7 +49,7 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
-,p_query_table=>'USER_OBJ_TRIGGERS'
+,p_query_table=>'OBJ_TRIGGERS'
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -60,7 +60,7 @@ wwv_flow_api.create_page_plug(
 ,p_prn_width=>297
 ,p_prn_height=>210
 ,p_prn_orientation=>'HORIZONTAL'
-,p_prn_page_header=>'Triggers'
+,p_prn_page_header=>'Triggers [GRID]'
 ,p_prn_page_header_font_color=>'#000000'
 ,p_prn_page_header_font_family=>'Helvetica'
 ,p_prn_page_header_font_weight=>'normal'
