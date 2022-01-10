@@ -476,6 +476,50 @@ wwv_flow_api.create_page_button(
 ,p_button_redirect_url=>'f?p=&APP_ID.:955:&SESSION.::&DEBUG.:955::'
 ,p_icon_css_classes=>'fa-refresh'
 );
+wwv_flow_api.create_page_button(
+ p_id=>wwv_flow_api.id(14930403398872313)
+,p_button_sequence=>20
+,p_button_plug_id=>wwv_flow_api.id(14220162747378949)
+,p_button_name=>'REBUILD'
+,p_button_action=>'REDIRECT_PAGE'
+,p_button_template_options=>'#DEFAULT#'
+,p_button_template_id=>wwv_flow_api.id(9145249029569999)
+,p_button_image_alt=>'Rebuild'
+,p_button_position=>'RIGHT_OF_TITLE'
+,p_button_redirect_url=>'f?p=&APP_ID.:955:&SESSION.::&DEBUG.:955:P955_REBUILD:Y'
+,p_button_cattributes=>'title="Rebuild USER_SOURCE_VIEWS table"'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(14930610862872315)
+,p_name=>'P955_REBUILD'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(14220162747378949)
+,p_use_cache_before_default=>'NO'
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(14931154674872320)
+,p_name=>'P955_VIEW_NAME'
+,p_item_sequence=>20
+,p_item_plug_id=>wwv_flow_api.id(14220162747378949)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(14930334361872312)
+,p_process_sequence=>10
+,p_process_point=>'BEFORE_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'REFRESH_VIEWS_SOURCE'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app_actions.refresh_user_source_views();',
+''))
+,p_process_clob_language=>'PLSQL'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when=>'P955_REBUILD'
+,p_process_when_type=>'ITEM_IS_NOT_NULL'
+);
 wwv_flow_api.component_end;
 end;
 /
