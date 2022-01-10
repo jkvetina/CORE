@@ -75,6 +75,9 @@ wwv_flow_api.create_page_plug(
 ,p_plug_query_num_rows_type=>'SCROLL'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_show_total_row_count=>false
+,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<br />',
+''))
 );
 wwv_flow_api.create_card(
  p_id=>wwv_flow_api.id(10243420607410323)
@@ -133,7 +136,7 @@ wwv_flow_api.create_card(
  p_id=>wwv_flow_api.id(12994711561936907)
 ,p_region_id=>wwv_flow_api.id(12994690916936906)
 ,p_layout_type=>'GRID'
-,p_grid_column_count=>5
+,p_grid_column_count=>3
 ,p_title_adv_formatting=>false
 ,p_title_column_name=>'APP_NAME'
 ,p_sub_title_adv_formatting=>false
@@ -155,12 +158,14 @@ wwv_flow_api.create_card_action(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(12994888224936908)
-,p_plug_name=>'Available Applications'
+,p_plug_name=>'Applications'
 ,p_icon_css_classes=>'fa-map-o'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>50
 ,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_new_grid_row=>false
+,p_plug_new_grid_column=>false
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
