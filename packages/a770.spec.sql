@@ -1,5 +1,15 @@
 CREATE OR REPLACE PACKAGE a770 AS
 
+    /**
+     * If you have an app with id 100 you should rename this package to a100.
+     *
+     * You should put auth roles specific to your app here.
+     * And you can override some procedures from app package here.
+     *
+     */
+
+
+
     --
     -- Authorization roles for this app
     --
