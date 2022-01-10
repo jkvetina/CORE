@@ -69,7 +69,13 @@ wwv_flow_api.create_page_plug(
 'SELECT',
 '    object_type,',
 '    COUNT(*) AS count_objects,',
-'    NULL AS page_link',
+'    --',
+'    CASE object_type',
+'        WHEN ''TABLE''        THEN app.get_page_link(951)',
+'        WHEN ''TRIGGER''      THEN app.get_page_link(952)',
+'        WHEN ''VIEW''         THEN app.get_page_link(955)',
+'        ELSE NULL',
+'        END AS page_link',
 'FROM user_objects',
 'WHERE object_type NOT IN (''PACKAGE BODY'', ''TABLE PARTITION'')',
 'GROUP BY object_type',
@@ -93,6 +99,14 @@ wwv_flow_api.create_card(
 ,p_second_body_adv_formatting=>false
 ,p_badge_column_name=>'COUNT_OBJECTS'
 ,p_media_adv_formatting=>false
+);
+wwv_flow_api.create_card_action(
+ p_id=>wwv_flow_api.id(14219961302378947)
+,p_card_id=>wwv_flow_api.id(14219563120378943)
+,p_action_type=>'FULL_CARD'
+,p_display_sequence=>10
+,p_link_target_type=>'REDIRECT_URL'
+,p_link_target=>'&PAGE_LINK.'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(102497670620708980)
