@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW user_obj_tables AS
+CREATE OR REPLACE VIEW obj_tables AS
 WITH x AS (
     SELECT
         app.get_item('$TABLE_NAME') AS table_name
