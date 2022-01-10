@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW user_obj_views AS
+CREATE OR REPLACE VIEW obj_views AS
 WITH x AS (
     SELECT
         app.get_app_id()            AS app_id,
