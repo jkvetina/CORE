@@ -45,6 +45,18 @@ SELECT
             ELSE r.table_name
             END AS table_name,
     --
+    app.get_page_link (
+        in_page_id => CASE
+            WHEN t.object_type = 'TABLE' THEN 951
+            WHEN t.object_type = 'VIEW'  THEN 955
+            END,
+        in_names => CASE
+            WHEN t.object_type = 'TABLE' THEN 'P951_TABLE_NAME'
+            WHEN t.object_type = 'VIEW'  THEN 'P955_VIEW_NAME'
+            END,
+        in_values => r.table_name
+    ) AS table_link,
+    --
     NULLIF(r.items, 0)          AS items,
     NULLIF(r.buttons, 0)        AS buttons,
     --
@@ -57,6 +69,9 @@ JOIN apex_application_pages p
     ON p.application_id         = r.application_id
     AND p.page_id               = r.page_id
 CROSS JOIN x
+LEFT JOIN user_objects t
+    ON t.object_name            = r.table_name
+    AND t.object_type           IN ('TABLE', 'VIEW')
 WHERE r.application_id          = x.app_id
     AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
