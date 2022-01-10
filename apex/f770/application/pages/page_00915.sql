@@ -665,7 +665,7 @@ wwv_flow_api.create_jet_chart_axis(
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(11875275965358741)
-,p_button_sequence=>50
+,p_button_sequence=>30
 ,p_button_plug_id=>wwv_flow_api.id(21138670743787776)
 ,p_button_name=>'TODAY_LEFT'
 ,p_button_action=>'REDIRECT_PAGE'
@@ -680,7 +680,7 @@ wwv_flow_api.create_page_button(
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(11875613174358741)
-,p_button_sequence=>60
+,p_button_sequence=>40
 ,p_button_plug_id=>wwv_flow_api.id(21138670743787776)
 ,p_button_name=>'TODAY_RIGHT'
 ,p_button_action=>'REDIRECT_PAGE'
@@ -695,7 +695,7 @@ wwv_flow_api.create_page_button(
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(11876037636358741)
-,p_button_sequence=>70
+,p_button_sequence=>50
 ,p_button_plug_id=>wwv_flow_api.id(21138670743787776)
 ,p_button_name=>'TODAY_SET'
 ,p_button_action=>'REDIRECT_PAGE'
@@ -721,10 +721,26 @@ wwv_flow_api.create_page_button(
 ,p_button_redirect_url=>'f?p=&APP_ID.:915:&SESSION.::&DEBUG.:915::'
 ,p_icon_css_classes=>'fa-refresh'
 );
+wwv_flow_api.create_page_button(
+ p_id=>wwv_flow_api.id(14219848308378946)
+,p_button_sequence=>20
+,p_button_plug_id=>wwv_flow_api.id(21138670743787776)
+,p_button_name=>'SHOW_USER'
+,p_button_action=>'REDIRECT_PAGE'
+,p_button_template_options=>'#DEFAULT#'
+,p_button_template_id=>wwv_flow_api.id(9144574670569995)
+,p_button_is_hot=>'Y'
+,p_button_image_alt=>'Show User'
+,p_button_position=>'RIGHT_OF_TITLE'
+,p_button_redirect_url=>'f?p=&APP_ID.:920:&SESSION.::&DEBUG.:920:P920_USER_ID:&P915_USER_ID.'
+,p_button_condition=>'P915_USER_ID'
+,p_button_condition_type=>'ITEM_IS_NOT_NULL'
+,p_icon_css_classes=>'fa-user'
+);
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(11876860900358743)
 ,p_name=>'P915_DELETE'
-,p_item_sequence=>10
+,p_item_sequence=>50
 ,p_item_plug_id=>wwv_flow_api.id(21138670743787776)
 ,p_use_cache_before_default=>'NO'
 ,p_display_as=>'NATIVE_HIDDEN'
@@ -733,7 +749,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(11877255275358744)
 ,p_name=>'P915_SESSION_ID'
-,p_item_sequence=>20
+,p_item_sequence=>60
 ,p_item_plug_id=>wwv_flow_api.id(21138670743787776)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
@@ -741,7 +757,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(11877666096358744)
 ,p_name=>'P915_USER_ID'
-,p_item_sequence=>30
+,p_item_sequence=>70
 ,p_item_plug_id=>wwv_flow_api.id(21138670743787776)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
@@ -749,7 +765,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(11878097155358744)
 ,p_name=>'P915_TODAY'
-,p_item_sequence=>40
+,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(21138670743787776)
 ,p_use_cache_before_default=>'NO'
 ,p_prompt=>'&G_TODAY_LABEL.'
