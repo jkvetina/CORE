@@ -119,7 +119,7 @@ SELECT
     n.page_id,
     n.parent_id,
     n.order#,
-    t.page_root || ' ' || n.page_group AS page_group,
+    NVL(t.page_root, n.page_id) || ' ' || n.page_group AS page_group,
     n.page_alias,
     --
     CASE WHEN n.parent_id IS NOT NULL
@@ -145,7 +145,7 @@ SELECT
     --
     NULL                                                                    AS allow_changes,  -- no changes allowed
     --
-    t.page_root || '.' || (t.depth + 1) || '.' || NVL(n.order#, n.page_id)  AS sort_order,
+    NVL(t.page_root, n.page_id) || '.' || (t.depth + 1) || '.' || NVL(n.order#, n.page_id) AS sort_order,
     --
     app.get_icon('fa-plus-square', 'Create record in Navigation table') AS action,
     --
