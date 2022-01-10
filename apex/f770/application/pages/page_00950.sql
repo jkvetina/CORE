@@ -86,6 +86,9 @@ wwv_flow_api.create_page_plug(
 ,p_plug_query_num_rows_type=>'SCROLL'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_show_total_row_count=>false
+,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<br />',
+''))
 );
 wwv_flow_api.create_card(
  p_id=>wwv_flow_api.id(14219563120378943)
@@ -134,6 +137,9 @@ wwv_flow_api.create_page_plug(
 ,p_plug_query_num_rows_type=>'SCROLL'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_show_total_row_count=>false
+,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<br />',
+''))
 );
 wwv_flow_api.create_card(
  p_id=>wwv_flow_api.id(14219678078378944)
