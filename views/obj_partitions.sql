@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW user_obj_partitions AS
+CREATE OR REPLACE VIEW obj_partitions AS
 WITH x AS (
     SELECT
         app.get_item('$TABLE_NAME') AS table_name
