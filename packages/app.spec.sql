@@ -276,7 +276,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Update `DBMS_SESSION` and `DBMS_APPLICATION_INFO` with current module and action
+    -- Update DBMS_SESSION and DBMS_APPLICATION_INFO with current module and action
     --
     PROCEDURE set_session (
         in_module_name          logs.module_name%TYPE,
@@ -295,7 +295,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Returns client_id for `DBMS_SESSION`
+    -- Returns client_id for DBMS_SESSION
     --
     FUNCTION get_client_id (
         in_user_id              sessions.user_id%TYPE       := NULL
@@ -835,7 +835,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Store record in log with `D` flag
+    -- Store record in log with D flag
     --
     PROCEDURE log_debug (
         in_arg1                 logs.arguments%TYPE     := NULL,
@@ -854,7 +854,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Store record in log with `R` flag
+    -- Store record in log with R flag
     --
     PROCEDURE log_result (
         in_arg1                 logs.arguments%TYPE     := NULL,
@@ -873,7 +873,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Store record in log with `W` flag; pass `action_name`
+    -- Store record in log with W flag; pass action_name
     --
     PROCEDURE log_warning (
         in_action_name          logs.action_name%TYPE,
@@ -894,7 +894,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Store record in log with `E` flag; pass `action_name`
+    -- Store record in log with E flag; pass action_name
     --
     FUNCTION log_error (
         in_action_name          logs.action_name%TYPE   := NULL,
@@ -937,7 +937,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Update `logs.timer` for current/requested record
+    -- Update logs.timer for current/requested record
     --
     PROCEDURE log_success (
         in_log_id               logs.log_id%TYPE        := NULL,
@@ -948,7 +948,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Update `logs.arguments` for triggers so we can have module line with results
+    -- Update logs.arguments for triggers so we can have module line with results
     --
     PROCEDURE log_success (
         in_log_id               logs.log_id%TYPE,
@@ -1040,7 +1040,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Internal function which creates records in logs table; returns assigned `log_id`
+    -- Internal function which creates records in logs table; returns assigned log_id
     --
     FUNCTION log__ (
         in_flag                 logs.flag%TYPE,
@@ -1070,7 +1070,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Log error and `RAISE` app exception `action_name|log_id`; pass `error_name` for user in action
+    -- Log error and RAISE app exception action_name|log_id; pass error_name for user in action
     --
     PROCEDURE raise_error (
         in_action_name          logs.action_name%TYPE   := NULL,
@@ -1101,7 +1101,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Purge old records from `logs` table
+    -- Purge old records from logs table
     --
     PROCEDURE purge_logs (
         in_age                  PLS_INTEGER         := NULL
@@ -1190,7 +1190,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Finds and returns root `log_id` for passed `log_id`
+    -- Finds and returns root log_id for passed log_id
     --
     FUNCTION get_log_root (
         in_log_id               logs.log_id%TYPE        := NULL
@@ -1200,7 +1200,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Returns `log_id` used by `LOGS_TREE` view
+    -- Returns log_id used by LOGS_TREE view
     --
     FUNCTION get_log_tree_id
     RETURN logs.log_id%TYPE;
@@ -1208,7 +1208,7 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Set `log_id` for `LOGS_TREE` view
+    -- Set log_id for LOGS_TREE view
     --
     PROCEDURE set_log_tree_id (
         in_log_id               logs.log_id%TYPE
