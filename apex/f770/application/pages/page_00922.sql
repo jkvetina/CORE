@@ -89,6 +89,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(26300226699563568)
 ,p_plug_name=>'Applications [GRID]'
+,p_region_name=>'APPLICATIONS'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
