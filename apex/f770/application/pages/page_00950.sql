@@ -42,7 +42,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218529849378933)
 ,p_plug_name=>'Invalid Objects'
-,p_icon_css_classes=>'fa-warning'
+,p_icon_css_classes=>'fa-stethoscope'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>20
@@ -74,6 +74,7 @@ wwv_flow_api.create_page_plug(
 '        WHEN ''TABLE''        THEN app.get_page_link(951)',
 '        WHEN ''TRIGGER''      THEN app.get_page_link(952)',
 '        WHEN ''VIEW''         THEN app.get_page_link(955)',
+'        WHEN ''PACKAGE''      THEN app.get_page_link(960)',
 '        ELSE NULL',
 '        END AS page_link',
 'FROM user_objects',
@@ -190,7 +191,7 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Force recompilation on all objects'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:950:&SESSION.::&DEBUG.::P950_FORCE:Y'
-,p_icon_css_classes=>'fa-tank'
+,p_icon_css_classes=>'fa-medication'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(14430018673036860)
