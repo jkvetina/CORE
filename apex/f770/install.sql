@@ -128,6 +128,7 @@ prompt --install
 @@application/pages/page_00952.sql
 @@application/pages/page_00955.sql
 @@application/pages/page_00960.sql
+@@application/pages/page_00965.sql
 @@application/pages/page_00969.sql
 @@application/pages/page_00970.sql
 @@application/pages/page_00990.sql
