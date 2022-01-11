@@ -752,43 +752,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
-        PROCEDURE clob_to_lines (
-            in_name         VARCHAR2,
-            in_clob         CLOB
-        ) AS
-            clob_len        PLS_INTEGER     := DBMS_LOB.GETLENGTH(in_clob);
-            clob_line       PLS_INTEGER     := 1;
-            offset          PLS_INTEGER     := 1;
-            amount          PLS_INTEGER     := 32767;
-            buffer          VARCHAR2(32767);
-        BEGIN
-            WHILE offset < clob_len LOOP
-                IF INSTR(in_clob, CHR(10), offset) = 0 THEN
-                    amount := clob_len - offset + 1;
-                ELSE
-                    amount := INSTR(in_clob, CHR(10), offset) - offset;
-                END IF;
-                --
-                IF amount = 0 THEN
-                    buffer := '';
-                ELSE
-                    DBMS_LOB.READ(in_clob, amount, offset, buffer);
-                END IF;
-                --
-                INSERT INTO user_source_views (name, line, text)
-                VALUES (
-                    in_name,
-                    clob_line,
-                    REPLACE(REPLACE(buffer, CHR(13), ''), CHR(10), '')
-                );
-                --
-                clob_line := clob_line + 1;
-                IF INSTR(in_clob, CHR(10), offset) = clob_len THEN
-                    buffer := '';
-                END IF;
-                offset := offset + amount + 1;
-            END LOOP;
-        END;
     BEGIN
         app.log_module();
         --
@@ -801,7 +764,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             FROM user_views v
         ) LOOP
             DBMS_OUTPUT.PUT_LINE(c.view_name);
-            clob_to_lines(c.view_name, REGEXP_REPLACE(c.content, '^(\s*)', ''));
+            app_actions.clob_to_lines(c.view_name, REGEXP_REPLACE(c.content, '^(\s*)', ''));
         END LOOP;
         --
         COMMIT;
@@ -814,6 +777,74 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     WHEN OTHERS THEN
         ROLLBACK;
         app.raise_error();
+    END;
+
+
+
+    PROCEDURE clob_to_lines (
+        in_name         VARCHAR2,
+        in_clob         CLOB
+    )
+    AS
+        clob_len        PLS_INTEGER     := DBMS_LOB.GETLENGTH(in_clob);
+        clob_line       PLS_INTEGER     := 1;
+        offset          PLS_INTEGER     := 1;
+        amount          PLS_INTEGER     := 32767;
+        buffer          VARCHAR2(32767);
+    BEGIN
+        WHILE offset < clob_len LOOP
+            IF INSTR(in_clob, CHR(10), offset) = 0 THEN
+                amount := clob_len - offset + 1;
+            ELSE
+                amount := INSTR(in_clob, CHR(10), offset) - offset;
+            END IF;
+            --
+            IF amount = 0 THEN
+                buffer := '';
+            ELSE
+                DBMS_LOB.READ(in_clob, amount, offset, buffer);
+            END IF;
+            --
+            --
+            -- CREATE COLLECTION INSTEAD
+            -- RETURN
+            --
+            INSERT INTO user_source_views (name, line, text)
+            VALUES (
+                in_name,
+                clob_line,
+                REPLACE(REPLACE(buffer, CHR(13), ''), CHR(10), '')
+            );
+            --
+            clob_line := clob_line + 1;
+            IF INSTR(in_clob, CHR(10), offset) = clob_len THEN
+                buffer := '';
+            END IF;
+            --
+            offset := offset + amount + 1;
+        END LOOP;
+    END;
+
+
+
+    FUNCTION clob_to_blob (
+        in_clob CLOB
+    )
+    RETURN BLOB
+    AS
+        out_blob        BLOB;
+        --
+        v_file_size     INTEGER     := DBMS_LOB.LOBMAXSIZE;
+        v_dest_offset   INTEGER     := 1;
+        v_src_offset    INTEGER     := 1;
+        v_blob_csid     NUMBER      := DBMS_LOB.DEFAULT_CSID;
+        v_lang_context  NUMBER      := DBMS_LOB.DEFAULT_LANG_CTX;
+        v_warning       INTEGER;
+        v_length        NUMBER;
+    BEGIN
+        DBMS_LOB.CREATETEMPORARY(out_blob, TRUE);
+        DBMS_LOB.CONVERTTOBLOB(out_blob, in_clob, v_file_size, v_dest_offset, v_src_offset, v_blob_csid, v_lang_context, v_warning);
+        RETURN out_blob;
     END;
 
 
@@ -869,25 +900,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                     RETURN in_address;
                 END IF;
             END IF;
-        END;
-        --
-        FUNCTION clob_to_blob (
-            in_clob CLOB
-        )
-        RETURN BLOB AS
-            out_blob        BLOB;
-            --
-            v_file_size     INTEGER     := DBMS_LOB.LOBMAXSIZE;
-            v_dest_offset   INTEGER     := 1;
-            v_src_offset    INTEGER     := 1;
-            v_blob_csid     NUMBER      := DBMS_LOB.DEFAULT_CSID;
-            v_lang_context  NUMBER      := DBMS_LOB.DEFAULT_LANG_CTX;
-            v_warning       INTEGER;
-            v_length        NUMBER;
-        BEGIN
-            DBMS_LOB.CREATETEMPORARY(out_blob, TRUE);
-            DBMS_LOB.CONVERTTOBLOB(out_blob, in_clob, v_file_size, v_dest_offset, v_src_offset, v_blob_csid, v_lang_context, v_warning);
-            RETURN out_blob;
         END;
         --
         PROCEDURE split_addresses (
@@ -964,7 +976,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             UTL_SMTP.WRITE_DATA(conn, 'Content-Type: ' || 'application/octet-stream' || UTL_TCP.CRLF);
             UTL_SMTP.WRITE_DATA(conn, 'Content-Disposition: attachment; filename="' || in_attach_name || '.gz"' || UTL_TCP.CRLF || UTL_TCP.CRLF);
             --
-            blob_content := clob_to_blob(in_attach_data);
+            blob_content := app_actions.clob_to_blob(in_attach_data);
             DBMS_LOB.CREATETEMPORARY(blob_gzipped, TRUE, DBMS_LOB.CALL);
             DBMS_LOB.OPEN(blob_gzipped, DBMS_LOB.LOB_READWRITE);
             --

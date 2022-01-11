@@ -44,6 +44,11 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+
+
+    -- ### Navigation page
+    --
+
     --
     -- Remove missing pages from NAVIGATION table
     --
@@ -68,6 +73,13 @@ CREATE OR REPLACE PACKAGE app_actions AS
     PROCEDURE nav_autoupdate;
 
 
+
+
+
+
+
+    -- ### User Roles page
+    --
 
     --
     --
@@ -136,6 +148,13 @@ CREATE OR REPLACE PACKAGE app_actions AS
     );
 
 
+
+
+
+
+
+    -- ### Settings page
+    --
 
     --
     -- Get value from Settings table
@@ -238,10 +257,38 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+
+
+
+
+    -- ### Views source table
+    --
+
     --
     -- Refresh views source (convert views source to lines)
     --
     PROCEDURE refresh_user_source_views;
+
+
+
+    PROCEDURE clob_to_lines (
+        in_name         VARCHAR2,
+        in_clob         CLOB
+    );
+
+
+
+
+
+
+
+    -- ### E-mails
+    --
+
+    FUNCTION clob_to_blob (
+        in_clob CLOB
+    )
+    RETURN BLOB;
 
 
 
