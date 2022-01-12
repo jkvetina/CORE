@@ -27,11 +27,7 @@ c AS (
         --
         c.nullable,
         c.data_default,
-        --
-        CASE WHEN c.column_id = 1 THEN 'Y' END AS is_first,
-        CASE WHEN LEAD(c.column_id) OVER(PARTITION BY c.table_name ORDER BY c.column_id) IS NULL THEN 'Y' END AS is_last,
-        --
-        MAX(LENGTH(c.column_name)) OVER(PARTITION BY c.table_name) AS name_length
+        c.avg_col_len
     FROM user_tab_columns c
     JOIN user_tables t
         ON t.table_name         = c.table_name
@@ -59,8 +55,9 @@ SELECT
     c.table_name,
     c.column_id,
     c.column_name,
-    c.name_length,
     c.data_type,
+    c.data_default,
+    c.avg_col_len       AS avg_length,
     --
     n.count_pk,
     n.count_uq,
@@ -68,8 +65,7 @@ SELECT
     --
     NULLIF(n.count_ch - CASE WHEN c.nullable = 'N' THEN 1 ELSE 0 END, 0) AS count_ch,
     --
-    CASE WHEN c.nullable = 'N'              THEN 'Y' END AS is_nn,
-    CASE WHEN c.data_default IS NOT NULL    THEN 'Y' END AS is_default,
+    CASE WHEN c.nullable = 'N' THEN 'Y' END AS is_nn,
     --
     m.comments
 FROM c
