@@ -83,6 +83,14 @@ wwv_flow_api.create_page_plug(
 ,p_prn_page_footer_alignment=>'CENTER'
 ,p_prn_border_color=>'#666666'
 );
+wwv_flow_api.create_region_column_group(
+ p_id=>wwv_flow_api.id(15339627237749828)
+,p_heading=>'Usage'
+);
+wwv_flow_api.create_region_column_group(
+ p_id=>wwv_flow_api.id(15339776986749829)
+,p_heading=>'References'
+);
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(14929333603872302)
 ,p_name=>'VIEW_NAME'
@@ -126,6 +134,8 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>50
 ,p_value_alignment=>'LEFT'
+,p_group_id=>wwv_flow_api.id(15339776986749829)
+,p_use_group_for=>'BOTH'
 ,p_attribute_05=>'HTML'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
@@ -152,6 +162,8 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>60
 ,p_value_alignment=>'LEFT'
+,p_group_id=>wwv_flow_api.id(15339776986749829)
+,p_use_group_for=>'BOTH'
 ,p_attribute_05=>'HTML'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
@@ -238,6 +250,8 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>30
 ,p_value_alignment=>'LEFT'
+,p_group_id=>wwv_flow_api.id(15339627237749828)
+,p_use_group_for=>'BOTH'
 ,p_attribute_05=>'HTML'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
@@ -292,6 +306,8 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>40
 ,p_value_alignment=>'LEFT'
+,p_group_id=>wwv_flow_api.id(15339627237749828)
+,p_use_group_for=>'BOTH'
 ,p_attribute_05=>'HTML'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
