@@ -3736,6 +3736,14 @@ wwv_flow_api.create_page_process(
 '    ''ALTER TABLE #OWNER#.'' || :TABLE_NAME || '' '' ||',
 '    CASE WHEN :IS_DISABLED = ''Y'' THEN ''DISABLE'' ELSE ''ENABLE'' END ||',
 '    '' CONSTRAINT '' || :CONSTRAINT_NAME_OLD;',
+'--',
+'IF :CONSTRAINT_NAME_OLD != :CONSTRAINT_NAME THEN',
+'    EXECUTE IMMEDIATE',
+'        ''ALTER TABLE #OWNER#.'' || :TABLE_NAME ||',
+'        '' RENAME CONSTRAINT '' || :CONSTRAINT_NAME_OLD || '' TO '' || :CONSTRAINT_NAME;',
+'    --',
+'    :CONSTRAINT_NAME_OLD := :CONSTRAINT_NAME;',
+'END IF;',
 ''))
 ,p_attribute_05=>'Y'
 ,p_attribute_06=>'N'
