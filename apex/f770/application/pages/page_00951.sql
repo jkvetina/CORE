@@ -241,7 +241,7 @@ wwv_flow_api.create_region_column(
 ,p_source_type=>'DB_COLUMN'
 ,p_source_expression=>'IS_DISABLED'
 ,p_data_type=>'VARCHAR2'
-,p_is_query_only=>true
+,p_is_query_only=>false
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
 ,p_heading=>'Disabled'
 ,p_heading_alignment=>'CENTER'
@@ -263,6 +263,7 @@ wwv_flow_api.create_region_column(
 ,p_enable_control_break=>true
 ,p_enable_hide=>true
 ,p_is_primary_key=>false
+,p_duplicate_value=>true
 ,p_include_in_export=>true
 );
 wwv_flow_api.create_region_column(
@@ -542,13 +543,13 @@ wwv_flow_api.create_region_column(
 ,p_readonly_for_each_row=>false
 );
 wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(15558701571498019)
+ p_id=>wwv_flow_api.id(15559101352498023)
 ,p_name=>'APEX$ROW_ACTION'
 ,p_item_type=>'NATIVE_ROW_ACTION'
 ,p_display_sequence=>20
 );
 wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(15558858380498020)
+ p_id=>wwv_flow_api.id(15559289609498024)
 ,p_name=>'APEX$ROW_SELECTOR'
 ,p_item_type=>'NATIVE_ROW_SELECTOR'
 ,p_display_sequence=>10
@@ -732,10 +733,10 @@ wwv_flow_api.create_ig_report_column(
 ,p_width=>90
 );
 wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(15621060748417123)
+ p_id=>wwv_flow_api.id(15636972641587005)
 ,p_view_id=>wwv_flow_api.id(15343279857759599)
 ,p_display_seq=>0
-,p_column_id=>wwv_flow_api.id(15558701571498019)
+,p_column_id=>wwv_flow_api.id(15559101352498023)
 ,p_is_visible=>true
 ,p_is_frozen=>false
 );
@@ -3721,7 +3722,7 @@ wwv_flow_api.create_page_process(
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
 wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(15558997945498021)
+ p_id=>wwv_flow_api.id(15559316907498025)
 ,p_process_sequence=>40
 ,p_process_point=>'AFTER_SUBMIT'
 ,p_region_id=>wwv_flow_api.id(15126571796615748)
@@ -3732,8 +3733,8 @@ wwv_flow_api.create_page_process(
 'app.log_action(''SAVE_CONSTRAINTS'', app.get_item(''$TABLE_NAME''), :CONSTRAINT_NAME_OLD, :CONSTRAINT_NAME, :IS_DISABLED);',
 '--',
 'EXECUTE IMMEDIATE',
-'    ''ALTER TABLE '' || :TABLE_NAME || '' '' ||',
-'    CASE WHEN :IS_DISABLED = ''Y'' THEN ''ENABLE'' ELSE ''DISABLE'' END ||',
+'    ''ALTER TABLE #OWNER#.'' || :TABLE_NAME || '' '' ||',
+'    CASE WHEN :IS_DISABLED = ''Y'' THEN ''DISABLE'' ELSE ''ENABLE'' END ||',
 '    '' CONSTRAINT '' || :CONSTRAINT_NAME_OLD;',
 ''))
 ,p_attribute_05=>'Y'
