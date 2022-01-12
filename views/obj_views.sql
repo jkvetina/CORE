@@ -10,8 +10,15 @@ r AS (
     SELECT
         d.name                  AS view_name,
         --
-        LISTAGG(CASE WHEN d.referenced_type = 'TABLE' THEN d.referenced_name END, ', ') WITHIN GROUP (ORDER BY d.referenced_name) AS referenced_tables,
-        LISTAGG(CASE WHEN d.referenced_type = 'VIEW'  THEN d.referenced_name END, ', ') WITHIN GROUP (ORDER BY d.referenced_name) AS referenced_views
+        LISTAGG(CASE WHEN d.referenced_type = 'TABLE'
+            THEN '<a href="' || app.get_page_link(951, in_names => 'P951_TABLE_NAME', in_values => d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
+            WITHIN GROUP (ORDER BY d.referenced_name)
+            AS referenced_tables,
+        --
+        LISTAGG(CASE WHEN d.referenced_type = 'VIEW'
+            THEN '<a href="' || app.get_page_link(955, in_names => 'P955_VIEW_NAME', in_values => d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
+            WITHIN GROUP (ORDER BY d.referenced_name)
+            AS referenced_views
     FROM user_dependencies d
     CROSS JOIN x
     WHERE d.type                = 'VIEW'
