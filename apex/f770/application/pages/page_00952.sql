@@ -18,7 +18,7 @@ wwv_flow_api.create_page(
 ,p_alias=>'TRIGGERS'
 ,p_step_title=>'Triggers'
 ,p_autocomplete_on_off=>'OFF'
-,p_group_id=>wwv_flow_api.id(9240371448352386)
+,p_group_id=>wwv_flow_api.id(15841923064543077)
 ,p_step_template=>wwv_flow_api.id(9463753933679086)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
