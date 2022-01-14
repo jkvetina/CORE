@@ -82,17 +82,29 @@ SELECT
     CASE WHEN t.row_movement = 'ENABLED'    THEN 'Y' END AS is_row_mov,
     CASE WHEN t.read_only = 'YES'           THEN 'Y' END AS is_read_only,
     --
-    ROUND(t.num_rows * t.avg_row_len / 1024, 0) AS size_,
-    --
-    CASE
-        WHEN ROUND(t.blocks * 8, 2) > 0
-            THEN ROUND(t.blocks * 8, 2) - ROUND(t.num_rows * t.avg_row_len / 1024, 0)
-        END AS wasted,
-    --
     o.last_ddl_time,
     TRUNC(SYSDATE) - TRUNC(t.last_analyzed) AS last_analyzed,  -- in days
     --
-    c.comments
+    c.comments,
+    --
+    t.avg_row_len,
+    --
+    ROUND(t.blocks * 8, 2)                      AS fragmented_kb,
+    ROUND(t.num_rows * t.avg_row_len / 1024, 2) AS actual_kb,
+    --
+    CASE
+        WHEN ROUND(t.blocks * 8, 2) > 0
+            THEN ROUND(t.blocks * 8, 2) - ROUND(t.num_rows * t.avg_row_len / 1024, 2)
+            END AS wasted_kb,
+    --
+    CASE
+        WHEN ROUND(t.blocks * 8, 2) > 0 AND ROUND(t.num_rows * t.avg_row_len / 1024, 2) > 0
+            THEN FLOOR((ROUND(t.blocks * 8, 2) - ROUND(t.num_rows * t.avg_row_len / 1024, 2)) / ROUND(t.blocks * 8, 2) * 100)
+            END AS wasted_perc,
+    --
+    t.cache,
+    t.result_cache,
+    t.buffer_pool
 FROM user_tables t
 JOIN user_objects o
     ON o.object_name            = t.table_name
@@ -112,49 +124,4 @@ LEFT JOIN p ON p.table_name     = t.table_name
 WHERE t.table_name      = NVL(x.table_name, t.table_name)
     AND t.table_name    NOT LIKE '%\__$' ESCAPE '\'
     AND m.mview_name    IS NULL;
-
-
-    --
-    --select * from all_tab_cols where column_name = 'AVG_COL_LEN';
-    --
-    -- AVG_ROW_LEN to Tables
-    -- CACHE (buffer_), BUFFER_POOL
-    --
-    -- SHOW PAGE FROM APEX WITH/for TABLE EDIT
-    --
-    -- grants?
-
-
-SELECT
-    t.table_name,
-    ROUND(t.blocks * 8, 2) AS fragmented_kb,
-    ROUND(t.num_rows * t.avg_row_len / 1024, 2) AS actual_kb,
-    CASE WHEN ROUND(t.blocks * 8, 2) > 0 THEN
-        ROUND(t.blocks * 8, 2) - ROUND(t.num_rows * t.avg_row_len / 1024, 2) END AS wasted_kb,
-    CASE WHEN ROUND(t.blocks * 8, 2) > 0 AND ROUND(t.num_rows * t.avg_row_len / 1024, 2) > 0 THEN
-        FLOOR((ROUND(t.blocks * 8, 2) - ROUND(t.num_rows * t.avg_row_len / 1024, 2)) / ROUND(t.blocks * 8, 2) * 100) END AS wasted_perc,
-    t.partitioned,
-    t.temporary,
-    t.iot_type,
-    t.row_movement,
-    i.idx_norm,
-    i.idx_func,
-    t.last_analyzed,
-    t.num_rows,
-    'SKRINK' AS action
-FROM user_tables t
-LEFT JOIN (
-    SELECT
-        i.table_name,
-        NULLIF(SUM(CASE WHEN i.index_type LIKE 'NORMAL'    THEN 1 ELSE 0 END), 0) AS idx_norm,
-        NULLIF(SUM(CASE WHEN i.index_type LIKE 'IOT%'      THEN 1 ELSE 0 END), 0) AS idx_iot,
-        NULLIF(SUM(CASE WHEN i.index_type LIKE 'FUNCTION%' THEN 1 ELSE 0 END), 0) AS idx_func
-    FROM user_indexes i
-    WHERE i.index_type NOT IN ('LOB')
-    GROUP BY i.table_name
-) i ON i.table_name = t.table_name
-WHERE t.blocks > 0
-    AND (t.table_name LIKE :P907_TABLE_LIKE || '%' OR :P907_TABLE_LIKE IS NULL)
-ORDER BY 1;
-
 
