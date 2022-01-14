@@ -39,10 +39,11 @@ n AS (
     SELECT
         m.table_name,
         m.column_name,
-        NULLIF(SUM(CASE WHEN n.constraint_type = 'P' THEN 1 ELSE 0 END), 0) AS count_pk,
-        NULLIF(SUM(CASE WHEN n.constraint_type = 'R' THEN 1 ELSE 0 END), 0) AS count_fk,
-        NULLIF(SUM(CASE WHEN n.constraint_type = 'U' THEN 1 ELSE 0 END), 0) AS count_uq,
-        NULLIF(SUM(CASE WHEN n.constraint_type = 'C' THEN 1 ELSE 0 END), 0) AS count_ch
+        CASE WHEN SUM(CASE WHEN n.constraint_type = 'P' THEN 1 ELSE 0 END) > 0 THEN 'Y' END AS is_pk,
+        CASE WHEN SUM(CASE WHEN n.constraint_type = 'R' THEN 1 ELSE 0 END) > 0 THEN 'Y' END AS is_fk,
+        CASE WHEN SUM(CASE WHEN n.constraint_type = 'U' THEN 1 ELSE 0 END) > 0 THEN 'Y' END AS is_uq,
+        --
+        SUM(CASE WHEN n.constraint_type = 'C' THEN 1 ELSE 0 END) AS count_ch
     FROM user_cons_columns m
     JOIN user_constraints n
         ON n.constraint_name    = m.constraint_name
@@ -59,11 +60,11 @@ SELECT
     c.data_default,
     c.avg_col_len       AS avg_length,
     --
-    n.count_pk,
-    n.count_uq,
-    n.count_fk,
+    n.is_pk,
+    n.is_uq,
+    n.is_fk,
     --
-    NULLIF(n.count_ch - CASE WHEN c.nullable = 'N' THEN 1 ELSE 0 END, 0) AS count_ch,
+    CASE WHEN n.count_ch - CASE WHEN c.nullable = 'N' THEN 1 ELSE 0 END > 0 THEN 'Y' END AS is_ch,
     --
     CASE WHEN c.nullable = 'N' THEN 'Y' END AS is_nn,
     --
