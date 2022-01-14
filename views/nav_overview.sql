@@ -1,7 +1,6 @@
 CREATE OR REPLACE VIEW nav_overview AS
 WITH x AS (
     SELECT
-        app.get_item('$PAGE_ID')    AS filter_page_id,
         app.get_page_id()           AS page_id,
         app.get_app_id()            AS app_id,
         app.get_core_app_id()       AS core_app_id
@@ -99,19 +98,18 @@ LEFT JOIN t
     AND t.page_id           = n.page_id
 LEFT JOIN nav_pages_to_remove r
     ON r.page_id            = n.page_id
-WHERE (x.filter_page_id     = n.page_id OR x.filter_page_id IS NULL)
-    AND (
-        n.app_id            = x.app_id
-        OR (
-            n.is_shared     = 'Y'
-            AND n.page_id   NOT IN (
-                -- pages from active apps takes priority
-                SELECT n.page_id
-                FROM navigation n
-                WHERE n.app_id      = x.app_id
-            )
+WHERE (
+    n.app_id            = x.app_id
+    OR (
+        n.is_shared     = 'Y'
+        AND n.page_id   NOT IN (
+            -- pages from active apps takes priority
+            SELECT n.page_id
+            FROM navigation n
+            WHERE n.app_id      = x.app_id
         )
     )
+)
 --
 UNION ALL
 SELECT
@@ -162,8 +160,7 @@ JOIN apps a
 CROSS JOIN x
 LEFT JOIN t
     ON t.app_id             = n.app_id
-    AND t.page_id           = n.parent_id
-WHERE (x.filter_page_id     = n.page_id OR x.filter_page_id IS NULL);
+    AND t.page_id           = n.parent_id;
 --
 COMMENT ON TABLE nav_overview                   IS 'Enriched navigation overview used also for menu rendering';
 --

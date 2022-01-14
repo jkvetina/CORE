@@ -49,7 +49,9 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
 ,p_query_table=>'NAV_OVERVIEW'
-,p_query_where=>'app_id = app.get_app_id()'
+,p_query_where=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app_id = app.get_app_id()',
+'AND page_id = COALESCE(app.get_number_item(''$PAGE_ID''), page_id)'))
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IG'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -143,7 +145,7 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'RIGHT'
 ,p_display_sequence=>60
 ,p_value_alignment=>'RIGHT'
-,p_link_target=>'&PAGE_URL.'
+,p_link_target=>'f?p=&APP_ID.:910:&SESSION.::&DEBUG.:Y,910:P910_PAGE_ID:&PAGE_ID.'
 ,p_link_text=>'&PAGE_ID.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -268,6 +270,8 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
+,p_link_target=>'&PAGE_URL.'
+,p_link_text=>'&PAGE_TITLE.'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
 ,p_filter_is_required=>false
@@ -1369,7 +1373,7 @@ wwv_flow_api.create_page_button(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(9260980865429010)
 ,p_name=>'P910_ADD_PAGE'
-,p_item_sequence=>10
+,p_item_sequence=>20
 ,p_item_plug_id=>wwv_flow_api.id(9192009232668637)
 ,p_use_cache_before_default=>'NO'
 ,p_display_as=>'NATIVE_HIDDEN'
@@ -1378,7 +1382,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(9964444742802043)
 ,p_name=>'P910_AUTH_SCHEME'
-,p_item_sequence=>30
+,p_item_sequence=>40
 ,p_item_plug_id=>wwv_flow_api.id(9192009232668637)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
@@ -1386,7 +1390,7 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(11233725909343636)
 ,p_name=>'P910_REMOVE_PAGE'
-,p_item_sequence=>20
+,p_item_sequence=>30
 ,p_item_plug_id=>wwv_flow_api.id(9192009232668637)
 ,p_use_cache_before_default=>'NO'
 ,p_display_as=>'NATIVE_HIDDEN'
@@ -1396,7 +1400,7 @@ wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(12746985412115301)
 ,p_name=>'P910_PAGE_ID'
 ,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(12338096400960949)
+,p_item_plug_id=>wwv_flow_api.id(9192009232668637)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
