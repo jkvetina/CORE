@@ -25,20 +25,27 @@ SELECT
     p.page_name,
     p.page_title,
     --
-    COALESCE((
-        SELECT MAX(g.order#) AS order#
-        FROM g
-        WHERE g.page_group      = p.page_group
-            AND g.page_id       < p.page_id
-            AND g.parent_id     IN (
-                SELECT MAX(g.parent_id) AS parent_id
-                FROM g
-                WHERE g.page_group      = p.page_group
-                    AND g.page_id       < p.page_id
-                    AND g.parent_id     IS NOT NULL
-            )
-
-    ), CASE WHEN MOD(p.page_id, 100) = 0 THEN p.page_id END) AS order#,
+    COALESCE (
+        CASE p.page_id
+            WHEN 0      THEN 599    -- preferred order
+            WHEN 9999   THEN 999
+            END,
+        (
+            SELECT MAX(g.order#) AS order#
+            FROM g
+            WHERE g.page_group      = p.page_group
+                AND g.page_id       < p.page_id
+                AND g.parent_id     IN (
+                    SELECT MAX(g.parent_id) AS parent_id
+                    FROM g
+                    WHERE g.page_group      = p.page_group
+                        AND g.page_id       < p.page_id
+                        AND g.parent_id     IS NOT NULL
+                )
+    
+        ),
+        CASE WHEN MOD(p.page_id, 100) = 0 THEN p.page_id END
+    ) AS order#,
     --
     p.page_css_classes      AS css_class,
     --
