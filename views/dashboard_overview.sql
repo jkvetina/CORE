@@ -28,6 +28,7 @@ l AS (
     SELECT
         TRUNC(l.created_at)                                         AS today,
         NULLIF(SUM(CASE WHEN l.flag = 'P' THEN 1 ELSE 0 END), 0)    AS count_requests,      -- must match APP specification
+        NULLIF(SUM(CASE WHEN l.flag = 'A' THEN 1 ELSE 0 END), 0)    AS count_actions,
         NULLIF(SUM(CASE WHEN l.flag = 'M' THEN 1 ELSE 0 END), 0)    AS count_modules,
         NULLIF(SUM(CASE WHEN l.flag = 'D' THEN 1 ELSE 0 END), 0)    AS count_debugs,
         NULLIF(SUM(CASE WHEN l.flag = 'R' THEN 1 ELSE 0 END), 0)    AS count_results,
@@ -56,6 +57,7 @@ SELECT
     TO_CHAR(l.today, 'YYYY-MM-DD') AS today,
     --
     l.count_requests,
+    l.count_actions,
     l.count_modules,
     l.count_debugs,
     l.count_results,
