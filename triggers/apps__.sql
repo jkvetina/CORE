@@ -38,6 +38,12 @@ COMPOUND TRIGGER
         IF NOT DELETING THEN
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
+        ELSE
+            DELETE FROM sessions t
+            WHERE t.app_id = :OLD.app_id;
+            --
+            DELETE FROM navigation t
+            WHERE t.app_id = :OLD.app_id;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
@@ -96,12 +102,6 @@ COMPOUND TRIGGER
             WHERE t.app_id = deleted_app_id;
             --
             DELETE FROM events t
-            WHERE t.app_id = deleted_app_id;
-            --
-            DELETE FROM sessions t
-            WHERE t.app_id = deleted_app_id;
-            --
-            DELETE FROM navigation t
             WHERE t.app_id = deleted_app_id;
             --
             DELETE FROM user_roles t
