@@ -19,7 +19,6 @@ wwv_flow_api.create_page(
 ,p_step_title=>'Triggers'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(15841923064543077)
-,p_step_template=>wwv_flow_api.id(9463753933679086)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
@@ -135,7 +134,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_group_id=>wwv_flow_api.id(15341121189749843)
 ,p_use_group_for=>'BOTH'
-,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_MODULE:G,&TRIGGER_NAME.'
+,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_MODULE_NAME:G,&TRIGGER_NAME.'
 ,p_link_text=>'&COUNT_INSERTED.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -162,7 +161,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_group_id=>wwv_flow_api.id(15341121189749843)
 ,p_use_group_for=>'BOTH'
-,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_MODULE:G,&TRIGGER_NAME.'
+,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_MODULE_NAME:G,&TRIGGER_NAME.'
 ,p_link_text=>'&COUNT_UPDATED.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -189,7 +188,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_group_id=>wwv_flow_api.id(15341121189749843)
 ,p_use_group_for=>'BOTH'
-,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_MODULE:G,&TRIGGER_NAME.'
+,p_link_target=>'f?p=&APP_ID.:901:&SESSION.::&DEBUG.:901:P901_FLAG,P901_MODULE_NAME:G,&TRIGGER_NAME.'
 ,p_link_text=>'&COUNT_DELETED.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
