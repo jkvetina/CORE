@@ -91,6 +91,10 @@ wwv_flow_api.create_region_column_group(
  p_id=>wwv_flow_api.id(15339776986749829)
 ,p_heading=>'References'
 );
+wwv_flow_api.create_region_column_group(
+ p_id=>wwv_flow_api.id(16023054809727215)
+,p_heading=>'Flags'
+);
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(14929333603872302)
 ,p_name=>'VIEW_NAME'
@@ -98,17 +102,13 @@ wwv_flow_api.create_region_column(
 ,p_source_expression=>'VIEW_NAME'
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>false
-,p_item_type=>'NATIVE_TEXTAREA'
+,p_item_type=>'NATIVE_DISPLAY_ONLY'
 ,p_heading=>'View Name'
 ,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>20
 ,p_value_alignment=>'LEFT'
-,p_attribute_01=>'Y'
-,p_attribute_02=>'N'
-,p_attribute_03=>'N'
-,p_attribute_04=>'BOTH'
-,p_is_required=>true
-,p_max_length=>128
+,p_attribute_02=>'VALUE'
+,p_attribute_05=>'PLAIN'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
 ,p_filter_is_required=>false
@@ -190,6 +190,8 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>70
 ,p_value_alignment=>'CENTER'
+,p_group_id=>wwv_flow_api.id(16023054809727215)
+,p_use_group_for=>'BOTH'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'Y'
 ,p_is_required=>false
@@ -214,19 +216,14 @@ wwv_flow_api.create_region_column(
 ,p_source_expression=>'LAST_DDL_TIME'
 ,p_data_type=>'DATE'
 ,p_is_query_only=>true
-,p_item_type=>'NATIVE_DATE_PICKER_JET'
+,p_item_type=>'NATIVE_DISPLAY_ONLY'
 ,p_heading=>'Last Ddl Time'
-,p_heading_alignment=>'CENTER'
+,p_heading_alignment=>'LEFT'
 ,p_display_sequence=>90
-,p_value_alignment=>'CENTER'
-,p_attribute_01=>'N'
-,p_attribute_02=>'POPUP'
-,p_attribute_03=>'NONE'
-,p_attribute_06=>'NONE'
-,p_attribute_09=>'N'
-,p_attribute_11=>'Y'
+,p_value_alignment=>'LEFT'
+,p_attribute_02=>'VALUE'
+,p_attribute_05=>'PLAIN'
 ,p_format_mask=>'YYYY-MM-DD HH24:MI'
-,p_is_required=>false
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_date_ranges=>'ALL'
@@ -278,6 +275,8 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>80
 ,p_value_alignment=>'CENTER'
+,p_group_id=>wwv_flow_api.id(16023054809727215)
+,p_use_group_for=>'BOTH'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'Y'
 ,p_is_required=>false

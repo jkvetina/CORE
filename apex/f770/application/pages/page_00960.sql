@@ -308,7 +308,7 @@ wwv_flow_api.create_ig_report_view(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(15134149172617620)
 ,p_view_id=>wwv_flow_api.id(15128264473617605)
-,p_display_seq=>4
+,p_display_seq=>6
 ,p_column_id=>wwv_flow_api.id(15121818776615701)
 ,p_is_visible=>true
 ,p_is_frozen=>false
