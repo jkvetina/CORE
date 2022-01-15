@@ -36,8 +36,12 @@ u AS (
 p AS (
     SELECT
         r.table_name,
-        LISTAGG(DISTINCT '<a href="' || app.get_page_link(r.page_id) || '">' || r.page_id || '</a>', ', ') WITHIN GROUP (ORDER BY r.page_id) AS used_on_pages
-        --LISTAGG(DISTINCT r.page_id, ', ') WITHIN GROUP (ORDER BY r.page_id) AS used_on_pages
+        LISTAGG(DISTINCT '<a href="' ||
+            app.get_page_link(910,
+                in_names    => 'P910_PAGE_ID',
+                in_values   => r.page_id
+            ) || '">' || r.page_id || '</a>', ', ')
+            WITHIN GROUP (ORDER BY r.page_id) AS used_on_pages
     FROM apex_application_page_regions r
     JOIN x
         ON x.app_id             = r.application_id
