@@ -53,7 +53,12 @@ SELECT
     --
     t.page_root || ' ' || COALESCE (
         t.page_group,
-        (SELECT t.page_group FROM t WHERE t.app_id = n.app_id AND t.page_id = n.parent_id)
+        (
+            SELECT t.page_group
+            FROM t
+            WHERE t.app_id      = n.app_id
+                AND t.page_id   = n.parent_id
+        )
     ) AS page_group,
     --
     t.page_alias,
@@ -91,7 +96,7 @@ SELECT
     --
     'UD' AS allow_changes,  -- U = update, D = delete
     --
-    t.page_root || '.' || TO_CHAR(10000 + t.r#) || '.' || NVL(t.order#, t.page_id) AS sort_order,
+    t.page_root || '.' || TO_CHAR(10000 + t.r#) || '.' || NVL(t.order#, t.page_id) || '.' || n.page_id AS sort_order,
     --
     CASE
         WHEN r.page_id IS NOT NULL
@@ -109,7 +114,7 @@ JOIN apps a
     ON a.app_id             = n.app_id
     AND a.is_active         = 'Y'
 CROSS JOIN x
-LEFT JOIN t                                             ---------- LEFT JOIN ???
+LEFT JOIN t
     ON t.app_id             = n.app_id
     AND t.page_id           = n.page_id
 LEFT JOIN nav_pages_to_remove r
@@ -137,7 +142,7 @@ SELECT
     n.page_alias,
     --
     CASE WHEN n.parent_id IS NOT NULL
-        THEN REPLACE(LTRIM(RPAD('-', 4), '-'), ' ', '&' || 'nbsp; ')
+        THEN REPLACE(LTRIM(RPAD('-', (t.depth + 1) * 4), '-'), ' ', '&' || 'nbsp; ')
         END || app.get_page_name(in_app_id => n.app_id, in_page_id => n.page_id, in_name => n.page_name) AS page_name,
     --
     n.page_title,
@@ -161,7 +166,13 @@ SELECT
     --
     NULL AS allow_changes,  -- no changes allowed
     --
-    NVL(t.page_root, n.page_id) || '.' || TO_CHAR(10000 + t.r#) || '.' || NVL(n.order#, n.page_id) AS sort_order,
+    NVL(t.page_root, n.page_id) || '.' || TO_CHAR(10000 + (
+        SELECT NVL(MAX(z.r#), 0) AS nearest_r#
+        FROM t z
+        WHERE z.app_id          = n.app_id
+            AND z.page_group    = n.page_group
+            AND z.order#        = n.order#
+    )) || '.' || NVL(n.order#, n.page_id) AS sort_order,
     --
     app.get_icon('fa-plus-square', 'Create record in Navigation table') AS action,
     --
@@ -192,10 +203,12 @@ COMMENT ON COLUMN nav_overview.page_group       IS 'Page group from APEX page sp
 COMMENT ON COLUMN nav_overview.page_alias       IS 'Page alis from APEX page specification';
 COMMENT ON COLUMN nav_overview.page_name        IS 'Page name from APEX page specification';
 COMMENT ON COLUMN nav_overview.page_title       IS 'Page title from APEX page specification';
+COMMENT ON COLUMN nav_overview.page_template    IS 'Type of template used on page';
 COMMENT ON COLUMN nav_overview.css_class        IS 'CSS class from APEX page specification';
 COMMENT ON COLUMN nav_overview.is_hidden        IS 'Flag for hiding item in menu; Y = hide, NULL = show';
 COMMENT ON COLUMN nav_overview.is_reset         IS 'Flag for reset/clear page items; Y = clear, NULL = keep;';
 COMMENT ON COLUMN nav_overview.is_shared        IS 'Flag for sharing record with other apps';
+COMMENT ON COLUMN nav_overview.is_modal         IS 'Flag for modal dialogs';
 COMMENT ON COLUMN nav_overview.auth_scheme      IS 'Auth scheme from APEX page specification';
 COMMENT ON COLUMN nav_overview.page_url         IS 'Page url to use as redirection target';
 COMMENT ON COLUMN nav_overview.allow_changes    IS 'APEX column to allow edit/delete only some rows';
