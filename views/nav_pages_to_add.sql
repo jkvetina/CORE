@@ -51,7 +51,8 @@ SELECT
     p.page_template,
     p.page_mode,
     --
-    NULL                    AS is_hidden,       -- hide page on default
+    CASE WHEN p.page_mode != 'Normal' THEN 'Y' END AS is_hidden,    -- hide page on default, except for modals
+    --
     'Y'                     AS is_reset,        -- reset page items
     NULL                    AS is_shared,
     --
