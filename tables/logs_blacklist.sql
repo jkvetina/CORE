@@ -2,7 +2,7 @@
 CREATE TABLE logs_blacklist (
     app_id              NUMBER(4)       CONSTRAINT nn_logs_blacklist_app_id     NOT NULL,
     flag                CHAR(1),
-    user_id             VARCHAR2(240),
+    user_id             VARCHAR2(30),
     page_id             NUMBER(6),
     module_like         VARCHAR2(30),
     action_like         VARCHAR2(30),
