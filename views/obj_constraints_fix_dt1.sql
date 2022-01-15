@@ -51,14 +51,9 @@ JOIN s b
     ON b.r_constraint_name  = s.constraint_name
     AND b.position          = s.position
 CROSS JOIN x
-WHERE s.data_type           != b.data_type
+WHERE b.data_type           != s.data_type
     AND (
-        s.column_name IN (
-            SELECT c.column_name
-            FROM user_tab_cols c
-            JOIN x
-                ON x.table_name = c.table_name
-        )
-        OR x.table_name IS NULL
+        x.table_name        IN (b.table_name, s.table_name)
+        OR x.table_name     IS NULL
     );
 
