@@ -25,8 +25,6 @@ s AS (
         c.constraint_name,
         n.r_constraint_name
     FROM user_tab_columns a
-    JOIN x
-        ON a.table_name         = NVL(x.table_name, a.table_name)
     JOIN user_tables t
         ON t.table_name         = a.table_name
     JOIN user_cons_columns c
@@ -52,5 +50,15 @@ FROM s
 JOIN s b
     ON b.r_constraint_name  = s.constraint_name
     AND b.position          = s.position
-WHERE s.data_type           != b.data_type;
+CROSS JOIN x
+WHERE s.data_type           != b.data_type
+    AND (
+        s.column_name IN (
+            SELECT c.column_name
+            FROM user_tab_cols c
+            JOIN x
+                ON x.table_name = c.table_name
+        )
+        OR x.table_name IS NULL
+    );
 

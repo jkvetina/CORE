@@ -20,8 +20,6 @@ s AS (
             ELSE a.data_type
         END AS data_type        
     FROM user_tab_columns a
-    JOIN x
-        ON a.table_name         = NVL(x.table_name, a.table_name)
     JOIN user_tables t
         ON t.table_name         = a.table_name
     LEFT JOIN user_mviews m
@@ -55,5 +53,15 @@ FROM (
     FROM s
     GROUP BY s.column_name, s.data_type
 ) s
-WHERE s.count_types > 1;
+CROSS JOIN x
+WHERE (
+        s.column_name IN (
+            SELECT c.column_name
+            FROM user_tab_cols c
+            JOIN x
+                ON x.table_name = c.table_name
+        )
+        OR x.table_name IS NULL
+    )
+    AND s.count_types > 1;
 
