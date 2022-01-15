@@ -19,6 +19,8 @@ t AS (
         p.page_group,
         p.authorization_scheme,
         p.page_css_classes,
+        p.page_mode,
+        p.page_template,
         --
         LEVEL - 1                                   AS depth,
         CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
@@ -55,7 +57,9 @@ SELECT
     --
     t.page_title,
     t.page_css_classes AS css_class,
+    t.page_template,
     --
+    CASE WHEN t.page_mode = 'Normal' THEN NULL ELSE 'Y' END AS is_modal,
     n.is_hidden,
     n.is_reset,
     n.is_shared,
@@ -126,7 +130,9 @@ SELECT
     --
     n.page_title,
     n.css_class,
+    n.page_template,
     --
+    CASE WHEN n.page_mode = 'Normal' THEN NULL ELSE 'Y' END AS is_modal,
     n.is_hidden,
     n.is_reset,
     n.is_shared,

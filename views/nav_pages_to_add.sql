@@ -48,6 +48,8 @@ SELECT
     ) AS order#,
     --
     p.page_css_classes      AS css_class,
+    p.page_template,
+    p.page_mode,
     --
     NULL                    AS is_hidden,       -- hide page on default
     'Y'                     AS is_reset,        -- reset page items
