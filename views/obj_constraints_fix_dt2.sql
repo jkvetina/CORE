@@ -24,8 +24,12 @@ s AS (
         ON t.table_name         = a.table_name
     LEFT JOIN user_mviews m
         ON m.mview_name         = a.table_name
+    LEFT JOIN obj_constraints_fix_dt1 d
+        ON d.foreign_table      = a.table_name
+        AND d.foreign_column    = a.column_name
     WHERE t.table_name          NOT LIKE '%$' ESCAPE '\'    -- skip DML err tables, audit tables...
         AND m.mview_name        IS NULL                     -- skip materialized views
+        AND d.foreign_table     IS NULL                     -- skip columns marked as FK errors
 )
 SELECT
     s.column_name,
