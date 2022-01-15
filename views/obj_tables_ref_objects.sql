@@ -21,7 +21,6 @@ FROM (
     CROSS JOIN x
     WHERE d.referenced_owner        = 'CORE'                -- @TODO: hardcoded user
     CONNECT BY NOCYCLE PRIOR d.name = d.referenced_name
-        AND PRIOR d.type            = d.referenced_type
         AND LEVEL                   <= 3                    -- limit depth
     START WITH d.referenced_name    = x.table_name
 ) d
