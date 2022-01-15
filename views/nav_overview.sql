@@ -9,41 +9,53 @@ WITH x AS (
 ),
 t AS (
     SELECT
-        n.app_id,
-        n.page_id,
-        --
-        REPLACE(p.page_name,  '&' || 'APP_NAME.', a.application_name) AS page_name,
-        REPLACE(p.page_title, '&' || 'APP_NAME.', a.application_name) AS page_title,
-        --
-        p.page_alias,
-        p.page_group,
-        p.authorization_scheme,
-        p.page_css_classes,
-        p.page_mode,
-        p.page_template,
-        --
-        LEVEL - 1                                   AS depth,
-        CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
-    FROM navigation n
-    JOIN apps a
-        ON a.app_id                 = n.app_id
-        AND a.is_active             = 'Y'
-    CROSS JOIN x
-    LEFT JOIN apex_application_pages p
-        ON p.application_id         = n.app_id
-        AND p.page_id               = n.page_id
-    LEFT JOIN apex_applications a
-        ON a.application_id         = p.application_id
-    CONNECT BY n.parent_id          = PRIOR n.page_id
-        AND n.app_id                = PRIOR n.app_id
-    START WITH n.parent_id          IS NULL
+        ROWNUM AS r#,   -- to keep hierarchy sorted
+        t.*
+    FROM (
+        SELECT
+            n.app_id,
+            n.page_id,
+            n.order#,
+            --
+            REPLACE(p.page_name,  '&' || 'APP_NAME.', a.application_name) AS page_name,
+            REPLACE(p.page_title, '&' || 'APP_NAME.', a.application_name) AS page_title,
+            --
+            p.page_alias,
+            p.page_group,
+            p.authorization_scheme,
+            p.page_css_classes,
+            p.page_mode,
+            p.page_template,
+            --
+            LEVEL - 1                                   AS depth,
+            CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
+        FROM navigation n
+        JOIN apps a
+            ON a.app_id                 = n.app_id
+            AND a.is_active             = 'Y'
+        CROSS JOIN x
+        LEFT JOIN apex_application_pages p
+            ON p.application_id         = n.app_id
+            AND p.page_id               = n.page_id
+        LEFT JOIN apex_applications a
+            ON a.application_id         = p.application_id
+        CONNECT BY n.parent_id          = PRIOR n.page_id
+            AND n.app_id                = PRIOR n.app_id
+        START WITH n.parent_id          IS NULL
+        ORDER SIBLINGS BY n.app_id, n.order#, n.page_id
+    ) t
 )
 SELECT
     n.app_id,
     n.page_id,
     n.parent_id,
     n.order#,
-    t.page_root || ' ' || COALESCE(t.page_group, (SELECT t.page_group FROM t WHERE t.app_id = n.app_id AND t.page_id = n.parent_id)) AS page_group,
+    --
+    t.page_root || ' ' || COALESCE (
+        t.page_group,
+        (SELECT t.page_group FROM t WHERE t.app_id = n.app_id AND t.page_id = n.parent_id)
+    ) AS page_group,
+    --
     t.page_alias,
     --
     CASE WHEN r.page_id IS NULL
@@ -77,9 +89,9 @@ SELECT
         )
         END AS page_url,
     --
-    'UD'                                                                AS allow_changes,  -- U = update, D = delete
+    'UD' AS allow_changes,  -- U = update, D = delete
     --
-    t.page_root || '.' || t.depth || '.' || NVL(n.order#, n.page_id)    AS sort_order,
+    t.page_root || '.' || TO_CHAR(10000 + t.r#) || '.' || NVL(t.order#, t.page_id) AS sort_order,
     --
     CASE
         WHEN r.page_id IS NOT NULL
@@ -97,7 +109,7 @@ JOIN apps a
     ON a.app_id             = n.app_id
     AND a.is_active         = 'Y'
 CROSS JOIN x
-LEFT JOIN t
+LEFT JOIN t                                             ---------- LEFT JOIN ???
     ON t.app_id             = n.app_id
     AND t.page_id           = n.page_id
 LEFT JOIN nav_pages_to_remove r
@@ -147,9 +159,9 @@ SELECT
         in_app_id       => n.app_id
     ) AS page_url,
     --
-    NULL                                                                    AS allow_changes,  -- no changes allowed
+    NULL AS allow_changes,  -- no changes allowed
     --
-    NVL(t.page_root, n.page_id) || '.' || (t.depth + 1) || '.' || NVL(n.order#, n.page_id) AS sort_order,
+    NVL(t.page_root, n.page_id) || '.' || TO_CHAR(10000 + t.r#) || '.' || NVL(n.order#, n.page_id) AS sort_order,
     --
     app.get_icon('fa-plus-square', 'Create record in Navigation table') AS action,
     --
