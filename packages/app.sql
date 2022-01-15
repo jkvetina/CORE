@@ -274,6 +274,25 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_owner (
+        in_app_id               apps.app_id%TYPE            := NULL
+    )
+    RETURN apex_applications.owner%TYPE
+    AS
+        out_owner               apex_applications.owner%TYPE;
+    BEGIN
+        SELECT a.owner INTO out_owner
+        FROM apex_applications a
+        WHERE a.application_id = COALESCE(in_app_id, app.get_app_id());
+        --
+        RETURN out_owner;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN app.schema_owner;
+    END;
+
+
+
     PROCEDURE create_session
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;

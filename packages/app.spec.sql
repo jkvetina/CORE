@@ -233,6 +233,16 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    --
+    -- Return current owner (because APEX dont like using USER)
+    --
+    FUNCTION get_owner (
+        in_app_id               apps.app_id%TYPE            := NULL
+    )
+    RETURN apex_applications.owner%TYPE;
+
+
+
 
 
 

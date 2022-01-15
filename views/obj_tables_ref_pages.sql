@@ -31,7 +31,7 @@ WHERE r.query_type_code     = 'TABLE'
             SELECT DISTINCT d.name                  AS view_name
             FROM user_dependencies d
             CROSS JOIN x
-            WHERE d.referenced_owner                = 'CORE'            -- @TODO: hardcoded schema
+            WHERE d.referenced_owner                = app.get_owner()
                 AND d.type                          = 'VIEW'
             CONNECT BY NOCYCLE d.referenced_name    = PRIOR d.name
                 AND d.referenced_type               = 'VIEW'

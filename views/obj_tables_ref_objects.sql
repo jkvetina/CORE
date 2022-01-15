@@ -19,7 +19,7 @@ FROM (
         LEVEL                                       AS level_
     FROM user_dependencies d
     CROSS JOIN x
-    WHERE d.referenced_owner        = 'CORE'                -- @TODO: hardcoded user
+    WHERE d.referenced_owner        = app.get_owner()
     CONNECT BY NOCYCLE PRIOR d.name = d.referenced_name
         AND LEVEL                   <= 3                    -- limit depth
     START WITH d.referenced_name    = x.table_name
