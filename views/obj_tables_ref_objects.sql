@@ -21,7 +21,7 @@ FROM (
     CROSS JOIN x
     WHERE d.referenced_owner        = app.get_owner()
     CONNECT BY NOCYCLE PRIOR d.name = d.referenced_name
-        AND LEVEL                   <= 3                    -- limit depth
+        AND LEVEL                   <= 2                    -- limit depth
     START WITH d.referenced_name    = x.table_name
 ) d
 WHERE d.level_ > 1;
