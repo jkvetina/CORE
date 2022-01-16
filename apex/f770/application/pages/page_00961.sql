@@ -21,15 +21,6 @@ wwv_flow_api.create_page(
 ,p_warn_on_unsaved_changes=>'N'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(15841923064543077)
-,p_javascript_code_onload=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'// hide original header',
-'$(window).on(''load'', function() {',
-'    var bar = parent.$(''.ui-dialog-titlebar'');',
-'    bar.find(''*'').hide();',
-'    bar.css(''border-bottom'', ''0'');',
-'    bar.css(''margin-bottom'', ''0'');',
-'});',
-''))
 ,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'td.t-Report-cell {',
 '    padding:        0.1rem 0.5rem;',
