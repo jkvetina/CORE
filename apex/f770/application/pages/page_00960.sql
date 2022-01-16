@@ -486,7 +486,10 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_group_id=>wwv_flow_api.id(14933225335872341)
 ,p_use_group_for=>'BOTH'
-,p_attribute_05=>'HTML'
+,p_attribute_02=>'VALUE'
+,p_attribute_05=>'PLAIN'
+,p_link_target=>'f?p=&APP_ID.:961:&SESSION.::&DEBUG.:961:P961_PACKAGE_NAME,P961_MODULE_NAME,P961_LINE_START,P961_LINE_END:&PACKAGE_NAME.,&MODULE_NAME.,&BODY_START.,&BODY_END.'
+,p_link_text=>'&MODULE_NAME.'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
 ,p_filter_is_required=>false
