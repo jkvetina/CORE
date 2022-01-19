@@ -443,6 +443,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         in_user_id              sessions.user_id%TYPE,
         in_app_id               sessions.app_id%TYPE,
         in_page_id              navigation.page_id%TYPE     := NULL,
+        in_session_id           sessions.session_id%TYPE    := NULL,
         in_items                VARCHAR2                    := NULL
     ) AS
         PRAGMA AUTONOMOUS_TRANSACTION;
@@ -453,27 +454,36 @@ CREATE OR REPLACE PACKAGE BODY app AS
             'user_id',          in_user_id,
             'app_id',           in_app_id,
             'page_id',          in_page_id,
+            'session_id',       in_session_id,
             'items',            in_items
         );
 
         -- create session from SQL Developer (not from APEX)
-        BEGIN
-            IF (in_user_id != app.get_user_id() OR in_app_id != app.get_app_id()) THEN
-                RAISE NO_DATA_FOUND;
-            END IF;
 
+        IF in_user_id = app.get_user_id() AND in_app_id = app.get_app_id() THEN
             -- use existing session if possible
-            APEX_SESSION.ATTACH (
-                p_app_id        => app.get_app_id(),
-                p_page_id       => NVL(in_page_id, 0),
-                p_session_id    => app.get_session_id()
-            );
-        EXCEPTION
-        WHEN OTHERS THEN
+            IF (in_session_id > 0 OR in_session_id IS NULL) THEN
+                BEGIN
+                    APEX_SESSION.ATTACH (
+                        p_app_id        => app.get_app_id(),
+                        p_page_id       => NVL(in_page_id, 0),
+                        p_session_id    => COALESCE(in_session_id, app.get_session_id())
+                    );
+                EXCEPTION
+                WHEN OTHERS THEN
+                    app.raise_error('ATTACH_SESSION_FAILED', in_app_id, in_user_id, COALESCE(in_session_id, app.get_session_id()));
+                END;
+            END IF;
+        ELSE
             -- find and setup workspace
-            SELECT a.workspace INTO v_workspace_id
-            FROM apex_applications a
-            WHERE a.application_id = in_app_id;
+            BEGIN
+                SELECT a.workspace INTO v_workspace_id
+                FROM apex_applications a
+                WHERE a.application_id = in_app_id;
+            EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                app.raise_error('INVALID_APP', in_app_id);
+            END;
             --
             APEX_UTIL.SET_WORKSPACE (
                 p_workspace => v_workspace_id
@@ -485,8 +495,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 p_userid    => APEX_UTIL.GET_USER_ID(in_user_id),
                 p_username  => in_user_id
             );
+        END IF;
 
-            -- create APEX session
+        -- create new APEX session
+        IF (app.get_session_id() IS NULL OR in_session_id = 0) THEN
             BEGIN
                 APEX_SESSION.CREATE_SESSION (
                     p_app_id    => in_app_id,
@@ -495,9 +507,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 );
             EXCEPTION
             WHEN OTHERS THEN
-                app.raise_error('INVALID_APP', app.get_json_list(in_app_id, in_user_id));
+                app.raise_error('CREATE_SESSION_FAILED', in_app_id, in_user_id);
             END;
-        END;
+        END IF;
 
         -- continue with standard process as from APEX
         app.create_session();
@@ -618,7 +630,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN sessions.session_id%TYPE
     AS
     BEGIN
-        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');  -- APEX.G_INSTANCE
+        RETURN SYS_CONTEXT('APEX$SESSION', 'APP_SESSION');  -- APEX_APPLICATION.G_INSTANCE
     END;
 
 

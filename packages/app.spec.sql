@@ -264,6 +264,7 @@ CREATE OR REPLACE PACKAGE app AS
         in_user_id              sessions.user_id%TYPE,
         in_app_id               sessions.app_id%TYPE,
         in_page_id              navigation.page_id%TYPE     := NULL,
+        in_session_id           sessions.session_id%TYPE    := NULL,
         in_items                VARCHAR2                    := NULL
     );
 
