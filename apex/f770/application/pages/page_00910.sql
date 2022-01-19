@@ -1324,7 +1324,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(12747326964115305)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>60
+,p_width=>50
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(12685747957022334)
@@ -1345,11 +1345,12 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(12336606512960935)
 ,p_is_visible=>true
 ,p_is_frozen=>false
+,p_width=>300
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(12691104176022351)
 ,p_view_id=>wwv_flow_api.id(12685246753022330)
-,p_display_seq=>4
+,p_display_seq=>3
 ,p_column_id=>wwv_flow_api.id(12337050603960939)
 ,p_is_visible=>true
 ,p_is_frozen=>false
@@ -1358,7 +1359,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(12692068344022353)
 ,p_view_id=>wwv_flow_api.id(12685246753022330)
-,p_display_seq=>5
+,p_display_seq=>4
 ,p_column_id=>wwv_flow_api.id(12337113829960940)
 ,p_is_visible=>true
 ,p_is_frozen=>false
@@ -1382,7 +1383,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(12337542454960944)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>280
+,p_width=>240
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(12696578502022364)
@@ -1400,7 +1401,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(12337737938960946)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>90
+,p_width=>80
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(12698324181022369)
@@ -1409,7 +1410,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(12337844311960947)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>90
+,p_width=>70
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(12699261812022371)
@@ -1418,7 +1419,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(12337933001960948)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>90
+,p_width=>70
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(12814324265214620)
