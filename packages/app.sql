@@ -534,6 +534,29 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         DBMS_OUTPUT.PUT_LINE('--');
         DBMS_OUTPUT.PUT_LINE('SESSION: ' || app.get_app_id() || ' | ' || app.get_page_id() || ' | ' || app.get_session_id() || ' | ' || app.get_user_id());
+        DBMS_OUTPUT.PUT_LINE('--');
+
+        -- print app and page items
+        FOR c IN (
+            SELECT
+                i.item_name,
+                app.get_item(i.item_name) AS item_value
+            FROM apex_application_items i
+            WHERE i.application_id      = in_app_id
+            UNION ALL
+            SELECT
+                i.item_name,
+                app.get_item(i.item_name) AS item_value
+            FROM apex_application_page_items i
+            WHERE i.application_id      = in_app_id
+                AND i.page_id           = in_page_id
+            ORDER BY 1
+        ) LOOP
+            IF c.item_value IS NOT NULL THEN
+                DBMS_OUTPUT.PUT_LINE('  ' || RPAD(c.item_name, 30) || ' = ' || c.item_value);
+            END IF;
+        END LOOP;
+        DBMS_OUTPUT.PUT_LINE('--');
         --
         COMMIT;
     EXCEPTION
