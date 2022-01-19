@@ -449,7 +449,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
         v_workspace_id          apex_applications.workspace%TYPE;
-        v_user_name             apex_workspace_sessions.user_name%TYPE   := in_user_id;
+        v_user_name             apex_workspace_sessions.user_name%TYPE;
     BEGIN
         app.log_module_json (
             'user_id',          in_user_id,
@@ -458,9 +458,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
             'session_id',       in_session_id,
             'items',            in_items
         );
+        --
+        v_user_name := in_user_id;
 
         -- create session from SQL Developer (not from APEX)
-        IF v_user_name = app.get_user_id() AND in_app_id = app.get_app_id() THEN
+        SELECT MAX(s.user_name) INTO v_user_name
+        FROM apex_workspace_sessions s
+        WHERE s.apex_session_id = COALESCE(in_session_id, app.get_session_id());
+        --
+        IF ((v_user_name = app.get_user_id() AND in_app_id = app.get_app_id()) OR in_session_id != app.get_session_id()) THEN
             -- use existing session if possible
             IF (in_session_id > 0 OR in_session_id IS NULL) THEN
                 BEGIN
@@ -494,10 +500,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- set username
-        SELECT MAX(s.user_name) INTO v_user_name
-        FROM apex_workspace_sessions s
-        WHERE s.apex_session_id = COALESCE(in_session_id, app.get_session_id());
-        --
         APEX_UTIL.SET_USERNAME (
             p_userid    => APEX_UTIL.GET_USER_ID(v_user_name),
             p_username  => v_user_name
