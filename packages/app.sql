@@ -1150,19 +1150,19 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- try different formats
         BEGIN
-            RETURN TO_DATE(l_value, app.format_date_time);          -- YYYY-MM-DD HH24:MI:SS
+            RETURN TO_DATE(l_value, app.format_date_time);                      -- YYYY-MM-DD HH24:MI:SS
         EXCEPTION
         WHEN OTHERS THEN
             BEGIN
-                RETURN TO_DATE(l_value, app.format_date_short);     -- YYYY-MM-DD HH24:MI
+                RETURN TO_DATE(l_value, app.format_date_short);                 -- YYYY-MM-DD HH24:MI
             EXCEPTION
             WHEN OTHERS THEN
                 BEGIN
-                    RETURN TO_DATE(l_value, app.format_date);       -- YYYY-MM-DD
+                    RETURN TO_DATE(SUBSTR(l_value, 1, 10), app.format_date);    -- YYYY-MM-DD
                 EXCEPTION
                 WHEN OTHERS THEN
                     BEGIN
-                        RETURN TO_DATE(l_value, 'DD/MM/YYYY');
+                        RETURN TO_DATE(SUBSTR(REPLACE(l_value, '.', '/'), 1, 10), 'DD/MM/YYYY');
                     EXCEPTION
                     WHEN OTHERS THEN
                         app.raise_error('INVALID_DATE', app.get_json_list(in_value, in_format));
