@@ -47,10 +47,18 @@ p AS (
         ON x.app_id             = r.application_id
     WHERE r.query_type_code     = 'TABLE'
     GROUP BY r.table_name
+),
+s AS (
+    SELECT
+        s.name              AS view_name,
+        COUNT(s.line)       AS count_lines
+    FROM user_source_views s
+    GROUP BY s.name
 )
 SELECT
     REGEXP_REPLACE(REGEXP_SUBSTR(v.view_name, '^[^_]+'), '^P\d+$', 'PAGE#') AS view_group,
     v.view_name,
+    s.count_lines,
     --
     u.used_in_objects,
     p.used_on_pages,
@@ -73,5 +81,7 @@ LEFT JOIN u
     ON u.view_name              = v.view_name
 LEFT JOIN p
     ON p.table_name             = v.view_name
+LEFT JOIN s
+    ON s.view_name              = v.view_name
 WHERE v.view_name               = NVL(x.view_name, v.view_name);
 
