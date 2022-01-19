@@ -449,6 +449,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
         v_workspace_id          apex_applications.workspace%TYPE;
+        v_user_name             apex_workspace_sessions.user_name%TYPE   := in_user_id;
     BEGIN
         app.log_module_json (
             'user_id',          in_user_id,
@@ -459,8 +460,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         );
 
         -- create session from SQL Developer (not from APEX)
-
-        IF in_user_id = app.get_user_id() AND in_app_id = app.get_app_id() THEN
+        IF v_user_name = app.get_user_id() AND in_app_id = app.get_app_id() THEN
             -- use existing session if possible
             IF (in_session_id > 0 OR in_session_id IS NULL) THEN
                 BEGIN
@@ -471,7 +471,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     );
                 EXCEPTION
                 WHEN OTHERS THEN
-                    app.raise_error('ATTACH_SESSION_FAILED', in_app_id, in_user_id, COALESCE(in_session_id, app.get_session_id()));
+                    app.raise_error('ATTACH_SESSION_FAILED', in_app_id, v_user_name, COALESCE(in_session_id, app.get_session_id()));
                 END;
             END IF;
         ELSE
@@ -491,10 +491,20 @@ CREATE OR REPLACE PACKAGE BODY app AS
             APEX_UTIL.SET_SECURITY_GROUP_ID (
                 p_security_group_id => APEX_UTIL.FIND_SECURITY_GROUP_ID(p_workspace => v_workspace_id)
             );
-            APEX_UTIL.SET_USERNAME (
-                p_userid    => APEX_UTIL.GET_USER_ID(in_user_id),
-                p_username  => in_user_id
-            );
+        END IF;
+
+        -- set username
+        SELECT MAX(s.user_name) INTO v_user_name
+        FROM apex_workspace_sessions s
+        WHERE s.apex_session_id = COALESCE(in_session_id, app.get_session_id());
+        --
+        APEX_UTIL.SET_USERNAME (
+            p_userid    => APEX_UTIL.GET_USER_ID(v_user_name),
+            p_username  => v_user_name
+        );
+        --
+        IF in_user_id != v_user_name THEN
+            app.log_result(v_user_name);
         END IF;
 
         -- create new APEX session
@@ -519,6 +529,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
         --
         app.log_success(recent_request_id);
+        --
+        DBMS_OUTPUT.PUT_LINE('--');
+        DBMS_OUTPUT.PUT_LINE('SESSION: ' || app.get_app_id() || ' | ' || app.get_page_id() || ' | ' || app.get_session_id() || ' | ' || app.get_user_id());
         --
         COMMIT;
     EXCEPTION
