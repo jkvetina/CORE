@@ -1122,7 +1122,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN TO_NUMBER(app.get_item(in_name, in_raise));
     EXCEPTION
     WHEN OTHERS THEN
-        app.raise_error('INVALID_NUMBER', app.get_json_list(in_name, app.get_item(in_name, in_raise)));
+        app.raise_error('INVALID_NUMBER', in_name, app.get_item(in_name, in_raise));
     END;
 
 
@@ -1138,7 +1138,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN app.get_date(app.get_item(in_name, in_raise), in_format);
     EXCEPTION
     WHEN OTHERS THEN
-        app.raise_error('INVALID_DATE', app.get_json_list(in_name, app.get_item(in_name, in_raise), in_format));
+        app.raise_error('INVALID_DATE', in_name, app.get_item(in_name, in_raise), in_format);
     END;
 
 
@@ -1156,7 +1156,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 RETURN TO_DATE(l_value, in_format);
             EXCEPTION
             WHEN OTHERS THEN
-                app.raise_error('INVALID_DATE', app.get_json_list(in_value, in_format));
+                app.raise_error('INVALID_DATE', in_value, in_format);
             END;
         END IF;
 
@@ -1177,7 +1177,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                         RETURN TO_DATE(SUBSTR(REPLACE(l_value, '.', '/'), 1, 10), 'DD/MM/YYYY');
                     EXCEPTION
                     WHEN OTHERS THEN
-                        app.raise_error('INVALID_DATE', app.get_json_list(in_value, in_format));
+                        app.raise_error('INVALID_DATE', in_value, in_format);
                     END;
                 END;
             END;
@@ -1276,7 +1276,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 );
             EXCEPTION
             WHEN OTHERS THEN
-                app.raise_error('ITEM_ERROR_' || v_item_name || '_' || app.get_app_id());
+                app.raise_error('ITEM_MISSING', v_item_name);
             END;
         ELSIF in_raise THEN
             app.raise_error('ITEM_MISSING', v_item_name);
