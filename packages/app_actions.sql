@@ -751,7 +751,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     PROCEDURE refresh_user_source_views
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
-        --
     BEGIN
         app.log_module();
         --
@@ -809,12 +808,14 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             -- CREATE COLLECTION INSTEAD
             -- RETURN
             --
-            INSERT INTO user_source_views (name, line, text)
-            VALUES (
-                in_name,
-                clob_line,
-                REPLACE(REPLACE(buffer, CHR(13), ''), CHR(10), '')
-            );
+            IF clob_line > 1 THEN
+                INSERT INTO user_source_views (name, line, text)
+                VALUES (
+                    in_name,
+                    clob_line - 1,
+                    REPLACE(REPLACE(CASE WHEN clob_line = 2 THEN LTRIM(buffer) ELSE buffer END, CHR(13), ''), CHR(10), '')
+                );
+            END IF;
             --
             clob_line := clob_line + 1;
             IF INSTR(in_clob, CHR(10), offset) = clob_len THEN
