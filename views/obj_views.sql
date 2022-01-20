@@ -56,7 +56,12 @@ s AS (
     GROUP BY s.name
 )
 SELECT
-    REGEXP_REPLACE(REGEXP_SUBSTR(v.view_name, '^[^_]+'), '^P\d+$', 'PAGE#') AS view_group,
+    CASE
+        WHEN c.comments LIKE '[%]%'
+            THEN REGEXP_SUBSTR(c.comments, '^\[([^]]+)\]', 1, 1, NULL, 1)
+        ELSE REGEXP_SUBSTR(REGEXP_REPLACE(v.view_name, '^P\d+$', 'PAGE#'), '^[^_]+')
+        END AS view_group,
+    --
     v.view_name,
     s.count_lines,
     --
@@ -68,6 +73,8 @@ SELECT
     NULLIF(v.read_only, 'N') AS is_readonly,
     --
     CASE WHEN v.bequeath = 'DEFINER' THEN 'Y' END AS is_definer,
+    --
+    LTRIM(RTRIM(REGEXP_REPLACE(c.comments, '^\[[^]]+\]\s*', ''))) AS comments,
     --
     o.last_ddl_time
 FROM user_views v
@@ -83,5 +90,7 @@ LEFT JOIN p
     ON p.table_name             = v.view_name
 LEFT JOIN s
     ON s.view_name              = v.view_name
+LEFT JOIN user_tab_comments c
+    ON c.table_name             = v.view_name
 WHERE v.view_name               = NVL(x.view_name, v.view_name);
 
