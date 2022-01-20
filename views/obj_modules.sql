@@ -131,8 +131,16 @@ SELECT
             AND g.line      < t.spec_start
     ) AS group_name,
     --
-    CASE WHEN t.module_type = 'FUNCTION' THEN 'Y' END AS is_function,
     t.overload,
+    --
+    CASE WHEN t.module_type = 'FUNCTION'    THEN 'Y' END AS is_function,
+    CASE WHEN b.text IS NOT NULL            THEN 'Y' END AS is_private,
+    CASE WHEN a.text IS NOT NULL            THEN 'Y' END AS is_autonomous,
+    CASE WHEN t.result_cache = 'YES'        THEN 'Y' END AS is_cached,
+    CASE WHEN t.authid = 'DEFINER'          THEN 'Y' END AS is_definer,
+    --
+    a.args_in,
+    a.args_out,
     --
     t.spec_start,
     t.spec_end,
@@ -141,12 +149,6 @@ SELECT
     t.body_end,
     t.body_lines,
     --
-    CASE WHEN b.text IS NOT NULL        THEN 'Y' END AS is_private,
-    CASE WHEN t.authid = 'DEFINER'      THEN 'Y' END AS is_definer,
-    CASE WHEN t.result_cache = 'YES'    THEN 'Y' END AS is_cached,
-    --
-    a.args_in,
-    a.args_out,
     d.comment_
 FROM t
 JOIN x
@@ -166,23 +168,31 @@ LEFT JOIN user_source b
     ON b.name       = t.package_name
     AND b.type      = 'PACKAGE'
     AND b.line      BETWEEN t.spec_start AND t.spec_end
-    AND REGEXP_LIKE(b.text, '^\s*(ACCESSIBLE BY)');
+    AND REGEXP_LIKE(b.text, '^\s*(ACCESSIBLE BY)')
+LEFT JOIN user_source a
+    ON a.name       = t.package_name
+    AND a.type      = 'PACKAGE BODY'
+    AND a.line      BETWEEN t.body_start AND t.body_end
+    AND REGEXP_LIKE(a.text, 'PRAGMA\s+AUTONOMOUS_TRANSACTION');
 --
 COMMENT ON TABLE obj_modules                    IS 'Find package modules (procedures and functions) and their boundaries (start-end lines)';
 --
 COMMENT ON COLUMN obj_modules.package_name      IS 'Package name';
 COMMENT ON COLUMN obj_modules.module_name       IS 'Module name';
 COMMENT ON COLUMN obj_modules.group_name        IS 'Group name to have similar modules grouped together';
-COMMENT ON COLUMN obj_modules.is_function       IS 'Module type (function)';
 COMMENT ON COLUMN obj_modules.overload          IS 'Overload ID';
+COMMENT ON COLUMN obj_modules.is_function       IS 'Module type (function)';
+COMMENT ON COLUMN obj_modules.is_private        IS 'Flag for private procedures';
+COMMENT ON COLUMN obj_modules.is_autonomous     IS 'Contains autonomous transaction';
+COMMENT ON COLUMN obj_modules.is_cached         IS 'Has RESULT_CACHE activated';
+COMMENT ON COLUMN obj_modules.is_definer        IS 'Auth as definer';
+COMMENT ON COLUMN obj_modules.args_in           IS 'Number of IN arguments';
+COMMENT ON COLUMN obj_modules.args_out          IS 'Number of OUT arguments';
 COMMENT ON COLUMN obj_modules.spec_start        IS 'Module start in specification';
 COMMENT ON COLUMN obj_modules.spec_end          IS 'Module end in specification';
 COMMENT ON COLUMN obj_modules.spec_lines        IS 'Lines in specification';
 COMMENT ON COLUMN obj_modules.body_start        IS 'Module start in body';
 COMMENT ON COLUMN obj_modules.body_end          IS 'Module end in body';
 COMMENT ON COLUMN obj_modules.body_lines        IS 'Lines in body';
-COMMENT ON COLUMN obj_modules.is_private        IS 'Flag for private procedures';
-COMMENT ON COLUMN obj_modules.args_in           IS 'Number of IN arguments';
-COMMENT ON COLUMN obj_modules.args_out          IS 'Number of OUT arguments';
 COMMENT ON COLUMN obj_modules.comment_          IS 'Description from package spec';
 
