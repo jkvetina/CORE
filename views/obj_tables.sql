@@ -68,6 +68,12 @@ SELECT
     s.count_cols,
     t.num_rows              AS count_rows,
     --
+    CASE
+        WHEN c.comments LIKE '[%]%'
+            THEN REGEXP_SUBSTR(c.comments, '^\[([^]]+)\]', 1, 1, NULL, 1)
+        ELSE REGEXP_SUBSTR(t.table_name, '^[^_]+')
+        END AS table_group,
+    --
     CASE WHEN c.count_pk    IS NOT NULL THEN 'Y' END AS is_pk,
     CASE WHEN c.count_uq    IS NOT NULL THEN 'Y' END AS is_uq,
     --
@@ -85,7 +91,7 @@ SELECT
     o.last_ddl_time,
     TRUNC(SYSDATE) - TRUNC(t.last_analyzed) AS last_analyzed,  -- in days
     --
-    c.comments,
+    LTRIM(RTRIM(REGEXP_REPLACE(c.comments, '^\[[^]]+\]\s*', ''))) AS comments,
     --
     t.avg_row_len,
     --

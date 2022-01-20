@@ -27,7 +27,7 @@ CREATE TABLE log_events (
 --
 ALTER TABLE log_events DISABLE CONSTRAINT fk_log_events_users;
 --
-COMMENT ON TABLE  log_events                    IS 'List of business events';
+COMMENT ON TABLE  log_events                    IS '[CORE] List of business events';
 --
 COMMENT ON COLUMN log_events.log_id             IS 'Log ID';
 COMMENT ON COLUMN log_events.log_parent         IS 'Referenced log_id from LOGS table';

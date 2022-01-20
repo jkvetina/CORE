@@ -23,7 +23,7 @@ CREATE TABLE logs_blacklist (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  logs_blacklist                IS 'Define what logs will or wont be tracked';
+COMMENT ON TABLE  logs_blacklist                IS '[CORE] Define what logs will or wont be tracked';
 --
 COMMENT ON COLUMN logs_blacklist.app_id         IS 'App ID';
 COMMENT ON COLUMN logs_blacklist.flag           IS 'Flag to differentiate logs, NULL = any flag';

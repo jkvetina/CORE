@@ -7,7 +7,7 @@ CREATE TABLE user_source_views (
         PRIMARY KEY (name, line)
 );
 --
-COMMENT ON TABLE  user_source_views         IS 'User views source converted to lines';
+COMMENT ON TABLE  user_source_views         IS '[CORE] User views source converted to lines';
 --
 COMMENT ON COLUMN user_source_views.name    IS 'View name';
 COMMENT ON COLUMN user_source_views.line    IS 'Line number';

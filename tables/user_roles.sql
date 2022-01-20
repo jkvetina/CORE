@@ -27,7 +27,7 @@ STORAGE (BUFFER_POOL KEEP);
 --
 ALTER TABLE user_roles MODIFY CONSTRAINT fk_users_roles_user_id DISABLE;  -- to assign roles before user is created
 --
-COMMENT ON TABLE  user_roles                     IS 'List of roles assigned to users';
+COMMENT ON TABLE  user_roles                     IS '[CORE] List of roles assigned to users';
 --
 COMMENT ON COLUMN user_roles.app_id              IS 'APEX application ID';
 COMMENT ON COLUMN user_roles.user_id             IS 'User ID from USERS table';

@@ -22,7 +22,7 @@ CREATE TABLE apps (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  apps                  IS 'List of apps';
+COMMENT ON TABLE  apps                  IS '[CORE] List of apps';
 --
 COMMENT ON COLUMN apps.app_id           IS 'APEX application ID';
 COMMENT ON COLUMN apps.app_name         IS 'Application name';

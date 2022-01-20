@@ -44,7 +44,7 @@ PARTITION BY LIST (today, app_id) AUTOMATIC (
 */
 );
 --
-COMMENT ON TABLE  logs                  IS 'Various logs raised in application; daily partitions';
+COMMENT ON TABLE  logs                  IS '[CORE] Various logs raised in application; daily partitions';
 --
 COMMENT ON COLUMN logs.log_id           IS 'Log ID generated from LOG_ID sequence';
 COMMENT ON COLUMN logs.log_parent       IS 'Parent log record; dont use FK to avoid deadlocks';

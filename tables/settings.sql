@@ -30,7 +30,7 @@ CREATE TABLE settings (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  settings                      IS 'List of settings shared through whole app';
+COMMENT ON TABLE  settings                      IS '[CORE] List of settings shared through whole app';
 --
 COMMENT ON COLUMN settings.app_id               IS 'Application ID';
 COMMENT ON COLUMN settings.setting_name         IS 'Setting ID';

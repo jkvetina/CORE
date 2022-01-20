@@ -25,7 +25,7 @@ CREATE TABLE users (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  users                     IS 'List of users';
+COMMENT ON TABLE  users                     IS '[CORE] List of users';
 --
 COMMENT ON COLUMN users.user_id             IS 'User ID used internally (short)';
 COMMENT ON COLUMN users.user_login          IS 'User login used for login into the app';

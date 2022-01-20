@@ -24,7 +24,7 @@ CREATE TABLE roles (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  roles                     IS 'List of roles';
+COMMENT ON TABLE  roles                     IS '[CORE] List of roles';
 --
 COMMENT ON COLUMN roles.app_id              IS 'Application ID';
 COMMENT ON COLUMN roles.role_id             IS 'Role ID';

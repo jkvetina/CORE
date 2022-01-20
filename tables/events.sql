@@ -24,7 +24,7 @@ CREATE TABLE events (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  events                IS 'List of events interesting for business';
+COMMENT ON TABLE  events                IS '[CORE] List of events interesting for business';
 --
 COMMENT ON COLUMN events.app_id         IS 'APEX application ID';
 COMMENT ON COLUMN events.event_id       IS 'Event id';

@@ -34,7 +34,7 @@ CREATE TABLE navigation (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
-COMMENT ON TABLE  navigation                IS 'Navigation items';
+COMMENT ON TABLE  navigation                IS '[CORE] Navigation items';
 --
 COMMENT ON COLUMN navigation.app_id         IS 'APEX application ID';
 COMMENT ON COLUMN navigation.page_id        IS 'APEX page ID';
