@@ -102,7 +102,7 @@ wwv_flow_api.create_region_column(
 ,p_attribute_06=>'NONE'
 ,p_attribute_09=>'N'
 ,p_attribute_11=>'Y'
-,p_format_mask=>'YYYY-MM-DD HH24:MI'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
 ,p_is_required=>false
 ,p_enable_filter=>true
 ,p_filter_is_required=>false

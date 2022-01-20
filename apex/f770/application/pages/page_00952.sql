@@ -302,7 +302,7 @@ wwv_flow_api.create_region_column(
 ,p_attribute_04=>'button'
 ,p_attribute_05=>'N'
 ,p_attribute_07=>'NONE'
-,p_format_mask=>'YYYY-MM-DD HH24:MI'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
 ,p_is_required=>false
 ,p_enable_filter=>true
 ,p_filter_is_required=>false

@@ -310,7 +310,7 @@ wwv_flow_api.create_region_column(
 ,p_attribute_06=>'NONE'
 ,p_attribute_09=>'N'
 ,p_attribute_11=>'Y'
-,p_format_mask=>'HH24:MI:SS'
+,p_format_mask=>'&FORMAT_TIME.'
 ,p_is_required=>true
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -1092,7 +1092,7 @@ wwv_flow_api.create_page_item(
 ,p_item_plug_id=>wwv_flow_api.id(21640682102592259)
 ,p_use_cache_before_default=>'NO'
 ,p_prompt=>'&G_TODAY_LABEL.'
-,p_format_mask=>'YYYY-MM-DD'
+,p_format_mask=>'&FORMAT_DATE.'
 ,p_source=>'G_TODAY'
 ,p_source_type=>'ITEM'
 ,p_display_as=>'NATIVE_DATE_PICKER_JET'

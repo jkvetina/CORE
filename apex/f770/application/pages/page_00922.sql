@@ -284,7 +284,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'CENTER'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_format_mask=>'YYYY-MM-DD HH24:MI'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_date_ranges=>'ALL'

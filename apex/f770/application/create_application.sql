@@ -58,10 +58,18 @@ wwv_flow_api.create_flow(
 ,p_error_handling_function=>'#OWNER#.app.handle_apex_error'
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'CORE'
+,p_substitution_string_02=>'FORMAT_DATE'
+,p_substitution_value_02=>'YYYY-MM-DD'
+,p_substitution_string_03=>'FORMAT_DATE_TIME'
+,p_substitution_value_03=>'YYYY-MM-DD HH24:MI'
+,p_substitution_string_04=>'FORMAT_DATE_FULL'
+,p_substitution_value_04=>'YYYY-MM-DD HH24:MI:SS'
+,p_substitution_string_05=>'FORMAT_TIME'
+,p_substitution_value_05=>'HH24:MI:SS'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220102123620'
+,p_last_upd_yyyymmddhh24miss=>'20220120091338'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
-,p_files_version=>42
+,p_files_version=>61
 ,p_ui_type_name => null
 ,p_print_server_type=>'NATIVE'
 );

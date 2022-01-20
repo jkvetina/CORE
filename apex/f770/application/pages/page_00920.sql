@@ -5711,7 +5711,7 @@ wwv_flow_api.create_page_item(
 ,p_item_plug_id=>wwv_flow_api.id(9563395243581646)
 ,p_use_cache_before_default=>'NO'
 ,p_prompt=>'&G_TODAY_LABEL.'
-,p_format_mask=>'YYYY-MM-DD'
+,p_format_mask=>'&FORMAT_DATE.'
 ,p_source=>'G_TODAY'
 ,p_source_type=>'ITEM'
 ,p_display_as=>'NATIVE_DATE_PICKER_JET'

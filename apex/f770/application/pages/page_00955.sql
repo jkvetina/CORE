@@ -226,12 +226,12 @@ wwv_flow_api.create_region_column(
 ,p_is_query_only=>true
 ,p_item_type=>'NATIVE_DISPLAY_ONLY'
 ,p_heading=>'Last Ddl Time'
-,p_heading_alignment=>'LEFT'
+,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>100
-,p_value_alignment=>'LEFT'
+,p_value_alignment=>'CENTER'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_format_mask=>'YYYY-MM-DD HH24:MI'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_date_ranges=>'ALL'

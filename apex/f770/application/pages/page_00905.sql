@@ -718,7 +718,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'CENTER'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_format_mask=>'YYYY-MM-DD HH24:MI'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_date_ranges=>'ALL'
@@ -744,7 +744,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_attribute_02=>'VALUE'
 ,p_attribute_05=>'PLAIN'
-,p_format_mask=>'YYYY-MM-DD HH24:MI'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
 ,p_filter_date_ranges=>'ALL'
@@ -1240,7 +1240,7 @@ wwv_flow_api.create_region_column(
 ,p_display_sequence=>30
 ,p_value_alignment=>'CENTER'
 ,p_attribute_05=>'BOTH'
-,p_format_mask=>'HH24:MI:SS'
+,p_format_mask=>'&FORMAT_TIME.'
 ,p_is_required=>false
 ,p_enable_filter=>true
 ,p_filter_is_required=>false
@@ -1820,7 +1820,7 @@ wwv_flow_api.create_page_item(
 ,p_item_plug_id=>wwv_flow_api.id(11428239601377842)
 ,p_use_cache_before_default=>'NO'
 ,p_prompt=>'&G_TODAY_LABEL.'
-,p_format_mask=>'YYYY-MM-DD'
+,p_format_mask=>'&FORMAT_DATE.'
 ,p_source=>'G_TODAY'
 ,p_source_type=>'ITEM'
 ,p_display_as=>'NATIVE_DATE_PICKER_JET'
