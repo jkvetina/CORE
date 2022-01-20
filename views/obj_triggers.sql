@@ -29,6 +29,12 @@ SELECT
     g.trigger_name,
     --
     CASE
+        WHEN c.comments LIKE '[%]%'
+            THEN REGEXP_SUBSTR(c.comments, '^\[([^]]+)\]', 1, 1, NULL, 1)
+        ELSE REGEXP_SUBSTR(t.table_name, '^[^_]+')
+        END AS table_group,
+    --
+    CASE
         WHEN g.trigger_name         = t.table_name || '__'          -- default trigger name
             AND g.trigger_type      = 'COMPOUND'
             AND g.triggering_event  = 'INSERT OR UPDATE OR DELETE'
@@ -56,6 +62,8 @@ LEFT JOIN user_mviews v
     ON v.mview_name     = t.table_name
 LEFT JOIN r
     ON r.table_name     = g.table_name
+LEFT JOIN user_tab_comments c
+    ON c.table_name     = t.table_name
 WHERE t.table_name      = NVL(x.table_name, t.table_name)
     AND t.table_name    NOT LIKE '%\_%$' ESCAPE '\'
     AND v.mview_name    IS NULL;
