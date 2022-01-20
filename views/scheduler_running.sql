@@ -10,4 +10,6 @@ SELECT
     j.resource_consumer_group,
     j.credential_name
 FROM user_scheduler_running_jobs j;
+--
+COMMENT ON TABLE scheduler_running IS '[CORE - DASHBOARD] Running jobs';
 

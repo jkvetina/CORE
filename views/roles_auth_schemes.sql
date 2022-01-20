@@ -79,4 +79,6 @@ LEFT JOIN (
     ON u.role_id                        = r.role_id
 WHERE r.app_id                          = app.get_app_id()
     AND a.authorization_scheme_name     IS NULL;
+--
+COMMENT ON TABLE roles_auth_schemes IS '[CORE - DASHBOARD] Auth schemes tight to Roles';
 

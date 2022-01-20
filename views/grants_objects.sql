@@ -27,4 +27,6 @@ SELECT
     --
     u.grantor
 FROM user_tab_privs u;
+--
+COMMENT ON TABLE grants_objects IS '[CORE - DASHBOARD] Grants';
 

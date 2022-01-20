@@ -102,4 +102,6 @@ FROM p
 LEFT JOIN apps a
     ON a.app_id         = p.app_id
 WHERE a.app_id          IS NULL;
+--
+COMMENT ON TABLE users_apps IS '[CORE - DASHBOARD] Applications';
 

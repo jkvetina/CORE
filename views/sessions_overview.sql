@@ -55,4 +55,6 @@ SELECT
 FROM s
 LEFT JOIN l ON l.session_id = s.session_id
 LEFT JOIN b ON b.session_id = s.session_id;
+--
+COMMENT ON TABLE sessions_overview IS '[CORE - DASHBOARD] Sessions';
 

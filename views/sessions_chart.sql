@@ -37,4 +37,6 @@ LEFT JOIN logs l
     AND l.created_at    < z.today + 1
     AND z.bucket_id     = app.get_time_bucket(l.created_at, z.buckets)
 GROUP BY z.bucket_id, TO_CHAR(z.start_at, 'HH24:MI');
+--
+COMMENT ON TABLE sessions_chart IS '[CORE - DASHBOARD] Chart for Sessions';
 

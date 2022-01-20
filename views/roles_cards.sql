@@ -54,4 +54,6 @@ GROUP BY
     r.is_active,
     r.sort#
 ORDER BY r.sort#;
+--
+COMMENT ON TABLE roles_cards IS '[CORE - DASHBOARD] Roles as cards for current user';
 

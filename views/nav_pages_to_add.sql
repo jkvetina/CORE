@@ -77,3 +77,6 @@ LEFT JOIN navigation n
     AND n.page_id           = p.page_id
 WHERE p.application_id      = app.get_app_id()
     AND n.page_id           IS NULL;
+--
+COMMENT ON TABLE nav_pages_to_add IS '[CORE - DASHBOARD] Navigation pages missing in table';
+

@@ -78,4 +78,6 @@ FROM l
 LEFT JOIN s ON s.today = l.today
 LEFT JOIN e ON e.today = l.today
 LEFT JOIN j ON j.today = l.today;
+--
+COMMENT ON TABLE dashboard_overview IS '[CORE - DASHBOARD] Dashboard';
 

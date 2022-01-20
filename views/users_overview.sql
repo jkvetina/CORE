@@ -88,4 +88,5 @@ WHERE u.user_id = NVL(app.get_item('$USER_ID'), u.user_id)
         )
         OR app.get_item('$ROLE_ID') IS NULL
     );
-
+--
+COMMENT ON TABLE users_overview IS '[CORE - DASHBOARD] Users';

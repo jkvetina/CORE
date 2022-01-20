@@ -81,4 +81,6 @@ LEFT JOIN v
     ON v.procedure_name     = x.prefix || s.setting_name
 WHERE s.setting_name        = NVL(x.setting_name, s.setting_name)
     AND s.setting_context   IS NULL;
+--
+COMMENT ON TABLE settings_overview IS '[CORE - DASHBOARD] Settings';
 

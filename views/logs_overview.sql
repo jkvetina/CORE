@@ -40,4 +40,6 @@ JOIN x
     AND l.session_id    = NVL(x.session_id, l.session_id)
     AND (l.module_name  = NVL(x.module_name, l.module_name) OR (l.module_name IS NULL AND x.module_name IS NULL))
     AND (l.action_name  = NVL(x.action_name, l.action_name) OR (l.action_name IS NULL AND x.action_name IS NULL));
+--
+COMMENT ON TABLE logs_overview IS '[CORE - DASHBOARD] Logs';
 

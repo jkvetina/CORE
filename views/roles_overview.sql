@@ -23,4 +23,6 @@ LEFT JOIN (
 ) u
     ON u.role_id        = r.role_id
 WHERE r.app_id          = app.get_app_id();
+--
+COMMENT ON TABLE roles_overview IS '[CORE - DASHBOARD] Roles';
 

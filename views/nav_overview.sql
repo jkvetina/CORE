@@ -191,7 +191,7 @@ LEFT JOIN t
     ON t.app_id             = n.app_id
     AND t.page_id           = n.parent_id;
 --
-COMMENT ON TABLE nav_overview                   IS 'Enriched navigation overview used also for menu rendering';
+COMMENT ON TABLE  nav_overview                  IS '[CORE - DASHBOARD] Enriched navigation overview used also for menu rendering';
 --
 COMMENT ON COLUMN nav_overview.action           IS 'Action icon (add/remove page)';
 COMMENT ON COLUMN nav_overview.action_url       IS 'Action url target to use icon as link';

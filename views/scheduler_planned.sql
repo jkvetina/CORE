@@ -21,4 +21,6 @@ SELECT
     --
     j.comments
 FROM user_scheduler_jobs j;
+--
+COMMENT ON TABLE scheduler_planned IS '[CORE - DASHBOARD] Planned jobs';
 

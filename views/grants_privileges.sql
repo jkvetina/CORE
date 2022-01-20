@@ -23,4 +23,6 @@ SELECT
 FROM user_sys_privs u
 LEFT JOIN session_privs s
     ON s.privilege      = u.privilege;
+--
+COMMENT ON TABLE grants_privileges IS '[CORE - DASHBOARD] Grants';
 

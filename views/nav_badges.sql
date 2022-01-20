@@ -58,7 +58,7 @@ SELECT                              -- invalid objects
 FROM user_objects o
 WHERE o.status              != 'VALID';
 --
-COMMENT ON TABLE nav_badges                 IS 'View with current badges in top menu';
+COMMENT ON TABLE  nav_badges                IS '[CORE - DASHBOARD] View with current badges in top menu';
 --
 COMMENT ON COLUMN nav_badges.page_id        IS 'Page ID with badge';
 COMMENT ON COLUMN nav_badges.page_alias     IS 'Page alias when page has no ID and need badge';

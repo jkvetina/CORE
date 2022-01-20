@@ -26,4 +26,6 @@ JOIN x
     AND d.actual_start_date     < x.today + 1
     AND d.job_name              = NVL(x.job_name, d.job_name)
     AND d.status                = NVL(x.job_status, d.status);
+--
+COMMENT ON TABLE scheduler_details IS '[CORE - DASHBOARD] Jobs history details';
 

@@ -76,4 +76,6 @@ WHERE r.application_id          = x.app_id
     AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
     AND (x.auth_scheme          = r.authorization_scheme OR x.auth_scheme IS NULL);
+--
+COMMENT ON TABLE nav_regions IS '[CORE - DASHBOARD] Regions on page/s';
 

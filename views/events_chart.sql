@@ -30,4 +30,6 @@ LEFT JOIN log_events e
     AND e.user_id       = NVL(x.user_id, e.user_id)
     AND z.bucket_id     = app.get_time_bucket(e.created_at, 10)
 GROUP BY z.bucket_id, TO_CHAR(z.start_at, 'HH24:MI');
+--
+COMMENT ON TABLE events_chart IS '[CORE - DASHBOARD] Chart for Events';
 

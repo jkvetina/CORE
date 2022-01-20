@@ -112,4 +112,6 @@ SELECT
     attribute10
 FROM nav_top
 ORDER BY page_group, sort_order;
+--
+COMMENT ON TABLE nav_top IS '[CORE - DASHBOARD] Navigation view used for rendering top menu';
 
