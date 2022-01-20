@@ -690,12 +690,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         out_name                VARCHAR2(4000);
     BEGIN
-        out_name := 'Environment: ' || SYS_CONTEXT('USERENV', 'SERVER_HOST');
+        out_name := out_name || 'Environment: ' || SYS_CONTEXT('USERENV', 'SERVER_HOST')    || CHR(10);
+        out_name := out_name || 'Instance: '    || SYS_CONTEXT('USERENV', 'INSTANCE_NAME')  || CHR(10);
         --
         IF app.is_developer() THEN
             -- details for developers
             SELECT
-                out_name || CHR(10) ||
+                out_name ||
                 'Oracle APEX: '     || a.version_no     || CHR(10) ||
                 'Oracle DB: '       || p.version_full
             INTO out_name
@@ -2223,7 +2224,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- dont log blacklisted records
         IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec) THEN
-            RETURN NULL;
+            RETURN NULL;    -- skip blacklisted record only if there is no error and debug mode off
         END IF;
 
         -- retrieve parent log from map
