@@ -14,13 +14,14 @@ c AS (
         r.region_id,
         c.table_name,
         --c.data_length, c.nullable
-        c.column_name || ' (' ||
-            CASE REGEXP_REPLACE(c.data_type, '\(\d+\)', '')
-                WHEN 'CHAR'                     THEN 'VARCHAR2'
-                WHEN 'INTERVAL DAY TO SECOND'   THEN 'INTERVAL_D2S'
-                WHEN 'TIMESTAMP WITH TIME ZONE' THEN 'TIMESTAMP_TZ'
-                ELSE REGEXP_REPLACE(c.data_type, '\(\d+\)', '')
-                END || ')' AS column_desc
+        c.column_name,
+        --
+        CASE REGEXP_REPLACE(c.data_type, '\(\d+\)', '')
+            WHEN 'CHAR'                     THEN 'VARCHAR2'
+            WHEN 'INTERVAL DAY TO SECOND'   THEN 'INTERVAL_D2S'
+            WHEN 'TIMESTAMP WITH TIME ZONE' THEN 'TIMESTAMP_TZ'
+            ELSE REGEXP_REPLACE(c.data_type, '\(\d+\)', '')
+            END AS data_type
     FROM user_tab_cols c
     JOIN apex_application_page_regions r
         ON r.table_name             = c.table_name
@@ -34,7 +35,8 @@ b AS (
         c.region_id,
         r.table_name,
         --c.max_length, c.is_required,
-        c.source_expression || ' (' || c.data_type || ')' AS column_desc
+        c.source_expression         AS column_name,
+        c.data_type
     FROM apex_appl_page_ig_columns c
     JOIN apex_application_page_regions r
         ON r.application_id         = c.application_id
@@ -51,21 +53,17 @@ d AS (
         NVL(c.region_id, b.region_id)       AS region_id,
         NVL(c.table_name, b.table_name)     AS table_name,
         --
-        MAX(CASE
-            WHEN c.table_name IS NULL THEN 'Y'
-            WHEN b.table_name IS NULL THEN 'Y'
-            END) AS fix_sync,
-        --
         LISTAGG(CASE
-            WHEN c.table_name IS NULL THEN 'Removed '   || b.column_desc
-            WHEN b.table_name IS NULL THEN 'Added '     || c.column_desc
-            END, CHR(10)) WITHIN GROUP (ORDER BY b.column_desc, c.column_desc) AS fix_sync_title
+            WHEN c.table_name IS NULL THEN 'Removed '   || b.column_name || ' (' || b.data_type || ')'
+            WHEN b.table_name IS NULL THEN 'Added '     || c.column_name || ' (' || c.data_type || ')'
+            ELSE 'Changed ' || b.column_name || ' from ' || b.data_type || ' to ' || c.data_type
+            END, CHR(10)) WITHIN GROUP (ORDER BY b.column_name, c.column_name) AS fix_sync
     FROM b
     FULL JOIN c
         ON c.region_id              = b.region_id
         AND c.table_name            = b.table_name
-        AND c.column_desc           = b.column_desc
-    WHERE NVL(c.column_desc, '-')   != NVL(b.column_desc, '-')
+        AND c.column_name           = b.column_name
+    WHERE NVL(c.data_type, '-')     != NVL(b.data_type, '-')
     GROUP BY NVL(c.region_id, b.region_id), NVL(c.table_name, b.table_name)
 )
 SELECT
@@ -115,6 +113,8 @@ SELECT
     ) AS table_link,
     --
     CASE
+        WHEN r.source_type_code != 'NATIVE_IG'
+            THEN NULL
         WHEN NVL(g.add_row_if_empty, 'No')  = 'No'
             AND g.select_first_row          = 'No'
             AND g.pagination_type           = 'Page'
@@ -133,7 +133,7 @@ SELECT
             ', '))
         END AS fix_setup,
     --
-    CASE WHEN d.fix_sync = 'Y' THEN app.get_icon('fa-warning', d.fix_sync_title) END AS fix_sync,
+    CASE WHEN d.fix_sync IS NOT NULL THEN app.get_icon('fa-warning', d.fix_sync) END AS fix_sync,
     --
     CASE WHEN g.edit_operations LIKE '%i%' THEN 'Y' END AS is_ins_allowed,
     CASE WHEN g.edit_operations LIKE '%u%' THEN 'Y' END AS is_upd_allowed,
@@ -159,7 +159,7 @@ LEFT JOIN apex_appl_page_igs g
     ON g.application_id         = r.application_id
     AND g.region_id             = r.region_id
 LEFT JOIN d
-    ON d.region_id = r.region_id
+    ON d.region_id              = r.region_id
 WHERE r.application_id          = x.app_id
     AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
