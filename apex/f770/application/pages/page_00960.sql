@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220120205608'
+,p_last_upd_yyyymmddhh24miss=>'20220121205716'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14931272082872321)
@@ -178,7 +178,7 @@ wwv_flow_api.create_region_column(
 ,p_name=>'COUNT_FUNCTIONS'
 ,p_source_type=>'DB_COLUMN'
 ,p_source_expression=>'COUNT_FUNCTIONS'
-,p_data_type=>'VARCHAR2'
+,p_data_type=>'NUMBER'
 ,p_is_query_only=>false
 ,p_item_type=>'NATIVE_NUMBER_FIELD'
 ,p_heading=>'Functions'
@@ -192,9 +192,7 @@ wwv_flow_api.create_region_column(
 ,p_link_target=>'f?p=&APP_ID.:960:&SESSION.::&DEBUG.:960:P960_PACKAGE_NAME,P960_MODULE_TYPE:&PACKAGE_NAME.,F'
 ,p_link_text=>'&COUNT_FUNCTIONS.'
 ,p_enable_filter=>true
-,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
 ,p_filter_is_required=>false
-,p_filter_text_case=>'MIXED'
 ,p_filter_lov_type=>'NONE'
 ,p_use_as_row_header=>false
 ,p_enable_sort_group=>true
@@ -245,6 +243,7 @@ wwv_flow_api.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_attribute_05=>'BOTH'
 ,p_is_required=>false
+,p_max_length=>0
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
 ,p_filter_is_required=>false
