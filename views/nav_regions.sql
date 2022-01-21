@@ -14,13 +14,13 @@ c AS (
         r.region_id,
         c.table_name,
         --c.data_length, c.nullable
-        c.column_name || '|' ||
+        c.column_name || ' (' ||
             CASE REGEXP_REPLACE(c.data_type, '\(\d+\)', '')
                 WHEN 'CHAR'                     THEN 'VARCHAR2'
                 WHEN 'INTERVAL DAY TO SECOND'   THEN 'INTERVAL_D2S'
                 WHEN 'TIMESTAMP WITH TIME ZONE' THEN 'TIMESTAMP_TZ'
                 ELSE REGEXP_REPLACE(c.data_type, '\(\d+\)', '')
-                END AS column_desc
+                END || ')' AS column_desc
     FROM user_tab_cols c
     JOIN apex_application_page_regions r
         ON r.table_name             = c.table_name
@@ -34,7 +34,7 @@ b AS (
         c.region_id,
         r.table_name,
         --c.max_length, c.is_required,
-        c.source_expression || '|' || c.data_type AS column_desc
+        c.source_expression || ' (' || c.data_type || ')' AS column_desc
     FROM apex_appl_page_ig_columns c
     JOIN apex_application_page_regions r
         ON r.application_id         = c.application_id
@@ -52,14 +52,14 @@ d AS (
         NVL(c.table_name, b.table_name)     AS table_name,
         --
         MAX(CASE
-            WHEN c.table_name IS NULL THEN app.get_icon('fa-warning')
-            WHEN b.table_name IS NULL THEN app.get_icon('fa-warning')
+            WHEN c.table_name IS NULL THEN 'Y'
+            WHEN b.table_name IS NULL THEN 'Y'
             END) AS fix_sync,
         --
         LISTAGG(CASE
             WHEN c.table_name IS NULL THEN 'Removed '   || b.column_desc
             WHEN b.table_name IS NULL THEN 'Added '     || c.column_desc
-            END, ', ') WITHIN GROUP (ORDER BY b.column_desc, c.column_desc) AS fix_sync_title
+            END, CHR(10)) WITHIN GROUP (ORDER BY b.column_desc, c.column_desc) AS fix_sync_title
     FROM b
     FULL JOIN c
         ON c.region_id              = b.region_id
@@ -114,25 +114,30 @@ SELECT
         in_values => r.table_name
     ) AS table_link,
     --
-    CASE WHEN g.edit_operations LIKE '%i%' THEN 'Y' END AS is_ins_allowed,
-    CASE WHEN g.edit_operations LIKE '%u%' THEN 'Y' END AS is_upd_allowed,
-    CASE WHEN g.edit_operations LIKE '%d%' THEN 'Y' END AS is_del_allowed,
-    --
     CASE
-        WHEN g.add_row_if_empty         = 'Yes'
-            AND g.select_first_row      = 'No'
-            AND g.pagination_type       = 'Page'
-            AND g.show_total_row_count  = 'Yes'
-            AND g.toolbar_buttons       = 'SEARCH_COLUMN:SEARCH_FIELD:ACTIONS_MENU:SAVE'
+        WHEN NVL(g.add_row_if_empty, 'No')  = 'No'
+            AND g.select_first_row          = 'No'
+            AND g.pagination_type           = 'Page'
+            AND g.show_total_row_count      = 'Yes'
+            AND g.toolbar_buttons           = 'SEARCH_COLUMN:SEARCH_FIELD:ACTIONS_MENU:SAVE'
             --
             AND REGEXP_REPLACE(g.javascript_code, '\s+', ' ') LIKE 'function(config) { return unified_ig_toolbar(config%'
         THEN NULL
-        ELSE app.get_icon('fa-warning')
+        ELSE app.get_icon('fa-warning', RTRIM (
+                CASE WHEN NVL(g.add_row_if_empty, 'No') = 'No'      THEN NULL ELSE 'ADD_ROW_IF_EMPTY, '     END ||
+                CASE WHEN g.select_first_row            = 'No'      THEN NULL ELSE 'SELECT_FIRST_ROW, '     END ||
+                CASE WHEN g.pagination_type             = 'Page'    THEN NULL ELSE 'PAGINATION_TYPE, '      END ||
+                CASE WHEN g.show_total_row_count        = 'Yes'     THEN NULL ELSE 'SHOW_TOTAL_ROW_COUNT, ' END ||
+                --
+                CASE WHEN REGEXP_REPLACE(g.javascript_code, '\s+', ' ') LIKE 'function(config) { return unified_ig_toolbar(config%' THEN NULL ELSE 'JAVASCRIPT_CODE' END,
+            ', '))
         END AS fix_setup,
     --
-    d.fix_sync,
-    d.fix_sync_title,
+    CASE WHEN d.fix_sync = 'Y' THEN app.get_icon('fa-warning', d.fix_sync_title) END AS fix_sync,
     --
+    CASE WHEN g.edit_operations LIKE '%i%' THEN 'Y' END AS is_ins_allowed,
+    CASE WHEN g.edit_operations LIKE '%u%' THEN 'Y' END AS is_upd_allowed,
+    CASE WHEN g.edit_operations LIKE '%d%' THEN 'Y' END AS is_del_allowed,
     --
     NULLIF(r.items, 0)          AS items,
     NULLIF(r.buttons, 0)        AS buttons,
