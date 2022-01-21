@@ -7,7 +7,6 @@ WITH x AS (
     FROM users u
     JOIN apps a
         ON a.app_id         = app.get_app_id()
-        AND a.is_active     = 'Y'
     WHERE u.user_id         = app.get_user_id()
 )
 SELECT
@@ -25,7 +24,6 @@ SELECT
     --r.parent_region_id,
     --r.source_type,
     --r.source_type_code,
-    --r.query_type_code,
     --
     CASE
         WHEN r.source_type_code = 'NATIVE_IG'
@@ -63,7 +61,23 @@ SELECT
     CASE WHEN r.condition_type_code IS NOT NULL THEN 'Y' END AS condition_type,
     --
     r.authorization_scheme,
-    r.display_sequence
+    r.display_sequence,
+    r.query_type_code,
+    --
+    CASE WHEN g.edit_operations LIKE '%i%' THEN 'Y' END AS is_ins_allowed,
+    CASE WHEN g.edit_operations LIKE '%u%' THEN 'Y' END AS is_upd_allowed,
+    CASE WHEN g.edit_operations LIKE '%d%' THEN 'Y' END AS is_del_allowed,
+    --
+    CASE
+        WHEN g.add_row_if_empty         = 'Yes'
+            AND g.select_first_row      = 'No'
+            AND g.pagination_type       = 'Page'
+            AND g.show_total_row_count  = 'Yes'
+            AND g.toolbar_buttons       = 'SEARCH_COLUMN:SEARCH_FIELD:ACTIONS_MENU:SAVE'
+            --
+            AND REGEXP_REPLACE(g.javascript_code, '\s+', ' ') LIKE 'function(config) { return unified_ig_toolbar(config%'
+        THEN 'Y'
+        END AS is_correct_setup
 FROM apex_application_page_regions r
 JOIN apex_application_pages p
     ON p.application_id         = r.application_id
@@ -72,6 +86,9 @@ CROSS JOIN x
 LEFT JOIN user_objects t
     ON t.object_name            = r.table_name
     AND t.object_type           IN ('TABLE', 'VIEW')
+LEFT JOIN apex_appl_page_igs g
+    ON g.application_id         = r.application_id
+    AND g.region_id             = r.region_id
 WHERE r.application_id          = x.app_id
     AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
