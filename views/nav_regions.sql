@@ -135,14 +135,47 @@ SELECT
     --
     CASE WHEN d.fix_sync IS NOT NULL THEN app.get_icon('fa-warning', d.fix_sync) END AS fix_sync,
     --
+    CASE
+        WHEN r.source_type_code     != 'NATIVE_IG'
+            THEN NULL
+        WHEN r.source_type_code     = 'NATIVE_IG'
+            AND g.is_editable       = 'No'
+            THEN NULL
+        WHEN r.source_type_code     = 'NATIVE_IG'
+            AND s.process_name      = 'SAVE_' || r.static_id
+            AND s.process_type_code = 'NATIVE_IG_DML'
+            AND s.attribute_06      = 'N'   -- lock_row
+            THEN NULL
+        ELSE app.get_icon('fa-warning', RTRIM (
+                CASE WHEN r.source_type_code    = 'NATIVE_IG'               THEN NULL ELSE 'SOURCE_TYPE, '  END ||
+                CASE WHEN s.process_name        = ' SAVE_' || r.static_id   THEN NULL ELSE 'PROCESS_NAME, ' END ||
+                CASE WHEN s.process_type_code   = 'NATIVE_IG_DML'           THEN NULL ELSE 'PROCESS_TYPE, ' END ||
+                CASE WHEN s.attribute_06        = 'N'                       THEN NULL ELSE 'LOCK_ROW, '     END,
+            ', '))
+        END AS fix_handler,
+    --
     CASE WHEN g.edit_operations LIKE '%i%' THEN 'Y' END AS is_ins_allowed,
     CASE WHEN g.edit_operations LIKE '%u%' THEN 'Y' END AS is_upd_allowed,
     CASE WHEN g.edit_operations LIKE '%d%' THEN 'Y' END AS is_del_allowed,
     --
-    NULLIF(r.items, 0)          AS items,
-    NULLIF(r.buttons, 0)        AS buttons,
+    NULLIF(r.items, 0)              AS items,
+    NULLIF(r.buttons, 0)            AS buttons,
     --
-    CASE WHEN r.condition_type_code IS NOT NULL THEN 'Y' END AS condition_type,
+    CASE WHEN r.where_clause        IS NOT NULL THEN 'Y' END AS is_where_clause,
+    CASE WHEN r.condition_type_code IS NOT NULL THEN 'Y' END AS is_conditional,
+    --
+    s.attribute_01      AS target_type,
+    s.attribute_03      AS target_name,
+    --
+    CASE
+        WHEN r.source_type_code         = 'NATIVE_IG'
+            AND s.when_button_pressed   IS NOT NULL
+            THEN 'Y' END AS is_grid_button,
+    --
+    CASE
+        WHEN r.source_type_code         = 'NATIVE_IG'
+            AND s.condition_type_code   IS NOT NULL     -- s.condition_expression1
+            THEN 'Y' END AS is_grid_conditional,
     --
     r.display_sequence,
     r.query_type_code,
@@ -160,6 +193,10 @@ LEFT JOIN apex_appl_page_igs g
     AND g.region_id             = r.region_id
 LEFT JOIN d
     ON d.region_id              = r.region_id
+LEFT JOIN apex_application_page_proc s
+    ON s.application_id         = g.application_id
+    AND s.region_id             = g.region_id
+    AND s.process_point_code    = 'AFTER_SUBMIT'
 WHERE r.application_id          = x.app_id
     AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
