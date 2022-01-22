@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220120070437'
+,p_last_upd_yyyymmddhh24miss=>'20220122143016'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(11425322549377813)
@@ -1647,6 +1647,9 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Set Current Date'
 ,p_button_position=>'BODY'
 ,p_button_redirect_url=>'f?p=&APP_ID.:905:&SESSION.::&DEBUG.::G_TODAY:'
+,p_button_condition=>':G_TODAY != app.get_date()'
+,p_button_condition2=>'PLSQL'
+,p_button_condition_type=>'EXPRESSION'
 ,p_icon_css_classes=>'fa-calendar-o'
 ,p_grid_new_row=>'N'
 ,p_grid_new_column=>'N'

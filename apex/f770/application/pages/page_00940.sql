@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211229182832'
+,p_last_upd_yyyymmddhh24miss=>'20220122143044'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21640682102592259)
@@ -940,14 +940,7 @@ wwv_flow_api.create_jet_chart(
 ,p_show_series_name=>true
 ,p_show_group_name=>true
 ,p_show_value=>true
-,p_show_label=>false
-,p_show_row=>false
-,p_show_start=>false
-,p_show_end=>false
-,p_show_progress=>false
-,p_show_baseline=>false
 ,p_legend_rendered=>'off'
-,p_show_gauge_value=>false
 );
 wwv_flow_api.create_jet_chart_series(
  p_id=>wwv_flow_api.id(11411758875181953)
@@ -1052,6 +1045,9 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Set Current Date'
 ,p_button_position=>'BODY'
 ,p_button_redirect_url=>'f?p=&APP_ID.:940:&SESSION.::&DEBUG.::G_TODAY:'
+,p_button_condition=>':G_TODAY != app.get_date()'
+,p_button_condition2=>'PLSQL'
+,p_button_condition_type=>'EXPRESSION'
 ,p_icon_css_classes=>'fa-calendar-o'
 ,p_grid_new_row=>'N'
 ,p_grid_new_column=>'N'
