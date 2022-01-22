@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220120091338'
+,p_last_upd_yyyymmddhh24miss=>'20220122135251'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218446056378932)
@@ -53,6 +53,74 @@ wwv_flow_api.create_page_plug(
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
+wwv_flow_api.create_report_region(
+ p_id=>wwv_flow_api.id(16024790057727232)
+,p_name=>'Database Objects'
+,p_region_name=>'OBJECTS'
+,p_template=>wwv_flow_api.id(9078290074569925)
+,p_display_sequence=>50
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_region_template_options=>'#DEFAULT#'
+,p_component_template_options=>'#DEFAULT#:t-BadgeList--large:t-BadgeList--dash:t-BadgeList--cols t-BadgeList--5cols:t-Report--hideNoPagination'
+,p_grid_column_span=>6
+,p_display_point=>'BODY'
+,p_source_type=>'NATIVE_SQL_REPORT'
+,p_query_type=>'SQL'
+,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT',
+'    SUM(CASE object_type WHEN ''TABLE''        THEN 1 ELSE 0 END) AS tables_,',
+'    SUM(CASE object_type WHEN ''VIEW''         THEN 1 ELSE 0 END) AS views_,',
+'    0 AS materialized_views_',
+'FROM user_objects',
+'WHERE object_type NOT IN (''PACKAGE BODY'', ''TABLE PARTITION'');',
+''))
+,p_display_condition_type=>'NEVER'
+,p_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<br />',
+''))
+,p_ajax_enabled=>'Y'
+,p_lazy_loading=>false
+,p_query_row_template=>wwv_flow_api.id(9092275056569942)
+,p_query_num_rows=>20
+,p_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_csv_output=>'N'
+,p_prn_output=>'N'
+,p_sort_null=>'L'
+,p_plug_query_strip_html=>'N'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(16025708947727242)
+,p_query_column_id=>1
+,p_column_alias=>'TABLES_'
+,p_column_display_sequence=>10
+,p_column_heading=>'Tables'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(16025883287727243)
+,p_query_column_id=>2
+,p_column_alias=>'VIEWS_'
+,p_column_display_sequence=>20
+,p_column_heading=>'Views'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(17062088908582706)
+,p_query_column_id=>3
+,p_column_alias=>'MATERIALIZED_VIEWS_'
+,p_column_display_sequence=>30
+,p_column_heading=>'Materialized Views'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(36914517833495810)
 ,p_plug_name=>'Database Objects'
@@ -63,25 +131,10 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_grid_column_span=>6
 ,p_plug_display_point=>'BODY'
-,p_query_type=>'SQL'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT',
-'    object_type,',
-'    COUNT(*) AS count_objects,',
-'    --',
-'    CASE object_type',
-'        WHEN ''TABLE''        THEN app.get_page_link(951)',
-'        WHEN ''TRIGGER''      THEN app.get_page_link(952)',
-'        WHEN ''VIEW''         THEN app.get_page_link(955)',
-'        WHEN ''PACKAGE''      THEN app.get_page_link(960)',
-'        WHEN ''JOB''          THEN app.get_page_link(905)',
-'        ELSE NULL',
-'        END AS page_link',
-'FROM user_objects',
-'WHERE object_type NOT IN (''PACKAGE BODY'', ''TABLE PARTITION'')',
-'GROUP BY object_type',
-'ORDER BY 1;',
-''))
+,p_query_type=>'TABLE'
+,p_query_table=>'OBJ_OVERVIEW'
+,p_query_order_by=>'OBJECT_TYPE'
+,p_include_rowid_column=>false
 ,p_lazy_loading=>false
 ,p_plug_source_type=>'NATIVE_CARDS'
 ,p_plug_query_num_rows_type=>'SCROLL'
@@ -118,7 +171,7 @@ wwv_flow_api.create_page_plug(
 ,p_region_name=>'OBJECTS_INVALID'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9052354744569904)
-,p_plug_display_sequence=>60
+,p_plug_display_sequence=>40
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_new_grid_row=>false
 ,p_plug_grid_column_span=>6
