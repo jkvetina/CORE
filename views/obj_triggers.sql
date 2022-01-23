@@ -66,5 +66,6 @@ LEFT JOIN user_tab_comments c
     ON c.table_name     = t.table_name
 WHERE t.table_name      = NVL(x.table_name, t.table_name)
     AND t.table_name    NOT LIKE '%\_%$' ESCAPE '\'
+    AND g.trigger_name  = NVL(x.trigger_name, g.trigger_name)
     AND v.mview_name    IS NULL;
 

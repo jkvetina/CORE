@@ -7,22 +7,17 @@ WITH x AS (
     WHERE u.user_id = app.get_user_id()
 )
 SELECT
-    d.referenced_name,
-    d.referenced_type,
-    d.path_
-FROM (
-    SELECT DISTINCT
-        '<span style="margin-left: ' || ((LEVEL - 2) * 2) || 'rem;">' || d.referenced_name   || '</span>' AS referenced_name,
-        '<span style="margin-left: ' || ((LEVEL - 2) * 2) || 'rem;">' || d.referenced_type   || '</span>' AS referenced_type,
-        --
-        SYS_CONNECT_BY_PATH(d.referenced_name, '/') AS path_,
-        LEVEL                                       AS level_
-    FROM user_dependencies d
-    CROSS JOIN x
-    WHERE d.referenced_owner        = app.get_owner()
-    CONNECT BY NOCYCLE PRIOR d.name = d.referenced_name
-        AND LEVEL                   <= 2                    -- limit depth
-    START WITH d.referenced_name    = x.table_name
-) d
-WHERE d.level_ > 1;
+    '<span style="margin-left: 2rem;">' || d.name || '</SPAN>'      AS ref_name,
+    LISTAGG(d.type, ', ') WITHIN GROUP (ORDER BY d.type)            AS ref_type,
+    --
+    CASE REPLACE(MIN(d.type), ' BODY', '')
+        WHEN 'TRIGGER'      THEN app.get_page_link(952, in_names => 'P952_TRIGGER_NAME',    in_values => d.name)
+        WHEN 'VIEW'         THEN app.get_page_link(955, in_names => 'P955_VIEW_NAME',       in_values => d.name)
+        WHEN 'PACKAGE'      THEN app.get_page_link(960, in_names => 'P960_PACKAGE_NAME',    in_values => d.name)
+        ELSE NULL
+        END AS ref_link
+FROM user_dependencies d
+WHERE d.referenced_owner    = app.get_owner()
+    AND d.referenced_name   = (SELECT x.table_name FROM x)
+GROUP BY d.name;
 

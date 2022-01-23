@@ -19,10 +19,16 @@ wwv_flow_api.create_page(
 ,p_step_title=>'Tables'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(15841923064543077)
+,p_inline_css=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'ul.a-ListView li.a-ListView-divider.ui-bar-inherit {',
+'    font-weight: normal;',
+'    background: transparent;',
+'}',
+''))
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220121210110'
+,p_last_upd_yyyymmddhh24miss=>'20220123194845'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218632930378934)
@@ -1431,15 +1437,17 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
 ,p_query_table=>'OBJ_TABLES_REF_OBJECTS'
-,p_query_order_by=>'PATH_'
+,p_query_order_by=>'REF_TYPE, REF_NAME'
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_JQM_LIST_VIEW'
 ,p_plug_query_num_rows=>50
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_plug_display_condition_type=>'ITEM_IS_NOT_NULL'
 ,p_plug_display_when_condition=>'P951_TABLE_NAME'
-,p_attribute_02=>'REFERENCED_NAME'
-,p_attribute_06=>'REFERENCED_TYPE'
+,p_attribute_01=>'DIVIDER'
+,p_attribute_02=>'REF_NAME'
+,p_attribute_14=>'REF_TYPE'
+,p_attribute_16=>'&REF_LINK.'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(15857248612343737)
