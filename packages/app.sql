@@ -1501,18 +1501,20 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- parse arguments
         v_args := app.get_request_url(in_arguments_only => TRUE);
         --
-        BEGIN
-            SELECT JSON_OBJECTAGG (
-                REGEXP_REPLACE(REGEXP_SUBSTR(v_args, '[^&]+', 1, LEVEL), '[=].*$', '')
-                VALUE REGEXP_REPLACE(REGEXP_SUBSTR(v_args, '[^&]+', 1, LEVEL), '^[^=]+[=]', '')
-            ) INTO v_args
-            FROM DUAL
-            CONNECT BY LEVEL <= REGEXP_COUNT(v_args, '&') + 1
-            ORDER BY LEVEL;
-        EXCEPTION
-        WHEN OTHERS THEN
-            app.log_error('JSON_ERROR');
-        END;
+        IF v_args IS NOT NULL THEN
+            BEGIN
+                SELECT JSON_OBJECTAGG (
+                    REGEXP_REPLACE(REGEXP_SUBSTR(v_args, '[^&]+', 1, LEVEL), '[=].*$', '')
+                    VALUE REGEXP_REPLACE(REGEXP_SUBSTR(v_args, '[^&]+', 1, LEVEL), '^[^=]+[=]', '')
+                ) INTO v_args
+                FROM DUAL
+                CONNECT BY LEVEL <= REGEXP_COUNT(v_args, '&') + 1
+                ORDER BY LEVEL;
+            EXCEPTION
+            WHEN OTHERS THEN
+                app.log_error('JSON_ERROR', v_args);
+            END;
+        END IF;
 
         -- create log
         RETURN app.log__ (
