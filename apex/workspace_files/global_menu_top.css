@@ -189,12 +189,14 @@
  * LOGOUT
  */
 #t_Header > #top_header > nav ul li.LOGOUT,
+#t_Header > #top_header > nav ul li.USER,
 #t_Header > #top_header > nav ul li.USER_NAME {
     background:             #7A7363;
 }
 #t_Header > #top_header > nav ul li.LOGOUT a:hover {
     background:             #5e5750;
 }
+#t_Header > #top_header > nav ul li.USER a:hover,
 #t_Header > #top_header > nav ul li.USER_NAME a:hover {
     background:             #444;
 }
@@ -206,13 +208,11 @@
  */
 #t_Header > #top_header > nav ul li.DASHBOARD,
 #t_Header > #top_header > nav ul li.OBJECTS,
-#t_Header > #top_header > nav ul li.APEX,
 #t_Header > #top_header > nav ul li.DARK_BROWN {
     background:             #5e5750;
 }
 #t_Header > #top_header > nav ul li.DASHBOARD a:hover,
 #t_Header > #top_header > nav ul li.OBJECTS a:hover,
-#t_Header > #top_header > nav ul li.APEX a:hover,
 #t_Header > #top_header > nav ul li.DARK_BROWN a:hover {
     background:             #444;
 }

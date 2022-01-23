@@ -10,6 +10,17 @@ WITH curr AS (
         app.get_user_name()         AS user_name
     FROM users u
     WHERE u.user_id = app.get_user_id()
+),
+j AS (
+    -- get javascript targets hidden in page item
+    SELECT
+        i.page_id,
+        i.item_source
+    FROM apex_application_page_items i
+    JOIN curr
+        ON curr.app_id      = i.application_id
+        AND i.item_name     = 'P' || TO_CHAR(i.page_id) || '_REDIRECT'
+        AND i.item_source   LIKE 'javascript%'
 )
 SELECT
     CASE WHEN n.parent_id IS NULL THEN 1 ELSE 2 END AS lvl,
@@ -23,6 +34,8 @@ SELECT
         END AS label,
     --
     CASE
+        WHEN j.item_source IS NOT NULL
+            THEN j.item_source
         WHEN n.page_id > 0
             THEN APEX_PAGE.GET_URL (
                 p_application   => n.app_id,
@@ -75,6 +88,8 @@ FROM nav_overview n
 CROSS JOIN curr
 LEFT JOIN nav_badges b
     ON b.page_id        = n.page_id
+LEFT JOIN j
+    ON j.page_id        = n.page_id
 WHERE n.action          IS NULL
     AND n.is_hidden     IS NULL;
 --

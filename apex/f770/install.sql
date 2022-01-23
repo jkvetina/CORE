@@ -129,6 +129,7 @@ prompt --install
 @@application/pages/page_00969.sql
 @@application/pages/page_00970.sql
 @@application/pages/page_00990.sql
+@@application/pages/page_00995.sql
 @@application/pages/page_09999.sql
 @@application/deployment/definition.sql
 @@application/deployment/install/install_install_tables.sql
