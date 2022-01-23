@@ -2703,6 +2703,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_log_request_id
+    RETURN logs.log_id%TYPE
+    AS
+    BEGIN
+        RETURN recent_request_id;
+    END;
+
+
+
     FUNCTION get_log_tree_id
     RETURN logs.log_id%TYPE
     AS
