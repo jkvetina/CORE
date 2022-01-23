@@ -1519,7 +1519,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             in_flag             => app.flag_request,
             in_action_name      => app.get_request(),
             in_arguments        => v_args,
-            in_payload          => app.get_request_url() || CHR(10)
+            in_payload          => NULL
         );
     END;
 
