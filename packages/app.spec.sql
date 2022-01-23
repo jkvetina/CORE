@@ -413,7 +413,9 @@ CREATE OR REPLACE PACKAGE app AS
     --
     -- Returns requested URL
     --
-    FUNCTION get_request_url
+    FUNCTION get_request_url (
+        in_arguments_only       BOOLEAN                     := FALSE
+    )
     RETURN VARCHAR2;
 
 

@@ -933,15 +933,18 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_request_url
+    FUNCTION get_request_url (
+        in_arguments_only       BOOLEAN                     := FALSE
+    )
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN UTL_URL.UNESCAPE(
-            OWA_UTIL.GET_CGI_ENV('SCRIPT_NAME') ||
-            OWA_UTIL.GET_CGI_ENV('PATH_INFO')   || '?' ||
-            OWA_UTIL.GET_CGI_ENV('QUERY_STRING')
-        );
+        RETURN CASE WHEN NOT in_arguments_only
+            THEN UTL_URL.UNESCAPE (
+                OWA_UTIL.GET_CGI_ENV('SCRIPT_NAME') ||
+                OWA_UTIL.GET_CGI_ENV('PATH_INFO')   || '?'
+            ) END ||
+            UTL_URL.UNESCAPE(OWA_UTIL.GET_CGI_ENV('QUERY_STRING'));
     EXCEPTION
     WHEN OTHERS THEN
         RETURN NULL;
@@ -1491,12 +1494,31 @@ CREATE OR REPLACE PACKAGE BODY app AS
     FUNCTION log_request
     RETURN logs.log_id%TYPE
     AS
+        v_args                  logs.arguments%TYPE;
     BEGIN
         map_tree := app.arr_map_tree();
+
+        -- parse arguments
+        v_args := app.get_request_url(in_arguments_only => TRUE);
         --
+        BEGIN
+            SELECT JSON_OBJECTAGG (
+                REGEXP_REPLACE(REGEXP_SUBSTR(v_args, '[^&]+', 1, LEVEL), '[=].*$', '')
+                VALUE REGEXP_REPLACE(REGEXP_SUBSTR(v_args, '[^&]+', 1, LEVEL), '^[^=]+[=]', '')
+            ) INTO v_args
+            FROM DUAL
+            CONNECT BY LEVEL <= REGEXP_COUNT(v_args, '&') + 1
+            ORDER BY LEVEL;
+        EXCEPTION
+        WHEN OTHERS THEN
+            app.log_error('JSON_ERROR');
+        END;
+
+        -- create log
         RETURN app.log__ (
             in_flag             => app.flag_request,
             in_action_name      => app.get_request(),
+            in_arguments        => v_args,
             in_payload          => app.get_request_url() || CHR(10)
         );
     END;
