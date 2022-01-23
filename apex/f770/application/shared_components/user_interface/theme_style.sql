@@ -12,7 +12,7 @@ wwv_flow_api.component_begin (
 ,p_default_owner=>'CORE'
 );
 wwv_flow_api.create_theme_style(
- p_id=>wwv_flow_api.id(9147044946570021)
+ p_id=>wwv_flow_api.id(17553692201468615)
 ,p_theme_id=>42
 ,p_name=>'Redwood Light'
 ,p_css_file_urls=>wwv_flow_string.join(wwv_flow_t_varchar2(
@@ -27,7 +27,7 @@ wwv_flow_api.create_theme_style(
 ,p_reference_id=>2596426436825065489
 );
 wwv_flow_api.create_theme_style(
- p_id=>wwv_flow_api.id(9147275059570021)
+ p_id=>wwv_flow_api.id(17554033174468615)
 ,p_theme_id=>42
 ,p_name=>'Vita'
 ,p_is_current=>false
@@ -39,7 +39,7 @@ wwv_flow_api.create_theme_style(
 ,p_reference_id=>2719875314571594493
 );
 wwv_flow_api.create_theme_style(
- p_id=>wwv_flow_api.id(9147482079570021)
+ p_id=>wwv_flow_api.id(17554478504468615)
 ,p_theme_id=>42
 ,p_name=>'Vita - Dark'
 ,p_is_current=>false
@@ -51,7 +51,7 @@ wwv_flow_api.create_theme_style(
 ,p_reference_id=>3543348412015319650
 );
 wwv_flow_api.create_theme_style(
- p_id=>wwv_flow_api.id(9147626054570021)
+ p_id=>wwv_flow_api.id(17554848454468615)
 ,p_theme_id=>42
 ,p_name=>'Vita - Red'
 ,p_is_current=>false
@@ -63,7 +63,7 @@ wwv_flow_api.create_theme_style(
 ,p_reference_id=>1938457712423918173
 );
 wwv_flow_api.create_theme_style(
- p_id=>wwv_flow_api.id(9147815633570021)
+ p_id=>wwv_flow_api.id(17555201178468616)
 ,p_theme_id=>42
 ,p_name=>'Vita - Slate'
 ,p_is_current=>false

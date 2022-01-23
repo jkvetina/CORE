@@ -1,0 +1,244 @@
+/**
+ * NAVIGATION TOP BAR
+ */
+#t_Header {
+    height: 4rem;  /* BAR_HEIGHT */
+}
+#t_Header > #top_header,
+#t_Header > #top_header * {
+    user-drag:              none;
+    -moz-user-select:       none;
+    -webkit-user-drag:      none;
+    -moz-user-drag:         none;
+    margin: 0;
+    padding: 0;
+    color:                  #fff;
+}
+#t_Header > #top_header {
+    width:                  100%;
+    height:                 4rem;  /* BAR_HEIGHT */
+    z-index:                1000;
+    position:               fixed;
+    top:                    0;
+}
+#t_Header > #top_header nav {
+    display:                flex;
+    flex-direction:         row;
+    flex-wrap:              nowrap;
+    justify-content:        space-between;
+    align-items:            stretch;
+}
+#t_Header > #top_header nav > * {
+    flex-grow:              0;
+}
+#t_Header > #top_header nav > .EMPTY {  /* SPLITTER BETWEEN LEFT AND RIGHT */
+    flex-grow:              1;
+}
+
+
+
+/**
+ * NAVIGATION MENUS
+ */
+#t_Header > #top_header > nav > * {
+    float:                  left;
+    text-align:             left;
+}
+#t_Header > #top_header > nav a,
+#t_Header > #top_header > nav a:hover {
+    font-family:            'Roboto Slab', serif;
+    font-style:             normal;
+    font-weight:            400;
+    text-decoration:        none;
+    color:                  #fff;
+}
+#t_Header > #top_header > nav .HIDDEN {
+    display:                none;
+}
+
+
+
+/**
+ * DROPDOWN LISTS
+ */
+#t_Header > #top_header > nav ul {
+    list-style-type:        none;
+}
+#t_Header > #top_header > nav ul li {               /* FOR ALIGN BATCH NUMBERS - EXTEND WIDTH */
+    display:                block;
+    float:                  left;
+    position:               relative;
+    transition-duration:    0.2s;
+    font-family:            'Roboto Slab', serif;
+    font-style:             normal;
+    font-weight:            400;
+    font-size:              1.3rem;
+}
+#t_Header > #top_header > nav ul li a {
+    display:                block;
+    padding:                1.5rem 1.6rem 0 !important;
+    white-space:            nowrap;
+    height:                 4rem;  /* BAR_HEIGHT */
+    line-height:            1rem;
+}
+#t_Header > #top_header > nav ul li ul {
+    display:                none;
+    position:               absolute;
+    left:                   0;
+    visibility:             hidden;
+    opacity:                0;
+    z-index:                1000;
+    transition:             all 0.2s ease;
+    box-shadow:             0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
+}
+#t_Header > #top_header > nav ul li.right ul {
+    left:                   auto;
+    right:                  0;
+}
+#t_Header > #top_header > nav ul li.right ul li,
+#t_Header > #top_header > nav ul li.right ul li > * {
+    text-align:             right;
+}
+#t_Header > #top_header > nav ul li:hover > ul,
+#t_Header > /*#top_header > nav ul li:focus-within > ul,*/
+#t_Header > #top_header > nav ul li ul:hover {
+    display:                block;
+    visibility:             visible;
+    opacity:                1;
+}
+#t_Header > #top_header > nav ul li ul li {
+    clear:                  both;
+    width:                  100%;
+}
+#t_Header > #top_header > nav ul li a > span {
+    display:                inline-block        !important;
+    vertical-align:         top;
+}
+#t_Header > #top_header > nav ul li a span.fa {  /* FIX OFFSET FOR ICONS */
+    line-height:            1.1rem;
+}
+
+
+
+/**
+ * BADGE IN TOP MENU
+ */
+#t_Header > #top_header > nav ul li a > span.BADGE {
+    position:               relative;
+    top:                    0.75rem;
+    padding:                0 0 0 0.75rem;
+    margin-right:           -0.25rem;
+    color:                  #fff;
+    font-family:            'Roboto', sans-serif;
+    font-weight:            bold;
+    font-size:              1rem;
+}
+
+
+
+/**
+ * MIDDLE (EMPTY PART) OF TOP MENU
+ */
+#t_Header > #top_header,
+#t_Header > #top_header > nav ul li.TRANSPARENT {
+    background:             #A0AF88;  /* 8fa681, darker green #79A368, AEC29D, 95B293, ..... 96A88E, B0BA8D */
+    color:                  #fff;
+}
+
+
+
+/**
+ * MAIN/TOP MENU ITEM
+ */
+#t_Header > #top_header > nav ul li {
+    background:             #7A9867;
+    font-size:              1.3rem;
+}
+
+
+
+/**
+ * TOP MENU BORDERS
+ */
+#t_Header > #top_header > nav.tabs > ul:first-child {
+    border-left:            1.6rem solid #5e5750;
+}
+#t_Header > #top_header > nav.tabs > ul:last-child {
+    border-right:           1.6rem solid #5e5750;
+}
+
+
+
+/**
+ * LOGO
+ */
+#t_Header > #top_header > nav ul li.LOGO,
+#t_Header > #top_header > nav ul li.LOGO.ACTIVE {
+    background:             #333;
+}
+#t_Header > #top_header > nav ul li.ENV_NAME,
+#t_Header > #top_header > nav ul li.ENV_NAME a,
+#t_Header > #top_header > nav ul li.ENV_NAME a:hover {
+    background:             #5e5750;
+    cursor:                 default !important;
+}
+
+
+
+/**
+ * LOGOUT
+ */
+#t_Header > #top_header > nav ul li.LOGOUT,
+#t_Header > #top_header > nav ul li.USER_NAME {
+    background:             #7A7363;
+}
+#t_Header > #top_header > nav ul li.LOGOUT a:hover {
+    background:             #5e5750;
+}
+#t_Header > #top_header > nav ul li.USER_NAME a:hover {
+    background:             #444;
+}
+
+
+
+/**
+ * CUSTOMIZED MENUS
+ */
+#t_Header > #top_header > nav ul li.DASHBOARD,
+#t_Header > #top_header > nav ul li.OBJECTS,
+#t_Header > #top_header > nav ul li.APEX,
+#t_Header > #top_header > nav ul li.DARK_BROWN {
+    background:             #5e5750;
+}
+#t_Header > #top_header > nav ul li.DASHBOARD a:hover,
+#t_Header > #top_header > nav ul li.OBJECTS a:hover,
+#t_Header > #top_header > nav ul li.APEX a:hover,
+#t_Header > #top_header > nav ul li.DARK_BROWN a:hover {
+    background:             #444;
+}
+
+#t_Header > #top_header > nav ul li.UPLOADER,
+#t_Header > #top_header > nav ul li.DARK_GREEN {
+    background:             #547B5F;
+}
+#t_Header > #top_header > nav ul li.UPLOADER a:hover,
+#t_Header > #top_header > nav ul li.DARK_GREEN a:hover {
+    background:             #444;
+}
+
+
+
+/**
+ * ACTIVE ITEMS OVERWRITE
+ */
+#t_Header > #top_header > nav ul li.ACTIVE {
+    background:             #444;
+}
+#t_Header > #top_header > nav ul li.ACTIVE_HOVER,  /* ASSIGN THIS CLASS WHEN HOVER OVER CALENDAR */
+#t_Header > #top_header > nav ul li.ACTIVE:hover {
+    background:             #444;
+}
+#t_Header > #top_header > nav ul li:hover {
+    background:             #444;
+}
+

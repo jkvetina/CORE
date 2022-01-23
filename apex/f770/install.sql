@@ -7,10 +7,6 @@ prompt --install
 @@application/shared_components/navigation/lists/nav_top.sql
 @@application/shared_components/files/app_icon_svg.sql
 @@application/shared_components/files/app_icon_css.sql
-@@application/shared_components/files/fonts_css.sql
-@@application/shared_components/files/app_js.sql
-@@application/shared_components/files/menu_top_css.sql
-@@application/shared_components/files/app_css.sql
 @@application/plugin_settings.sql
 @@application/shared_components/security/authorizations/nobody.sql
 @@application/shared_components/security/authorizations/is_developer.sql
