@@ -308,5 +308,22 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_compress             BOOLEAN         := FALSE
     );
 
+
+
+
+
+
+
+    -- ### Various APEX functions
+    --
+
+    --
+    -- Set global notification message
+    --
+    PROCEDURE update_global_message (
+        in_message          VARCHAR2                                := NULL,
+        in_app_id           apex_applications.application_id%TYPE   := NULL
+    );
+
 END;
 /
