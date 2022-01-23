@@ -13,6 +13,8 @@ wwv_flow_api.component_begin (
 );
 wwv_flow_api.create_install(
  p_id=>wwv_flow_api.id(12958699824624058)
+,p_required_free_kb=>1000
+,p_required_sys_privs=>'CREATE PROCEDURE:CREATE SEQUENCE:CREATE TABLE:CREATE TRIGGER:CREATE VIEW'
 );
 wwv_flow_api.component_end;
 end;

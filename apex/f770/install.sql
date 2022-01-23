@@ -131,6 +131,11 @@ prompt --install
 @@application/pages/page_00990.sql
 @@application/pages/page_09999.sql
 @@application/deployment/definition.sql
+@@application/deployment/install/install_install_tables.sql
+@@application/deployment/install/install_install_views.sql
+@@application/deployment/install/install_install_sequences.sql
+@@application/deployment/install/install_install_packages.sql
+@@application/deployment/install/install_install_data.sql
 @@application/deployment/checks.sql
 @@application/deployment/buildoptions.sql
 @@application/end_environment.sql
