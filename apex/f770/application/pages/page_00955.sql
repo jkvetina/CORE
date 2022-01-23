@@ -492,7 +492,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(14929621363872305)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>90
+,p_width=>80
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(14940055040877744)
@@ -518,7 +518,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(14930051725872309)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>90
+,p_width=>80
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(14974628174176864)
