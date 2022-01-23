@@ -20,7 +20,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_protection_level=>'D'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220123114725'
+,p_last_upd_yyyymmddhh24miss=>'20220123122358'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(16222516003514114)
@@ -64,7 +64,7 @@ wwv_flow_api.create_report_region(
 'FROM apex_application_page_items i',
 'WHERE i.application_id              = app.get_app_id()',
 '    AND i.page_id                   = app.get_page_id()',
-'ORDER BY 1;',
+'ORDER BY i.item_name;',
 ''))
 ,p_ajax_enabled=>'Y'
 ,p_lazy_loading=>false
@@ -134,7 +134,7 @@ wwv_flow_api.create_report_region(
 '    WHERE i.application_id  = app.get_app_id()',
 '        AND i.page_id       = 0',
 ') i',
-'ORDER BY 1;',
+'ORDER BY i.item_name;',
 ''))
 ,p_ajax_enabled=>'Y'
 ,p_lazy_loading=>false
