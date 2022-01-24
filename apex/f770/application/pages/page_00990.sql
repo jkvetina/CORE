@@ -196,6 +196,7 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Clone Session'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'javascript:window.open(''f?p=&APP_ID.:990:&SESSION.:APEX_CLONE_SESSION::::'', ''_blank'');'
+,p_button_condition_type=>'NEVER'
 ,p_icon_css_classes=>'fa-window-new'
 ,p_button_cattributes=>'target="_blank"'
 );
