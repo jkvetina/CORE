@@ -9,7 +9,10 @@ WITH x AS (
     WHERE u.user_id     = app.get_user_id()
 )
 SELECT
-    d.log_id,
+    REGEXP_SUBSTR(d.job_name, '^([^#]+)#(\d+)$', 1, 1, NULL, 2) AS log_id,
+    REGEXP_SUBSTR(d.job_name, '^([^#]+)#(\d+)$', 1, 1, NULL, 1) AS job_group,
+    --
+    d.log_id                            AS job_log_id,
     d.job_name,
     d.actual_start_date                 AS start_date,
     app.get_duration(d.run_duration)    AS run_duration,
