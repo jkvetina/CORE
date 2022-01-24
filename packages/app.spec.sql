@@ -1041,13 +1041,20 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Proper way how to schedule one time jobs
+    -- Proper/single way how to schedule one time jobs
     --
-    PROCEDURE create_one_time_job (
-        in_job_name         VARCHAR2,
-        in_statement        VARCHAR2            := NULL,
-        in_comments         VARCHAR2            := NULL,
-        in_priority         PLS_INTEGER         := NULL
+    PROCEDURE create_job (
+        in_job_name             VARCHAR2,
+        in_statement            VARCHAR2,
+        in_user_id              sessions.user_id%TYPE       := NULL,
+        in_app_id               sessions.app_id%TYPE        := NULL,
+        in_session_id           sessions.session_id%TYPE    := NULL,
+        in_priority             PLS_INTEGER                 := NULL,
+        in_start_date           DATE                        := NULL,
+        in_enabled              BOOLEAN                     := TRUE,
+        in_autodrop             BOOLEAN                     := TRUE,
+        in_comments             VARCHAR2                    := NULL
+    );
     );
 
 

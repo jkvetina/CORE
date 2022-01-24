@@ -2161,38 +2161,73 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE create_one_time_job (
-        in_job_name         VARCHAR2,
-        in_statement        VARCHAR2            := NULL,
-        in_comments         VARCHAR2            := NULL,
-        in_priority         PLS_INTEGER         := NULL
+    PROCEDURE create_job (
+        in_job_name             VARCHAR2,
+        in_statement            VARCHAR2,
+        in_user_id              sessions.user_id%TYPE       := NULL,
+        in_app_id               sessions.app_id%TYPE        := NULL,
+        in_session_id           sessions.session_id%TYPE    := NULL,
+        in_priority             PLS_INTEGER                 := NULL,
+        in_start_date           DATE                        := NULL,
+        in_enabled              BOOLEAN                     := TRUE,
+        in_autodrop             BOOLEAN                     := TRUE,
+        in_comments             VARCHAR2                    := NULL
     ) AS
-        v_log_id            logs.log_id%TYPE;
+        v_log_id                logs.log_id%TYPE;
+        v_job_name              user_scheduler_jobs.job_name%TYPE;
+        v_action                VARCHAR2(32767);
     BEGIN
-        v_log_id := app.log_module(in_job_name, in_statement, in_comments, in_priority);
+        v_log_id := app.log_module_json (
+            'job_name',         in_job_name,
+            'statement',        in_statement,
+            'user_id',          in_user_id,
+            'app_id',           in_app_id,
+            'session_id',       in_session_id,
+            'priority',         in_priority,
+            'start_date',       in_start_date,
+            'comments',         in_comments
+        );
+        --
+        v_job_name := '"' || in_job_name || '#' || v_log_id || '"';
+        --
+        v_action :=
+            'BEGIN' || CHR(10) ||
+            --
+            CASE WHEN in_user_id IS NOT NULL THEN
+                '    app.create_session ('                                                  || CHR(10) ||
+                '        in_user_id      => ''' || in_user_id || ''','                      || CHR(10) ||
+                '        in_app_id       => ' || NVL(in_app_id, app.get_app_id()) || ','    || CHR(10) ||
+                '        in_session_id   => ' || NVL(in_session_id, 0)                      || CHR(10) ||
+                '    );'                                                                    || CHR(10)
+            END ||
+            --
+            '    app.log_scheduler(' || v_log_id || ', ''' || v_job_name || ''');'          || CHR(10) ||
+            '    ' || RTRIM(in_statement, ';') || ';'                                       || CHR(10) ||
+            '    app.log_success(' || v_log_id || ');'                                      || CHR(10) ||
+            'EXCEPTION'                                                                     || CHR(10) ||
+            'WHEN OTHERS THEN'                                                              || CHR(10) ||
+            '    app.raise_error();'                                                        || CHR(10) ||
+            'END;';
+        --
+        app.log_debug(v_action);
         --
         DBMS_SCHEDULER.CREATE_JOB (
-            in_job_name,
+            job_name        => v_job_name,
             job_type        => 'PLSQL_BLOCK',
-            job_action      => 'BEGIN'                                                                  || CHR(10) ||
-                               '    app.log_scheduler(' || v_log_id || ', ''' || in_job_name || ''');'  || CHR(10) ||
-                               '    ' || RTRIM(in_statement, ';') || ';'                                || CHR(10) ||
-                               '    app.log_success();'                                                 || CHR(10) ||
-                               'EXCEPTION'                                                              || CHR(10) ||
-                               'WHEN OTHERS THEN'                                                       || CHR(10) ||
-                               '    app.raise_error();'                                                 || CHR(10) ||
-                               'END;',
-            start_date      => NULL,
+            job_action      => v_action,
+            start_date      => in_start_date,
             enabled         => FALSE,
-            auto_drop       => TRUE,
+            auto_drop       => in_autodrop,
             comments        => v_log_id || '|' || in_comments
         );
         --
         IF in_priority IS NOT NULL THEN
-            DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', in_priority);
+            DBMS_SCHEDULER.SET_ATTRIBUTE(v_job_name, 'JOB_PRIORITY', in_priority);
         END IF;
         --
-        DBMS_SCHEDULER.ENABLE(in_job_name);
+        IF in_enabled THEN
+            DBMS_SCHEDULER.ENABLE(v_job_name);
+        END IF;
         --
         app.log_success(v_log_id);
     EXCEPTION
