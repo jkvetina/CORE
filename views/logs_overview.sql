@@ -32,7 +32,7 @@ FROM logs l
 JOIN x
     ON l.created_at     >= x.today
     AND l.created_at    < x.today + 1
-    AND l.app_id        = x.app_id
+    AND l.app_id        IN (x.app_id, 0)
     AND l.log_id        > NVL(x.recent_log_id, 0)
     AND l.flag          = NVL(x.flag, l.flag)
     AND l.page_id       = NVL(x.page_id, l.page_id)

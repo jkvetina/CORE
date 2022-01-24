@@ -17,7 +17,7 @@ SELECT
 FROM logs l
 CONNECT BY l.log_parent = PRIOR l.log_id
 START WITH l.log_id     = app.get_log_tree_id()
-    AND l.app_id        = app.get_app_id()
+    AND l.app_id        IN (app.get_app_id(), 0)
 ORDER SIBLINGS BY l.log_id;
 --
 COMMENT ON TABLE  logs_tree                     IS '[CORE - DASHBOARD] All messages related to selected tree id (`app.get_log_tree_id()`)';
