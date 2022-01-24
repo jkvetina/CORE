@@ -2154,7 +2154,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         curr_id := app.log__ (
             in_flag             => app.flag_scheduler,
-            in_arguments        => in_job_name,
+            in_arguments        => REPLACE(in_job_name, '"', ''),
             in_parent_id        => in_log_id
         );
     END;
@@ -2233,6 +2233,51 @@ CREATE OR REPLACE PACKAGE BODY app AS
     EXCEPTION
     WHEN OTHERS THEN
         app.raise_error();
+    END;
+
+
+
+    PROCEDURE sync_job_logs (
+        in_interval                 DATE
+    )
+    AS
+    BEGIN
+        FOR d IN (
+            SELECT
+                l.log_id,
+                d.log_id            AS job_log_id,
+                d.job_name,
+                d.status,
+                app.get_duration(d.run_duration) AS duration,
+                d.cpu_used,
+                d.errors,
+                d.output
+            FROM user_scheduler_job_run_details d
+            JOIN user_scheduler_job_log j
+                ON j.log_id         = d.log_id
+                AND j.log_date      >= in_interval
+            JOIN logs l
+                ON l.created_at     >= in_interval
+                AND l.flag          = app.flag_scheduler
+                AND l.action_name   IS NULL
+                AND l.arguments     = d.job_name
+        ) LOOP
+            UPDATE logs l
+            SET l.action_name       = d.status,
+                l.module_timer      = d.duration
+            WHERE l.log_id          = d.log_id;
+            --
+            /*
+                l.payload           = d.run_duration    || CHR(10) || '--' || CHR(10) ||
+                                      d.cpu_used        || CHR(10) || '--' || CHR(10) ||
+                                      d.errors          || CHR(10) || '--' || CHR(10) ||
+                                      d.output
+            */
+            --app.log_error();
+            --
+            -- PYTHON might fail
+            --
+        END LOOP;
     END;
 
 

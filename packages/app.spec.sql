@@ -1055,6 +1055,14 @@ CREATE OR REPLACE PACKAGE app AS
         in_autodrop             BOOLEAN                     := TRUE,
         in_comments             VARCHAR2                    := NULL
     );
+
+
+
+    --
+    -- Sync scheduler results to Logs
+    --
+    PROCEDURE sync_job_logs (
+        in_interval                 DATE
     );
 
 
