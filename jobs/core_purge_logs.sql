@@ -1,5 +1,5 @@
 DECLARE
-    in_job_name             CONSTANT VARCHAR2(30)   := 'PURGE_LOGS';
+    in_job_name             CONSTANT VARCHAR2(30)   := 'CORE_PURGE_LOGS';
     in_run_immediatelly     CONSTANT BOOLEAN        := FALSE;
 BEGIN
     BEGIN
