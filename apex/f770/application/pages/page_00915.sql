@@ -26,7 +26,7 @@ wwv_flow_api.create_page(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(20856814673868425)
-,p_plug_name=>'Pages Performance'
+,p_plug_name=>'Pages Requests & Performance'
 ,p_icon_css_classes=>'fa-dial-gauge-chart'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
@@ -39,7 +39,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(20856996595868426)
-,p_plug_name=>'Pages Performance [CHART]'
+,p_plug_name=>'Pages Requests & Performance [CHART]'
 ,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader js-removeLandmark:t-Region--scrollBody'
 ,p_escape_on_http_output=>'Y'
 ,p_plug_template=>wwv_flow_api.id(9080157814569926)
