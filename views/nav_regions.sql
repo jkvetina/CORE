@@ -1,13 +1,10 @@
 CREATE OR REPLACE VIEW nav_regions AS
 WITH x AS (
-    SELECT
-        app.get_item('$PAGE_ID')        AS page_id,
-        app.get_item('$AUTH_SCHEME')    AS auth_scheme,
-        a.app_id
-    FROM users u
-    JOIN apps a
-        ON a.app_id         = app.get_app_id()
-    WHERE u.user_id         = app.get_user_id()
+    SELECT /*+ MATERIALIZE */
+        app.get_app_id()                    AS app_id,
+        app.get_number_item('$PAGE_ID')     AS page_id,
+        app.get_item('$AUTH_SCHEME')        AS auth_scheme
+    FROM DUAL
 ),
 c AS (
     SELECT

@@ -1,4 +1,10 @@
 CREATE OR REPLACE FORCE VIEW logs_tree AS
+WITH x AS (
+    SELECT /*+ MATERIALIZE */
+        app.get_app_id()        AS app_id,
+        app.get_log_tree_id()   AS log_id
+    FROM DUAL
+)
 SELECT
     l.log_id,
     l.log_parent,
@@ -15,9 +21,10 @@ SELECT
     l.session_id,
     l.created_at
 FROM logs l
+CROSS JOIN x
 CONNECT BY l.log_parent = PRIOR l.log_id
-START WITH l.log_id     = app.get_log_tree_id()
-    AND l.app_id        IN (app.get_app_id(), 0)
+START WITH l.log_id     = x.log_id
+    AND l.app_id        IN (x.app_id, 0)
 ORDER SIBLINGS BY l.log_id;
 --
 COMMENT ON TABLE  logs_tree                     IS '[CORE - DASHBOARD] All messages related to selected tree id (`app.get_log_tree_id()`)';

@@ -1,17 +1,16 @@
 CREATE OR REPLACE VIEW logs_overview AS
 WITH x AS (
-    SELECT
-        app.get_app_id()                AS app_id,
-        app.get_item('$RECENT_LOG_ID')  AS recent_log_id,
-        app.get_item('$FLAG')           AS flag,
-        app.get_item('$PAGE_ID')        AS page_id,
-        app.get_item('$USER_ID')        AS user_id,
-        app.get_item('$SESSION_ID')     AS session_id,
-        app.get_item('$MODULE_NAME')    AS module_name,
-        app.get_item('$ACTION_NAME')    AS action_name,
-        app.get_date_item('G_TODAY')    AS today
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    SELECT /*+ MATERIALIZE */
+        app.get_app_id()                        AS app_id,
+        app.get_number_item('$RECENT_LOG_ID')   AS recent_log_id,
+        app.get_item('$FLAG')                   AS flag,
+        app.get_number_item('$PAGE_ID')         AS page_id,
+        app.get_item('$USER_ID')                AS user_id,
+        app.get_number_item('$SESSION_ID')      AS session_id,
+        app.get_item('$MODULE_NAME')            AS module_name,
+        app.get_item('$ACTION_NAME')            AS action_name,
+        app.get_date_item('G_TODAY')            AS today
+    FROM DUAL
 )
 SELECT
     l.log_id,

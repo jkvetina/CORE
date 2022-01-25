@@ -1,15 +1,24 @@
 CREATE OR REPLACE VIEW sessions_overview AS
-WITH s AS (
+WITH x AS (
+    SELECT /*+ MATERIALIZE */
+        app.get_app_id()                        AS app_id,
+        app.get_number_item('$SESSION_ID')      AS session_id,
+        app.get_item('$USER_ID')                AS user_id,
+        app.get_date_item('G_TODAY')            AS today
+    FROM DUAL
+),
+s AS (
     SELECT
         s.*,
         TRUNC(s.created_at)         AS today
     FROM sessions s
-    WHERE s.app_id          = app.get_app_id()
-        AND (s.session_id   = app.get_item('$SESSION_ID')   OR app.get_item('$SESSION_ID')  IS NULL)
-        AND (s.user_id      = app.get_item('$USER_ID')      OR app.get_item('$USER_ID')     IS NULL)
+    JOIN x
+        ON s.app_id         = x.app_id
+        AND (s.session_id   = x.session_id  OR x.session_id IS NULL)
+        AND (s.user_id      = x.user_id     OR x.user_id    IS NULL)
         --
-        AND s.created_at    >= app.get_date_item('G_TODAY')
-        AND s.created_at    < app.get_date_item('G_TODAY') + 1
+        AND s.created_at    >= x.today
+        AND s.created_at    < x.today + 1
 ),
 l AS (
     SELECT

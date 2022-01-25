@@ -1,10 +1,10 @@
 CREATE OR REPLACE VIEW obj_tables_ref_pages AS
 WITH x AS (
-    SELECT
-        app.get_app_id()                    AS app_id,
-        app.get_item('$TABLE_NAME')         AS table_name
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    SELECT /*+ MATERIALIZE */
+        app.get_app_id()                AS app_id,
+        app.get_owner()                 AS owner_,
+        app.get_item('$TABLE_NAME')     AS table_name
+    FROM DUAL
 )
 SELECT
     r.page_id,
@@ -31,7 +31,7 @@ WHERE r.query_type_code     = 'TABLE'
             SELECT DISTINCT d.name                  AS view_name
             FROM user_dependencies d
             CROSS JOIN x
-            WHERE d.referenced_owner                = app.get_owner()
+            WHERE d.referenced_owner                = x.owner_
                 AND d.type                          = 'VIEW'
             CONNECT BY NOCYCLE d.referenced_name    = PRIOR d.name
                 AND d.referenced_type               = 'VIEW'
