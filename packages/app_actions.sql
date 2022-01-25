@@ -1019,46 +1019,5 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         END;
     END;
 
-
-
-    PROCEDURE update_global_message (
-        in_message          VARCHAR2                                := NULL,
-        in_app_id           apex_applications.application_id%TYPE   := NULL
-    )
-    AS
-        PRAGMA AUTONOMOUS_TRANSACTION;
-        --
-        v_workspace_id      apex_applications.workspace%TYPE;
-    BEGIN
-        app.log_module(in_message, in_app_id);
-
-        -- setup workspace first
-        SELECT a.workspace INTO v_workspace_id
-        FROM apex_applications a
-        WHERE a.application_id = COALESCE(in_app_id, app.get_app_id());
-        --
-        APEX_UTIL.SET_WORKSPACE (
-            p_workspace                     => v_workspace_id
-        );
-        APEX_UTIL.SET_SECURITY_GROUP_ID (
-            p_security_group_id             => APEX_UTIL.FIND_SECURITY_GROUP_ID(p_workspace => v_workspace_id)
-        );
-    
-        -- update global message
-        APEX_UTIL.SET_GLOBAL_NOTIFICATION (
-            p_application_id                => COALESCE(in_app_id, app.get_app_id()),
-            p_global_notification_message   => in_message
-        );
-        --
-        app.log_success();
-    EXCEPTION
-    WHEN app.app_exception THEN
-        ROLLBACK;
-        RAISE;
-    WHEN OTHERS THEN
-        ROLLBACK;
-        app.raise_error();
-    END;
-
 END;
 /
