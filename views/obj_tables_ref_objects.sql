@@ -1,10 +1,10 @@
 CREATE OR REPLACE VIEW obj_tables_ref_objects AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_app_id()                    AS app_id,
+        app.get_owner()                     AS owner_,
         app.get_item('$TABLE_NAME')         AS table_name
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 )
 SELECT
     '<span style="margin-left: 2rem;">' || d.name || '</SPAN>'      AS ref_name,
@@ -17,7 +17,8 @@ SELECT
         ELSE NULL
         END AS ref_link
 FROM user_dependencies d
-WHERE d.referenced_owner    = app.get_owner()
-    AND d.referenced_name   = (SELECT x.table_name FROM x)
+JOIN x
+    ON x.owner_         = d.referenced_owner
+    AND x.table_name    = d.referenced_name
 GROUP BY d.name;
 

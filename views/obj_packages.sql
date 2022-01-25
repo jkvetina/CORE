@@ -1,9 +1,8 @@
 CREATE OR REPLACE VIEW obj_packages AS
 WITH x AS (
-    SELECT 
+    SELECT /*+ MATERIALIZE */
         app.get_item('$PACKAGE_NAME') AS package_name
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 s AS (
     SELECT

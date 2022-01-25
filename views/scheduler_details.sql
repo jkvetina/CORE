@@ -1,12 +1,11 @@
 CREATE OR REPLACE VIEW scheduler_details AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_app_id()                AS app_id,
         app.get_date_item('G_TODAY')    AS today,
         app.get_item('$JOB_NAME')       AS job_name,
         app.get_item('$JOB_STATUS')     AS job_status
-    FROM users u
-    WHERE u.user_id     = app.get_user_id()
+    FROM DUAL
 )
 SELECT
     REGEXP_SUBSTR(d.job_name, '^([^#]+)#(\d+)$', 1, 1, NULL, 2) AS log_id,

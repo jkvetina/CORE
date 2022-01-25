@@ -1,9 +1,8 @@
 CREATE OR REPLACE VIEW obj_constraints AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_item('$TABLE_NAME') AS table_name
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 n AS (
     SELECT XMLTYPE(DBMS_XMLGEN.GETXML('SELECT c.constraint_name AS name, c.search_condition AS text

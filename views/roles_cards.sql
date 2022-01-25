@@ -1,11 +1,10 @@
 CREATE OR REPLACE VIEW roles_cards AS
 WITH x AS (
-    SELECT
-        u.user_id,
+    SELECT /*+ MATERIALIZE */
         app.get_app_id()        AS app_id,
+        app.get_user_id()       AS user_id,
         app.is_developer_y()    AS is_developer
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 )
 SELECT
     r.role_id,

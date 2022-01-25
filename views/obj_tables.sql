@@ -1,13 +1,12 @@
 CREATE OR REPLACE VIEW obj_tables AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_item('$TABLE_NAME') AS table_name
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 s AS (
     -- columns count
-    SELECT /* materialize */
+    SELECT /*+ MATERIALIZE */
         c.table_name,
         COUNT(*)                AS count_cols
     FROM user_tab_cols c
@@ -17,7 +16,7 @@ s AS (
 ),
 c AS (
     -- constraints overview
-    SELECT /* materialize */
+    SELECT /*+ MATERIALIZE */
         c.table_name,
         NULLIF(SUM(CASE WHEN c.constraint_type = 'P' THEN 1 ELSE 0 END), 0) AS count_pk,
         NULLIF(SUM(CASE WHEN c.constraint_type = 'U' THEN 1 ELSE 0 END), 0) AS count_uq,
@@ -30,7 +29,7 @@ c AS (
 ),
 i AS (
     -- indexes overview
-    SELECT /* materialize */
+    SELECT /*+ MATERIALIZE */
         i.table_name,
         COUNT(i.table_name)     AS count_ix
     FROM user_indexes i
@@ -44,7 +43,7 @@ i AS (
 ),
 g AS (
     -- triggers overview
-    SELECT /* materialize */
+    SELECT /*+ MATERIALIZE */
         g.table_name,
         COUNT(g.table_name)     AS count_trg
     FROM user_triggers g
@@ -54,7 +53,7 @@ g AS (
 ),
 p AS (
     -- partitions count
-    SELECT /* materialize */
+    SELECT /*+ MATERIALIZE */
         p.table_name,
         COUNT(*) AS partitions
     FROM user_tab_partitions p

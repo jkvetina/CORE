@@ -1,13 +1,14 @@
 CREATE OR REPLACE VIEW users_overview AS
 WITH x AS (
-    SELECT
-        app.get_app_id()    AS app_id,
-        app.get_user_id()   AS user_id,
+    SELECT /*+ MATERIALIZE */
+        app.get_app_id()            AS app_id,
+        app.get_user_id()           AS user_id,
+        app.get_item('$USER_ID')    AS filter_user_id,
+        app.get_item('$ROLE_ID')    AS filter_role_id,
         --
         TRUNC(NVL(app.get_date_item('G_TODAY'), SYSDATE))                       AS today,
         CAST(TRUNC(NVL(app.get_date_item('G_TODAY'), SYSDATE)) AS TIMESTAMP)    AS today_ts
-    FROM users u
-    WHERE u.user_id         = app.get_user_id()
+    FROM DUAL
 ),
 s AS (
     SELECT
@@ -75,18 +76,20 @@ SELECT
     u.updated_by,
     u.updated_at
 FROM users u
+CROSS JOIN x
 LEFT JOIN s ON s.user_id = u.user_id
 LEFT JOIN l ON l.user_id = u.user_id
 LEFT JOIN r ON r.user_id = u.user_id
 LEFT JOIN b ON b.user_id = u.user_id
-WHERE u.user_id = NVL(app.get_item('$USER_ID'), u.user_id)
+--
+WHERE u.user_id = NVL(x.filter_user_id, u.user_id)
     AND (
         u.user_id IN (
             SELECT r.user_id
             FROM user_roles r
-            WHERE r.role_id = app.get_item('$ROLE_ID')
+            WHERE r.role_id = x.filter_role_id
         )
-        OR app.get_item('$ROLE_ID') IS NULL
+        OR x.filter_role_id IS NULL
     );
 --
 COMMENT ON TABLE users_overview IS '[CORE - DASHBOARD] Users';

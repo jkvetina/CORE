@@ -1,12 +1,11 @@
 CREATE OR REPLACE VIEW obj_triggers AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_app_id()                AS app_id,
         app.get_item('$TABLE_NAME')     AS table_name,
         app.get_item('$TRIGGER_NAME')   AS trigger_name,
         app.get_date_item('G_TODAY')    AS today
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 r AS (
     SELECT /* materialize */

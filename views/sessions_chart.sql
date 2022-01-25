@@ -1,12 +1,11 @@
 CREATE OR REPLACE VIEW sessions_chart AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_app_id()                AS app_id,
         app.get_item('$USER_ID')        AS user_id,
         app.get_date_item('G_TODAY')    AS today,
         10                              AS buckets
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 z AS (
     SELECT

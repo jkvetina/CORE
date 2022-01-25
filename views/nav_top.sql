@@ -1,6 +1,6 @@
 CREATE OR REPLACE FORCE VIEW nav_top AS
 WITH curr AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_app_id()            AS app_id,
         app.get_page_id()           AS page_id,
         app.get_page_parent()       AS parent_id,
@@ -8,8 +8,7 @@ WITH curr AS (
         app.get_page_group()        AS page_group,
         app.get_user_id()           AS user_id,
         app.get_user_name()         AS user_name
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 j AS (
     -- get javascript targets hidden in page item

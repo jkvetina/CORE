@@ -1,12 +1,11 @@
 CREATE OR REPLACE VIEW settings_overview AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         UPPER('SETT')                   AS package_name,        -- app_actions spec
         UPPER('GET_')                   AS prefix,
         app.get_item('$SETTING_NAME')   AS setting_name,
         app.get_app_id()                AS app_id
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 p AS (
     SELECT p.procedure_name, a.data_type

@@ -1,9 +1,8 @@
 CREATE OR REPLACE VIEW obj_columns AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_item('$TABLE_NAME') AS table_name
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 c AS (
     SELECT

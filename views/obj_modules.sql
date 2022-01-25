@@ -1,10 +1,9 @@
 CREATE OR REPLACE VIEW obj_modules AS
 WITH x AS (
-    SELECT 
+    SELECT /*+ MATERIALIZE */
         app.get_item('$PACKAGE_NAME')   AS package_name,
         app.get_item('$MODULE_TYPE')    AS module_type
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 p AS (
     SELECT

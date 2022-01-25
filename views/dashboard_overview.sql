@@ -1,9 +1,8 @@
 CREATE OR REPLACE VIEW dashboard_overview AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_app_id()                        AS app_id
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 s AS (
     SELECT

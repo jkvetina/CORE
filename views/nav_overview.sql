@@ -1,11 +1,10 @@
 CREATE OR REPLACE VIEW nav_overview AS
 WITH x AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         app.get_page_id()           AS page_id,
         app.get_app_id()            AS app_id,
         app.get_core_app_id()       AS core_app_id
-    FROM users u
-    WHERE u.user_id = app.get_user_id()
+    FROM DUAL
 ),
 t AS (
     SELECT
