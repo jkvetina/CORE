@@ -296,8 +296,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
-        v_is_active             users.is_active%TYPE;
+        v_app_id                apps.app_id%TYPE;
         v_user_login            users.user_login%TYPE;
+        v_is_active             users.is_active%TYPE;
         rec                     sessions%ROWTYPE;
     BEGIN
         --app.log_module();
@@ -316,48 +317,33 @@ CREATE OR REPLACE PACKAGE BODY app AS
             RETURN;
         END IF;
 
-        -- check app availability
-        IF NOT app.is_developer() THEN
-            BEGIN
-                SELECT a.is_active INTO v_is_active
-                FROM apps a
-                WHERE a.app_id          = rec.app_id
-                    AND a.is_active     = 'Y';
-            EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                app.raise_error('APPLICATION_OFFLINE');
-            END;
-        ELSE
-            -- create app record if developers login
-            BEGIN
-                SELECT a.is_active INTO v_is_active
-                FROM apps a
-                WHERE a.app_id          = rec.app_id;
-            EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                app.log_warning('CREATING_APP', rec.app_id);
-                --
-                INSERT INTO apps (app_id, app_name, is_active, updated_by, updated_at)
-                SELECT
-                    a.application_id,
-                    a.application_name,
-                    'Y',
-                    rec.user_id,
-                    rec.updated_at
-                FROM apex_applications a
-                WHERE a.application_id = rec.app_id;
+        -- create app record if developers login
+        BEGIN
+            SELECT a.app_id INTO v_app_id
+            FROM apps a
+            WHERE a.app_id          = rec.app_id;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            app.log_warning('CREATING_APP', rec.app_id);
+            --
+            INSERT INTO apps (app_id, updated_by, updated_at)
+            SELECT
+                a.application_id,
+                rec.user_id,
+                rec.updated_at
+            FROM apex_applications a
+            WHERE a.application_id = rec.app_id;
 
-                -- also add first pages into Navigation table
-                app_actions.nav_autoupdate();
-                --
-                UPDATE navigation n
-                SET n.order# = CASE
-                    WHEN n.page_id = 0 THEN 599
-                    ELSE TO_NUMBER(SUBSTR(TO_CHAR(n.page_id), 1, 3))
-                    END
-                WHERE n.app_id = rec.app_id;
-            END;
-        END IF;
+            -- also add first pages into Navigation table
+            app_actions.nav_autoupdate();
+            --
+            UPDATE navigation n
+            SET n.order# = CASE
+                WHEN n.page_id = 0 THEN 599
+                ELSE TO_NUMBER(SUBSTR(TO_CHAR(n.page_id), 1, 3))
+                END
+            WHERE n.app_id = rec.app_id;
+        END;
 
         -- adjust user_id in APEX, init session
         DBMS_SESSION.CLEAR_IDENTIFIER();

@@ -31,7 +31,6 @@ t AS (
         FROM navigation n
         JOIN apps a
             ON a.app_id                 = n.app_id
-            AND a.is_active             = 'Y'
         CROSS JOIN x
         LEFT JOIN apex_application_pages p
             ON p.application_id         = n.app_id
@@ -119,7 +118,6 @@ SELECT
 FROM navigation n
 JOIN apps a
     ON a.app_id             = n.app_id
-    AND a.is_active         = 'Y'
 CROSS JOIN x
 LEFT JOIN t
     ON t.app_id             = n.app_id
@@ -192,7 +190,6 @@ SELECT
 FROM nav_pages_to_add n
 JOIN apps a
     ON a.app_id             = n.app_id
-    AND a.is_active         = 'Y'
 CROSS JOIN x
 LEFT JOIN t
     ON t.app_id             = n.app_id
