@@ -53,6 +53,33 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_app_homepage (
+        in_app_id               apps.app_id%TYPE            := NULL
+    )
+    RETURN NUMBER
+    AS
+        v_app_id                apps.app_id%TYPE            := COALESCE(in_app_id, app.get_app_id());
+        out_page_id             navigation.page_id%TYPE;
+    BEGIN
+        SELECT TO_NUMBER(REGEXP_SUBSTR(a.home_link, ':(\d+):&' || 'SESSION\.', 1, 1, NULL, 1))
+        INTO out_page_id
+        FROM apex_applications a
+        WHERE a.application_id = v_app_id;
+        --
+        IF out_page_id IS NULL THEN
+            SELECT p.page_id INTO out_page_id
+            FROM apex_applications a
+            JOIN apex_application_pages p
+                ON p.application_id = a.application_id
+                AND p.page_alias = REGEXP_SUBSTR(a.home_link, ':([^:]+):&' || 'SESSION\.', 1, 1, NULL, 1)
+            WHERE a.application_id = v_app_id;
+        END IF;
+        --
+        RETURN out_page_id;
+    END;
+
+
+
     FUNCTION get_user_id
     RETURN users.user_id%TYPE
     AS

@@ -129,6 +129,16 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Get home page (number) for selected/current application
+    --
+    FUNCTION get_app_homepage (
+        in_app_id               apps.app_id%TYPE            := NULL
+    )
+    RETURN NUMBER;
+
+
+
+    --
     -- Returns current user id (APEX, SYS_CONTEXT, DB...)
     --
     FUNCTION get_user_id
