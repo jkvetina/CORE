@@ -16,7 +16,6 @@ s AS (
         ON s.app_id         = x.app_id
         AND (s.session_id   = x.session_id  OR x.session_id IS NULL)
         AND (s.user_id      = x.user_id     OR x.user_id    IS NULL)
-        --
         AND s.created_at    >= x.today
         AND s.created_at    < x.today + 1
 ),

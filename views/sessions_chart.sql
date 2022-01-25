@@ -1,16 +1,18 @@
 CREATE OR REPLACE VIEW sessions_chart AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_app_id()                AS app_id,
-        app.get_item('$USER_ID')        AS user_id,
-        app.get_date_item('G_TODAY')    AS today,
-        10                              AS buckets
+        app.get_app_id()                        AS app_id,
+        app.get_number_item('$SESSION_ID')      AS session_id,
+        app.get_item('$USER_ID')                AS user_id,
+        app.get_date_item('G_TODAY')            AS today,
+        10                                      AS buckets
     FROM DUAL
 ),
 z AS (
     SELECT
         x.app_id,
         x.user_id,
+        x.session_id,
         x.today,
         x.buckets,
         --
@@ -34,6 +36,8 @@ FROM z
 LEFT JOIN logs l
     ON l.created_at     >= z.today
     AND l.created_at    < z.today + 1
+    AND (l.session_id   = z.session_id  OR z.session_id IS NULL)
+    AND (l.user_id      = z.user_id     OR z.user_id    IS NULL)
     AND z.bucket_id     = app.get_time_bucket(l.created_at, z.buckets)
 GROUP BY z.bucket_id, TO_CHAR(z.start_at, 'HH24:MI');
 --
