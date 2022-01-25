@@ -587,6 +587,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
             action_name     => NULL
         );
         --
+        app.log_success(recent_request_id);
+        --
         COMMIT;
     EXCEPTION
     WHEN app.app_exception THEN
