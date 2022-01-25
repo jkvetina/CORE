@@ -38,21 +38,6 @@ COMPOUND TRIGGER
         IF NOT DELETING THEN
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
-
-            -- update global message, create APEX session first
-            /*
-            BEGIN
-                IF :NEW.app_id != app.get_app_id() THEN
-                    app_actions.update_global_message (
-                        in_message      => :NEW.message,
-                        in_app_id       => :NEW.app_id
-                    );
-                END IF;
-            EXCEPTION
-            WHEN OTHERS THEN  -- ORA-20987: APEX - An API call has been prohibited.
-                :NEW.message := :OLD.message;
-            END;
-            */
         ELSE
             DELETE FROM sessions t
             WHERE t.app_id = :OLD.app_id;
