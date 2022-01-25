@@ -179,34 +179,21 @@ wwv_flow_api.create_page_plug(
 ,p_query_type=>'SQL'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
-'    o.object_type,',
-'    o.object_name,',
-'    o.last_ddl_time',
+'    o.object_type AS divider,',
+'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS name',
 'FROM user_objects o',
 'WHERE o.status != ''VALID''',
-'ORDER BY 1, 2;',
+'ORDER BY o.object_type, o.object_name;',
 ''))
-,p_lazy_loading=>false
-,p_plug_source_type=>'NATIVE_CARDS'
-,p_plug_query_num_rows_type=>'SCROLL'
+,p_plug_source_type=>'NATIVE_JQM_LIST_VIEW'
+,p_plug_query_num_rows=>50
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_show_total_row_count=>false
 ,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<br />',
 ''))
-);
-wwv_flow_api.create_card(
- p_id=>wwv_flow_api.id(14219678078378944)
-,p_region_id=>wwv_flow_api.id(102497670620708980)
-,p_layout_type=>'GRID'
-,p_grid_column_count=>4
-,p_title_adv_formatting=>false
-,p_sub_title_adv_formatting=>true
-,p_sub_title_html_expr=>'<b>&OBJECT_NAME.</b><br />&OBJECT_TYPE.'
-,p_body_adv_formatting=>false
-,p_second_body_adv_formatting=>false
-,p_second_body_column_name=>'LAST_DDL_TIME'
-,p_media_adv_formatting=>false
+,p_attribute_01=>'DIVIDER'
+,p_attribute_02=>'NAME'
+,p_attribute_14=>'DIVIDER'
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(14425438113036849)

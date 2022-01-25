@@ -202,3 +202,11 @@ footer.t-Footer div.t-Footer-top a {  /* LINK TO TOP */
     color:                  #666;
 }
 
+
+
+/* DIVIDER FOR LIST VIEW */
+ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
+    font-weight: normal;
+    background: transparent;
+}
+
