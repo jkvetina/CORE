@@ -31,7 +31,6 @@ wwv_flow_api.create_flow(
 ,p_timestamp_tz_format=>'DS'
 ,p_direction_right_to_left=>'N'
 ,p_flow_image_prefix => nvl(wwv_flow_application_install.get_image_prefix,'')
-,p_documentation_banner=>'Application created from create application wizard 2021.12.18.'
 ,p_authentication=>'PLUGIN'
 ,p_authentication_id=>wwv_flow_api.id(9022228209569811)
 ,p_populate_roles=>'A'
@@ -51,6 +50,7 @@ wwv_flow_api.create_flow(
 ,p_deep_linking=>'Y'
 ,p_vpd=>'#OWNER#.app.create_session'
 ,p_vpd_teardown_code=>'#OWNER#.app.exit_session'
+,p_runtime_api_usage=>'T:O'
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_rejoin_existing_sessions=>'N'
 ,p_csv_encoding=>'Y'
