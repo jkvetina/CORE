@@ -62,6 +62,16 @@ d AS (
         AND c.column_name           = b.column_name
     WHERE NVL(c.data_type, '-')     != NVL(b.data_type, '-')
     GROUP BY NVL(c.region_id, b.region_id), NVL(c.table_name, b.table_name)
+),
+da AS (
+    SELECT
+        d.page_id,
+        d.when_region_id            AS region_id,
+        COUNT(*)                    AS count_da
+    FROM apex_application_page_da d
+    JOIN x
+        ON x.app_id                 = d.application_id
+    GROUP BY d.page_id, d.when_region_id
 )
 SELECT
     p.page_group || ' ' || r.page_id || ' ' || p.page_title AS page_group,
@@ -155,8 +165,9 @@ SELECT
     CASE WHEN g.edit_operations LIKE '%u%' THEN 'Y' END AS is_upd_allowed,
     CASE WHEN g.edit_operations LIKE '%d%' THEN 'Y' END AS is_del_allowed,
     --
-    NULLIF(r.items, 0)              AS items,
-    NULLIF(r.buttons, 0)            AS buttons,
+    NULLIF(r.items, 0)              AS count_items,
+    NULLIF(r.buttons, 0)            AS count_buttons,
+    NULLIF(da.count_da, 0)          AS count_da,
     --
     CASE WHEN r.where_clause        IS NOT NULL THEN 'Y' END AS is_where_clause,
     CASE WHEN r.condition_type_code IS NOT NULL THEN 'Y' END AS is_conditional,
@@ -194,6 +205,9 @@ LEFT JOIN apex_application_page_proc s
     ON s.application_id         = g.application_id
     AND s.region_id             = g.region_id
     AND s.process_point_code    = 'AFTER_SUBMIT'
+LEFT JOIN da
+    ON da.page_id               = r.page_id
+    AND da.region_id            = r.region_id
 WHERE r.application_id          = x.app_id
     AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
