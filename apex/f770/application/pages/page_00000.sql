@@ -230,6 +230,7 @@ wwv_flow_api.create_report_region(
 ,p_parent_plug_id=>wwv_flow_api.id(16222516003514114)
 ,p_template=>wwv_flow_api.id(9078290074569925)
 ,p_display_sequence=>70
+,p_region_css_classes=>'style="overflow-x: hidden;"'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#:t-AVPList--fixedLabelLarge:t-AVPList--leftAligned:t-Report--hideNoPagination'
 ,p_new_grid_row=>false
@@ -297,6 +298,7 @@ wwv_flow_api.create_report_region(
 ,p_display_sequence=>130
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#:t-AVPList--fixedLabelMedium:t-AVPList--leftAligned:t-Report--hideNoPagination'
+,p_region_attributes=>'style="overflow-x: hidden;"'
 ,p_new_grid_row=>false
 ,p_grid_column_span=>4
 ,p_display_point=>'BODY'
@@ -437,6 +439,7 @@ wwv_flow_api.create_report_region(
 ,p_display_sequence=>120
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#:t-AVPList--fixedLabelMedium:t-AVPList--leftAligned:t-Report--hideNoPagination'
+,p_region_attributes=>'style="overflow-x: hidden;"'
 ,p_new_grid_row=>false
 ,p_grid_column_span=>4
 ,p_display_point=>'BODY'
