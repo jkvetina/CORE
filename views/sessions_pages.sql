@@ -10,6 +10,7 @@ WITH x AS (
 p AS (
     SELECT
         l.page_id,
+        l.user_id,
         TO_NUMBER(SUBSTR(l.module_timer, 1, 2)) * 1440 +
         TO_NUMBER(SUBSTR(l.module_timer, 4, 2)) * 60 +
         TO_NUMBER(SUBSTR(l.module_timer, 7, 2)) + TO_NUMBER('0.' || SUBSTR(l.module_timer, 10, 3)) AS page_timer
@@ -28,6 +29,7 @@ r AS (
         n.page_id,
         a.page_title,
         COUNT(p.page_timer)                                 AS count_requests,
+        COUNT(DISTINCT p.user_id)                           AS count_users,
         ROUND(AVG(p.page_timer), 2)                         AS avg_time,
         ROUND(MAX(p.page_timer), 2)                         AS max_time,
         ROUND(MAX(p.page_timer) - AVG(p.page_timer), 2)     AS diff_time
@@ -47,10 +49,12 @@ SELECT
     r.page_id,
     r.page_title,
     r.count_requests,
+    r.count_users,
     r.avg_time,
     r.max_time,
     r.diff_time,
     r.page_title || '\nRequests: <b>' || r.count_requests || '</b>'     AS tooltip_requests,
+    r.page_title || '\nUsers: <b>' || r.count_users || '</b>'           AS tooltip_users,
     r.page_title || '\nAvg Time: <b>' || r.avg_time || '</b>'           AS tooltip_avg_time,
     r.page_title || '\nMax Time: <b>' || r.max_time || '</b>'           AS tooltip_max_time
 FROM r;

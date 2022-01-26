@@ -64,6 +64,7 @@ wwv_flow_api.create_jet_chart(
 ,p_orientation=>'vertical'
 ,p_data_cursor=>'auto'
 ,p_data_cursor_behavior=>'auto'
+,p_hide_and_show_behavior=>'withRescale'
 ,p_hover_behavior=>'dim'
 ,p_stack=>'on'
 ,p_stack_label=>'off'
@@ -73,7 +74,8 @@ wwv_flow_api.create_jet_chart(
 ,p_show_series_name=>true
 ,p_show_group_name=>true
 ,p_show_value=>true
-,p_legend_rendered=>'off'
+,p_legend_rendered=>'on'
+,p_legend_position=>'bottom'
 );
 wwv_flow_api.create_jet_chart_series(
  p_id=>wwv_flow_api.id(20857101790868428)
@@ -114,11 +116,26 @@ wwv_flow_api.create_jet_chart_series(
 ,p_stack_category=>'Times'
 ,p_items_label_rendered=>false
 );
+wwv_flow_api.create_jet_chart_series(
+ p_id=>wwv_flow_api.id(20858321815868440)
+,p_chart_id=>wwv_flow_api.id(20857031409868427)
+,p_seq=>40
+,p_name=>'Users'
+,p_location=>'REGION_SOURCE'
+,p_items_value_column_name=>'COUNT_USERS'
+,p_items_label_column_name=>'PAGE_ID'
+,p_items_short_desc_column_name=>'TOOLTIP_USERS'
+,p_assigned_to_y2=>'off'
+,p_stack_category=>'Users'
+,p_items_label_rendered=>false
+);
 wwv_flow_api.create_jet_chart_axis(
  p_id=>wwv_flow_api.id(20857629074868433)
 ,p_chart_id=>wwv_flow_api.id(20857031409868427)
 ,p_axis=>'y2'
 ,p_is_rendered=>'on'
+,p_format_type=>'decimal'
+,p_decimal_places=>0
 ,p_format_scaling=>'auto'
 ,p_scaling=>'linear'
 ,p_baseline_scaling=>'zero'
@@ -675,6 +692,7 @@ wwv_flow_api.create_jet_chart(
 ,p_orientation=>'vertical'
 ,p_data_cursor=>'auto'
 ,p_data_cursor_behavior=>'auto'
+,p_hide_and_show_behavior=>'withRescale'
 ,p_hover_behavior=>'dim'
 ,p_stack=>'off'
 ,p_fill_multi_series_gaps=>false
@@ -683,22 +701,16 @@ wwv_flow_api.create_jet_chart(
 ,p_show_series_name=>true
 ,p_show_group_name=>true
 ,p_show_value=>true
-,p_show_label=>false
-,p_show_row=>false
-,p_show_start=>false
-,p_show_end=>false
-,p_show_progress=>false
-,p_show_baseline=>false
-,p_legend_rendered=>'off'
-,p_show_gauge_value=>false
+,p_legend_rendered=>'on'
+,p_legend_position=>'bottom'
 );
 wwv_flow_api.create_jet_chart_series(
- p_id=>wwv_flow_api.id(11885852966358762)
+ p_id=>wwv_flow_api.id(11886438944358762)
 ,p_chart_id=>wwv_flow_api.id(11884191829358759)
 ,p_seq=>10
-,p_name=>'Users'
+,p_name=>'Requests'
 ,p_location=>'REGION_SOURCE'
-,p_items_value_column_name=>'COUNT_USERS'
+,p_items_value_column_name=>'COUNT_REQUESTS'
 ,p_items_label_column_name=>'CHART_LABEL'
 ,p_line_style=>'solid'
 ,p_line_type=>'auto'
@@ -723,12 +735,12 @@ wwv_flow_api.create_jet_chart_series(
 ,p_items_label_rendered=>false
 );
 wwv_flow_api.create_jet_chart_series(
- p_id=>wwv_flow_api.id(11886438944358762)
+ p_id=>wwv_flow_api.id(14219367382378941)
 ,p_chart_id=>wwv_flow_api.id(11884191829358759)
 ,p_seq=>30
-,p_name=>'Requests'
+,p_name=>'Others'
 ,p_location=>'REGION_SOURCE'
-,p_items_value_column_name=>'COUNT_REQUESTS'
+,p_items_value_column_name=>'COUNT_OTHERS'
 ,p_items_label_column_name=>'CHART_LABEL'
 ,p_line_style=>'solid'
 ,p_line_type=>'auto'
@@ -738,12 +750,12 @@ wwv_flow_api.create_jet_chart_series(
 ,p_items_label_rendered=>false
 );
 wwv_flow_api.create_jet_chart_series(
- p_id=>wwv_flow_api.id(14219367382378941)
+ p_id=>wwv_flow_api.id(11885852966358762)
 ,p_chart_id=>wwv_flow_api.id(11884191829358759)
 ,p_seq=>40
-,p_name=>'Others'
+,p_name=>'Users'
 ,p_location=>'REGION_SOURCE'
-,p_items_value_column_name=>'COUNT_OTHERS'
+,p_items_value_column_name=>'COUNT_USERS'
 ,p_items_label_column_name=>'CHART_LABEL'
 ,p_line_style=>'solid'
 ,p_line_type=>'auto'
