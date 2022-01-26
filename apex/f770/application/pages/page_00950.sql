@@ -53,73 +53,42 @@ wwv_flow_api.create_page_plug(
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
-wwv_flow_api.create_report_region(
- p_id=>wwv_flow_api.id(16024790057727232)
-,p_name=>'Database Objects'
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(20857944656868436)
+,p_plug_name=>'Database Objects [GEN]'
 ,p_region_name=>'OBJECTS'
-,p_template=>wwv_flow_api.id(9078290074569925)
-,p_display_sequence=>50
-,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_region_template_options=>'#DEFAULT#'
-,p_component_template_options=>'#DEFAULT#:t-BadgeList--large:t-BadgeList--dash:t-BadgeList--cols t-BadgeList--5cols:t-Report--hideNoPagination'
-,p_grid_column_span=>6
-,p_display_point=>'BODY'
-,p_source_type=>'NATIVE_SQL_REPORT'
-,p_query_type=>'SQL'
-,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT',
-'    SUM(CASE object_type WHEN ''TABLE''        THEN 1 ELSE 0 END) AS tables_,',
-'    SUM(CASE object_type WHEN ''VIEW''         THEN 1 ELSE 0 END) AS views_,',
-'    0 AS materialized_views_',
-'FROM user_objects',
-'WHERE object_type NOT IN (''PACKAGE BODY'', ''TABLE PARTITION'');',
+,p_component_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_api.id(9078290074569925)
+,p_plug_display_sequence=>30
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_grid_column_span=>6
+,p_plug_display_point=>'BODY'
+,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'-- since badge list doesnt support links...',
+'htp.p(''<ul class="t-BadgeList t-BadgeList--large t-BadgeList--dash t-BadgeList--cols t-BadgeList--5cols t-Report--hideNoPagination" data-region-id="OBJECTS">'');',
+'--',
+'FOR c IN (',
+'    SELECT o.*',
+'    FROM obj_overview o',
+'    ORDER BY 1',
+') LOOP',
+'    htp.p(''<li class="t-BadgeList-item" style="border-bottom: 0;">'');',
+'    htp.p(CASE WHEN c.page_link IS NOT NULL THEN ''<a href="'' || c.page_link || ''" style="color: #000;">'' END);',
+'    htp.p(''<span class="t-BadgeList-wrap u-color">'');',
+'    htp.p(''<span class="t-BadgeList-label">'' || c.object_type || ''</span>'');',
+'    htp.p(''<span class="t-BadgeList-value">'' || c.count_objects || ''</span>'');',
+'    htp.p(''</span>'' || CASE WHEN c.page_link IS NOT NULL THEN ''</a>'' END);',
+'    htp.p(''</li>'');',
+'END LOOP;',
+'--',
+'htp.p(''</ul>'');',
 ''))
-,p_display_condition_type=>'NEVER'
-,p_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
+,p_plug_source_type=>'NATIVE_PLSQL'
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<br />',
 ''))
-,p_ajax_enabled=>'Y'
-,p_lazy_loading=>false
-,p_query_row_template=>wwv_flow_api.id(9092275056569942)
-,p_query_num_rows=>20
-,p_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_csv_output=>'N'
-,p_prn_output=>'N'
-,p_sort_null=>'L'
-,p_plug_query_strip_html=>'N'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(16025708947727242)
-,p_query_column_id=>1
-,p_column_alias=>'TABLES_'
-,p_column_display_sequence=>10
-,p_column_heading=>'Tables'
-,p_use_as_row_header=>'N'
-,p_disable_sort_column=>'N'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(16025883287727243)
-,p_query_column_id=>2
-,p_column_alias=>'VIEWS_'
-,p_column_display_sequence=>20
-,p_column_heading=>'Views'
-,p_use_as_row_header=>'N'
-,p_disable_sort_column=>'N'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(17062088908582706)
-,p_query_column_id=>3
-,p_column_alias=>'MATERIALIZED_VIEWS_'
-,p_column_display_sequence=>30
-,p_column_heading=>'Materialized Views'
-,p_use_as_row_header=>'N'
-,p_disable_sort_column=>'N'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(36914517833495810)
@@ -127,7 +96,7 @@ wwv_flow_api.create_page_plug(
 ,p_region_name=>'OBJECTS'
 ,p_region_template_options=>'#DEFAULT#:t-CardsRegion--styleB'
 ,p_plug_template=>wwv_flow_api.id(9052354744569904)
-,p_plug_display_sequence=>30
+,p_plug_display_sequence=>50
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_grid_column_span=>6
 ,p_plug_display_point=>'BODY'
@@ -140,6 +109,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_query_num_rows_type=>'SCROLL'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_show_total_row_count=>false
+,p_plug_display_condition_type=>'NEVER'
 ,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<br />',
 ''))
@@ -188,6 +158,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source_type=>'NATIVE_JQM_LIST_VIEW'
 ,p_plug_query_num_rows=>50
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_query_no_data_found=>'No invalid objects found'
 ,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<br />',
 ''))
