@@ -14,7 +14,7 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>940
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'#fa-line-chart Events'
+,p_name=>'#fa-alert Events'
 ,p_alias=>'EVENTS'
 ,p_step_title=>'Events'
 ,p_autocomplete_on_off=>'OFF'
@@ -22,12 +22,12 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220122143044'
+,p_last_upd_yyyymmddhh24miss=>'20220126170010'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21640682102592259)
-,p_plug_name=>'Events'
-,p_icon_css_classes=>'fa-line-chart'
+,p_plug_name=>'Events (log)'
+,p_icon_css_classes=>'fa-alert'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
@@ -890,7 +890,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21827346720427653)
 ,p_plug_name=>'Events'
-,p_icon_css_classes=>'fa-bookmark'
+,p_icon_css_classes=>'fa-alarm-clock'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>50
