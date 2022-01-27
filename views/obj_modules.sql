@@ -1,8 +1,13 @@
 CREATE OR REPLACE VIEW obj_modules AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$PACKAGE_NAME')   AS package_name,
-        app.get_item('$MODULE_TYPE')    AS module_type
+        app.get_item('$PACKAGE_NAME')               AS package_name,
+        app.get_item('$MODULE_TYPE')                AS module_type,
+        --
+        UPPER(app.get_item('$SEARCH_PACKAGES'))     AS search_packages,
+        UPPER(app.get_item('$SEARCH_MODULES'))      AS search_modules,
+        UPPER(app.get_item('$SEARCH_ARGUMENTS'))    AS search_arguments,
+        LOWER(app.get_item('$SEARCH_SOURCE'))       AS search_source
     FROM DUAL
 ),
 p AS (
@@ -29,16 +34,27 @@ p AS (
         AND NVL(p.overload, 1)  = 1
     JOIN x
         ON s.name               = NVL(x.package_name, s.name)
+        AND (p.object_name      LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
     WHERE i.type                IN ('PROCEDURE', 'FUNCTION')
         AND i.object_type       IN ('PACKAGE', 'PACKAGE BODY')
         AND i.usage             = CASE s.type WHEN 'PACKAGE BODY' THEN 'DEFINITION' ELSE 'DECLARATION' END
 ),
-e AS (
-    -- find ending lines
-    SELECT s.*
+s AS (
+    SELECT
+        s.name,
+        s.type,
+        s.line,
+        s.text,
+        CASE WHEN LOWER(s.text) LIKE '%' || x.search_source || '%' ESCAPE '\' THEN 'Y' END AS is_found_text
     FROM user_source s
     JOIN x
-        ON s.name               = NVL(x.package_name, s.name)
+        ON s.name       = NVL(x.package_name, s.name)
+        AND (s.name     LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
+),
+e AS (
+    -- find ending lines
+    SELECT s.name, s.type, s.line
+    FROM s
     WHERE (
         (s.type = 'PACKAGE BODY' AND REGEXP_LIKE(UPPER(s.text), '^\s*END(\s+[A-Z0-9_]+)?\s*;')) OR
         (s.type = 'PACKAGE'      AND REGEXP_LIKE(UPPER(s.text), ';'))
@@ -70,44 +86,50 @@ t AS (
 a AS (
     -- arguments
     SELECT
-        a.package_name,
-        a.object_name                                                                           AS module_name,
-        MIN(CASE WHEN a.in_out = 'OUT' AND a.position = 0 THEN 'FUNCTION' ELSE 'PROCEDURE' END) AS module_type,
-        a.overload,
-        NULLIF(SUM(CASE WHEN a.in_out LIKE 'IN%'  THEN 1 ELSE 0 END), 0)                        AS args_in,
-        NULLIF(SUM(CASE WHEN a.in_out LIKE '%OUT' AND position > 0 THEN 1 ELSE 0 END), 0)       AS args_out
-    FROM user_arguments a
-    JOIN x
-        ON a.package_name       = NVL(x.package_name, a.package_name)
-    GROUP BY a.package_name, a.object_name, a.overload
+        t.package_name,
+        t.module_name,
+        t.module_type,
+        t.overload,
+        --
+        NULLIF(SUM(CASE WHEN a.in_out LIKE 'IN%' THEN 1 ELSE 0 END), 0)                             AS args_in,
+        NULLIF(SUM(CASE WHEN a.in_out LIKE '%OUT' AND position > 0 THEN 1 ELSE 0 END), 0)           AS args_out,
+        MAX(CASE WHEN (a.argument_name LIKE x.search_arguments || '%' ESCAPE '\') THEN 'Y' END)     AS is_arg_present
+    FROM t
+    CROSS JOIN x
+    LEFT JOIN user_arguments a
+        ON a.package_name       = t.package_name
+        AND a.object_name       = t.module_name
+        AND NVL(a.overload, 0)  = NVL(t.overload, 0)
+    GROUP BY t.package_name, t.module_name, t.module_type, t.overload
 ),
 d AS (
     -- documentation lines
     SELECT
-        d.package_name, d.module_name, d.module_type, d.overload, --x.line, x.text
-        LISTAGG(REGEXP_SUBSTR(x.text, '^\s*--\s*(.*)\s*$', 1, 1, NULL, 1), '<br />') WITHIN GROUP (ORDER BY x.line) AS comment_,
-        MIN(x.line) AS doc_start
+        d.package_name, d.module_name, d.module_type, d.overload, --s.line, s.text
+        LISTAGG(REGEXP_SUBSTR(s.text, '^\s*--\s*(.*)\s*$', 1, 1, NULL, 1), '<br />') WITHIN GROUP (ORDER BY s.line) AS comment_,
+        MIN(s.line) AS doc_start
     FROM (
         SELECT
             t.package_name, t.module_name, t.module_type, t.overload,
-            MAX(x.line) + 1     AS doc_start,
+            MAX(s.line) + 1     AS doc_start,
             t.spec_start - 1    AS doc_end
         FROM t
-        LEFT JOIN user_source x
-            ON x.name       = t.package_name
-            AND x.type      = 'PACKAGE'
-            AND x.line      < t.spec_start
-            AND REGEXP_LIKE(x.text, '^\s*$')
+        LEFT JOIN s
+            ON s.name       = t.package_name
+            AND s.type      = 'PACKAGE'
+            AND s.line      < t.spec_start
+            AND REGEXP_LIKE(s.text, '^\s*$')
         GROUP BY t.package_name, t.module_name, t.module_type, t.overload, t.spec_start
     ) d
-    LEFT JOIN user_source x
-        ON x.name       = d.package_name
-        AND x.type      = 'PACKAGE'
-        AND x.line      BETWEEN d.doc_start AND d.doc_end
-        AND NOT REGEXP_LIKE(x.text, '^\s*--\s*$')
+    LEFT JOIN s
+        ON s.name           = d.package_name
+        AND s.type          = 'PACKAGE'
+        AND s.line          BETWEEN d.doc_start AND d.doc_end
+        AND NOT REGEXP_LIKE(s.text, '^\s*--\s*$')
     GROUP BY d.package_name, d.module_name, d.module_type, d.overload
 ),
 g AS (
+    -- group for related modules
     SELECT
         s.name,
         s.line,
@@ -115,9 +137,21 @@ g AS (
         RPAD(' ', ROW_NUMBER() OVER(ORDER BY s.line DESC))      AS group_sort
     FROM user_source s
     JOIN x
-        ON s.name       = NVL(x.package_name, s.name)
-    WHERE s.type        = 'PACKAGE'
+        ON s.name           = NVL(x.package_name, s.name)
+        AND (s.name         LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
+    WHERE s.type            = 'PACKAGE'
         AND REGEXP_LIKE(s.text, '^\s*--\s*###')
+),
+f AS (
+    -- search source code
+    SELECT t.package_name, t.module_name, t.overload
+    FROM t
+    JOIN s
+        ON s.name           = t.package_name
+        AND s.type          = 'PACKAGE BODY'
+        AND s.line          BETWEEN t.body_start AND t.body_end
+        AND s.is_found_text = 'Y'
+    GROUP BY t.package_name, t.module_name, t.overload
 )
 SELECT
     t.package_name,
@@ -134,7 +168,7 @@ SELECT
     --
     CASE WHEN t.module_type = 'FUNCTION'    THEN 'Y' END AS is_function,
     CASE WHEN b.text IS NOT NULL            THEN 'Y' END AS is_private,
-    CASE WHEN a.text IS NOT NULL            THEN 'Y' END AS is_autonomous,
+    CASE WHEN n.text IS NOT NULL            THEN 'Y' END AS is_autonomous,
     CASE WHEN t.result_cache = 'YES'        THEN 'Y' END AS is_cached,
     CASE WHEN t.authid = 'DEFINER'          THEN 'Y' END AS is_definer,
     --
@@ -153,26 +187,33 @@ FROM t
 JOIN x
     ON t.package_name                   = NVL(x.package_name, t.package_name)
     AND SUBSTR(t.module_type, 1, 1)     = NVL(x.module_type, SUBSTR(t.module_type, 1, 1))
-LEFT JOIN a
+    --
+    AND (t.package_name LIKE x.search_packages || '%' ESCAPE '\'    OR x.search_packages    IS NULL)
+    AND (t.module_name LIKE x.search_modules || '%' ESCAPE '\'      OR x.search_modules     IS NULL)
+JOIN a
     ON a.package_name       = t.package_name
     AND a.module_name       = t.module_name
-    AND a.module_type       = t.module_type
-    AND NVL(a.overload, 1)  = NVL(t.overload, 1)
-LEFT JOIN d
+    AND NVL(a.overload, 0)  = NVL(t.overload, 0)
+    AND (a.is_arg_present   = 'Y' OR x.search_arguments IS NULL)
+JOIN d
     ON d.package_name       = t.package_name
     AND d.module_name       = t.module_name
-    AND d.module_type       = t.module_type
-    AND NVL(d.overload, 1)  = NVL(t.overload, 1)
-LEFT JOIN user_source b
-    ON b.name       = t.package_name
-    AND b.type      = 'PACKAGE'
-    AND b.line      BETWEEN t.spec_start AND t.spec_end
+    AND NVL(d.overload, 0)  = NVL(t.overload, 0)
+LEFT JOIN s b
+    ON b.name               = t.package_name
+    AND b.type              = 'PACKAGE'
+    AND b.line              BETWEEN t.spec_start AND t.spec_end
     AND REGEXP_LIKE(b.text, '^\s*(ACCESSIBLE BY)')
-LEFT JOIN user_source a
-    ON a.name       = t.package_name
-    AND a.type      = 'PACKAGE BODY'
-    AND a.line      BETWEEN t.body_start AND t.body_end
-    AND REGEXP_LIKE(a.text, 'PRAGMA\s+AUTONOMOUS_TRANSACTION');
+LEFT JOIN s n
+    ON n.name               = t.package_name
+    AND n.type              = 'PACKAGE BODY'
+    AND n.line              BETWEEN t.body_start AND t.body_end
+    AND REGEXP_LIKE(n.text, 'PRAGMA\s+AUTONOMOUS_TRANSACTION')
+LEFT JOIN f
+    ON f.package_name       = t.package_name
+    AND f.module_name       = t.module_name
+    AND NVL(f.overload, 0)  = NVL(t.overload, 0)
+WHERE (f.module_name IS NOT NULL OR x.search_source IS NULL);
 --
 COMMENT ON TABLE obj_modules                    IS 'Find package modules (procedures and functions) and their boundaries (start-end lines)';
 --
