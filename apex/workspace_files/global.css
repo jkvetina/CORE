@@ -17,6 +17,17 @@
     margin-top:             1.4rem;
 }
 
+/* STRETCH HERO REGION + SHOW CLOSE BUTTON ON RIGHT EDGE */
+.t-HeroRegion-col.t-HeroRegion-col--right {
+    display:        none;
+}
+.t-HeroRegion-col.t-HeroRegion-col--content button.RIGHT {
+    float:          right;
+    position:       relative;
+    right:          0;
+    top:            1rem;
+}
+
 
 
 /* LINKS IN GRID */
@@ -189,6 +200,9 @@ button.a-Button.a-Button--notification.js-showDetails {
 .ui-dialog-titlebar > * {
     display:                none;
 }
+.HIDDEN {
+    display:                none;
+}
 
 
 
@@ -208,5 +222,16 @@ footer.t-Footer div.t-Footer-top a {  /* LINK TO TOP */
 ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
     font-weight: normal;
     background: transparent;
+}
+
+
+
+/* SHOW SOURCE CODE AS MONOSPACE */
+.SOURCE_CODE td.t-Report-cell {
+    padding:                0.1rem 0.5rem;
+    font-family:            monospace;
+    font-size:              85%;
+    white-space:            pre;
+    color:                  #111;
 }
 
