@@ -856,6 +856,27 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_page_title (
+        in_page_id              navigation.page_id%TYPE     := NULL,
+        in_app_id               navigation.app_id%TYPE      := NULL
+    )
+    RETURN VARCHAR2
+    AS
+        out_title               apex_application_pages.page_title%TYPE;
+    BEGIN
+        SELECT p.page_title INTO out_title
+        FROM apex_application_pages p
+        WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
+            AND p.page_id           = COALESCE(in_page_id, app.get_page_id());
+        --
+        RETURN out_title;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    END;
+
+
+
     FUNCTION get_page_link (
         in_page_id              navigation.page_id%TYPE     := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL,
