@@ -782,7 +782,8 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
     PROCEDURE clob_to_lines (
         in_name         VARCHAR2,
-        in_clob         CLOB
+        in_clob         CLOB,
+        in_offset       NUMBER          := NULL
     )
     AS
         clob_len        PLS_INTEGER     := DBMS_LOB.GETLENGTH(in_clob);
@@ -804,15 +805,13 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 DBMS_LOB.READ(in_clob, amount, offset, buffer);
             END IF;
             --
-            --
-            -- CREATE COLLECTION INSTEAD
-            -- RETURN
+            -- @TODO: CREATE & RETURN COLLECTION INSTEAD
             --
             IF clob_line > 1 THEN
                 INSERT INTO user_source_views (name, line, text)
                 VALUES (
                     in_name,
-                    clob_line - 1,
+                    clob_line - 1 - NVL(in_offset, 0),
                     REPLACE(REPLACE(CASE WHEN clob_line = 2 THEN LTRIM(buffer) ELSE buffer END, CHR(13), ''), CHR(10), '')
                 );
             END IF;

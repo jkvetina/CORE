@@ -273,7 +273,8 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
     PROCEDURE clob_to_lines (
         in_name         VARCHAR2,
-        in_clob         CLOB
+        in_clob         CLOB,
+        in_offset       NUMBER          := NULL
     );
 
 
