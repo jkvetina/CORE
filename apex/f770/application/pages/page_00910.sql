@@ -2489,6 +2489,35 @@ wwv_flow_api.create_page_da_action(
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_api.id(9192134749668638)
 );
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(21544148306954435)
+,p_name=>'HIDE_GLOBAL_PAGE_REGIONS'
+,p_event_sequence=>10
+,p_bind_type=>'bind'
+,p_bind_event_type=>'ready'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(21544217400954436)
+,p_event_id=>wwv_flow_api.id(21544148306954435)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'// hide global page regions, wait for grid to load',
+'(function myLoop(i) {',
+'    setTimeout(function() {',
+'        var x = $(''#PAGE_REGIONS table tbody tr:first button'');',
+'        if (x) {',
+'            x.click();',
+'            x.blur();',
+'            return;',
+'        }',
+'        if (--i) myLoop(i);',
+'    }, 1000)',
+'})(10);',
+''))
+);
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(9260819025429009)
 ,p_process_sequence=>10
