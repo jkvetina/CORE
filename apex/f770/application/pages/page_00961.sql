@@ -304,7 +304,7 @@ wwv_flow_api.create_page_item(
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(21542290793954416)
-,p_name=>'P961_SOURCE_CLOB'
+,p_name=>'P961_CLOB_SOURCE'
 ,p_item_sequence=>80
 ,p_item_plug_id=>wwv_flow_api.id(16023674651727221)
 ,p_prompt=>'CLOB'
@@ -320,8 +320,24 @@ wwv_flow_api.create_page_item(
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(21542719121954421)
-,p_name=>'P961_CALLER_CLOB'
+,p_name=>'P961_CLOB_CALLER'
 ,p_item_sequence=>90
+,p_item_plug_id=>wwv_flow_api.id(16023674651727221)
+,p_prompt=>'CLOB'
+,p_display_as=>'NATIVE_TEXTAREA'
+,p_cSize=>30
+,p_cHeight=>5
+,p_tag_attributes=>'style="max-height: 1px;"'
+,p_grid_row_css_classes=>'HIDDEN'
+,p_attribute_01=>'Y'
+,p_attribute_02=>'N'
+,p_attribute_03=>'N'
+,p_attribute_04=>'BOTH'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(21543509717954429)
+,p_name=>'P961_CLOB_HANDLER'
+,p_item_sequence=>100
 ,p_item_plug_id=>wwv_flow_api.id(16023674651727221)
 ,p_prompt=>'CLOB'
 ,p_display_as=>'NATIVE_TEXTAREA'
@@ -372,6 +388,8 @@ wwv_flow_api.create_page_da_event(
 ,p_triggering_button_id=>wwv_flow_api.id(21541592953954409)
 ,p_bind_type=>'bind'
 ,p_bind_event_type=>'click'
+,p_display_when_type=>'ITEM_IS_NOT_NULL'
+,p_display_when_cond=>'P961_CLOB_SOURCE'
 );
 wwv_flow_api.create_page_da_action(
  p_id=>wwv_flow_api.id(21542460104954418)
@@ -381,7 +399,7 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'var item = $(''#P961_SOURCE_CLOB'');',
+'var item = $(''#P961_CLOB_SOURCE'');',
 'var parent = item.closest(''.HIDDEN'');',
 'parent.removeClass(''HIDDEN'');',
 'item.focus().select();',
@@ -398,6 +416,8 @@ wwv_flow_api.create_page_da_event(
 ,p_triggering_button_id=>wwv_flow_api.id(21541647525954410)
 ,p_bind_type=>'bind'
 ,p_bind_event_type=>'click'
+,p_display_when_type=>'ITEM_IS_NOT_NULL'
+,p_display_when_cond=>'P961_CLOB_CALLER'
 );
 wwv_flow_api.create_page_da_action(
  p_id=>wwv_flow_api.id(21543075155954424)
@@ -407,13 +427,41 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'var item = $(''#P961_CALLER_CLOB'');',
+'var item = $(''#P961_CLOB_CALLER'');',
 'var parent = item.closest(''.HIDDEN'');',
 'parent.removeClass(''HIDDEN'');',
 'item.focus().select();',
 'apex.clipboard.copy();',
 'parent.addClass(''HIDDEN'');',
 'apex.message.showPageSuccess(''Procedure caller copied to clipboard'');',
+''))
+);
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(21543671795954430)
+,p_name=>'COPY_HANDLER'
+,p_event_sequence=>30
+,p_triggering_element_type=>'BUTTON'
+,p_triggering_button_id=>wwv_flow_api.id(21542011440954414)
+,p_bind_type=>'bind'
+,p_bind_event_type=>'click'
+,p_display_when_type=>'ITEM_IS_NOT_NULL'
+,p_display_when_cond=>'P961_CLOB_HANDLER'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(21543713456954431)
+,p_event_id=>wwv_flow_api.id(21543671795954430)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'var item = $(''#P961_CLOB_HANDLER'');',
+'var parent = item.closest(''.HIDDEN'');',
+'parent.removeClass(''HIDDEN'');',
+'item.focus().select();',
+'apex.clipboard.copy();',
+'parent.addClass(''HIDDEN'');',
+'apex.message.showPageSuccess(''View handler copied to clipboard'');',
 ''))
 );
 wwv_flow_api.create_page_process(
@@ -425,53 +473,70 @@ wwv_flow_api.create_page_process(
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 ':P961_SHOW_PROCEDURE    := CASE WHEN :P961_PACKAGE_NAME IS NOT NULL THEN ''Y'' END;',
 ':P961_SHOW_VIEW         := CASE WHEN :P961_VIEW_NAME    IS NOT NULL THEN ''Y'' END;',
-':P961_SOURCE_CLOB       := '''';',
-'',
-'-- prepare view for copy paste',
-'IF :P961_SHOW_VIEW IS NOT NULL THEN',
-'    FOR c IN (',
-'        SELECT t.text',
-'        FROM user_source_views t',
-'        WHERE t.name = :P961_VIEW_NAME',
-'        ORDER BY t.line',
-'    ) LOOP',
-'        :P961_SOURCE_CLOB := :P961_SOURCE_CLOB || c.text || CHR(10);',
-'    END LOOP;',
-'    --',
-'    :P961_SOURCE_CLOB := RTRIM(:P961_SOURCE_CLOB, CHR(10)) || '';'' || CHR(10);',
-'END IF;',
-'',
-'-- prepare procedure for copy paste',
-'IF :P961_SHOW_PROCEDURE IS NOT NULL THEN',
-'    FOR c IN (',
-'        SELECT t.text',
-'        FROM user_source t',
-'        WHERE t.name        = :P961_PACKAGE_NAME',
-'            AND t.type      = ''PACKAGE BODY''',
-'            AND t.line      BETWEEN :P961_LINE_START AND :P961_LINE_END',
-'        ORDER BY t.line',
-'    ) LOOP',
-'        :P961_SOURCE_CLOB := :P961_SOURCE_CLOB || c.text;',
-'    END LOOP;',
-'    --',
-'    :P961_SOURCE_CLOB := :P961_SOURCE_CLOB || CHR(10);',
-'END IF;',
+'--',
+':P961_CLOB_SOURCE       := '''';',
+':P961_CLOB_CALLER       := '''';',
+':P961_CLOB_HANDLER      := '''';',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
 wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(21542612419954420)
+ p_id=>wwv_flow_api.id(21543382621954427)
 ,p_process_sequence=>20
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'INIT_CALLER'
+,p_process_name=>'INIT_SOURCE_PROC'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-':P961_CALLER_CLOB := '''';',
+'-- prepare procedure for copy paste',
+'FOR c IN (',
+'    SELECT t.text',
+'    FROM user_source t',
+'    WHERE t.name        = :P961_PACKAGE_NAME',
+'        AND t.type      = ''PACKAGE BODY''',
+'        AND t.line      BETWEEN :P961_LINE_START AND :P961_LINE_END',
+'    ORDER BY t.line',
+') LOOP',
+'    :P961_CLOB_SOURCE := :P961_CLOB_SOURCE || c.text;',
+'END LOOP;',
+''))
+,p_process_clob_language=>'PLSQL'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when=>'P961_SHOW_PROCEDURE'
+,p_process_when_type=>'ITEM_IS_NOT_NULL'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(21543226420954426)
+,p_process_sequence=>30
+,p_process_point=>'BEFORE_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'INIT_SOURCE_VIEW'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'-- prepare view for copy paste',
+'FOR c IN (',
+'    SELECT t.text',
+'    FROM user_source_views t',
+'    WHERE t.name = :P961_VIEW_NAME',
+'    ORDER BY t.line',
+') LOOP',
+'    :P961_CLOB_SOURCE := :P961_CLOB_SOURCE || c.text || CHR(10);',
+'END LOOP;',
 '--',
+':P961_CLOB_SOURCE := RTRIM(:P961_CLOB_SOURCE, CHR(10)) || '';'' || CHR(10);',
+''))
+,p_process_clob_language=>'PLSQL'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when=>'P961_SHOW_VIEW'
+,p_process_when_type=>'ITEM_IS_NOT_NULL'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(21542612419954420)
+,p_process_sequence=>40
+,p_process_point=>'BEFORE_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'INIT_SOURCE_CALLER'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'DECLARE',
-'    out_clob        VARCHAR2(32767);',
-'    --',
 '    v_message       VARCHAR2(200);',
 '    v_status        INTEGER             := 0;',
 'BEGIN',
@@ -487,15 +552,47 @@ wwv_flow_api.create_page_process(
 '        DBMS_OUTPUT.GET_LINE(v_message, v_status);',
 '        --',
 '        IF (v_status = 0) THEN',
-'            out_clob := out_clob || v_message || CHR(10);',
+'            :P961_CLOB_CALLER := :P961_CLOB_CALLER || v_message || CHR(10);',
 '        END IF;',
 '    END LOOP;',
-'    --',
-'    :P961_CALLER_CLOB := out_clob;',
 'END;',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when=>'P961_SHOW_PROCEDURE'
+,p_process_when_type=>'ITEM_IS_NOT_NULL'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(21543405772954428)
+,p_process_sequence=>50
+,p_process_point=>'BEFORE_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'INIT_SOURCE_HANDLER'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'DECLARE',
+'    v_message       VARCHAR2(200);',
+'    v_status        INTEGER             := 0;',
+'BEGIN',
+'    DBMS_OUTPUT.ENABLE;',
+'    gen.create_handler (',
+'        in_table_name       => :P961_VIEW_NAME,',
+'        in_target_table     => :P961_VIEW_NAME',
+'    );',
+'    --',
+'    LOOP',
+'        EXIT WHEN v_status = 1;',
+'        DBMS_OUTPUT.GET_LINE(v_message, v_status);',
+'        --',
+'        IF (v_status = 0) THEN',
+'            :P961_CLOB_HANDLER := :P961_CLOB_HANDLER || v_message || CHR(10);',
+'        END IF;',
+'    END LOOP;',
+'END;',
+''))
+,p_process_clob_language=>'PLSQL'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when=>'P961_SHOW_VIEW'
+,p_process_when_type=>'ITEM_IS_NOT_NULL'
 );
 wwv_flow_api.component_end;
 end;
