@@ -7,6 +7,7 @@ WITH x AS (
     FROM DUAL
 ),
 c AS (
+    -- retrieve columns from table used on grid
     SELECT
         r.region_id,
         c.table_name,
@@ -28,6 +29,7 @@ c AS (
         AND r.query_type_code       = 'TABLE'
 ),
 b AS (
+    -- retrieve columns from grid definition
     SELECT
         c.region_id,
         r.table_name,
@@ -46,6 +48,7 @@ b AS (
         AND c.data_type             NOT IN ('ROWID')
 ),
 d AS (
+    -- calculate difference
     SELECT
         NVL(c.region_id, b.region_id)       AS region_id,
         NVL(c.table_name, b.table_name)     AS table_name,
@@ -64,6 +67,7 @@ d AS (
     GROUP BY NVL(c.region_id, b.region_id), NVL(c.table_name, b.table_name)
 ),
 da AS (
+    -- dynamic actions
     SELECT
         d.page_id,
         d.when_region_id            AS region_id,
@@ -72,6 +76,21 @@ da AS (
     JOIN x
         ON x.app_id                 = d.application_id
     GROUP BY d.page_id, d.when_region_id
+),
+s AS (
+    -- sort regions as tree
+    SELECT
+        r.page_id,
+        r.region_id,
+        r.page_id || SYS_CONNECT_BY_PATH(LPAD(r.display_sequence, 4, '0'), '/') AS sort#,
+        LEVEL AS lvl
+    FROM apex_application_page_regions r
+    JOIN apex_application_pages p
+        ON p.application_id         = r.application_id
+        AND p.page_id               = r.page_id
+    CROSS JOIN x
+    CONNECT BY r.parent_region_id   = PRIOR r.region_id
+    START WITH r.parent_region_id   IS NULL
 )
 SELECT
     p.page_group || ' ' || r.page_id || ' ' || p.page_title AS page_group,
@@ -80,10 +99,7 @@ SELECT
     --
     CASE WHEN r.icon_css_classes IS NOT NULL THEN app.get_icon(r.icon_css_classes) END AS region_icon,
     --
-    CASE
-        WHEN r.template != 'Hero'
-            THEN REPLACE(RPAD(' ', 3), ' ', '&' || 'nbsp; ')
-            END || r.region_name AS region_name,
+    REPLACE(RPAD(' ', 3 * (s.lvl - 1)), ' ', '&' || 'nbsp; ') || r.region_name AS region_name,
     --
     --r.parent_region_id,
     --r.source_type,
@@ -187,12 +203,18 @@ SELECT
     --
     r.display_sequence,
     r.query_type_code,
-    r.authorization_scheme
+    r.authorization_scheme,
+    --
+    s.lvl,
+    s.sort#
 FROM apex_application_page_regions r
 JOIN apex_application_pages p
     ON p.application_id         = r.application_id
     AND p.page_id               = r.page_id
 CROSS JOIN x
+JOIN s
+    ON s.page_id                = r.page_id
+    AND s.region_id             = r.region_id
 LEFT JOIN user_objects t
     ON t.object_name            = r.table_name
     AND t.object_type           IN ('TABLE', 'VIEW')
@@ -209,9 +231,9 @@ LEFT JOIN da
     ON da.page_id               = r.page_id
     AND da.region_id            = r.region_id
 WHERE r.application_id          = x.app_id
-    AND r.parent_region_id      IS NULL
     AND (x.page_id              = p.page_id OR x.page_id IS NULL)
-    AND (x.auth_scheme          = r.authorization_scheme OR x.auth_scheme IS NULL);
+    AND (x.auth_scheme          = r.authorization_scheme OR x.auth_scheme IS NULL)
+    AND r.page_id               NOT IN (9999);
 --
 COMMENT ON TABLE nav_regions IS '[CORE - DASHBOARD] Regions on page/s';
 
