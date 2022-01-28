@@ -748,25 +748,62 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    PROCEDURE refresh_user_source_views
+    PROCEDURE refresh_user_source_views (
+        in_force                BOOLEAN         := FALSE
+    )
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
+        --
+        in_table_name           CONSTANT user_objects.object_name%TYPE := 'USER_SOURCE_VIEWS';
+        --
+        v_table_time            user_objects.last_ddl_time%TYPE;
+        v_views_time            user_objects.last_ddl_time%TYPE;
     BEGIN
-        app.log_module();
-        --
-        DELETE FROM user_source_views;
-        --
+        app.log_module(CASE WHEN in_force THEN 'Y' END);
+
+        -- compare timestamps
+        IF NOT in_force THEN
+            SELECT o.last_ddl_time INTO v_table_time
+            FROM user_objects o
+            WHERE o.object_name     = in_table_name
+                AND o.object_type   = 'TABLE';
+            --
+            SELECT MAX(o.last_ddl_time) INTO v_views_time
+            FROM user_objects o
+            WHERE o.object_type     = 'VIEW';
+
+            -- refresh not needed
+            IF v_table_time > v_views_time THEN
+                app.log_result('SKIPPING');
+                RETURN;
+            END IF;
+        ELSE
+            -- in force mode cleanup whole table
+            DELETE FROM user_source_views;  -- truncate?
+        END IF;
+
+        -- refresh table content
         FOR c IN (
             SELECT
                 v.view_name,
                 DBMS_METADATA.GET_DDL('VIEW', v.view_name) AS content
             FROM user_views v
+            JOIN user_objects o
+                ON o.object_name        = v.view_name
+                AND o.object_type       = 'VIEW'
+                AND (o.last_ddl_time    >= v_table_time OR v_table_time IS NULL)
         ) LOOP
-            DBMS_OUTPUT.PUT_LINE(c.view_name);
+            DELETE FROM user_source_views t
+            WHERE t.name = c.view_name;
+            --
             app_actions.clob_to_lines(c.view_name, REGEXP_REPLACE(c.content, '^(\s*)', ''));
         END LOOP;
         --
         COMMIT;
+
+        -- alter table to update last refresh date
+        EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' ADD tmp_col NUMBER';
+        EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' DROP COLUMN tmp_col';
         --
         app.log_success();
     EXCEPTION
