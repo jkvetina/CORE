@@ -25,13 +25,24 @@ r AS (
 )
 SELECT
     t.table_name,
-    g.trigger_name,
     --
     CASE
         WHEN c.comments LIKE '[%]%'
             THEN REGEXP_SUBSTR(c.comments, '^\[([^]]+)\]', 1, 1, NULL, 1)
         ELSE REGEXP_SUBSTR(t.table_name, '^[^_]+')
         END AS table_group,
+    --
+    g.trigger_name,
+    g.trigger_type,
+    g.base_object_type,
+    --
+    CASE WHEN g.when_clause IS NOT NULL     THEN 'Y' END AS is_when,
+    CASE WHEN g.status != 'ENABLED'         THEN 'Y' END AS is_disabled,
+    CASE WHEN g.instead_of_row    = 'YES'   THEN 'Y' END AS is_instead_of,
+    CASE WHEN g.before_statement  = 'YES'   THEN 'Y' END AS is_before_statement,
+    CASE WHEN g.before_row        = 'YES'   THEN 'Y' END AS is_before_row,
+    CASE WHEN g.after_row         = 'YES'   THEN 'Y' END AS is_after_row,
+    CASE WHEN g.after_statement   = 'YES'   THEN 'Y' END AS is_after_statement,
     --
     CASE
         WHEN g.trigger_name         = t.table_name || '__'          -- default trigger name
