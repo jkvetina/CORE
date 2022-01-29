@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220129093356'
+,p_last_upd_yyyymmddhh24miss=>'20220129183739'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(17065256063582738)
@@ -70,7 +70,8 @@ wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218883229378936)
 ,p_plug_name=>'Columns'
 ,p_parent_plug_id=>wwv_flow_api.id(17065256063582738)
-,p_region_template_options=>'#DEFAULT#:t-HeroRegion--hideIcon'
+,p_icon_css_classes=>'fa-columns'
+,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>50
 ,p_plug_display_point=>'BODY'
@@ -2877,7 +2878,7 @@ wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(15857248612343737)
 ,p_plug_name=>'Fix Data Types'
 ,p_parent_plug_id=>wwv_flow_api.id(17065448205582740)
-,p_icon_css_classes=>'fa-warning'
+,p_icon_css_classes=>'fa-alert'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
@@ -3525,7 +3526,7 @@ wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(16022864966727213)
 ,p_plug_name=>'Check Data Types'
 ,p_parent_plug_id=>wwv_flow_api.id(17065448205582740)
-,p_icon_css_classes=>'fa-warning'
+,p_icon_css_classes=>'fa-alert'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>30
@@ -3555,7 +3556,8 @@ wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(15126400769615747)
 ,p_plug_name=>'Constraints'
 ,p_parent_plug_id=>wwv_flow_api.id(17065626297582742)
-,p_region_template_options=>'#DEFAULT#:t-HeroRegion--hideIcon'
+,p_icon_css_classes=>'fa-anchor'
+,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
@@ -5399,7 +5401,7 @@ wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(15558148926498013)
 ,p_plug_name=>'Missing Indexes'
 ,p_parent_plug_id=>wwv_flow_api.id(17065808075582744)
-,p_icon_css_classes=>'fa-warning'
+,p_icon_css_classes=>'fa-alert'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>30
