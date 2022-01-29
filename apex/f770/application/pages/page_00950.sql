@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220122135251'
+,p_last_upd_yyyymmddhh24miss=>'20220129082320'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218446056378932)
@@ -105,7 +105,8 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
 '    o.object_type AS divider,',
-'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS name',
+'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS object_name,',
+'    app_actions.get_object_link(o.object_type, o.object_name) AS object_link',
 'FROM user_objects o',
 'WHERE o.status != ''VALID''',
 '    AND o.object_type IN (''VIEW'')',
@@ -119,8 +120,9 @@ wwv_flow_api.create_page_plug(
 '<br />',
 ''))
 ,p_attribute_01=>'DIVIDER'
-,p_attribute_02=>'NAME'
+,p_attribute_02=>'OBJECT_NAME'
 ,p_attribute_14=>'DIVIDER'
+,p_attribute_16=>'&OBJECT_LINK.'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21745510835497820)
@@ -137,7 +139,8 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
 '    o.object_type AS divider,',
-'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS name',
+'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS object_name,',
+'    app_actions.get_object_link(o.object_type, o.object_name) AS object_link',
 'FROM user_objects o',
 'WHERE o.status != ''VALID''',
 '    AND o.object_type NOT IN (''VIEW'', ''PACKAGE'', ''PACKAGE BODY'', ''PROCEDURE'', ''FUNCTION'')',
@@ -151,8 +154,9 @@ wwv_flow_api.create_page_plug(
 '<br />',
 ''))
 ,p_attribute_01=>'DIVIDER'
-,p_attribute_02=>'NAME'
+,p_attribute_02=>'OBJECT_NAME'
 ,p_attribute_14=>'DIVIDER'
+,p_attribute_16=>'&OBJECT_LINK.'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(36914517833495810)
@@ -214,7 +218,8 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
 '    o.object_type AS divider,',
-'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS name',
+'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS object_name,',
+'    app_actions.get_object_link(o.object_type, o.object_name) AS object_link',
 'FROM user_objects o',
 'WHERE o.status != ''VALID''',
 '    AND o.object_type IN (''PACKAGE'', ''PACKAGE BODY'', ''PROCEDURE'', ''FUNCTION'')',
@@ -228,8 +233,9 @@ wwv_flow_api.create_page_plug(
 '<br />',
 ''))
 ,p_attribute_01=>'DIVIDER'
-,p_attribute_02=>'NAME'
+,p_attribute_02=>'OBJECT_NAME'
 ,p_attribute_14=>'DIVIDER'
+,p_attribute_16=>'&OBJECT_LINK.'
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(14425438113036849)
