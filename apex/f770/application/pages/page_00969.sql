@@ -193,7 +193,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>false
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
-,p_heading=>'Is Active'
+,p_heading=>'Active'
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>40
 ,p_value_alignment=>'CENTER'
@@ -222,7 +222,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>false
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
-,p_heading=>'Is Inherited'
+,p_heading=>'Inherited'
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>50
 ,p_value_alignment=>'CENTER'
@@ -251,7 +251,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>false
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
-,p_heading=>'Is Admin Option'
+,p_heading=>'Admin Option'
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>60
 ,p_value_alignment=>'CENTER'
@@ -642,7 +642,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>false
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
-,p_heading=>'Is Inherited'
+,p_heading=>'Inherited'
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>70
 ,p_value_alignment=>'CENTER'
@@ -671,7 +671,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>false
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
-,p_heading=>'Is Grantable'
+,p_heading=>'Grantable'
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>80
 ,p_value_alignment=>'CENTER'
