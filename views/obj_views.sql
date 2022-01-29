@@ -15,12 +15,12 @@ r AS (
         d.name          AS view_name,
         --
         LISTAGG(CASE WHEN d.referenced_type = 'TABLE'
-            THEN '<a href="' || app_actions.get_object_link(d.referenced_type, d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
+            THEN app_actions.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
             WITHIN GROUP (ORDER BY d.referenced_name)
             AS referenced_tables,
         --
         LISTAGG(CASE WHEN d.referenced_type = 'VIEW'
-            THEN '<a href="' || app_actions.get_object_link(d.referenced_type, d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
+            THEN app_actions.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
             WITHIN GROUP (ORDER BY d.referenced_name)
             AS referenced_views
     FROM user_dependencies d
@@ -34,7 +34,7 @@ u AS (
     SELECT
         d.referenced_name AS view_name,
         --
-        LISTAGG('<a href="' || app_actions.get_object_link(d.type, d.name) || '">' || d.name || '</a>', ', ')
+        LISTAGG(app_actions.get_html_a(app_actions.get_object_link(d.type, d.name), d.name), ', ')
             WITHIN GROUP (ORDER BY d.name) AS used_in_objects
     FROM user_dependencies d
     WHERE d.referenced_type     = 'VIEW'
@@ -43,11 +43,11 @@ u AS (
 p AS (
     SELECT
         r.table_name,
-        LISTAGG(DISTINCT '<a href="' ||
+        LISTAGG(DISTINCT app_actions.get_html_a (
             app.get_page_link(910,
                 in_names    => 'P910_PAGE_ID',
                 in_values   => r.page_id
-            ) || '">' || r.page_id || '</a>', ', ')
+            ), r.page_id), ', ')
             WITHIN GROUP (ORDER BY r.page_id) AS used_on_pages
     FROM apex_application_page_regions r
     JOIN x

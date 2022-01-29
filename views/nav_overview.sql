@@ -84,12 +84,12 @@ SELECT
             THEN app.get_icon('fa-check-square', 'MUST_NOT_BE_PUBLIC_USER')
         WHEN t.authorization_scheme IS NULL AND n.page_id NOT IN (0, 9999)
             THEN app.get_icon('fa-warning', 'Auth scheme is missing')
-        ELSE '<a href="' || app.get_page_link (
+        ELSE app_actions.get_html_a(app.get_page_link (
             in_page_id      => 920,
             in_app_id       => n.app_id,
             in_names        => 'P920_AUTH_SCHEME',
             in_values       => t.authorization_scheme
-        ) || '">' || t.authorization_scheme || '</a>'
+        ), t.authorization_scheme)
         END AS auth_scheme,
     --
     CASE WHEN n.page_id > 0 AND r.page_id IS NULL

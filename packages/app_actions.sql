@@ -18,6 +18,19 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    FUNCTION get_html_a (
+        in_href                 VARCHAR2,
+        in_name                 VARCHAR2,
+        in_title                VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN '<a href="' || in_href || '" title="' || in_title ||'">' || in_name || '</a>';
+    END;
+
+
+
     PROCEDURE nav_remove_pages (
         in_page_id              navigation.page_id%TYPE         := NULL
     )

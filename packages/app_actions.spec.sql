@@ -60,6 +60,18 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+    --
+    -- Get HTML alement A
+    --
+    FUNCTION get_html_a (
+        in_href                 VARCHAR2,
+        in_name                 VARCHAR2,
+        in_title                VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2;
+
+
+
     -- ### Navigation page
     --
 
