@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW events_chart AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()                        AS app_id,
-        app.get_number_item('$EVENT_ID')        AS event_id,
+        app.get_item('$EVENT_ID')               AS event_id,
         app.get_item('$USER_ID')                AS user_id,
         TRUNC(app.get_date_item('G_TODAY'))     AS today
     FROM DUAL
