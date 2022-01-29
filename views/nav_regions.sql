@@ -99,7 +99,8 @@ SELECT
     --
     CASE WHEN r.icon_css_classes IS NOT NULL THEN app.get_icon(r.icon_css_classes) END AS region_icon,
     --
-    REPLACE(RPAD(' ', 3 * (s.lvl - 1)), ' ', '&' || 'nbsp; ') || r.region_name AS region_name,
+    REPLACE(RPAD(' ', 3 * (s.lvl - 1)), ' ', '&' || 'nbsp; ') || r.region_name  AS region_name,
+    RTRIM(LTRIM(REPLACE(r.region_name, '[GRID]', '')))                          AS region_name_,
     --
     --r.parent_region_id,
     --r.source_type,
