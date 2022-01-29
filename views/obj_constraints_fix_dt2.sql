@@ -40,11 +40,7 @@ FROM (
         s.column_name,
         s.data_type,
         --
-        LISTAGG('<a href="' ||
-            app.get_page_link(951,
-                in_names    => 'P951_TABLE_NAME',
-                in_values   => s.table_name
-            ) || '">' || s.table_name || '</a>', ', ')
+        LISTAGG('<a href="' || app_actions.get_object_link('TABLE', s.table_name) || '">' || s.table_name || '</a>', ', ')
             WITHIN GROUP (ORDER BY s.table_name) AS tables,
         --
         LISTAGG('ALTER TABLE ' || LOWER(s.table_name) ||

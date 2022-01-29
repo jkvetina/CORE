@@ -46,6 +46,20 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+    -- ### Help functions
+    --
+
+    --
+    -- Get link to proper object page
+    --
+    FUNCTION get_object_link (
+        in_object_type          VARCHAR2    := NULL,
+        in_object_name          VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2;
+
+
+
     -- ### Navigation page
     --
 

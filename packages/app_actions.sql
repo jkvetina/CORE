@@ -1,5 +1,23 @@
 CREATE OR REPLACE PACKAGE BODY app_actions AS
 
+    FUNCTION get_object_link (
+        in_object_type          VARCHAR2    := NULL,
+        in_object_name          VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN CASE in_object_type
+            WHEN 'TABLE'        THEN app.get_page_link(951, in_names => 'P951_TABLE_NAME',      in_values => in_object_name)
+            WHEN 'TRIGGER'      THEN app.get_page_link(952, in_names => 'P952_TRIGGER_NAME',    in_values => in_object_name)
+            WHEN 'VIEW'         THEN app.get_page_link(955, in_names => 'P955_VIEW_NAME',       in_values => in_object_name)
+            WHEN 'PACKAGE'      THEN app.get_page_link(960, in_names => 'P960_PACKAGE_NAME',    in_values => in_object_name)
+            WHEN 'JOB'          THEN app.get_page_link(905, in_names => 'P905_JOB_NAME',        in_values => in_object_name)
+            END;
+    END;
+
+
+
     PROCEDURE nav_remove_pages (
         in_page_id              navigation.page_id%TYPE         := NULL
     )

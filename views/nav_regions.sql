@@ -124,17 +124,7 @@ SELECT
             ELSE r.table_name
             END AS table_name,
     --
-    app.get_page_link (
-        in_page_id => CASE
-            WHEN t.object_type = 'TABLE' THEN 951
-            WHEN t.object_type = 'VIEW'  THEN 955
-            END,
-        in_names => CASE
-            WHEN t.object_type = 'TABLE' THEN 'P951_TABLE_NAME'
-            WHEN t.object_type = 'VIEW'  THEN 'P955_VIEW_NAME'
-            END,
-        in_values => r.table_name
-    ) AS table_link,
+    app_actions.get_object_link(t.object_type, r.table_name) AS table_link,
     --
     CASE
         WHEN r.source_type_code != 'NATIVE_IG'

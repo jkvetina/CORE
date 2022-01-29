@@ -15,12 +15,12 @@ r AS (
         d.name          AS view_name,
         --
         LISTAGG(CASE WHEN d.referenced_type = 'TABLE'
-            THEN '<a href="' || app.get_page_link(951, in_names => 'P951_TABLE_NAME', in_values => d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
+            THEN '<a href="' || app_actions.get_object_link(d.referenced_type, d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
             WITHIN GROUP (ORDER BY d.referenced_name)
             AS referenced_tables,
         --
         LISTAGG(CASE WHEN d.referenced_type = 'VIEW'
-            THEN '<a href="' || app.get_page_link(955, in_names => 'P955_VIEW_NAME', in_values => d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
+            THEN '<a href="' || app_actions.get_object_link(d.referenced_type, d.referenced_name) || '">' || d.referenced_name || '</a>' END, ', ')
             WITHIN GROUP (ORDER BY d.referenced_name)
             AS referenced_views
     FROM user_dependencies d
@@ -32,8 +32,10 @@ r AS (
 ),
 u AS (
     SELECT
-        d.referenced_name                                       AS view_name,
-        LISTAGG(d.name, ', ') WITHIN GROUP (ORDER BY d.name)    AS used_in_objects
+        d.referenced_name AS view_name,
+        --
+        LISTAGG('<a href="' || app_actions.get_object_link(d.type, d.name) || '">' || d.name || '</a>', ', ')
+            WITHIN GROUP (ORDER BY d.name) AS used_in_objects
     FROM user_dependencies d
     WHERE d.referenced_type     = 'VIEW'
     GROUP BY d.referenced_name
