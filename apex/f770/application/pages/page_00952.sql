@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220122143349'
+,p_last_upd_yyyymmddhh24miss=>'20220129093503'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14219049972378938)
@@ -639,7 +639,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>10
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'ENABLE_TRIGGER'
+,p_process_name=>'ACTION_ENABLE_TRIGGER'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''ENABLE_TRIGGER'', app.get_item(''$TRIGGER''));',
 '--',
@@ -656,7 +656,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>20
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'DISABLE_TRIGGER'
+,p_process_name=>'ACTION_DISABLE_TRIGGER'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''DISABLE_TRIGGER'', app.get_item(''$TRIGGER''));',
 '--',
@@ -673,8 +673,9 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>30
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'GET_STATUS'
+,p_process_name=>'INIT_DEFAULTS'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'-- get trigger status',
 'FOR c IN (',
 '    SELECT t.status',
 '    FROM user_triggers t',

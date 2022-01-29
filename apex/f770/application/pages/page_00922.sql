@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220123152527'
+,p_last_upd_yyyymmddhh24miss=>'20220129093115'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(26299859420563564)
@@ -2288,9 +2288,9 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>10
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PROCESS_ACTIONS'
+,p_process_name=>'ACTION_PROCESS_CHANGES'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_action(''PROCESS_ACTIONS'', :P922_ACTION, :P922_APP_ID);',
+'app.log_action(''PROCESS_CHANGES'', :P922_ACTION, :P922_APP_ID);',
 '--',
 'IF :P922_ACTION = ''ADD'' THEN',
 '    INSERT INTO apps (app_id)',

@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220120070119'
+,p_last_upd_yyyymmddhh24miss=>'20220129093705'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(11853608143169127)
@@ -4557,7 +4557,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>10
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'REBUILD_PACKAGE'
+,p_process_name=>'ACTION_REBUILD_PACKAGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''REBUILD_PACKAGE'');',
 '--',
@@ -4587,10 +4587,8 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>30
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PREP_SETTINGS_PIVOT'
+,p_process_name=>'INIT_PIVOT'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_action(''PREP_SETTINGS_PIVOT'');',
-'--',
 'app_actions.prep_settings_pivot(:APP_PAGE_ID);',
 ''))
 ,p_process_clob_language=>'PLSQL'

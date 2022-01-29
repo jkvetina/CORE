@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220123194845'
+,p_last_upd_yyyymmddhh24miss=>'20220129093356'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(17065256063582738)
@@ -5710,7 +5710,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>10
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'RECALCULATE_STATS'
+,p_process_name=>'ACTION_RECALC_STATS'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'FOR t IN (',
 '    SELECT t.table_name',
@@ -5718,7 +5718,7 @@ wwv_flow_api.create_page_process(
 '    WHERE t.table_name = NVL(app.get_item(''$TABLE_NAME''), t.table_name)',
 '    ORDER BY 1',
 ') LOOP',
-'    app.log_action(''RECALCULATE_STATS'', t.table_name);',
+'    app.log_action(''RECALC_STATS'', t.table_name);',
 '    --',
 '    DBMS_STATS.GATHER_TABLE_STATS(''#OWNER#'', t.table_name);',
 '    --',
@@ -5735,7 +5735,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>20
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'SHRINK_TABLES'
+,p_process_name=>'ACTION_SHRINK_TABLES'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'DECLARE',
 '    q_indexes       VARCHAR2(32767);',
@@ -5815,7 +5815,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>30
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PURGE'
+,p_process_name=>'ACTION_PURGE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''PURGE'');',
 '--',
@@ -5841,7 +5841,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>40
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'DROP_PARTITION'
+,p_process_name=>'ACTION_DROP_PARTITION'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''DROP_PARTITION'', app.get_item(''$TABLE_NAME''), app.get_item(''$PARTITION''));',
 '--',
@@ -5861,45 +5861,11 @@ wwv_flow_api.create_page_process(
 ,p_process_when_type=>'ITEM_IS_NOT_NULL'
 );
 wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(14475734829097238)
+ p_id=>wwv_flow_api.id(15557242944498004)
 ,p_process_sequence=>50
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PARTITION_HEADERS'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_action(''PARTITION_HEADERS'', app.get_item(''$TABLE_NAME''));',
-'--',
-'FOR c IN (',
-'    WITH x AS (',
-'        SELECT',
-'            LEVEL                       AS column_position,',
-'            ''$PART_HEADER_'' || LEVEL    AS item_name',
-'        FROM DUAL',
-'        CONNECT BY LEVEL <= 4',
-'    )',
-'    SELECT',
-'        x.item_name,',
-'        c.column_name                   AS item_value',
-'    FROM x',
-'    LEFT JOIN user_part_key_columns c',
-'        ON c.name                       = app.get_item(''$TABLE_NAME'')',
-'        AND c.column_position           = x.column_position',
-') LOOP',
-'    app.log_result(c.item_name, c.item_value);',
-'    app.set_item(c.item_name, c.item_value);',
-'END LOOP;',
-''))
-,p_process_clob_language=>'PLSQL'
-,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when=>'P951_TABLE_NAME'
-,p_process_when_type=>'ITEM_IS_NOT_NULL'
-);
-wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(15557242944498004)
-,p_process_sequence=>60
-,p_process_point=>'BEFORE_HEADER'
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'ADD_MISSING_INDEX'
+,p_process_name=>'ACTION_ADD_MISSING_INDEX'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''ADD_MISSING_INDEX'', app.get_item(''$INDEX_NAME''));',
 '--',
@@ -5918,7 +5884,7 @@ wwv_flow_api.create_page_process(
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(15126236349615745)
-,p_process_sequence=>70
+,p_process_sequence=>60
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_DEFAULTS'
@@ -5940,6 +5906,40 @@ wwv_flow_api.create_page_process(
 'SELECT MAX(t.comments) INTO :P951_TABLE_COMMENTS',
 'FROM user_tab_comments t',
 'WHERE t.table_name = :P951_TABLE_NAME;',
+''))
+,p_process_clob_language=>'PLSQL'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when=>'P951_TABLE_NAME'
+,p_process_when_type=>'ITEM_IS_NOT_NULL'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(14475734829097238)
+,p_process_sequence=>70
+,p_process_point=>'BEFORE_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'INIT_PARTITION_HEADERS'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''PARTITION_HEADERS'', app.get_item(''$TABLE_NAME''));',
+'--',
+'FOR c IN (',
+'    WITH x AS (',
+'        SELECT',
+'            LEVEL                       AS column_position,',
+'            ''$PART_HEADER_'' || LEVEL    AS item_name',
+'        FROM DUAL',
+'        CONNECT BY LEVEL <= 4',
+'    )',
+'    SELECT',
+'        x.item_name,',
+'        c.column_name                   AS item_value',
+'    FROM x',
+'    LEFT JOIN user_part_key_columns c',
+'        ON c.name                       = app.get_item(''$TABLE_NAME'')',
+'        AND c.column_position           = x.column_position',
+') LOOP',
+'    --app.log_result(c.item_name, c.item_value);',
+'    app.set_item(c.item_name, c.item_value);',
+'END LOOP;',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'

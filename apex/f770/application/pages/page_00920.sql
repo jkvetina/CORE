@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220122143034'
+,p_last_upd_yyyymmddhh24miss=>'20220129093034'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(17066208295582748)
@@ -6227,7 +6227,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>10
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PREP_USER_ROLES_PIVOT'
+,p_process_name=>'INIT_PIVOT'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''PREP_USER_ROLES_PIVOT'');',
 '--',
