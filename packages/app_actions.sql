@@ -126,7 +126,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             SELECT r.role_id
             FROM roles r
             WHERE r.app_id = app.get_app_id()
-            ORDER BY r.role_group NULLS LAST, r.order# NULLS LAST, r.role_id
+            ORDER BY r.order# NULLS LAST, r.role_group NULLS LAST, r.role_id
         ) LOOP
             v_query := v_query || CHR(10) || '    MAX(CASE WHEN r.role_id = ''' || r.role_id || ''' THEN ''Y'' END) AS ' || LOWER(r.role_id) || '_, ';
         END LOOP;
