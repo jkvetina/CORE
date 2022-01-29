@@ -125,7 +125,7 @@ wwv_flow_api.create_jet_chart_series(
 ,p_items_value_column_name=>'COUNT_USERS'
 ,p_items_label_column_name=>'PAGE_ID'
 ,p_items_short_desc_column_name=>'TOOLTIP_USERS'
-,p_assigned_to_y2=>'off'
+,p_assigned_to_y2=>'on'
 ,p_stack_category=>'Users'
 ,p_items_label_rendered=>false
 );
@@ -809,6 +809,20 @@ wwv_flow_api.create_jet_chart_axis(
 ,p_zoom_order_months=>false
 ,p_zoom_order_quarters=>false
 ,p_zoom_order_years=>false
+);
+wwv_flow_api.create_jet_chart_axis(
+ p_id=>wwv_flow_api.id(21544557729954439)
+,p_chart_id=>wwv_flow_api.id(11884191829358759)
+,p_axis=>'y2'
+,p_is_rendered=>'on'
+,p_format_scaling=>'auto'
+,p_scaling=>'linear'
+,p_baseline_scaling=>'zero'
+,p_position=>'auto'
+,p_major_tick_rendered=>'on'
+,p_minor_tick_rendered=>'off'
+,p_tick_label_rendered=>'on'
+,p_split_dual_y=>'auto'
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(11875275965358741)
