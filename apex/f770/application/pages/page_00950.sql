@@ -91,12 +91,76 @@ wwv_flow_api.create_page_plug(
 ''))
 );
 wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(21745459628497819)
+,p_plug_name=>'Invalid Objects (views)'
+,p_region_name=>'OBJECTS_INVALID'
+,p_region_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_api.id(9052354744569904)
+,p_plug_display_sequence=>50
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_new_grid_row=>false
+,p_plug_grid_column_span=>2
+,p_plug_display_point=>'BODY'
+,p_query_type=>'SQL'
+,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT',
+'    o.object_type AS divider,',
+'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS name',
+'FROM user_objects o',
+'WHERE o.status != ''VALID''',
+'    AND o.object_type IN (''VIEW'')',
+'ORDER BY o.object_type, o.object_name;',
+''))
+,p_plug_source_type=>'NATIVE_JQM_LIST_VIEW'
+,p_plug_query_num_rows=>50
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_query_no_data_found=>' '
+,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<br />',
+''))
+,p_attribute_01=>'DIVIDER'
+,p_attribute_02=>'NAME'
+,p_attribute_14=>'DIVIDER'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(21745510835497820)
+,p_plug_name=>'Invalid Objects (others)'
+,p_region_name=>'OBJECTS_INVALID'
+,p_region_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_api.id(9052354744569904)
+,p_plug_display_sequence=>60
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_new_grid_row=>false
+,p_plug_grid_column_span=>2
+,p_plug_display_point=>'BODY'
+,p_query_type=>'SQL'
+,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT',
+'    o.object_type AS divider,',
+'    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS name',
+'FROM user_objects o',
+'WHERE o.status != ''VALID''',
+'    AND o.object_type NOT IN (''VIEW'', ''PACKAGE'', ''PACKAGE BODY'', ''PROCEDURE'', ''FUNCTION'')',
+'ORDER BY o.object_type, o.object_name;',
+''))
+,p_plug_source_type=>'NATIVE_JQM_LIST_VIEW'
+,p_plug_query_num_rows=>50
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_query_no_data_found=>' '
+,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<br />',
+''))
+,p_attribute_01=>'DIVIDER'
+,p_attribute_02=>'NAME'
+,p_attribute_14=>'DIVIDER'
+);
+wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(36914517833495810)
 ,p_plug_name=>'Database Objects'
 ,p_region_name=>'OBJECTS'
 ,p_region_template_options=>'#DEFAULT#:t-CardsRegion--styleB'
 ,p_plug_template=>wwv_flow_api.id(9052354744569904)
-,p_plug_display_sequence=>50
+,p_plug_display_sequence=>70
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_grid_column_span=>6
 ,p_plug_display_point=>'BODY'
@@ -137,14 +201,14 @@ wwv_flow_api.create_card_action(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(102497670620708980)
-,p_plug_name=>'Invalid Objects'
+,p_plug_name=>'Invalid Objects (procedures)'
 ,p_region_name=>'OBJECTS_INVALID'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9052354744569904)
 ,p_plug_display_sequence=>40
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_new_grid_row=>false
-,p_plug_grid_column_span=>6
+,p_plug_grid_column_span=>2
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'SQL'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
@@ -153,12 +217,13 @@ wwv_flow_api.create_page_plug(
 '    ''<span style="margin-left: 2rem;">'' || o.object_name || ''</span>'' AS name',
 'FROM user_objects o',
 'WHERE o.status != ''VALID''',
+'    AND o.object_type IN (''PACKAGE'', ''PACKAGE BODY'', ''PROCEDURE'', ''FUNCTION'')',
 'ORDER BY o.object_type, o.object_name;',
 ''))
 ,p_plug_source_type=>'NATIVE_JQM_LIST_VIEW'
 ,p_plug_query_num_rows=>50
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_plug_query_no_data_found=>'No invalid objects found'
+,p_plug_query_no_data_found=>' '
 ,p_plug_footer=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<br />',
 ''))
