@@ -1273,6 +1273,17 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    --
+    -- Get flag from flag_name
+    --
+    FUNCTION get_flag (
+        in_flag_name            VARCHAR2
+    )
+    RETURN logs.flag%TYPE
+    RESULT_CACHE;
+
+
+
 
 
 

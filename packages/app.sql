@@ -2870,6 +2870,36 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_flag (
+        in_flag_name            VARCHAR2
+    )
+    RETURN logs.flag%TYPE
+    RESULT_CACHE
+    AS
+        PRAGMA UDF;
+        --
+        out_flag                logs.flag%TYPE;
+    BEGIN
+        -- I bet you didnt expected this
+        SELECT REGEXP_SUBSTR(s.text, ':=\s*''([^'']+)', 1, 1, NULL, 1) INTO out_flag
+        FROM user_source s
+        WHERE s.name            = $$PLSQL_UNIT
+            AND s.type          = 'PACKAGE'
+            AND s.line          <= 100
+            AND s.text          LIKE '%flag_%CONSTANT%logs.flag\%TYPE%' ESCAPE '\'
+            AND in_flag_name    = UPPER(REGEXP_SUBSTR(s.text, 'flag_([a-z]+)', 1, 1, NULL, 1));
+        --
+        RETURN out_flag;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    END;
+
+
+
+    --
+    -- @TODO:
+    --
     PROCEDURE call_custom_procedure (
         in_name                 VARCHAR2 := NULL,
         in_arg1                 VARCHAR2 := NULL,
