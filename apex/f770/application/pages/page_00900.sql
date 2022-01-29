@@ -837,7 +837,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>10
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PURGE_OLD'
+,p_process_name=>'ACTION_PURGE_OLD'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''PURGE_OLD'');',
 '--',
@@ -853,7 +853,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>20
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'PURGE_DAY'
+,p_process_name=>'ACTION_PURGE_DAY'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''PURGE_DAY'');',
 '--',
@@ -869,7 +869,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sequence=>30
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'SHRINK'
+,p_process_name=>'ACTION_SHRINK'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''SHRINK'');',
 '--',
