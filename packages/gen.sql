@@ -190,7 +190,7 @@ CREATE OR REPLACE PACKAGE BODY gen AS
         DBMS_OUTPUT.PUT_LINE('');
         DBMS_OUTPUT.PUT_LINE('    PROCEDURE ' || LOWER(NVL(in_proc_prefix, gen.proc_prefix) || in_table_name) || ' (');
         --
-        DBMS_OUTPUT.PUT_LINE('        ' || RPAD(''' || LOWER(gen.action_arg_name) || ''', width) || 'CHAR,');  --:APEX$ROW_STATUS
+        DBMS_OUTPUT.PUT_LINE('        ' || RPAD(LOWER(gen.action_arg_name), width) || 'CHAR,');  --:APEX$ROW_STATUS
         --
         gen.get_table_args (
             in_table_name           => in_table_name,
