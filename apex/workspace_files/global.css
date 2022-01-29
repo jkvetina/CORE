@@ -16,6 +16,9 @@
 .t-HeroRegion-wrap div.container div.row button {
     margin-top:             1.4rem;
 }
+div.t-Dialog-body .t-HeroRegion {
+    margin-top: -3rem;
+}
 
 /* STRETCH HERO REGION + SHOW CLOSE BUTTON ON RIGHT EDGE */
 .t-HeroRegion-col.t-HeroRegion-col--right {
