@@ -29,10 +29,11 @@ CREATE OR REPLACE PACKAGE app AS
      *
      */
 
+    --
+    core_alias                  CONSTANT VARCHAR2(30)           := 'CORE';
+    --
     schema_owner                CONSTANT VARCHAR2(30)           := 'CORE';
     schema_apex                 CONSTANT VARCHAR2(30)           := 'APEX_210100';
-    --
-    core_app_id                 CONSTANT sessions.app_id%TYPE   := 770;  -- for sharing pages between apps
 
     -- code for app exception
     app_exception_code          CONSTANT PLS_INTEGER            := -20000;
@@ -124,7 +125,8 @@ CREATE OR REPLACE PACKAGE app AS
     -- Return app_id for CORE application
     --
     FUNCTION get_core_app_id
-    RETURN sessions.app_id%TYPE;
+    RETURN sessions.app_id%TYPE
+    RESULT_CACHE;
 
 
 

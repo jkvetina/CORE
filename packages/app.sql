@@ -46,9 +46,18 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION get_core_app_id
     RETURN sessions.app_id%TYPE
+    RESULT_CACHE
     AS
+        out_id                  apex_applications.application_id%TYPE;
     BEGIN
-        RETURN COALESCE(app.core_app_id, 0);
+        SELECT a.application_id INTO out_id
+        FROM apex_applications a
+        WHERE a.alias = app.core_alias;
+        --
+        RETURN out_id;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        app.raise_error('CORE_MISSING');
     END;
 
 
