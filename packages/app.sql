@@ -2574,9 +2574,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         v_payload := SUBSTR (
             out_result.message                                  || CHR(10) || '--' || CHR(10) ||
-            app.get_shorter_stack(p_error.error_statement)      || CHR(10) || '--' || CHR(10) ||
-            app.get_shorter_stack (p_error.ora_sqlerrm)         || CHR(10) || '--' || CHR(10),
-            --app.get_shorter_stack (p_error.error_backtrace)   || CHR(10) || '--' || CHR(10)
+            app.get_shorter_stack(p_error.ora_sqlerrm)          || CHR(10) || '--' || CHR(10) ||
+            app.get_shorter_stack(p_error.error_statement)      || CHR(10) || '--' || CHR(10),
+            --app.get_shorter_stack(p_error.error_backtrace)    || CHR(10) || '--' || CHR(10)
             1, app.length_payload
         );
         --
@@ -2856,6 +2856,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         out_stack := REGEXP_REPLACE(out_stack, '\s%_SECURITY.*\]',      '.');
         out_stack := REGEXP_REPLACE(out_stack, '\sHTMLDB*\]',           '.');
         out_stack := REGEXP_REPLACE(out_stack, '\s\d+\s\[\]',           '.');
+        --
+        out_stack := REGEXP_REPLACE(out_stack, '\sORA-\d+.*%\.%.*EXEC.*, line \d+',             '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\sORA-\d+.*%\.%.*PROCESS_NATIVE.*, line \d+',   '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\sORA-\d+.*DBMS_(SYS_)?SQL.*, line \d+',        '.');
         --
         RETURN out_stack;
     END;
