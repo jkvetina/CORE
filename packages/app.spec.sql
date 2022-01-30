@@ -46,9 +46,6 @@ CREATE OR REPLACE PACKAGE app AS
     format_date_time            CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD HH24:MI:SS';
     format_date_short           CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD HH24:MI';
 
-    -- anonymous user used on login pages in APEX
-    anonymous_user              CONSTANT VARCHAR2(30)           := 'NOBODY';  -- ORDS_PUBLIC_USER, APEX_APP.G_PUBLIC
-
     -- flags
     flag_request                CONSTANT logs.flag%TYPE         := 'P';     -- APEX request (page rendering, form processing)
     flag_module                 CONSTANT logs.flag%TYPE         := 'M';     -- start of any module (procedure/function)

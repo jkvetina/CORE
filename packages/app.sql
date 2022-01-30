@@ -349,7 +349,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- this procedure is starting point in APEX after successful authentication
         -- prevent sessions for anonymous (unlogged) users
-        IF (UPPER(rec.user_id) IN (USER, app.anonymous_user, 'ORDS_PUBLIC_USER', 'APEX_PUBLIC_USER') OR NVL(rec.app_id, 0) = 0) THEN
+        IF (UPPER(rec.user_id) IN (USER, 'NOBODY', 'ORDS_PUBLIC_USER', 'APEX_PUBLIC_USER') OR NVL(rec.app_id, 0) = 0) THEN
             RETURN;
         END IF;
 
