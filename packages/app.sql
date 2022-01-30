@@ -2530,7 +2530,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         v_log_id                NUMBER;                     -- log_id from your log_error function (returning most likely sequence)
         v_action_name           logs.action_name%TYPE;      -- short error type visible to user
-        v_component             logs.action_name%TYPE;      -- to identify source component in your app
+        v_component             logs.payload%TYPE;          -- to identify source component in your app
+        v_payload               logs.payload%TYPE;
     BEGIN
         out_result := APEX_ERROR.INIT_ERROR_RESULT(p_error => p_error);
 
@@ -2542,12 +2543,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
             -- ORA-02290: check constraint violated
             -- ORA-02291: integrity constraint violated - parent key not found
             -- ORA-02292: integrity constraint violated - child record found
-            v_action_name := 'CONSTRAINT_ERROR|' || APEX_ERROR.EXTRACT_CONSTRAINT_NAME (
+            v_action_name := SUBSTR(APEX_ERROR.EXTRACT_CONSTRAINT_NAME (
                 p_error             => p_error,
                 p_include_schema    => FALSE
-            );
+            ), 1, app.length_action);
             --
-            out_result.message          := v_action_name;
+            out_result.message          := 'CONSTRAINT_ERROR|' || v_action_name;
             out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;
             --
         ELSIF p_error.is_internal_error THEN
@@ -2557,17 +2558,25 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- store incident in your log
-        v_component := TO_CHAR(APEX_APPLICATION.G_FLOW_STEP_ID) || '|' || REPLACE(p_error.component.type, 'APEX_APPLICATION_', '') || '|' || p_error.component.name;
+        v_component :=
+            TO_CHAR(APEX_APPLICATION.G_FLOW_STEP_ID)                                || '|' ||
+            REPLACE(p_error.component.type, 'APEX_APPLICATION_', '')                || '|' ||
+            REPLACE(SYS_CONTEXT('USERENV', 'ACTION'), 'Processes - point: ', '')    || '|' ||
+            p_error.component.name;
+        --
+        v_payload := SUBSTR (
+            out_result.message                                  || CHR(10) || '--' || CHR(10) ||
+            app.get_shorter_stack(p_error.error_statement)      || CHR(10) || '--' || CHR(10) ||
+            app.get_shorter_stack (p_error.ora_sqlerrm)         || CHR(10) || '--' || CHR(10),
+            --app.get_shorter_stack (p_error.error_backtrace)   || CHR(10) || '--' || CHR(10)
+            1, app.length_payload
+        );
         --
         v_log_id := app.log_error (
             in_action_name  => v_action_name,
             in_arg1         => v_component,
             in_arg2         => APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error),
-            in_payload      =>
-                out_result.message                                  || CHR(10) || '--' || CHR(10) ||
-                app.get_shorter_stack(p_error.error_statement)      || CHR(10) || '--' || CHR(10) ||
-                app.get_shorter_stack (p_error.ora_sqlerrm)         || CHR(10) || '--' || CHR(10)
-                --app.get_shorter_stack (p_error.error_backtrace)   || CHR(10) || '--' || CHR(10)
+            in_payload      => v_payload
         );
 
         -- mark associated page item (when possible)
@@ -2595,6 +2604,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
         out_result.message := REGEXP_REPLACE(out_result.message, '^(ORA' || TO_CHAR(app.app_exception_code) || ': )', '');
         --
         RETURN out_result;
+    EXCEPTION
+    WHEN OTHERS THEN
+        app.log_error (
+            in_action_name  => v_action_name,
+            in_arg1         => v_component,
+            in_arg2         => APEX_ERROR.GET_FIRST_ORA_ERROR_TEXT(p_error => p_error),
+            in_payload      => v_payload
+        );
+        app.raise_error();  -- raise why it is here in exception block
     END;
 
 
@@ -2829,6 +2847,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         out_stack := REGEXP_REPLACE(out_stack, '\s%_ERROR.*\]',         '.');
         out_stack := REGEXP_REPLACE(out_stack, '\s%_SECURITY.*\]',      '.');
         out_stack := REGEXP_REPLACE(out_stack, '\sHTMLDB*\]',           '.');
+        out_stack := REGEXP_REPLACE(out_stack, '\s\d+\s\[\]',           '.');
         --
         RETURN out_stack;
     END;
