@@ -243,6 +243,15 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Option to change DEBUG mode
+    --
+    PROCEDURE set_debug (
+        in_status               BOOLEAN                     := TRUE
+    );
+
+
+
+    --
     -- Return current owner (because APEX dont like using USER)
     --
     FUNCTION get_owner (

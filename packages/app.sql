@@ -309,6 +309,16 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    PROCEDURE set_debug (
+        in_status               BOOLEAN                     := TRUE
+    )
+    AS
+    BEGIN
+        APEX_APPLICATION.G_DEBUG := in_status;
+    END;
+
+
+
     FUNCTION get_owner (
         in_app_id               apps.app_id%TYPE            := NULL
     )
