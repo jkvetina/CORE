@@ -24,7 +24,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#:ui-dialog--stretch'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220129085451'
+,p_last_upd_yyyymmddhh24miss=>'20220130090906'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(32439252690717788)
@@ -619,7 +619,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(32750233273910580)
 ,p_plug_name=>'Log &P902_LOG_ID.'
-,p_icon_css_classes=>'fa-clipboard-list'
+,p_icon_css_classes=>'fa-bug'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
