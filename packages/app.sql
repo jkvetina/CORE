@@ -2321,17 +2321,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
             SET l.action_name       = d.status,
                 l.module_timer      = d.duration
             WHERE l.log_id          = d.log_id;
-            --
-            /*
-                l.payload           = d.run_duration    || CHR(10) || '--' || CHR(10) ||
-                                      d.cpu_used        || CHR(10) || '--' || CHR(10) ||
-                                      d.errors          || CHR(10) || '--' || CHR(10) ||
-                                      d.output
-            */
-            --app.log_error();
-            --
-            -- PYTHON might fail
-            --
+
+            -- Python scripts might fail just in the script output
+            IF d.output LIKE 'Exception message:%' THEN
+                app.log_error (
+                    in_action_name      => 'PYTHON FAILED',
+                    in_parent_id        => d.log_id,
+                    in_payload          => d.output
+                );
+            END IF;
         END LOOP;
     END;
 
