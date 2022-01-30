@@ -24,7 +24,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#:ui-dialog--stretch'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220130090906'
+,p_last_upd_yyyymmddhh24miss=>'20220130152559'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(32439252690717788)
@@ -877,7 +877,7 @@ wwv_flow_api.create_page_process(
 '    FROM logs l',
 '    WHERE l.log_id = APEX_APPLICATION.G_X01;',
 '    --',
-'    IF out_line LIKE ''{"%}'' THEN',
+'    IF out_line LIKE ''{"%}'' OR out_line LIKE ''[%]'' THEN',
 '        SELECT JSON_QUERY(out_line, ''$'' RETURNING VARCHAR2(4000) PRETTY) INTO out_line',
 '        FROM DUAL;',
 '    END IF;',
