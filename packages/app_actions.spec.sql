@@ -340,5 +340,29 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_compress             BOOLEAN         := FALSE
     );
 
+
+
+
+
+
+
+    -- ### GRID Handlers
+    --
+
+    --
+    -- Update table columns
+    --
+    PROCEDURE save_obj_columns (
+        in_action               CHAR,
+        in_table_name           obj_columns.table_name%TYPE,
+        in_column_id            obj_columns.column_id%TYPE          := NULL,
+        in_column_name          obj_columns.column_name%TYPE        := NULL,
+        in_column_name_old      obj_columns.column_name_old%TYPE    := NULL,
+        in_is_nn                obj_columns.is_nn%TYPE              := NULL,
+        in_data_type            obj_columns.data_type%TYPE          := NULL,
+        in_data_default         obj_columns.data_default%TYPE       := NULL,
+        in_comments             obj_columns.comments%TYPE           := NULL
+    );
+
 END;
 /

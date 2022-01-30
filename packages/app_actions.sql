@@ -1086,5 +1086,124 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         END;
     END;
 
+
+
+    PROCEDURE save_obj_columns (
+        in_action               CHAR,
+        in_table_name           obj_columns.table_name%TYPE,
+        in_column_id            obj_columns.column_id%TYPE          := NULL,
+        in_column_name          obj_columns.column_name%TYPE        := NULL,
+        in_column_name_old      obj_columns.column_name_old%TYPE    := NULL,
+        in_is_nn                obj_columns.is_nn%TYPE              := NULL,
+        in_data_type            obj_columns.data_type%TYPE          := NULL,
+        in_data_default         obj_columns.data_default%TYPE       := NULL,
+        in_comments             obj_columns.comments%TYPE           := NULL
+    ) AS
+        rec                     obj_columns%ROWTYPE;
+    BEGIN
+        app.log_module_json (
+            'table_name',       in_table_name,
+            'column_name',      in_column_name,
+            'column_id',        in_column_id,
+            'nn',               in_is_nn
+        );
+
+        -- remove column
+        IF in_action = 'D' THEN
+            app.log_result('REMOVING COLUMN');
+            EXECUTE IMMEDIATE
+                'ALTER TABLE ' || in_table_name ||
+                ' DROP COLUMN ' || in_column_name_old;
+            --
+            RETURN;
+        END IF;
+
+        -- add column
+        IF in_action = 'C' THEN
+            app.log_result('ADDING COLUMN');
+            EXECUTE IMMEDIATE
+                'ALTER TABLE ' || in_table_name ||
+                ' ADD ' || in_column_name || ' ' || in_data_type ||
+                CASE WHEN in_data_default IS NOT NULL THEN ' DEFAULT ' || in_data_default END ||
+                CASE WHEN in_is_nn = 'Y' THEN ' NOT NULL' END;
+            --
+            EXECUTE IMMEDIATE
+                'COMMENT ON COLUMN ' || in_table_name || '.' || in_column_name ||
+                ' IS ''' || in_comments || '''';
+            --
+            RETURN;
+        END IF;
+
+        -- check changes
+        FOR c IN (
+            SELECT
+                c.column_id,
+                c.data_type,
+                c.data_default,
+                c.is_nn,
+                c.comments
+            FROM obj_columns c
+            WHERE c.table_name      = in_table_name
+                AND c.column_name   = in_column_name_old
+        ) LOOP
+            -- remove NOT NULL constraint
+            IF c.is_nn = 'Y' AND in_is_nn IS NULL THEN
+                app.log_result('REMOVING NOT NULL');
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE ' || in_table_name ||
+                    ' MODIFY ' || in_column_name_old || ' NULL';
+            END IF;
+
+            -- change data type (if possible)
+            IF c.data_type != in_data_type THEN
+                app.log_result('UPDATING DATA TYPE');
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE ' || in_table_name ||
+                    ' MODIFY ' || in_column_name_old || ' ' || in_data_type ||
+                    CASE
+                        WHEN in_data_default IS NOT NULL THEN ' DEFAULT ' || in_data_default
+                        WHEN c.data_default  IS NOT NULL THEN ' DEFAULT NULL'
+                        END;
+            ELSIF NVL(c.data_default, '^!^') != NVL(in_data_default, '^!^') THEN
+                app.log_result('UPDATING DATA DEFAULT');
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE ' || in_table_name ||
+                    ' MODIFY ' || in_column_name_old || ' DEFAULT ' || NVL(in_data_default, 'NULL');
+            END IF;
+
+            -- add NOT NULL constraint
+            IF c.is_nn IS NULL AND in_is_nn = 'Y' THEN
+                app.log_result('ADDING NOT NULL');
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE ' || in_table_name ||
+                    ' MODIFY ' || in_column_name_old || ' NOT NULL';
+            END IF;
+            
+            -- update column comments
+            IF NVL(c.comments, '^!^') != NVL(in_comments, '^!^') THEN
+                app.log_result('UPDATING COMMENTS');
+                EXECUTE IMMEDIATE
+                    'COMMENT ON COLUMN ' || in_table_name || '.' || in_column_name_old ||
+                    ' IS ''' || in_comments || '''';
+            END IF;
+        END LOOP;
+
+        -- rename column
+        IF in_column_name != in_column_name_old THEN
+            app.log_result('RENAMING COLUMN');
+            EXECUTE IMMEDIATE
+                'ALTER TABLE ' || in_table_name ||
+                ' RENAME COLUMN ' || in_column_name_old ||
+                ' TO ' || in_column_name;
+        END IF;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
 END;
 /

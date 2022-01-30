@@ -55,6 +55,7 @@ SELECT
     c.table_name,
     c.column_id,
     c.column_name,
+    c.column_name       AS column_name_old,
     c.data_type,
     c.data_default,
     c.avg_col_len       AS avg_length,
