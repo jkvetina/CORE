@@ -44,6 +44,18 @@ COMPOUND TRIGGER
             --
             DELETE FROM navigation t
             WHERE t.app_id = :OLD.app_id;
+            --
+            DELETE FROM log_events t
+            WHERE t.app_id = :OLD.app_id;
+            --
+            DELETE FROM events t
+            WHERE t.app_id = :OLD.app_id;
+            --
+            DELETE FROM setting_contexts t
+            WHERE t.app_id = :OLD.app_id;
+            --
+            DELETE FROM settings t
+            WHERE t.app_id = :OLD.app_id;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
