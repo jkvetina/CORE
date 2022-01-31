@@ -2306,11 +2306,20 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE sync_job_logs (
-        in_interval                 DATE
+    PROCEDURE sync_logs (
+        in_interval             NUMBER := NULL
     )
     AS
     BEGIN
+        -- create session for the job
+        IF NULLIF(app.get_app_id(), 0) IS NULL THEN
+            app.create_session (
+                in_user_id      => 'NOBODY',
+                in_app_id       => app.get_core_app_id()
+            );
+        END IF;
+
+        -- sync scheduler
         FOR d IN (
             SELECT
                 l.log_id,
@@ -2324,9 +2333,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
             FROM user_scheduler_job_run_details d
             JOIN user_scheduler_job_log j
                 ON j.log_id         = d.log_id
-                AND j.log_date      >= in_interval
+                AND j.log_date      >= SYSDATE - NVL(in_interval, 1/24)
             JOIN logs l
-                ON l.created_at     >= in_interval
+                ON l.created_at     >= SYSDATE - NVL(in_interval, 1/24)
                 AND l.flag          = app.flag_scheduler
                 AND l.action_name   IS NULL
                 AND l.arguments     = d.job_name
@@ -2345,6 +2354,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 );
             END IF;
         END LOOP;
+
+        -- sync DML errors
+        app.process_dml_errors();
+    EXCEPTION
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 

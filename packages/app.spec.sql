@@ -1076,10 +1076,10 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Sync scheduler results to Logs
+    -- Sync scheduler results and DML errors into LOGS table
     --
-    PROCEDURE sync_job_logs (
-        in_interval                 DATE
+    PROCEDURE sync_logs (
+        in_interval             NUMBER := NULL
     );
 
 

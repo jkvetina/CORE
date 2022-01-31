@@ -1,5 +1,5 @@
 DECLARE
-    in_job_name             CONSTANT VARCHAR2(30)   := 'CORE_SYNC_JOB_LOGS';
+    in_job_name             CONSTANT VARCHAR2(30)   := 'CORE_SYNC_LOGS';
     in_run_immediatelly     CONSTANT BOOLEAN        := FALSE;
 BEGIN
     BEGIN
@@ -12,15 +12,15 @@ BEGIN
     DBMS_SCHEDULER.CREATE_JOB (
         job_name            => in_job_name,
         job_type            => 'STORED_PROCEDURE',
-        job_action          => 'app.sync_job_logs',
+        job_action          => 'app.sync_logs',
         number_of_arguments => 1,
         start_date          => SYSDATE,
         repeat_interval     => 'FREQ=MINUTELY;INTERVAL=1',  -- every minute
         enabled             => FALSE,
-        comments            => 'Sync SCHEDULER results to LOGS table'
+        comments            => 'Sync SCHEDULER results and DML errors to LOGS table'
     );
     --
-    DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(in_job_name, argument_position => 1, argument_value => SYSDATE - 1/24);
+    DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(in_job_name, argument_position => 1, argument_value => 1/24);
     --
     DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', 5);  -- lower priority
     DBMS_SCHEDULER.ENABLE(in_job_name);
