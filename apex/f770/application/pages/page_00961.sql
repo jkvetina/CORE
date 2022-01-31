@@ -633,6 +633,9 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_SOURCE_VIEW'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'-- refresh view',
+'--app.refresh_user_source_views(:P961_VIEW_NAME, in_force => TRUE);',
+'',
 '-- prepare view for copy paste',
 'FOR c IN (',
 '    SELECT t.text',
