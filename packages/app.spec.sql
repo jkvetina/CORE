@@ -73,6 +73,11 @@ CREATE OR REPLACE PACKAGE app AS
     logs_table_name             CONSTANT VARCHAR2(30)           := 'LOGS';      -- used in purge_old
     logs_max_age                CONSTANT PLS_INTEGER            := 7;           -- max logs age in days
 
+    -- owner of DML error tables
+    dml_tables_owner            CONSTANT VARCHAR2(30)           := NULL;        -- NULL = same as current owner
+    dml_tables_postfix          CONSTANT VARCHAR2(30)           := '_E$';
+    view_dml_errors             CONSTANT VARCHAR2(30)           := 'LOGS_DML_ERRORS';
+
     -- arrays to specify adhoc requests
     TYPE arr_log_setup          IS VARRAY(100) OF logs_blacklist%ROWTYPE;
 
@@ -1276,6 +1281,27 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+
+
+
+    -- ### DML Error Handling
+    --
+
+    --
+    -- Drop DML error tables matching filter
+    --
+    PROCEDURE drop_dml_table (
+        in_table_name           logs.module_name%TYPE
+    );
+
+
+
+    --
+    -- Recreates DML error tables matching filter
+    --
+    PROCEDURE create_dml_table (
+        in_table_name           logs.module_name%TYPE
+    );
 
 
 

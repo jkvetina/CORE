@@ -2967,6 +2967,63 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    PROCEDURE drop_dml_table (
+        in_table_name           logs.module_name%TYPE
+    )
+    AS
+    BEGIN
+        app.log_module(in_table_name);
+
+        -- process existing data first
+        app.process_dml_errors(in_table_name);
+        --
+        EXECUTE IMMEDIATE
+            'DROP TABLE ' || app.get_dml_table(in_table_name) || ' PURGE';
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE create_dml_table (
+        in_table_name           logs.module_name%TYPE
+    )
+    AS
+    BEGIN
+        app.log_module(in_table_name);
+
+        -- drop existing tables
+        app.drop_dml_table(in_table_name);
+
+        -- create DML log tables for all tables
+        DBMS_ERRLOG.CREATE_ERROR_LOG (
+            dml_table_name          => app.get_owner(app.get_app_id()) || '.' || in_table_name,
+            err_log_table_owner     => app.get_owner(app.get_app_id()),
+            err_log_table_name      => app.get_dml_table(in_table_name),
+            skip_unsupported        => TRUE
+        );
+        --
+        IF app.get_owner(app.get_app_id()) != app.dml_tables_owner THEN
+            EXECUTE IMMEDIATE
+                'GRANT ALL ON ' || app.get_dml_table(in_table_name) ||
+                ' TO ' || app.get_owner(app.get_app_id());
+        END IF;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
     PROCEDURE refresh_user_source_views (
         in_view_name            VARCHAR2        := NULL,
         in_force                BOOLEAN         := FALSE
