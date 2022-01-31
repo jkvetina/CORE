@@ -1313,6 +1313,19 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Creates MERGE query for selected _E$ table and row
+    --
+    FUNCTION get_dml_query (
+        in_log_id               logs.log_id%TYPE,
+        in_table_name           logs.module_name%TYPE,
+        in_table_rowid          VARCHAR2,
+        in_operation            CHAR  -- [I|U|D]
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
     -- Refresh views source (convert views source from LONG to searchable lines)
     --
     PROCEDURE refresh_user_source_views (

@@ -3116,6 +3116,108 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_dml_query (
+        in_log_id               logs.log_id%TYPE,
+        in_table_name           logs.module_name%TYPE,
+        in_table_rowid          VARCHAR2,
+        in_operation            CHAR  -- [I|U|D]
+    )
+    RETURN VARCHAR2
+    AS
+        out_query               VARCHAR2(32767);
+        in_cursor               SYS_REFCURSOR;
+    BEGIN
+        -- prepare cursor for XML conversion and extraction
+        BEGIN
+            OPEN in_cursor FOR
+                'SELECT * FROM ' || app.get_dml_table(in_table_name) ||
+                ' WHERE ora_err_tag$ = ' || in_log_id;
+        EXCEPTION
+        WHEN OTHERS THEN
+            app.raise_error('INVALID_TABLE', app.get_dml_table(in_table_name), in_log_id);
+        END;
+
+        -- build query the way you can run it again manually or run just inner select to view passed values
+        -- to see dates properly setup nls_date_format first
+        -- ALTER SESSION SET nls_date_format = 'YYYY-MM-DD HH24:MI:SS';
+        SELECT
+            'MERGE INTO ' || LOWER(in_table_name) || ' t' || CHR(10) ||
+            'USING (' || CHR(10) ||
+            --
+            '    SELECT' || CHR(10) ||
+            LISTAGG('        ''' || p.value || ''' AS ' || LOWER(p.name) || p.data_type, CHR(10) ON OVERFLOW TRUNCATE)
+                WITHIN GROUP (ORDER BY p.pos) || CHR(10) ||
+            '        ''' || in_table_rowid || ''' AS rowid_' || CHR(10) ||
+            '    FROM DUAL' ||
+            --
+            CASE WHEN in_table_rowid IS NOT NULL THEN
+                CHR(10) || '    UNION ALL' || CHR(10) ||
+                '    SELECT' || CHR(10) ||
+                LISTAGG('        TO_CHAR(' || LOWER(p.name), '),' || CHR(10) ON OVERFLOW TRUNCATE)
+                    WITHIN GROUP (ORDER BY p.pos) || '),' || CHR(10) ||
+                '        ''^'' AS rowid_' || CHR(10) ||  -- remove ROWID to match only on 1 row
+                '    FROM ' || LOWER(in_table_name) || CHR(10) ||
+                '    WHERE ROWID = ''' || in_table_rowid || ''''
+                END || CHR(10) ||
+            --
+            ') s ON (s.rowid_ = t.ROWID)' || CHR(10) ||
+            --
+            CASE in_operation
+                WHEN 'U' THEN
+                    'WHEN MATCHED' || CHR(10) ||
+                    'THEN UPDATE SET' || CHR(10) ||
+                    LISTAGG('    t.' || LOWER(p.name) || ' = s.' || LOWER(p.name), ',' || CHR(10) ON OVERFLOW TRUNCATE)
+                        WITHIN GROUP (ORDER BY p.pos)
+                WHEN 'I' THEN
+                    'WHEN NOT MATCHED' || CHR(10) ||
+                    'THEN INSERT (' || CHR(10) ||
+                    LISTAGG('    t.' || LOWER(p.name), ',' || CHR(10) ON OVERFLOW TRUNCATE)
+                        WITHIN GROUP (ORDER BY p.pos) || CHR(10) || ')' || CHR(10) ||
+                    'VALUES (' || CHR(10) ||
+                    LISTAGG('    ''' || p.value || '''', ',' || CHR(10) ON OVERFLOW TRUNCATE)
+                        WITHIN GROUP (ORDER BY p.pos) || CHR(10) || ')'
+            END || ';'
+        INTO out_query
+        FROM (
+            SELECT
+                VALUE(p).GETROOTELEMENT()       AS name,
+                EXTRACTVALUE(VALUE(p), '/*')    AS value,
+                c.column_id                     AS pos,
+                c.data_type
+            FROM TABLE(XMLSEQUENCE(EXTRACT(XMLTYPE.CREATEXML(in_cursor), '//ROWSET/ROW/*'))) p
+            JOIN (
+                SELECT
+                    c.table_name, c.column_name, c.column_id,
+                    ',  -- ' || CASE
+                        WHEN c.data_type LIKE '%CHAR%' OR c.data_type = 'RAW' THEN
+                            c.data_type ||
+                            DECODE(COALESCE(c.char_length, 0), 0, '',
+                                '(' || c.char_length || DECODE(c.char_used, 'C', ' CHAR', '') || ')'
+                            )
+                        WHEN c.data_type = 'NUMBER' AND c.data_precision = 38 THEN 'INTEGER'
+                        WHEN c.data_type = 'NUMBER' THEN
+                            c.data_type ||
+                            DECODE(COALESCE(TO_NUMBER(c.data_precision || c.data_scale), 0), 0, '',
+                                DECODE(COALESCE(c.data_scale, 0), 0, '(' || c.data_precision || ')',
+                                    '(' || c.data_precision || ',' || c.data_scale || ')'
+                                )
+                            )
+                        ELSE c.data_type
+                        END AS data_type
+                FROM user_tab_cols c
+                WHERE c.table_name = in_table_name
+            ) c
+                ON c.column_name = VALUE(p).GETROOTELEMENT()
+            ORDER BY c.column_id
+        ) p;
+        --
+        CLOSE in_cursor;
+        --
+        RETURN out_query;
+    END;
+
+
+
     PROCEDURE refresh_user_source_views (
         in_view_name            VARCHAR2        := NULL,
         in_force                BOOLEAN         := FALSE
