@@ -1279,6 +1279,20 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    --
+    -- Refresh views source (convert views source from LONG to searchable lines)
+    --
+    PROCEDURE refresh_user_source_views (
+        in_view_name            VARCHAR2        := NULL,
+        in_force                BOOLEAN         := FALSE
+    );
+
+
+
+
+
+
+
     -- ### Custom wrappers
     --
 

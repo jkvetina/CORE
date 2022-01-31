@@ -301,33 +301,6 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
-    -- ### Views source table
-    --
-
-    --
-    -- Refresh views source (convert views source to lines)
-    --
-    PROCEDURE refresh_user_source_views (
-        in_force                BOOLEAN         := FALSE
-    );
-
-
-
-    --
-    -- Convert VIEW content (LONG) to lines in user_source_view table
-    --
-    PROCEDURE clob_to_lines (
-        in_name         VARCHAR2,
-        in_clob         CLOB,
-        in_offset       NUMBER          := NULL
-    );
-
-
-
-
-
-
-
     -- ### E-mails
     --
 

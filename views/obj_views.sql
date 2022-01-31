@@ -12,7 +12,9 @@ WITH x AS (
 ),
 r AS (
     SELECT
-        d.name          AS view_name,
+        d.name AS view_name,
+        --
+        NULLIF(SUM(CASE WHEN d.referenced_type IN ('TABLE', 'VIEW') THEN 1 ELSE 0 END), 0) AS count_references,
         --
         LISTAGG(CASE WHEN d.referenced_type = 'TABLE'
             THEN app_actions.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
@@ -32,7 +34,7 @@ r AS (
 ),
 u AS (
     SELECT
-        d.referenced_name AS view_name,
+        d.referenced_name       AS view_name,
         --
         LISTAGG(app_actions.get_html_a(app_actions.get_object_link(d.type, d.name), d.name), ', ')
             WITHIN GROUP (ORDER BY d.name) AS used_in_objects
@@ -81,9 +83,8 @@ v AS (
 ),
 c AS (
     SELECT
-        c.table_name AS view_name,
-        --
-        COUNT(c.column_name) AS count_columns,
+        c.table_name            AS view_name,
+        COUNT(c.column_name)    AS count_columns,
         --
         LOWER(LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id)) AS list_columns,
         --
@@ -115,6 +116,7 @@ SELECT
     p.used_on_pages,
     r.referenced_tables,
     r.referenced_views,
+    r.count_references,
     --
     NULLIF(v.read_only, 'N')                                        AS is_readonly,
     CASE WHEN v.bequeath = 'DEFINER' THEN 'Y' END                   AS is_definer,
