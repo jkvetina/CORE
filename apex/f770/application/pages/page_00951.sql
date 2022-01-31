@@ -2020,7 +2020,7 @@ wwv_flow_api.create_region_column(
 ,p_source_type=>'DB_COLUMN'
 ,p_source_expression=>'DATA_DEFAULT'
 ,p_data_type=>'VARCHAR2'
-,p_is_query_only=>true
+,p_is_query_only=>false
 ,p_item_type=>'NATIVE_TEXT_FIELD'
 ,p_heading=>'Data Default'
 ,p_heading_alignment=>'LEFT'
@@ -2041,6 +2041,7 @@ wwv_flow_api.create_region_column(
 ,p_enable_control_break=>true
 ,p_enable_hide=>true
 ,p_is_primary_key=>false
+,p_duplicate_value=>true
 ,p_include_in_export=>true
 );
 wwv_flow_api.create_region_column(
@@ -2221,7 +2222,7 @@ wwv_flow_api.create_region_column(
 ,p_source_type=>'DB_COLUMN'
 ,p_source_expression=>'COLUMN_ID'
 ,p_data_type=>'NUMBER'
-,p_is_query_only=>true
+,p_is_query_only=>false
 ,p_item_type=>'NATIVE_NUMBER_FIELD'
 ,p_heading=>'Id'
 ,p_heading_alignment=>'RIGHT'
@@ -2239,6 +2240,7 @@ wwv_flow_api.create_region_column(
 ,p_enable_control_break=>true
 ,p_enable_hide=>true
 ,p_is_primary_key=>false
+,p_duplicate_value=>true
 ,p_include_in_export=>true
 );
 wwv_flow_api.create_region_column(
@@ -2346,7 +2348,7 @@ wwv_flow_api.create_region_column(
 ,p_source_type=>'DB_COLUMN'
 ,p_source_expression=>'IS_NN'
 ,p_data_type=>'VARCHAR2'
-,p_is_query_only=>true
+,p_is_query_only=>false
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
 ,p_heading=>'NN'
 ,p_heading_alignment=>'CENTER'
@@ -2367,6 +2369,7 @@ wwv_flow_api.create_region_column(
 ,p_enable_control_break=>true
 ,p_enable_hide=>true
 ,p_is_primary_key=>false
+,p_duplicate_value=>true
 ,p_include_in_export=>true
 );
 wwv_flow_api.create_region_column(
