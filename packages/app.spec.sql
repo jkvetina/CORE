@@ -29,11 +29,8 @@ CREATE OR REPLACE PACKAGE app AS
      *
      */
 
-    --
-    core_alias                  CONSTANT VARCHAR2(30)           := 'CORE';
-    --
-    schema_owner                CONSTANT VARCHAR2(30)           := 'CORE';
-    schema_apex                 CONSTANT VARCHAR2(30)           := 'APEX_210100';
+    -- CORE application alias
+    core_alias                  CONSTANT VARCHAR2(30)           := 'CORE';  -- better than hardcode app number
 
     -- code for app exception
     app_exception_code          CONSTANT PLS_INTEGER            := -20000;
@@ -123,6 +120,17 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION get_core_app_id
     RETURN sessions.app_id%TYPE
+    RESULT_CACHE;
+
+
+
+    --
+    -- Return current schema owner (because APEX dont like using USER)
+    --
+    FUNCTION get_owner (
+        in_app_id               apps.app_id%TYPE
+    )
+    RETURN apex_applications.owner%TYPE
     RESULT_CACHE;
 
 
@@ -248,16 +256,6 @@ CREATE OR REPLACE PACKAGE app AS
     PROCEDURE set_debug (
         in_status               BOOLEAN                     := TRUE
     );
-
-
-
-    --
-    -- Return current owner (because APEX dont like using USER)
-    --
-    FUNCTION get_owner (
-        in_app_id               apps.app_id%TYPE            := NULL
-    )
-    RETURN apex_applications.owner%TYPE;
 
 
 

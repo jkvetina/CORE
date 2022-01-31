@@ -1,9 +1,9 @@
 CREATE OR REPLACE VIEW obj_tables_ref_pages AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_app_id()                AS app_id,
-        app.get_owner()                 AS owner_,
-        app.get_item('$TABLE_NAME')     AS table_name
+        app.get_app_id()                    AS app_id,
+        app.get_owner(app.get_app_id())     AS owner_,
+        app.get_item('$TABLE_NAME')         AS table_name
     FROM DUAL
 )
 SELECT

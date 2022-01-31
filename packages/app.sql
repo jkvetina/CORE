@@ -62,6 +62,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_owner (
+        in_app_id               apps.app_id%TYPE
+    )
+    RETURN apex_applications.owner%TYPE
+    RESULT_CACHE
+    AS
+        out_owner               apex_applications.owner%TYPE;
+    BEGIN
+        SELECT a.owner INTO out_owner
+        FROM apex_applications a
+        WHERE a.application_id = in_app_id;
+        --
+        RETURN out_owner;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    END;
+
+
+
     FUNCTION get_app_homepage (
         in_app_id               apps.app_id%TYPE            := NULL
     )
@@ -315,25 +335,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         APEX_APPLICATION.G_DEBUG := in_status;
-    END;
-
-
-
-    FUNCTION get_owner (
-        in_app_id               apps.app_id%TYPE            := NULL
-    )
-    RETURN apex_applications.owner%TYPE
-    AS
-        out_owner               apex_applications.owner%TYPE;
-    BEGIN
-        SELECT a.owner INTO out_owner
-        FROM apex_applications a
-        WHERE a.application_id = COALESCE(in_app_id, app.get_app_id());
-        --
-        RETURN out_owner;
-    EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN app.schema_owner;
     END;
 
 
@@ -2796,7 +2797,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         -- better version of DBMS_UTILITY.FORMAT_CALL_STACK
         FOR i IN REVERSE NVL(in_offset, 2) .. UTL_CALL_STACK.DYNAMIC_DEPTH LOOP  -- 2 = ignore this function, 3 = ignore caller
-            CONTINUE WHEN in_skip_others AND NVL(UTL_CALL_STACK.OWNER(i), '-') != app.schema_owner;
+            CONTINUE WHEN in_skip_others AND NVL(UTL_CALL_STACK.OWNER(i), '-') NOT IN (app.get_owner(app.get_app_id()), app.get_owner(app.get_core_app_id()));
             --
             out_module  := SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(i)), 1, app.length_module);
             out_stack   := out_stack || out_module || CASE WHEN in_line_numbers THEN ' [' || TO_CHAR(UTL_CALL_STACK.UNIT_LINE(i)) || ']' END || in_splitter;
@@ -2845,7 +2846,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         out_stack               VARCHAR2(32767);
     BEGIN
-        out_stack := REPLACE(REPLACE(in_stack, 'WWV_FLOW', '%'), app.schema_apex, '%');
+        out_stack := REPLACE(in_stack, 'WWV_FLOW', '%');
+        out_stack := REGEXP_REPLACE(out_stack, 'APEX_\d{6}', '%');
         --
         out_stack := REGEXP_REPLACE(out_stack, '\s.*SQL.*\.EXEC.*\]',   '.');
         out_stack := REGEXP_REPLACE(out_stack, '\s%.*EXEC.*\]',         '.');
