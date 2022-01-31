@@ -2455,6 +2455,18 @@ CREATE OR REPLACE PACKAGE BODY app AS
     WHEN OTHERS THEN
         COMMIT;
         --
+        BEGIN
+            rec.flag        := app.flag_error;
+            rec.action_name := 'FATAL_ERROR';
+            rec.payload     := DBMS_UTILITY.FORMAT_ERROR_STACK || CHR(10) || DBMS_UTILITY.FORMAT_CALL_STACK;
+            --
+            INSERT INTO logs VALUES rec;
+            COMMIT;
+        EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+        END;
+        --
         DBMS_OUTPUT.PUT_LINE('-- NOT LOGGED ERROR:');
         DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_STACK);
         DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);
