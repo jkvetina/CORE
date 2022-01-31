@@ -2149,13 +2149,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 BEGIN
                     app.log_warning('CREATING_EVENT', rec.event_id);
                     --
-                    INSERT INTO events (app_id, event_id, is_active, updated_by, updated_at)
+                    INSERT INTO events (app_id, event_id, is_active)
                     VALUES (
                         rec.app_id,
                         rec.event_id,
-                        'Y',
-                        app.get_user_id(),
-                        SYSDATE
+                        'Y'
                     );
                 EXCEPTION
                 WHEN DUP_VAL_ON_INDEX THEN
