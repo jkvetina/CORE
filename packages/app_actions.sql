@@ -692,7 +692,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     BEGIN
         app.log_module();
         --
-        app_actions.refresh_user_source_views();
+        app.refresh_user_source_views();
         --
         q := 'CREATE OR REPLACE PACKAGE '       || LOWER(settings_package) || ' AS' || CHR(10);
         b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(settings_package) || ' AS' || CHR(10);
