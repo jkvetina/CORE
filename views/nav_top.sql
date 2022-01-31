@@ -90,9 +90,10 @@ LEFT JOIN nav_badges b
 LEFT JOIN j
     ON j.page_id        = n.page_id
 WHERE n.action          IS NULL
-    AND n.is_hidden     IS NULL;
+    AND n.is_hidden     IS NULL
+    AND 'Y'             = app.is_page_available(n.page_id, n.app_id);
 --
-COMMENT ON TABLE nav_top IS 'Main navigation view, column names cant be changed';
+COMMENT ON TABLE nav_top IS '[CORE - DASHBOARD] Navigation view used for rendering top menu';
 --
 COMMENT ON COLUMN nav_top.attribute01   IS '<li class="...">';
 COMMENT ON COLUMN nav_top.attribute02   IS '<li>...<a>';
@@ -106,6 +107,7 @@ COMMENT ON COLUMN nav_top.attribute08   IS '</a>...';
 
 
 -- use this in APEX in Dynamic navigation query
+/*
 SELECT
     lvl,
     label, 
@@ -126,6 +128,4 @@ SELECT
     attribute10
 FROM nav_top
 ORDER BY page_group, sort_order;
---
-COMMENT ON TABLE nav_top IS '[CORE - DASHBOARD] Navigation view used for rendering top menu';
-
+*/

@@ -1031,86 +1031,92 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION is_page_available (
         in_page_id              navigation.page_id%TYPE,
-        in_app_id               navigation.app_id%TYPE          := NULL
+        in_app_id               navigation.app_id%TYPE
     )
     RETURN CHAR
     AS
-        v_auth_name             apex_application_pages.authorization_scheme%TYPE;
-        v_proc_name             user_procedures.procedure_name%TYPE;
-        v_arg_name              user_arguments.argument_name%TYPE;
+        v_auth_scheme           apex_application_pages.authorization_scheme%TYPE;
+        v_package_name          user_procedures.object_name%TYPE;
+        v_procedure_name        user_procedures.procedure_name%TYPE;
+        v_data_type             user_arguments.pls_type%TYPE;
+        v_page_argument         user_arguments.argument_name%TYPE;
         --
         out_result              CHAR;
+        out_result_bool         BOOLEAN;
         --
         PRAGMA UDF;             -- SQL only
     BEGIN
-        BEGIN
-            SELECT
-                p.authorization_scheme,
-                s.procedure_name,
-                a.argument_name
-            INTO v_auth_name, v_proc_name, v_arg_name
-            FROM apex_application_pages p
-            LEFT JOIN user_procedures s
-                ON s.object_name                = app.auth_package
-                AND s.procedure_name            = p.authorization_scheme
-            LEFT JOIN user_arguments a
-                ON a.object_name                = s.procedure_name
-                AND a.package_name              = s.object_name
-                AND a.overload                  IS NULL
-                AND a.position                  = 1
-                AND a.argument_name             = app.auth_page_id_arg
-                AND a.data_type                 = 'NUMBER'
-                AND a.in_out                    = 'IN'
-            WHERE p.application_id              = COALESCE(in_app_id, app.get_app_id())
-                AND p.page_id                   = in_page_id
-                AND REGEXP_LIKE(p.authorization_scheme_id, '^(\d+)$');  -- user auth schemes only
-        EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            RETURN 'Y';  -- show, page has no authorization set
-        END;
+        SELECT
+            MIN(p.authorization_scheme),
+            MIN(f.package_name),            -- package_name
+            MIN(f.object_name),             -- procedure_name
+            MIN(f.pls_type),
+            MIN(a.argument_name)            -- argument_name            
+            INTO v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument
+        FROM apex_application_pages p
+        LEFT JOIN user_procedures s
+            ON s.object_name                IN ('A' || TO_CHAR(in_app_id), 'APP', 'AUTH')   -- packages
+            AND s.procedure_name            = p.authorization_scheme
+        LEFT JOIN user_arguments f
+            ON f.object_name                = s.procedure_name
+            AND f.package_name              = s.object_name
+            AND f.overload                  IS NULL
+            AND f.position                  = 0
+            AND f.argument_name             IS NULL
+            AND f.in_out                    = 'OUT'
+        LEFT JOIN user_arguments a
+            ON a.object_name                = f.package_name
+            AND a.package_name              = f.object_name
+            AND a.overload                  IS NULL
+            AND a.position                  = 1
+            AND a.data_type                 = 'NUMBER'
+            AND a.in_out                    = 'IN'
+        WHERE p.application_id              = in_app_id
+            AND p.page_id                   = in_page_id
+            AND REGEXP_LIKE(p.authorization_scheme_id, '^(\d+)$');  -- user auth schemes only
         --
-        IF v_proc_name IS NULL THEN
-            app.log_warning('AUTH_PROCEDURE_MISSING', v_auth_name);
+        IF app.is_debug_on() THEN
+            app.log_module(in_page_id, in_app_id);
+            app.log_result(v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument);
+        END IF;
+        --
+        IF v_auth_scheme IS NULL THEN
+            RETURN 'Y';  -- show, page has no authorization set
+        END IF;
+        --
+        IF v_procedure_name IS NULL THEN
+            app.log_warning('AUTH_PROCEDURE_MISSING', v_auth_scheme);
             RETURN 'N';  -- hide, auth function is set on page but missing in AUTH package
         END IF;
 
         -- call function to evaluate access
-        IF v_arg_name IS NOT NULL THEN
-            -- pass page_id when neeeded
-            EXECUTE IMMEDIATE
-                'BEGIN :r := ' || app.auth_package || '.' || v_proc_name || '(:page_id); END;'
-                USING IN in_page_id, OUT out_result;
+        IF v_data_type = 'BOOLEAN' THEN
+            IF v_page_argument IS NOT NULL THEN
+                -- pass page_id when neeeded
+                EXECUTE IMMEDIATE
+                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '(:page_id); END;'
+                    USING IN in_page_id, OUT out_result_bool;
+            ELSE
+                EXECUTE IMMEDIATE
+                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '; END;'
+                    USING OUT out_result_bool;
+            END IF;
+            --
+            RETURN CASE WHEN out_result_bool THEN 'Y' ELSE 'N' END;
         ELSE
-            EXECUTE IMMEDIATE
-                'BEGIN :r := ' || app.auth_package || '.' || v_proc_name || '; END;'
-                USING OUT out_result;
+            IF v_page_argument IS NOT NULL THEN
+                -- pass page_id when neeeded
+                EXECUTE IMMEDIATE
+                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '(:page_id); END;'
+                    USING IN in_page_id, OUT out_result;
+            ELSE
+                EXECUTE IMMEDIATE
+                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '; END;'
+                    USING OUT out_result;
+            END IF;
         END IF;
         --
         RETURN NVL(out_result, 'N');
-    END;
-
-
-
-    FUNCTION is_page_visible (
-        in_page_id              navigation.page_id%TYPE,
-        in_app_id               navigation.app_id%TYPE          := NULL
-    )
-    RETURN CHAR
-    AS
-        is_valid                CHAR;
-        --
-        PRAGMA UDF;             -- SQL only
-    BEGIN
-        SELECT 'Y' INTO is_valid
-        FROM navigation n
-        WHERE n.app_id          = COALESCE(in_app_id, app.get_app_id())
-            AND n.page_id       = COALESCE(in_page_id, app.get_page_id())
-            AND n.is_hidden     IS NULL;
-        --
-        RETURN is_valid;
-    EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN 'N';
     END;
 
 

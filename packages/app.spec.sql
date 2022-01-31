@@ -69,10 +69,6 @@ CREATE OR REPLACE PACKAGE app AS
     page_item_wild              CONSTANT VARCHAR2(4)            := '$';
     page_item_prefix            CONSTANT VARCHAR2(4)            := 'P';
 
-    -- name of AUTH package
-    auth_package                CONSTANT VARCHAR2(30)           := 'AUTH';
-    auth_page_id_arg            CONSTANT VARCHAR2(30)           := 'IN_PAGE_ID';
-
     -- error log table name and max age fo records
     logs_table_name             CONSTANT VARCHAR2(30)           := 'LOGS';      -- used in purge_old
     logs_max_age                CONSTANT PLS_INTEGER            := 7;           -- max logs age in days
@@ -478,18 +474,7 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION is_page_available (
         in_page_id              navigation.page_id%TYPE,
-        in_app_id               navigation.app_id%TYPE          := NULL
-    )
-    RETURN CHAR;
-
-
-
-    --
-    -- Check if page should be visible in navigation
-    --
-    FUNCTION is_page_visible (
-        in_page_id              navigation.page_id%TYPE,
-        in_app_id               navigation.app_id%TYPE          := NULL
+        in_app_id               navigation.app_id%TYPE
     )
     RETURN CHAR;
 
