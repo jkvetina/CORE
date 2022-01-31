@@ -1076,8 +1076,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             AND REGEXP_LIKE(p.authorization_scheme_id, '^(\d+)$');  -- user auth schemes only
         --
         IF app.is_debug_on() THEN
-            app.log_module(in_page_id, in_app_id);
-            app.log_result(v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument);
+            app.log_action('IS_PAGE_AVAILABLE', in_page_id, in_app_id, v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument);
         END IF;
         --
         IF v_auth_scheme IS NULL THEN
