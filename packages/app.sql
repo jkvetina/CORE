@@ -3070,7 +3070,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 t.table_name    AS data_table,
                 a.table_name    AS error_table,
                 --
-                LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
+                LISTAGG(LOWER(c.column_name), ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
             FROM user_tables t
             JOIN all_tables a
                 ON a.owner                          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()))
@@ -3112,6 +3112,77 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RAISE;
     WHEN OTHERS THEN
         app.raise_error();
+    END;
+
+
+
+    PROCEDURE process_dml_errors (
+        in_table_name           user_tables.table_name%TYPE := NULL
+    )
+    AS
+        TYPE log_dml_error      IS RECORD (
+            log_id              NUMBER,
+            operation           VARCHAR2(2),
+            table_name          VARCHAR2(30),
+            table_rowid         VARCHAR2(30),
+            dml_rowid           ROWID,
+            error_message       VARCHAR2(2000),
+            json_data           VARCHAR2(4000)
+        );
+        rec                     log_dml_error;      -- logs_dml_errors%ROWTYPE; avoid references
+        r                       SYS_REFCURSOR;
+    BEGIN
+        app.log_module(in_table_name);
+
+        -- dynamic query to avoid references to avoid recompilation errors on APP package
+        OPEN r FOR
+            'SELECT * FROM ' || view_dml_errors ||
+            CASE WHEN in_table_name IS NOT NULL
+                THEN ' WHERE table_name = ''' || in_table_name || '''' END;
+        --
+        LOOP
+            FETCH r INTO rec;
+            EXIT WHEN r%NOTFOUND;
+            --
+            app.log_error (
+                in_action_name      => 'DML_ERROR',
+                in_arg1             => rec.operation,
+                in_arg2             => rec.table_name,
+                in_arg3             => rec.table_rowid,
+                in_arg4             => rec.dml_rowid,
+                in_arg5             => rec.error_message,
+                in_arg6             => rec.json_data,
+                in_parent_id        => rec.log_id,
+                --
+                in_payload          => app.get_dml_query (
+                    in_log_id       => rec.log_id,
+                    in_table_name   => rec.table_name,
+                    in_table_rowid  => rec.table_rowid,
+                    in_operation    => rec.operation
+                ) || CHR(10) || '--' || CHR(10)
+            );
+    
+            -- remove from DML ERR table
+            EXECUTE IMMEDIATE
+                'DELETE FROM ' || app.get_dml_table(rec.table_name) ||
+                ' WHERE ora_err_tag$ = :id'
+                USING rec.log_id;
+        END LOOP;
+        CLOSE r;
+        --
+        app.log_success();
+    END;
+
+
+
+    FUNCTION get_dml_table (
+        in_table_name           logs.module_name%TYPE
+    )
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id())) ||
+            '.' || in_table_name || app.dml_tables_postfix;
     END;
 
 

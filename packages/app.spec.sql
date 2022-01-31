@@ -1313,6 +1313,25 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Maps existing DML errors to proper row in LOGS table
+    --
+    PROCEDURE process_dml_errors (
+        in_table_name           user_tables.table_name%TYPE := NULL
+    );
+
+
+
+    --
+    -- Get DML error table name
+    --
+    FUNCTION get_dml_table (
+        in_table_name           logs.module_name%TYPE
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
     -- Creates MERGE query for selected _E$ table and row
     --
     FUNCTION get_dml_query (
