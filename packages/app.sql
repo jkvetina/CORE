@@ -1046,6 +1046,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         PRAGMA UDF;             -- SQL only
     BEGIN
+        -- get auth cheme, procedure...
         SELECT
             MIN(p.authorization_scheme),
             MIN(f.package_name),            -- package_name
@@ -1072,19 +1073,28 @@ CREATE OR REPLACE PACKAGE BODY app AS
             AND a.data_type                 = 'NUMBER'
             AND a.in_out                    = 'IN'
         WHERE p.application_id              = in_app_id
-            AND p.page_id                   = in_page_id
-            AND REGEXP_LIKE(p.authorization_scheme_id, '^(\d+)$');  -- user auth schemes only
-        --
-        IF app.is_debug_on() THEN
-            app.log_action('IS_PAGE_AVAILABLE', in_page_id, in_app_id, v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument);
+            AND p.page_id                   = in_page_id;
+
+        -- log current page
+        IF app.is_debug_on() AND in_page_id = app.get_page_id() THEN
+            app.log_action('IS_PAGE_AVAILABLE', in_app_id, in_page_id, v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument);
         END IF;
-        --
+
+        -- skip global page and login/logout page
+        IF in_page_id IN (0, 9999) THEN
+            RETURN 'Y';  -- show
+        END IF;
+
+        -- check scheme and procedure
         IF v_auth_scheme IS NULL THEN
+            app.log_warning('AUTH_SCHEME_MISSING', in_app_id, in_page_id);
+            --
             RETURN 'Y';  -- show, page has no authorization set
-        END IF;
-        --
-        IF v_procedure_name IS NULL THEN
-            app.log_warning('AUTH_PROCEDURE_MISSING', v_auth_scheme);
+        ELSIF v_procedure_name IS NULL THEN
+            IF v_auth_scheme NOT IN ('MUST_NOT_BE_PUBLIC_USER') THEN
+                app.log_warning('AUTH_PROCEDURE_MISSING', in_app_id, in_page_id, v_auth_scheme);
+            END IF;
+            --
             RETURN 'N';  -- hide, auth function is set on page but missing in AUTH package
         END IF;
 
@@ -2821,6 +2831,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END LOOP;
         --
         RETURN out_stack;
+    EXCEPTION
+    WHEN BAD_DEPTH THEN
+        RETURN NULL;
     END;
 
 
