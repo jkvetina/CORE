@@ -1,10 +1,9 @@
 CREATE OR REPLACE VIEW roles_auth_schemes AS
 SELECT
+    a.application_id                        AS app_id,
     MAX(r.role_id)                          AS role_id,
     MAX(r.role_group)                       AS role_group,
-    --
     a.authorization_scheme_name             AS auth_scheme,
-    NULL                                    AS auth_scheme_icon,
     --
     MAX(LTRIM(s.object_name || '.' || s.procedure_name, '.')) AS auth_procedure,
     --
@@ -43,15 +42,22 @@ LEFT JOIN user_procedures s
     ON s.procedure_name                 = a.authorization_scheme_name
     AND UPPER(a.attribute_01)           LIKE '%' || s.object_name || '.' || s.procedure_name || '%'
 WHERE a.application_id                  = app.get_app_id()
-GROUP BY a.authorization_scheme_name
+GROUP BY a.application_id, a.authorization_scheme_name
 UNION ALL
 --
 SELECT
+    r.app_id,
     r.role_id,
     r.role_group,
     --
-    NULL                AS auth_scheme,
-    'fa fa-warning'     AS auth_scheme_icon,
+    app_actions.get_html_a(
+        app.get_page_link(920,
+            in_names        => 'P920_CREATE_SCHEME,P920_AUTH_SCHEME',
+            in_values       => 'Y,' || r.role_id
+        ),
+        app.get_icon('fa-plus-square', 'Create missing Authorization Scheme')
+    ) AS auth_scheme,
+    --
     NULL                AS auth_procedure,
     'fa fa-warning'     AS auth_procedure_icon,
     NULL                AS auth_source_code,

@@ -31,6 +31,71 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    PROCEDURE create_auth_scheme (
+        in_app_id           apex_application_authorization.application_id%TYPE,
+        in_name             apex_application_authorization.authorization_scheme_name%TYPE
+    )
+    AS
+        out_statement       VARCHAR2(32767);
+    BEGIN
+        app.log_module(in_app_id, in_name);
+        --
+        FOR c IN (
+            SELECT
+                a.owner                 AS p_owner,
+                a.workspace_id          AS p_workspace_id,
+                a.application_id        AS p_application_id,
+                in_name                 AS p_name,
+                r.api_compatibility     AS p_version,
+                r.version_no            AS p_release,
+                wwv_flow_id.next_val    AS p_id,
+                --
+                'RETURN a' || a.application_id || '.' || LOWER(in_name) || '() = ''Y'';' AS p_body
+            FROM apex_release r
+            JOIN apex_applications a
+                ON a.application_id                     = in_app_id
+            LEFT JOIN apex_application_authorization z
+                ON z.application_id                     = a.application_id
+                AND z.authorization_scheme_name         = in_name
+            WHERE z.authorization_scheme_name           IS NULL
+        ) LOOP
+            out_statement := out_statement || 'BEGIN' || CHR(10);
+            out_statement := out_statement || '    wwv_flow_api.component_begin (' || CHR(10);
+            out_statement := out_statement || '         p_version_yyyy_mm_dd     => ''' || c.p_version || '''' || CHR(10);
+            out_statement := out_statement || '        ,p_release                => ''' || c.p_release || '''' || CHR(10);
+            out_statement := out_statement || '        ,p_default_workspace_id   => ' || c.p_workspace_id || CHR(10);
+            out_statement := out_statement || '        ,p_default_application_id => ' || c.p_application_id || CHR(10);
+            out_statement := out_statement || '        ,p_default_id_offset      => 0' || CHR(10);
+            out_statement := out_statement || '        ,p_default_owner          => ''' || c.p_owner || '''' || CHR(10);
+            out_statement := out_statement || '    );' || CHR(10);
+            out_statement := out_statement || '    wwv_flow_api.create_security_scheme (' || CHR(10);
+            out_statement := out_statement || '         p_id                     => wwv_flow_api.id(' || c.p_id || ')' || CHR(10);
+            out_statement := out_statement || '        ,p_name                   => ''' || c.p_name || '''' || CHR(10);
+            out_statement := out_statement || '        ,p_scheme_type            => ''NATIVE_FUNCTION_BODY''' || CHR(10);
+            out_statement := out_statement || '        ,p_attribute_01           => wwv_flow_string.join(wwv_flow_t_varchar2(''' || REPLACE(c.p_body, '''', '''''') || '''))' || CHR(10);
+            out_statement := out_statement || '        ,p_error_message          => ''ACCESS_DENIED''' || CHR(10);
+            out_statement := out_statement || '        ,p_caching                => ''BY_USER_BY_PAGE_VIEW''' || CHR(10);
+            out_statement := out_statement || '    );' || CHR(10);
+            out_statement := out_statement || '    wwv_flow_api.component_end;' || CHR(10);
+            out_statement := out_statement || 'END;' || CHR(10);
+        END LOOP;
+        --
+        DBMS_OUTPUT.PUT_LINE(out_statement);
+        --
+        IF out_statement IS NOT NULL THEN
+            EXECUTE IMMEDIATE out_statement;
+        END IF;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
     PROCEDURE nav_remove_pages (
         in_page_id              navigation.page_id%TYPE         := NULL
     )

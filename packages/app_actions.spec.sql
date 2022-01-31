@@ -72,6 +72,20 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+    --
+    -- Create AUTH scheme in APEX
+    --
+    PROCEDURE create_auth_scheme (
+        in_app_id           apex_application_authorization.application_id%TYPE,
+        in_name             apex_application_authorization.authorization_scheme_name%TYPE
+    );
+
+
+
+
+
+
+
     -- ### Navigation page
     --
 
