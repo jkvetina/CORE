@@ -3186,6 +3186,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
         CLOSE r;
         --
         app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 
