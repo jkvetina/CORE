@@ -42,7 +42,7 @@ CREATE OR REPLACE PACKAGE BODY gen AS
                     || LOWER(c.table_name) || '.' ||
                     CASE WHEN c.nullable = 'N'
                         THEN LOWER(c.column_name) || '%TYPE'
-                        ELSE RPAD(LOWER(c.column_name) || '%TYPE', width, ' ') || ' := NULL'
+                        ELSE RPAD(LOWER(c.column_name) || '%TYPE', width, ' ') || ':= NULL'
                         END
                     || CASE WHEN c.column_id < COUNT(*) OVER() THEN ',' END AS text
             FROM user_tab_columns c
@@ -200,7 +200,7 @@ CREATE OR REPLACE PACKAGE BODY gen AS
         DBMS_OUTPUT.PUT_LINE('    ) AS');
         DBMS_OUTPUT.PUT_LINE('        ' || RPAD('rec', width) || LOWER(NVL(in_target_table, in_table_name)) || '%ROWTYPE;');
         DBMS_OUTPUT.PUT_LINE('    BEGIN');
-        DBMS_OUTPUT.PUT_LINE('        tree.log_module();');
+        DBMS_OUTPUT.PUT_LINE('        app.log_module();');
         DBMS_OUTPUT.PUT_LINE('        --');
         --
         gen.get_table_rec (
@@ -232,12 +232,12 @@ CREATE OR REPLACE PACKAGE BODY gen AS
         --
         DBMS_OUTPUT.PUT_LINE('        END;');
         DBMS_OUTPUT.PUT_LINE('        --');
-        DBMS_OUTPUT.PUT_LINE('        tree.update_timer();');
+        DBMS_OUTPUT.PUT_LINE('        app.log_success();');
         DBMS_OUTPUT.PUT_LINE('    EXCEPTION');
-        DBMS_OUTPUT.PUT_LINE('    WHEN tree.app_exception THEN');
+        DBMS_OUTPUT.PUT_LINE('    WHEN app.app_exception THEN');
         DBMS_OUTPUT.PUT_LINE('        RAISE;');
         DBMS_OUTPUT.PUT_LINE('    WHEN OTHERS THEN');
-        DBMS_OUTPUT.PUT_LINE('        tree.raise_error();');
+        DBMS_OUTPUT.PUT_LINE('        app.raise_error();');
         DBMS_OUTPUT.PUT_LINE('    END;');
     END;
 
