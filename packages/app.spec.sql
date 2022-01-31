@@ -1306,6 +1306,13 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Merge all DML error tables (_E$) into single view
+    --
+    PROCEDURE create_dml_errors_view;
+
+
+
+    --
     -- Refresh views source (convert views source from LONG to searchable lines)
     --
     PROCEDURE refresh_user_source_views (

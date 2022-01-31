@@ -3024,6 +3024,98 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    PROCEDURE create_dml_errors_view
+    AS
+        q_block         VARCHAR2(32767);
+        q               CLOB;
+        comments        DBMS_UTILITY.LNAME_ARRAY;  -- TABLE OF VARCHAR2(4000) INDEX BY BINARY_INTEGER;
+    BEGIN
+        app.log_module();
+        --
+        DBMS_LOB.CREATETEMPORARY(q, TRUE);
+
+        -- backup view columns comments
+        FOR c IN (
+            SELECT table_name, column_name, comments
+            FROM user_col_comments
+            WHERE table_name = app.view_dml_errors
+        ) LOOP
+            comments(comments.count) :=
+                'COMMENT ON COLUMN ' || c.table_name || '.' || c.column_name ||
+                ' IS ''' || REPLACE(c.comments, '''', '''''') || '''';
+        END LOOP;
+
+        -- create header with correct data types
+        q_block := q_block || 'CREATE OR REPLACE VIEW ' || app.view_dml_errors || ' AS'     || CHR(10);
+        q_block := q_block || 'SELECT'                                                      || CHR(10);
+        q_block := q_block || '    --'                                                      || CHR(10);
+        q_block := q_block || '    -- THIS VIEW IS GENERATED'                               || CHR(10);
+        q_block := q_block || '    --'                                                      || CHR(10);
+        q_block := q_block || '    0           AS log_id,'                                  || CHR(10);
+        q_block := q_block || '    ''-''         AS operation,'                             || CHR(10);
+        q_block := q_block || '    ''-''         AS table_name,'                            || CHR(10);
+        q_block := q_block || '    ''UROWID''    AS table_rowid,'                           || CHR(10);
+        q_block := q_block || '    ROWID       AS dml_rowid,'                               || CHR(10);
+        q_block := q_block || '    ''-''         AS error_message,'                         || CHR(10);
+        q_block := q_block || '    ''-''         AS json_data'                              || CHR(10);
+        q_block := q_block || 'FROM DUAL'                                                   || CHR(10);
+        q_block := q_block || 'WHERE ROWNUM = 0'                                            || CHR(10);
+        --
+        DBMS_LOB.WRITEAPPEND(q, LENGTH(q_block), q_block);
+        q_block := '';
+
+        -- append all existing tables
+        FOR c IN (
+            SELECT
+                t.table_name    AS data_table,
+                a.table_name    AS error_table,
+                --
+                LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
+            FROM user_tables t
+            JOIN all_tables a
+                ON a.owner                          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()))
+                AND a.owner || '.' || a.table_name  = app.get_dml_table(t.table_name)
+            JOIN all_tab_cols c
+                ON c.owner          = a.owner
+                AND c.table_name    = a.table_name
+                AND c.column_name   NOT LIKE 'ORA_ERR_%$'
+            GROUP BY t.table_name, a.table_name
+            ORDER BY 1
+        ) LOOP
+            app.log_result(c.data_table, c.error_table);
+            --
+            q_block := 'UNION ALL'                                              || CHR(10);
+            q_block := q_block || 'SELECT'                                      || CHR(10);
+            q_block := q_block || '    TO_NUMBER(t.ora_err_tag$),'              || CHR(10);
+            q_block := q_block || '    t.ora_err_optyp$,'                       || CHR(10);
+            q_block := q_block || '    ''' || c.data_table || ''','             || CHR(10);
+            q_block := q_block || '    CAST(t.ora_err_rowid$ AS VARCHAR2(30)),' || CHR(10);
+            q_block := q_block || '    t.ROWID,'                                || CHR(10);
+            q_block := q_block || '    t.ora_err_mesg$,'                        || CHR(10);
+            --
+            q_block := q_block || '    JSON_OBJECT(' || c.list_columns || ' ABSENT ON NULL)' || CHR(10);
+            q_block := q_block || 'FROM ' || c.error_table || ' t'              || CHR(10);
+            --
+            DBMS_LOB.WRITEAPPEND(q, LENGTH(q_block), q_block);
+        END LOOP;
+        --
+        EXECUTE IMMEDIATE q;
+
+        -- add comments
+        FOR i IN comments.FIRST .. comments.LAST LOOP
+            EXECUTE IMMEDIATE comments(i);
+        END LOOP;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
     PROCEDURE refresh_user_source_views (
         in_view_name            VARCHAR2        := NULL,
         in_force                BOOLEAN         := FALSE
