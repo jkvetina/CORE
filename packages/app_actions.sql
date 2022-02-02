@@ -698,7 +698,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(settings_package) || ' AS' || CHR(10);
         --
         FOR c IN (
-            SELECT
+            SELECT DISTINCT
                 s.setting_name,
                 s.is_numeric,
                 s.is_date
