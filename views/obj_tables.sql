@@ -1,7 +1,8 @@
 CREATE OR REPLACE VIEW obj_tables AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_item('$TABLE_NAME')     AS table_name,
+        app.get_dml_owner()             AS dml_owner
     FROM DUAL
 ),
 s AS (
@@ -60,6 +61,16 @@ p AS (
     CROSS JOIN x
     WHERE p.table_name          = NVL(x.table_name, p.table_name)
     GROUP BY p.table_name
+),
+d AS (
+    SELECT
+        t.table_name,
+        NULL                AS count_references
+    FROM all_tables a
+    JOIN x
+        ON x.dml_owner      = a.owner
+    JOIN user_tables t
+        ON a.table_name     = app.get_dml_table(t.table_name)
 )
 --
 SELECT
@@ -80,8 +91,10 @@ SELECT
     i.count_ix,
     g.count_trg,
     --
-    p.partitions,
+    p.partitions            AS count_partitions,
+    d.count_references      AS dml_references,
     --
+    CASE WHEN d.table_name IS NOT NULL      THEN 'Y' END AS is_dml_handler,
     CASE WHEN t.temporary = 'Y'             THEN 'Y' END AS is_temp,
     CASE WHEN t.iot_type = 'IOT'            THEN 'Y' END AS is_iot,
     CASE WHEN t.row_movement = 'ENABLED'    THEN 'Y' END AS is_row_mov,
@@ -125,6 +138,7 @@ LEFT JOIN c ON c.table_name     = t.table_name
 LEFT JOIN i ON i.table_name     = t.table_name
 LEFT JOIN g ON g.table_name     = t.table_name
 LEFT JOIN p ON p.table_name     = t.table_name
+LEFT JOIN d ON d.table_name     = t.table_name
 --
 WHERE t.table_name      = NVL(x.table_name, t.table_name)
     AND t.table_name    NOT LIKE '%\__$' ESCAPE '\'
