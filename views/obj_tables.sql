@@ -65,12 +65,18 @@ p AS (
 d AS (
     SELECT
         t.table_name,
-        NULL                AS count_references
+        a.table_name                AS dml_handler,
+        NULLIF(COUNT(i.line), 0)    AS count_references
     FROM all_tables a
     JOIN x
         ON x.dml_owner      = a.owner
     JOIN user_tables t
         ON a.table_name     = app.get_dml_table(t.table_name)
+    LEFT JOIN user_identifiers i
+        ON i.object_type    = 'PACKAGE BODY'
+        AND i.name          = a.table_name
+        AND i.type          = 'TABLE'
+    GROUP BY t.table_name, a.table_name
 )
 --
 SELECT
@@ -93,6 +99,7 @@ SELECT
     --
     p.partitions            AS count_partitions,
     d.count_references      AS dml_references,
+    d.dml_handler,
     --
     CASE WHEN d.table_name IS NOT NULL      THEN 'Y' END AS is_dml_handler,
     CASE WHEN t.temporary = 'Y'             THEN 'Y' END AS is_temp,
