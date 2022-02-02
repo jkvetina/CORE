@@ -1077,7 +1077,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- log current page
         IF app.is_debug_on() AND in_page_id = app.get_page_id() THEN
-            app.log_action('IS_PAGE_AVAILABLE', in_app_id, in_page_id, v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument);
+            app.log_action (
+                'IS_PAGE_AVAILABLE',
+                in_app_id,
+                in_page_id,
+                v_auth_scheme,
+                v_package_name || '.' || v_procedure_name,
+                v_data_type,
+                v_page_argument
+            );
         END IF;
 
         -- skip global page and login/logout page
@@ -2583,6 +2591,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_payload               logs.payload%TYPE;
     BEGIN
         out_result := APEX_ERROR.INIT_ERROR_RESULT(p_error => p_error);
+        --
+        out_result.message := REPLACE(out_result.message, '&' || 'quot;', '"');  -- remove HTML entities
 
         -- assign log_id sequence (app specific, probably from sequence)
         IF p_error.ora_sqlcode IN (-1, -2091, -2290, -2291, -2292) THEN
@@ -2599,6 +2609,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
             --
             out_result.message          := 'CONSTRAINT_ERROR|' || v_action_name;
             out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;
+            --
+        ELSIF p_error.ora_sqlcode IN (-1400) THEN
+            out_result.message          := 'NOT_NULL|' || REGEXP_SUBSTR(out_result.message, '\.["]([^"]+)["]\)', 1, 1, NULL, 1);
             --
         ELSIF p_error.is_internal_error THEN
             v_action_name := 'INTERNAL_ERROR';
@@ -2650,7 +2663,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
         */
 
-        out_result.message := REGEXP_REPLACE(out_result.message, '^(ORA' || TO_CHAR(app.app_exception_code) || ': )', '');
+        out_result.message          := '[' || v_log_id || '] ' || REGEXP_REPLACE(out_result.message, '^(ORA-\d+:\s*)\s*', '');
+        out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;  -- also removes HTML entities
         --
         RETURN out_result;
     EXCEPTION
@@ -3085,7 +3099,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 t.table_name    AS data_table,
                 a.table_name    AS error_table,
                 --
-                LISTAGG(LOWER(c.column_name), ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
+                LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
             FROM user_tables t
             JOIN all_tables a
                 ON a.owner                          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()))
@@ -3147,7 +3161,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec                     log_dml_error;      -- logs_dml_errors%ROWTYPE; avoid references
         r                       SYS_REFCURSOR;
     BEGIN
-        app.log_module(in_table_name);
+        IF app.is_debug_on() THEN
+            app.log_module(in_table_name);
+        END IF;
 
         -- dynamic query to avoid references to avoid recompilation errors on APP package
         OPEN r FOR
@@ -3185,7 +3201,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END LOOP;
         CLOSE r;
         --
-        app.log_success();
+        IF app.is_debug_on() THEN
+            app.log_success();
+        END IF;
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
