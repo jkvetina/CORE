@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW settings_overview AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        UPPER('SETT')                   AS package_name,        -- app_actions spec
+        UPPER('SETT')                   AS package_name,        -- @TODO: app_actions spec
         UPPER('GET_')                   AS prefix,
         app.get_item('$SETTING_NAME')   AS setting_name,
         app.get_app_id()                AS app_id

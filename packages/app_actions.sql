@@ -703,8 +703,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 s.is_numeric,
                 s.is_date
             FROM settings s
-            WHERE s.app_id              = app.get_app_id()
-                AND s.setting_context   IS NULL
+            WHERE s.setting_context IS NULL
             ORDER BY s.setting_name
         ) LOOP
             -- create specification
