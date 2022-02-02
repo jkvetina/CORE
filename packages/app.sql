@@ -3214,13 +3214,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION get_dml_table (
-        in_table_name           logs.module_name%TYPE
+        in_table_name           logs.module_name%TYPE,
+        in_owner                CHAR                    := NULL
     )
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id())) ||
-            '.' || in_table_name || app.dml_tables_postfix;
+        RETURN
+            CASE WHEN in_owner IS NOT NULL
+                THEN app.get_dml_owner() || '.'
+                END ||
+            in_table_name || app.dml_tables_postfix;
+    END;
+
+
+
+    FUNCTION get_dml_owner
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()));
     END;
 
 

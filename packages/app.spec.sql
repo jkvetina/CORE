@@ -1325,8 +1325,17 @@ CREATE OR REPLACE PACKAGE app AS
     -- Get DML error table name
     --
     FUNCTION get_dml_table (
-        in_table_name           logs.module_name%TYPE
+        in_table_name           logs.module_name%TYPE,
+        in_owner                CHAR                    := NULL
     )
+    RETURN VARCHAR2;
+
+
+
+    --
+    -- Get DML error table owner
+    --
+    FUNCTION get_dml_owner
     RETURN VARCHAR2;
 
 
