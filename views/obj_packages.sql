@@ -25,13 +25,14 @@ f AS (
 SELECT
     p.object_name               AS package_name,
     --
-    COUNT(p.procedure_name) - MIN(f.count_functions) AS count_procedures,
+    NULLIF(COUNT(p.procedure_name) - MIN(f.count_functions), 0) AS count_procedures,
     --
-    MIN(f.count_functions)      AS count_functions,
-    MAX(s.count_lines)          AS count_lines,
-    MAX(o.last_ddl_time)        AS last_ddl_time,
+    NULLIF(MIN(f.count_functions), 0)   AS count_functions,
+    MAX(s.count_lines)                  AS count_lines,
+    MAX(o.last_ddl_time)                AS last_ddl_time,
     --
     -- @TODO: dependencies?
+    -- @TODO: references?
     --
     NULL                        AS desc_        -- @TODO: get from specification
 FROM user_objects o
