@@ -234,16 +234,15 @@ ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
 
 
 /* SHOW SOURCE CODE AS MONOSPACE */
-.SOURCE_CODE {
+.SOURCE_CODE div.t-Form-itemWrapper,
+.SOURCE_CODE td.t-Report-cell {
     font-family:            monospace;
     white-space:            pre;
 }
 .SOURCE_CODE td.t-Report-cell {
     padding:                0.1rem 0.5rem;
     white-space:            pre;
-    font-family:            monospace;
     font-size:              85%;
-    white-space:            pre;
     color:                  #111;
 }
 
