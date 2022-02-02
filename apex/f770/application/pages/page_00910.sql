@@ -2450,6 +2450,7 @@ wwv_flow_api.create_page_button(
 ,p_button_template_id=>wwv_flow_api.id(9145249029569999)
 ,p_button_image_alt=>'Auto Update'
 ,p_button_position=>'RIGHT_OF_TITLE'
+,p_button_css_classes=>'&P910_AUTO_UPDATE_HOT.'
 ,p_button_cattributes=>'style="margin-left: 2rem;"'
 );
 wwv_flow_api.create_page_button(
@@ -2460,6 +2461,7 @@ wwv_flow_api.create_page_button(
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
+,p_button_is_hot=>'Y'
 ,p_button_image_alt=>'Show Regions'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:910:&SESSION.::&DEBUG.::P910_SHOW_REGIONS:Y'
@@ -2521,6 +2523,14 @@ wwv_flow_api.create_page_item(
 ,p_name=>'P910_SHOW_REGIONS'
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(12338096400960949)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(22086359230580631)
+,p_name=>'P910_AUTO_UPDATE_HOT'
+,p_item_sequence=>50
+,p_item_plug_id=>wwv_flow_api.id(9192009232668637)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
@@ -2645,8 +2655,22 @@ wwv_flow_api.create_page_process(
 ,p_process_when_type=>'ITEM_IS_NOT_NULL'
 );
 wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(11233462403343633)
+ p_id=>wwv_flow_api.id(22086431917580632)
 ,p_process_sequence=>30
+,p_process_point=>'BEFORE_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'INIT_DEFAULTS'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT NVL(MAX(''t-Button--hot''), '' '') INTO :P910_AUTO_UPDATE_HOT',
+'FROM nav_overview n',
+'WHERE n.action IS NOT NULL;',
+''))
+,p_process_clob_language=>'PLSQL'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(11233462403343633)
+,p_process_sequence=>40
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_ADD_FILTER'

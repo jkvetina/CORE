@@ -3215,6 +3215,7 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Rebuild'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:970:&SESSION.::&DEBUG.:970:P970_REBUILD:Y'
+,p_button_css_classes=>'&P970_REBUILD_HOT.'
 ,p_button_cattributes=>'title="&P970_REBUILD_TITLE."'
 );
 wwv_flow_api.create_page_button(
@@ -4321,6 +4322,14 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(12334840638960917)
 ,p_name=>'P970_SETTING_NAME'
+,p_item_sequence=>40
+,p_item_plug_id=>wwv_flow_api.id(11853608143169127)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(22086242676580630)
+,p_name=>'P970_REBUILD_HOT'
 ,p_item_sequence=>30
 ,p_item_plug_id=>wwv_flow_api.id(11853608143169127)
 ,p_display_as=>'NATIVE_HIDDEN'
@@ -4566,6 +4575,7 @@ wwv_flow_api.create_page_process(
 'app.log_action(''REBUILD_PACKAGE'');',
 '--',
 'app_actions.rebuild_settings();',
+'app.refresh_user_source_views();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
@@ -4582,6 +4592,10 @@ wwv_flow_api.create_page_process(
 'app.log_action(''INIT_DEFAULTS'');',
 '--',
 ':P970_REBUILD_TITLE := ''Rebuild '' || UPPER(app_actions.settings_package) || '' package with '' || UPPER(app_actions.settings_prefix) || ''* functions'';',
+'--',
+'SELECT NVL(MAX(''t-Button--hot''), '' '') INTO :P970_REBUILD_HOT',
+'FROM settings_overview s',
+'WHERE s.action_check IS NOT NULL;',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
