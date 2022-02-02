@@ -152,6 +152,23 @@ f AS (
         AND s.line          BETWEEN t.body_start AND t.body_end
         AND s.is_found_text = 'Y'
     GROUP BY t.package_name, t.module_name, t.overload
+),
+q AS (
+    -- search statements
+    SELECT
+        t.package_name,
+        t.module_name,
+        t.overload,
+        --
+        --s.type,  -- SELECT, INSERT, UPDATE, DELETE, MERGE, EXECUTE IMMEDIATE, FETCH, OPEN, CLOSE, COMMIT, ROLLBACK
+        --
+        COUNT(*)            AS count_statements
+    FROM t
+    JOIN user_statements s
+        ON s.object_name    = t.package_name
+        AND s.object_type   = 'PACKAGE BODY'
+        AND s.line          BETWEEN t.body_start AND t.body_end
+    GROUP BY t.package_name, t.module_name, t.overload
 )
 SELECT
     t.package_name,
@@ -180,7 +197,9 @@ SELECT
     t.spec_lines,
     t.body_start,
     t.body_end,
-    t.body_lines,
+    t.body_lines            AS count_lines,
+    --
+    q.count_statements,
     --
     d.comment_
 FROM t
@@ -213,6 +232,10 @@ LEFT JOIN f
     ON f.package_name       = t.package_name
     AND f.module_name       = t.module_name
     AND NVL(f.overload, 0)  = NVL(t.overload, 0)
+LEFT JOIN q
+    ON q.package_name       = t.package_name
+    AND q.module_name       = t.module_name
+    AND NVL(q.overload, 0)  = NVL(t.overload, 0)
 WHERE (f.module_name IS NOT NULL OR x.search_source IS NULL);
 --
 COMMENT ON TABLE obj_modules                    IS 'Find package modules (procedures and functions) and their boundaries (start-end lines)';
@@ -233,6 +256,6 @@ COMMENT ON COLUMN obj_modules.spec_end          IS 'Module end in specification'
 COMMENT ON COLUMN obj_modules.spec_lines        IS 'Lines in specification';
 COMMENT ON COLUMN obj_modules.body_start        IS 'Module start in body';
 COMMENT ON COLUMN obj_modules.body_end          IS 'Module end in body';
-COMMENT ON COLUMN obj_modules.body_lines        IS 'Lines in body';
+COMMENT ON COLUMN obj_modules.count_lines       IS 'Lines in body';
 COMMENT ON COLUMN obj_modules.comment_          IS 'Description from package spec';
 
