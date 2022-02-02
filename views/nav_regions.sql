@@ -195,6 +195,7 @@ SELECT
     r.display_sequence,
     r.query_type_code,
     r.authorization_scheme,
+    r.component_comment         AS comments,
     --
     s.lvl,
     s.sort#

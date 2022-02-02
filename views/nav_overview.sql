@@ -25,6 +25,7 @@ t AS (
             p.page_css_classes,
             p.page_mode,
             p.page_template,
+            p.page_comment          AS comments,
             --
             LEVEL - 1                                   AS depth,
             CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
@@ -100,6 +101,8 @@ SELECT
         )
         END AS page_url,
     --
+    t.comments,
+    --
     'UD' AS allow_changes,  -- U = update, D = delete
     --
     t.page_root || '.' || TO_CHAR(10000 + t.r#) || '.' || NVL(t.order#, t.page_id) || '.' || n.page_id AS sort_order,
@@ -168,6 +171,8 @@ SELECT
         in_page_id      => n.page_id,
         in_app_id       => n.app_id
     ) AS page_url,
+    --
+    n.comments,
     --
     NULL AS allow_changes,  -- no changes allowed
     --

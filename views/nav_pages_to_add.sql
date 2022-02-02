@@ -70,7 +70,8 @@ SELECT
     --
     p.page_group,
     p.page_id               AS page_link,
-    p.authorization_scheme  AS auth_scheme
+    p.authorization_scheme  AS auth_scheme,
+    p.page_comment          AS comments
 FROM apex_application_pages p
 LEFT JOIN navigation n
     ON n.app_id             = p.application_id
