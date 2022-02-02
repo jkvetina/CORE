@@ -3170,18 +3170,27 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'// hide global page regions, wait for grid to load',
-'(function myLoop(i) {',
-'    setTimeout(function() {',
-'        var x = $(''#PAGE_REGIONS table tbody tr:first button'');',
-'        if (x) {',
-'            x.click();',
-'            x.blur();',
-'            return;',
-'        }',
-'        if (--i) myLoop(i);',
-'    }, 1000)',
-'})(10);',
+'fold_grid_group(''PAGE_REGIONS'', ''Page Group'', ''0 Global Page'');',
+''))
+);
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(22465283339652520)
+,p_name=>'HIDE_GLOBAL_PAGE_REGIONS_ON_REPPORT_CHANGE'
+,p_event_sequence=>20
+,p_triggering_element_type=>'REGION'
+,p_triggering_region_id=>wwv_flow_api.id(12336291767960931)
+,p_bind_type=>'bind'
+,p_bind_event_type=>'NATIVE_IG|REGION TYPE|interactivegridreportchange'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(22465362314652521)
+,p_event_id=>wwv_flow_api.id(22465283339652520)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'fold_grid_group(''PAGE_REGIONS'', ''Page Group'', ''0 Global Page'');',
 ''))
 );
 wwv_flow_api.create_page_process(

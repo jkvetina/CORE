@@ -23,6 +23,26 @@ var apex_page_loaded = function() {
 
 
 
+// INTERACTIVE GRIDS - fold (hide) requested group (Control Break)
+var fold_grid_group = function(grid_id, group_name, group_value) {
+    (function loop(i) {
+        setTimeout(function() {
+            var $x = $('#' + grid_id + ' table tbody tr:first button');
+            if ($x) {
+                var $b = $x.parent().find('.a-GV-controlBreakLabel');
+                if ($b.find('.a-GV-breakLabel').text().includes(group_name) && $b.find('.a-GV-breakValue').text().includes(group_value)) {
+                    $x.click();
+                    $x.blur();
+                    return;
+                }
+            }
+            if (--i) loop(i);
+        }, 1000)
+    })(10);
+};
+
+
+
 // common toolbar for all grids
 // just put following code in Region - Attributes - JavaScript Initialization Code
 // and assign Static ID to region
