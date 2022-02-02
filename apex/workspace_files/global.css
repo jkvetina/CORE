@@ -31,6 +31,10 @@ div.t-Dialog-body .t-HeroRegion {
     top:            1rem;
 }
 
+.t-HeroRegion-col.t-HeroRegion-col--content {
+    line-height:    150%;
+}
+
 
 
 /* LINKS IN GRID */
