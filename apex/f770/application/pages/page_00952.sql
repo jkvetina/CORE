@@ -1031,6 +1031,7 @@ wwv_flow_api.create_page_process(
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 ,p_process_when=>'P952_ENABLE'
 ,p_process_when_type=>'ITEM_IS_NOT_NULL'
+,p_security_scheme=>wwv_flow_api.id(9556407311505078)
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(14709218652370077)
@@ -1048,6 +1049,7 @@ wwv_flow_api.create_page_process(
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 ,p_process_when=>'P952_DISABLE'
 ,p_process_when_type=>'ITEM_IS_NOT_NULL'
+,p_security_scheme=>wwv_flow_api.id(9556407311505078)
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(14708444881370076)

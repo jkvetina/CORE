@@ -1040,6 +1040,8 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ACTION_REFRESH_VIEWS_SOURCE'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app.log_action(''REFRESH_VIEWS_SOURCE'');',
+'--',
 'app.refresh_user_source_views();',
 ''))
 ,p_process_clob_language=>'PLSQL'
