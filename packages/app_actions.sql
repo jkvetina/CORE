@@ -749,7 +749,10 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         EXECUTE IMMEDIATE q;
         EXECUTE IMMEDIATE b;
         --
-        recompile();
+        recompile (
+            in_name     => 'SETT',
+            in_force    => TRUE
+        );
         --
         /*
         DBMS_RESULT_CACHE.INVALIDATE (
