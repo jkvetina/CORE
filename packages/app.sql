@@ -460,6 +460,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
             app.raise_error('INVALID_USER');
         END;
 
+        -- load translations
+        FOR c IN (
+            SELECT t.item_name, t.item_value
+            FROM translations_mapped t
+        ) LOOP
+            app.set_item(c.item_name, c.item_value, in_raise => FALSE);
+        END LOOP;
+
         -- update session record, prevent app_id and user_id hijacking
         UPDATE sessions s
         SET s.updated_at        = SYSDATE
