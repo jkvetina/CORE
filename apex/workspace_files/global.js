@@ -33,6 +33,7 @@ var fold_grid_group = function(grid_id, group_name, group_value) {
                 if ($b.find('.a-GV-breakLabel').text().includes(group_name) && $b.find('.a-GV-breakValue').text().includes(group_value)) {
                     $x.click();
                     $x.blur();
+                    $(window).scrollTop(0);
                     return;
                 }
             }
