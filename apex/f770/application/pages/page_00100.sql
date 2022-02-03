@@ -51,8 +51,8 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'SQL'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT ''Designed to remove boring setup when building new app,j ust focus on your app'' AS name FROM DUAL UNION ALL',
-'SELECT ''Designed for sharing pages between apps'' AS name FROM DUAL UNION ALL',
+'SELECT ''Designed to remove boring setup when building new app, just focus on your app'' AS name FROM DUAL UNION ALL',
+'SELECT ''Designed for sharing pages and components between apps'' AS name FROM DUAL UNION ALL',
 'SELECT ''Designed for sharing objects for multiple projects/apps in same db schema'' AS name FROM DUAL UNION ALL',
 'SELECT ''Designed for sharing objects for multiple schemas in same db instance'' AS name FROM DUAL UNION ALL',
 'SELECT ''Lower maintance time and effort when something change in shared code'' AS name FROM DUAL;',

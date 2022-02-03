@@ -14,9 +14,9 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>965
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'#fa-sitemap Dependencies'
-,p_alias=>'DEPENDENCIES'
-,p_step_title=>'Dependencies'
+,p_name=>'#fa-list-ol Sequences'
+,p_alias=>'SEQUENCES'
+,p_step_title=>'Sequences'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(15841923064543077)
 ,p_page_template_options=>'#DEFAULT#'
@@ -26,8 +26,8 @@ wwv_flow_api.create_page(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(15126384113615746)
-,p_plug_name=>'Dependencies'
-,p_icon_css_classes=>'fa-sitemap'
+,p_plug_name=>'Sequences'
+,p_icon_css_classes=>'fa-list-ol'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
