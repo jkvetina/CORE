@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9844735592500475)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220118074858'
+,p_last_upd_yyyymmddhh24miss=>'20220203174141'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9264299805429043)
@@ -280,7 +280,15 @@ wwv_flow_api.create_page_item(
 ,p_source=>'LANG_ID'
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_SELECT_LIST'
-,p_lov=>'STATIC:EN;EN,CZ;CZ'
+,p_named_lov=>'LOV_CORE_LANGUAGES'
+,p_lov=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT',
+'    REPLACE(c.column_name, ''VALUE_'', '''') AS lang_id,',
+'    c.column_id',
+'FROM user_tab_cols c',
+'WHERE c.table_name      = ''TRANSLATIONS''',
+'    AND c.column_name   LIKE ''VALUE_%'' ESCAPE ''\'';',
+''))
 ,p_lov_display_null=>'YES'
 ,p_cHeight=>1
 ,p_field_template=>wwv_flow_api.id(9142775823569991)

@@ -24,6 +24,7 @@ prompt --install
 @@application/shared_components/navigation/tabs/parent.sql
 @@application/shared_components/user_interface/lovs/login_remember_username.sql
 @@application/shared_components/user_interface/lovs/lov_core_flags_name_value.sql
+@@application/shared_components/user_interface/lovs/lov_core_languages.sql
 @@application/shared_components/user_interface/lovs/lov_core_pages_page_id_page_name.sql
 @@application/shared_components/user_interface/lovs/lov_users_user_id_user_id_active_y.sql
 @@application/pages/page_groups.sql
@@ -123,6 +124,7 @@ prompt --install
 @@application/pages/page_00920.sql
 @@application/pages/page_00922.sql
 @@application/pages/page_00940.sql
+@@application/pages/page_00945.sql
 @@application/pages/page_00950.sql
 @@application/pages/page_00951.sql
 @@application/pages/page_00952.sql
