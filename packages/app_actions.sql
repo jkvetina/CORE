@@ -1156,5 +1156,62 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         app.raise_error();
     END;
 
+
+
+    PROCEDURE save_translations_overview (
+        in_action           CHAR,
+        in_app_id           translations_overview.app_id%TYPE,
+        in_page_id_old      translations_overview.page_id_old%TYPE,
+        in_page_id          translations_overview.page_id%TYPE,
+        in_name_old         translations_overview.name_old%TYPE,
+        in_name             translations_overview.name%TYPE,
+        in_value_en         translations_overview.value_en%TYPE       := NULL,
+        in_value_cz         translations_overview.value_cz%TYPE       := NULL,
+        in_value_sk         translations_overview.value_sk%TYPE       := NULL,
+        in_value_pl         translations_overview.value_pl%TYPE       := NULL,
+        in_value_hu         translations_overview.value_hu%TYPE       := NULL
+    ) AS
+        rec                 translations%ROWTYPE;
+    BEGIN
+        app.log_module(in_action, in_page_id_old, in_page_id, in_name_old, in_name);
+        --
+        rec.app_id          := in_app_id;
+        rec.page_id         := NVL(in_page_id, 0);
+        rec.name            := in_name;
+        rec.value_en        := in_value_en;
+        rec.value_cz        := in_value_cz;
+        rec.value_sk        := in_value_sk;
+        rec.value_pl        := in_value_pl;
+        rec.value_hu        := in_value_hu;
+        --
+        IF in_action = 'D' THEN
+            DELETE FROM translations t
+            WHERE t.app_id      = in_app_id
+                AND t.page_id   = in_page_id_old
+                AND t.name      = in_name_old;
+            --
+            app.log_success();
+            RETURN;
+        END IF;
+        --
+        UPDATE translations t
+        SET ROW             = rec
+        WHERE t.app_id      = in_app_id
+            AND t.page_id   = in_page_id_old
+            AND t.name      = in_name_old;
+        --
+        IF SQL%ROWCOUNT = 0 THEN
+            INSERT INTO translations
+            VALUES rec;
+        END IF;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
 END;
 /
