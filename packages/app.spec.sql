@@ -199,12 +199,26 @@ CREATE OR REPLACE PACKAGE app AS
     -- Get user language
     --
     FUNCTION get_user_lang
-    RETURN users.lang_id%TYPE;
+    RETURN users.lang_id%TYPE
+    RESULT_CACHE;
 
 
 
     --
+    -- Translate page item
     --
+    FUNCTION get_translation (
+        in_name                 translations.name%TYPE,
+        in_page_id              translations.page_id%TYPE   := NULL,
+        in_app_id               translations.app_id%TYPE    := NULL,
+        in_lang                 users.lang_id%TYPE          := NULL
+    )
+    RETURN translations.value_en%TYPE;
+
+
+
+    --
+    -- Auth function to check if users account is active
     --
     FUNCTION is_active_user (
         in_user_id              users.user_id%TYPE          := NULL
