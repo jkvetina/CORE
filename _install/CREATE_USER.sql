@@ -31,6 +31,12 @@ GRANT SELECT ON v_$sql_cursor       TO core;
 GRANT SELECT ON v_$session          TO core;
 GRANT SELECT ON v_$session_longops  TO core;
 
+-- ACL
+GRANT SELECT ON dba_network_acls            TO core;
+GRANT SELECT ON dba_network_acl_privileges  TO core;
+GRANT EXECUTE ON DBMS_NETWORK_ACL_ADMIN     TO core;
+
+
 
 
 ALTER SESSION SET CURRENT_SCHEMA = core;
