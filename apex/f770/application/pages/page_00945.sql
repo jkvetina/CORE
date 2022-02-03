@@ -575,14 +575,6 @@ wwv_flow_api.create_page_button(
 ,p_button_redirect_url=>'f?p=&APP_ID.:945:&SESSION.::&DEBUG.:945::'
 ,p_icon_css_classes=>'fa-refresh'
 );
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(22939618367325301)
-,p_name=>'T945_NAME'
-,p_item_sequence=>20
-,p_item_plug_id=>wwv_flow_api.id(45292227752629868)
-,p_display_as=>'NATIVE_HIDDEN'
-,p_attribute_01=>'Y'
-);
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(22828762417304510)
 ,p_process_sequence=>10

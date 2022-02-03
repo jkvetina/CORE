@@ -18,6 +18,7 @@ prompt --install
 @@application/shared_components/logic/application_items/g_today.sql
 @@application/shared_components/logic/application_items/g_today_label.sql
 @@application/shared_components/logic/application_items/g_tomorrow.sql
+@@application/shared_components/logic/application_items/g_version.sql
 @@application/shared_components/logic/application_items/g_yesterday.sql
 @@application/shared_components/logic/application_settings.sql
 @@application/shared_components/navigation/tabs/standard.sql

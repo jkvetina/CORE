@@ -42,7 +42,7 @@ wwv_flow_api.create_flow(
 ,p_public_user=>'APEX_PUBLIC_USER'
 ,p_proxy_server=>nvl(wwv_flow_application_install.get_proxy,'')
 ,p_no_proxy_domains=>nvl(wwv_flow_application_install.get_no_proxy_domains,'')
-,p_flow_version=>'Release 1.0'
+,p_flow_version=>'&G_VERSION.'
 ,p_flow_status=>'AVAILABLE_W_EDIT_LINK'
 ,p_flow_unavailable_text=>'APPLICATION_OFFLINE'
 ,p_exact_substitutions_only=>'Y'
@@ -70,7 +70,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_10=>'FORMAT_TIME'
 ,p_substitution_value_10=>'HH24:MI:SS'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220130133953'
+,p_last_upd_yyyymmddhh24miss=>'20220203230435'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>64
 ,p_ui_type_name => null
