@@ -3266,7 +3266,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             CASE WHEN in_owner IS NOT NULL
                 THEN app.get_dml_owner() || '.'
                 END ||
-            in_table_name || app.dml_tables_postfix;
+            app.dml_tables_prefix || in_table_name || app.dml_tables_postfix;
     END;
 
 

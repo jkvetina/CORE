@@ -75,6 +75,7 @@ CREATE OR REPLACE PACKAGE app AS
 
     -- owner of DML error tables
     dml_tables_owner            CONSTANT VARCHAR2(30)           := NULL;        -- NULL = same as current owner
+    dml_tables_prefix           CONSTANT VARCHAR2(30)           := '';          -- ERR$
     dml_tables_postfix          CONSTANT VARCHAR2(30)           := '_E$';
     view_dml_errors             CONSTANT VARCHAR2(30)           := 'LOGS_DML_ERRORS';
 
