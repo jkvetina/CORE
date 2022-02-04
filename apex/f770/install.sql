@@ -15,6 +15,7 @@ prompt --install
 @@application/shared_components/security/app_access_control/is_administrator.sql
 @@application/shared_components/navigation/navigation_bar.sql
 @@application/shared_components/logic/application_processes/init_globals.sql
+@@application/shared_components/logic/application_processes/init_translations.sql
 @@application/shared_components/logic/application_items/g_today.sql
 @@application/shared_components/logic/application_items/g_today_label.sql
 @@application/shared_components/logic/application_items/g_tomorrow.sql

@@ -446,7 +446,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec                     sessions%ROWTYPE;
     BEGIN
         --app.log_module();
-        --
         v_user_login            := app.get_user_id();
         --
         rec.app_id              := app.get_app_id();
@@ -500,6 +499,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         app.set_user_id();                      -- convert user_login to user_id
         rec.user_id := app.get_user_id();       -- update needed
 
+        --
+        -- any app/page items set here will be overwriten if clear cache is on
+        --
+
         -- store log_id of the request for further reuse
         recent_request_id := app.log_request();
 
@@ -522,14 +525,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         WHEN NO_DATA_FOUND THEN
             app.raise_error('INVALID_USER');
         END;
-
-        -- load translations
-        FOR c IN (
-            SELECT t.item_name, t.item_value
-            FROM translations_mapped t
-        ) LOOP
-            app.set_item(c.item_name, c.item_value, in_raise => FALSE);
-        END LOOP;
 
         -- update session record, prevent app_id and user_id hijacking
         UPDATE sessions s
@@ -1295,7 +1290,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             SELECT 'Y' INTO is_valid
             FROM apex_application_page_items p
             WHERE p.application_id      = app.get_real_app_id()
-                AND p.page_id           = app.get_page_id()
+                AND p.page_id           IN (0, app.get_page_id())
                 AND p.item_name         = v_item_name;
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -1329,7 +1324,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         IF v_item_name IS NOT NULL THEN
             RETURN APEX_UTIL.GET_SESSION_STATE(v_item_name);
         ELSIF in_raise THEN
-            app.raise_error('ITEM_MISSING', v_item_name);
+            app.raise_error('ITEM_MISSING', v_item_name, in_name);
         END IF;
         --
         RETURN NULL;
@@ -1501,10 +1496,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 );
             EXCEPTION
             WHEN OTHERS THEN
-                app.raise_error('ITEM_MISSING', v_item_name);
+                app.raise_error('ITEM_MISSING', v_item_name, in_name);
             END;
         ELSIF in_raise THEN
-            app.raise_error('ITEM_MISSING', v_item_name);
+            app.raise_error('ITEM_MISSING', v_item_name, in_name);
         END IF;
     END;
 
