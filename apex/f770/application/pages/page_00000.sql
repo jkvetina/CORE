@@ -133,6 +133,7 @@ wwv_flow_api.create_report_region(
 '    FROM apex_application_page_items i',
 '    WHERE i.application_id  = app.get_app_id()',
 '        AND i.page_id       = 0',
+'        AND i.item_name     NOT IN (''P0_NAVIGATION'', ''P0_REQUEST_LOG'')',
 ') i',
 'ORDER BY i.item_name;',
 ''))
@@ -523,13 +524,12 @@ wwv_flow_api.create_page_button(
 ,p_button_sequence=>10
 ,p_button_plug_id=>wwv_flow_api.id(16222425620514113)
 ,p_button_name=>'SHOW_REQUEST_LOG'
-,p_button_action=>'REDIRECT_URL'
+,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
 ,p_button_image_alt=>'Show Request Log'
 ,p_button_position=>'RIGHT_OF_TITLE'
-,p_button_redirect_url=>'javascript:window.open(''&P0_REQUEST_LOG.'', ''_blank'');'
-,p_button_execute_validations=>'N'
+,p_button_redirect_url=>'f?p=&APP_ID.:902:&SESSION.::&DEBUG.:902:P902_LOG_ID:&P0_REQUEST_LOG.'
 ,p_icon_css_classes=>'fa-bug'
 ,p_button_cattributes=>'target="_blank"'
 );
@@ -554,11 +554,7 @@ wwv_flow_api.create_page_item(
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(16222425620514113)
 ,p_use_cache_before_default=>'NO'
-,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.get_page_link(901,',
-'    in_names    => ''P901_LOG_ID'',',
-'    in_values   => app.get_log_request_id()',
-')'))
+,p_source=>'app.get_log_request_id()'
 ,p_source_type=>'EXPRESSION'
 ,p_source_language=>'PLSQL'
 ,p_display_as=>'NATIVE_HIDDEN'
