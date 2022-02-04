@@ -49,8 +49,12 @@ wwv_flow_api.create_flow(
 ,p_browser_cache=>'N'
 ,p_browser_frame=>'D'
 ,p_deep_linking=>'Y'
-,p_vpd=>'&CORE_SCHEMA..app.create_session'
-,p_vpd_teardown_code=>'&CORE_SCHEMA..app.exit_session'
+,p_vpd=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'&CORE_SCHEMA..app.create_session();',
+''))
+,p_vpd_teardown_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'&CORE_SCHEMA..app.exit_session();',
+''))
 ,p_runtime_api_usage=>'T:O'
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_rejoin_existing_sessions=>'N'
