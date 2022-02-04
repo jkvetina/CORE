@@ -32,7 +32,7 @@ c AS (
         ON t.table_name         = c.table_name
     CROSS JOIN x
     WHERE t.table_name          = NVL(x.table_name, t.table_name)
-        AND t.table_name        NOT LIKE '%\__$' ESCAPE '\'
+        AND t.table_name        != app.get_dml_table(t.table_name)
 ),
 n AS (
     SELECT
