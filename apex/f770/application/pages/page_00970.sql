@@ -35,8 +35,8 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'Settings for the application available to developers through generated SETT package.<br />',
-'value := sett.get_{name}(); value := sett.get_{name}({context});'))
+'Settings for the application available to developers through generated package.&P970_USECASE!RAW.',
+''))
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -4338,6 +4338,25 @@ wwv_flow_api.create_page_item(
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(22941795983325322)
+,p_name=>'P970_USECASE'
+,p_item_sequence=>50
+,p_item_plug_id=>wwv_flow_api.id(11853608143169127)
+,p_item_default=>'display: inline;'
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_computation(
+ p_id=>wwv_flow_api.id(22941825081325323)
+,p_computation_sequence=>10
+,p_computation_item=>'P970_USECASE'
+,p_computation_point=>'BEFORE_BOX_BODY'
+,p_computation_type=>'EXPRESSION'
+,p_computation_language=>'PLSQL'
+,p_computation=>'''<br />value := '' || LOWER(app.get_settings_package()) || ''.'' || LOWER(app.get_settings_prefix) || ''{name}(); value := '' || LOWER(app.get_settings_package()) || ''.'' || LOWER(app.get_settings_prefix) || ''{name}({context});'''
+,p_security_scheme=>wwv_flow_api.id(9556407311505078)
+);
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(12065683402897749)
 ,p_name=>'SAVE_SETTINGS'
@@ -4445,6 +4464,18 @@ wwv_flow_api.create_page_da_action(
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_api.id(12110948961376308)
 );
+wwv_flow_api.component_end;
+end;
+/
+begin
+wwv_flow_api.component_begin (
+ p_version_yyyy_mm_dd=>'2021.04.15'
+,p_release=>'21.1.7'
+,p_default_workspace_id=>9014660246496943
+,p_default_application_id=>770
+,p_default_id_offset=>0
+,p_default_owner=>'CORE'
+);
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(11855259982169143)
 ,p_process_sequence=>10
@@ -4473,18 +4504,6 @@ wwv_flow_api.create_page_process(
 ,p_attribute_05=>'Y'
 ,p_attribute_06=>'N'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-);
-wwv_flow_api.component_end;
-end;
-/
-begin
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
-,p_default_workspace_id=>9014660246496943
-,p_default_application_id=>770
-,p_default_id_offset=>0
-,p_default_owner=>'CORE'
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(12114467667376343)
@@ -4594,7 +4613,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''INIT_DEFAULTS'');',
 '--',
-':P970_REBUILD_TITLE := ''Rebuild '' || UPPER(app_actions.settings_package) || '' package with '' || UPPER(app_actions.settings_prefix) || ''* functions'';',
+':P970_REBUILD_TITLE := ''Rebuild '' || app.get_settings_package() || '' package with '' || app.get_settings_prefix() || ''* functions'';',
 '--',
 'SELECT NVL(MAX(''t-Button--hot''), '' '') INTO :P970_REBUILD_HOT',
 'FROM settings_overview s',
