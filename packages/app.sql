@@ -258,6 +258,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         out_value               translations.value_en%TYPE;
     BEGIN
+        -- how often do you add new languages?
         SELECT
             CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
                 WHEN 'CZ' THEN  MIN(t.value_cz) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
@@ -277,6 +278,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- app.log_warning() ?
         -- create translation ?
         RETURN NULL;
+    END;
+
+
+
+    FUNCTION get_translation_prefix
+    RETURN VARCHAR2
+    RESULT_CACHE
+    AS
+        PRAGMA UDF;             -- SQL only
+    BEGIN
+        RETURN transl_item_prefix;
     END;
 
 

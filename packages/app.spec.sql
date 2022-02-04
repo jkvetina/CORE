@@ -83,6 +83,9 @@ CREATE OR REPLACE PACKAGE app AS
     dml_tables_postfix          CONSTANT VARCHAR2(30)           := '_E$';
     view_dml_errors             CONSTANT VARCHAR2(30)           := 'LOGS_DML_ERRORS';
 
+    -- translations
+    transl_item_prefix          CONSTANT VARCHAR2(30)           := 'T';
+
     -- arrays to specify adhoc requests
     TYPE arr_log_setup          IS VARRAY(100) OF logs_blacklist%ROWTYPE;
 
@@ -223,6 +226,15 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Get prefix for page/app items
+    --
+    FUNCTION get_translation_prefix
+    RETURN VARCHAR2
+    RESULT_CACHE;
+
+
+
+    --
     -- Auth function to check if users account is active
     --
     FUNCTION is_active_user (
@@ -279,7 +291,6 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
-
     --
     -- Get value from Settings table
     --
@@ -304,6 +315,7 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION get_settings_prefix
     RETURN VARCHAR2;
+
 
 
 
