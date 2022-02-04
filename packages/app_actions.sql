@@ -412,47 +412,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    FUNCTION get_setting (
-        in_name                 settings.setting_name%TYPE,
-        in_context              settings.setting_context%TYPE       := NULL
-    )
-    RETURN settings.setting_value%TYPE
-    AS
-        out_value               settings.setting_value%TYPE;
-    BEGIN
-        SELECT s.setting_value INTO out_value
-        FROM settings s
-        WHERE s.app_id                  = app.get_app_id()
-            AND s.setting_name          = in_name
-            AND (s.setting_context      = in_context
-                OR (
-                    s.setting_context   IS NULL
-                    AND in_context      IS NULL
-                )
-            );
-        --
-        RETURN out_value;
-    EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        BEGIN
-            SELECT s.setting_value INTO out_value
-            FROM settings s
-            JOIN setting_contexts c
-                ON c.app_id             = s.app_id
-                AND c.context_id        = in_context
-            WHERE s.app_id              = app.get_app_id()
-                AND s.setting_name      = in_name
-                AND s.setting_context   IS NULL;
-            --
-            RETURN out_value;
-        EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            RETURN NULL;
-        END;
-    END;
-
-
-
     PROCEDURE set_setting (
         in_action               CHAR,
         in_setting_name_old     settings.setting_name%TYPE,
@@ -692,10 +651,14 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     BEGIN
         app.log_module();
         --
+        IF app.get_settings_package() IS NULL THEN
+            RETURN;
+        END IF;
+        --
         app.refresh_user_source_views();
         --
-        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(settings_package) || ' AS' || CHR(10);
-        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(settings_package) || ' AS' || CHR(10);
+        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
+        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
         --
         FOR c IN (
             SELECT DISTINCT
@@ -703,12 +666,13 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 s.is_numeric,
                 s.is_date
             FROM settings s
-            WHERE s.setting_context IS NULL
+            WHERE s.app_id              = app.get_app_id()
+                AND s.setting_context   IS NULL
             ORDER BY s.setting_name
         ) LOOP
             -- create specification
             q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(app.settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
             q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             q := q || '    )' || CHR(10);
             q := q || '    RETURN ' || CASE
@@ -719,7 +683,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
             -- create package body
             b := b || CHR(10);
-            b := b || '    FUNCTION ' || LOWER(settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            b := b || '    FUNCTION ' || LOWER(app.settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
             b := b || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             b := b || '    )' || CHR(10);
             b := b || '    RETURN ' || CASE
@@ -731,7 +695,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             b := b || '        RETURN ' || CASE
                                     WHEN c.is_numeric   = 'Y' THEN 'TO_NUMBER('
                                     WHEN c.is_date      = 'Y' THEN 'app.get_date('
-                                    END || 'app_actions.get_setting (' || CHR(10);
+                                    END || 'app.get_setting (' || CHR(10);
             b := b || '            in_name             => ''' || c.setting_name || ''',' || CHR(10);
             b := b || '            in_context          => in_context' || CHR(10);
             b := b || '        ' || CASE
@@ -750,7 +714,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         EXECUTE IMMEDIATE b;
         --
         recompile (
-            in_name     => 'SETT',
+            in_name     => app.get_settings_package(),
             in_force    => TRUE
         );
         --
@@ -764,6 +728,9 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     WHEN app.app_exception THEN
         RAISE;
     WHEN OTHERS THEN
+        app.log_debug(q);       -- trimmed
+        app.log_debug(b);       -- trimmed
+        --
         app.raise_error();
     END;
 
@@ -785,7 +752,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         v_query := v_query || 'SELECT' || CHR(10);
         v_query := v_query || '    s.setting_name,' || CHR(10);
         v_query := v_query || '    MAX(s.setting_group) AS setting_group,' || CHR(10);
-        --
         v_query := v_query || '    MAX(CASE WHEN s.setting_context IS NULL THEN s.setting_value END) AS null__,' || CHR(10);
         --
         FOR c IN (

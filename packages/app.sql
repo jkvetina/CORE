@@ -369,6 +369,69 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         APEX_APPLICATION.G_DEBUG := in_status;
+        DBMS_OUTPUT.PUT_LINE('DEBUG: ' || CASE WHEN app.is_debug_on() THEN 'ON' ELSE 'OFF' END);
+    END;
+
+
+
+    FUNCTION get_setting (
+        in_name                 settings.setting_name%TYPE,
+        in_context              settings.setting_context%TYPE       := NULL
+    )
+    RETURN settings.setting_value%TYPE
+    AS
+        out_value               settings.setting_value%TYPE;
+    BEGIN
+        SELECT s.setting_value INTO out_value
+        FROM settings s
+        WHERE s.app_id                  = app.get_app_id()
+            AND s.setting_name          = in_name
+            AND (s.setting_context      = in_context
+                OR (
+                    s.setting_context   IS NULL
+                    AND in_context      IS NULL
+                )
+            );
+        --
+        RETURN out_value;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        BEGIN
+            SELECT s.setting_value INTO out_value
+            FROM settings s
+            JOIN setting_contexts c
+                ON c.app_id             = s.app_id
+                AND c.context_id        = in_context
+            WHERE s.app_id              = app.get_app_id()
+                AND s.setting_name      = in_name
+                AND s.setting_context   IS NULL;
+            --
+            RETURN out_value;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RETURN NULL;
+        END;
+    END;
+
+
+
+    FUNCTION get_settings_package
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN CASE
+            WHEN app.get_app_id() > 0
+                THEN UPPER(app.settings_package) || app.get_app_id()
+            END;
+    END;
+
+
+
+    FUNCTION get_settings_prefix
+    RETURN VARCHAR2
+    AS
+    BEGIN
+        RETURN UPPER(app.settings_prefix);
     END;
 
 

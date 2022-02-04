@@ -29,9 +29,6 @@ CREATE OR REPLACE PACKAGE app_actions AS
      *
      */
 
-    settings_package            CONSTANT VARCHAR2(30)       := 'SETT';
-    settings_prefix             CONSTANT VARCHAR2(30)       := 'get_';
-
     -- for sending emails
     smtp_from                   CONSTANT VARCHAR2(200)      := '';
     smtp_username               CONSTANT VARCHAR2(50)       := NULL;
@@ -195,17 +192,6 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
     -- ### Settings page
     --
-
-    --
-    -- Get value from Settings table
-    --
-    FUNCTION get_setting (
-        in_name                 settings.setting_name%TYPE,
-        in_context              settings.setting_context%TYPE       := NULL
-    )
-    RETURN settings.setting_value%TYPE;
-
-
 
     --
     -- Store/update settings

@@ -73,6 +73,10 @@ CREATE OR REPLACE PACKAGE app AS
     logs_table_name             CONSTANT VARCHAR2(30)           := 'LOGS';      -- used in purge_old
     logs_max_age                CONSTANT PLS_INTEGER            := 7;           -- max logs age in days
 
+    -- settings
+    settings_package            CONSTANT VARCHAR2(30)           := 'S';         -- S### (app_id)
+    settings_prefix             CONSTANT VARCHAR2(30)           := 'GET_';
+
     -- owner of DML error tables
     dml_tables_owner            CONSTANT VARCHAR2(30)           := NULL;        -- NULL = same as current owner
     dml_tables_prefix           CONSTANT VARCHAR2(30)           := '';          -- ERR$
@@ -273,6 +277,33 @@ CREATE OR REPLACE PACKAGE app AS
         in_status               BOOLEAN                     := TRUE
     );
 
+
+
+
+    --
+    -- Get value from Settings table
+    --
+    FUNCTION get_setting (
+        in_name                 settings.setting_name%TYPE,
+        in_context              settings.setting_context%TYPE       := NULL
+    )
+    RETURN settings.setting_value%TYPE;
+
+
+
+    --
+    -- Get settings package name
+    --
+    FUNCTION get_settings_package
+    RETURN VARCHAR2;
+
+
+
+    --
+    -- Get settings function prefix
+    --
+    FUNCTION get_settings_prefix
+    RETURN VARCHAR2;
 
 
 
