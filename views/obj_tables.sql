@@ -5,6 +5,11 @@ WITH x AS (
         app.get_dml_owner()             AS dml_owner
     FROM DUAL
 ),
+m AS (
+    SELECT /*+ MATERIALIZE */
+        m.mview_name
+    FROM user_mviews m
+),
 s AS (
     -- columns count
     SELECT /*+ MATERIALIZE */
@@ -135,7 +140,7 @@ JOIN user_objects o
     ON o.object_name            = t.table_name
     AND o.object_type           = 'TABLE'           -- skip views
 CROSS JOIN x
-LEFT JOIN user_mviews m
+LEFT JOIN m
     ON m.mview_name             = t.table_name      -- skip mviews
 LEFT JOIN user_tab_comments c
     ON c.table_name             = t.table_name
