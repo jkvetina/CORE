@@ -589,7 +589,7 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(32440466873717800)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>400
+,p_width=>320
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(32523839360292368)
