@@ -1165,7 +1165,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             MIN(f.object_name),             -- procedure_name
             MIN(f.pls_type),
             MIN(a.argument_name)            -- argument_name            
-            INTO v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument
+        INTO v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument
         FROM apex_application_pages p
         LEFT JOIN user_procedures s
             ON s.object_name                IN ('A' || TO_CHAR(in_app_id), 'APP', 'AUTH')   -- packages
@@ -1210,10 +1210,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
             app.log_warning('AUTH_SCHEME_MISSING', in_app_id, in_page_id);
             --
             RETURN 'Y';  -- show, page has no authorization set
+            --
+        ELSIF v_auth_scheme IN ('MUST_NOT_BE_PUBLIC_USER') THEN
+            RETURN 'Y';  -- show
+            --
         ELSIF v_procedure_name IS NULL THEN
-            IF v_auth_scheme NOT IN ('MUST_NOT_BE_PUBLIC_USER') THEN
-                app.log_warning('AUTH_PROCEDURE_MISSING', in_app_id, in_page_id, v_auth_scheme);
-            END IF;
+            app.log_warning('AUTH_PROCEDURE_MISSING', in_app_id, in_page_id, v_auth_scheme);
             --
             RETURN 'N';  -- hide, auth function is set on page but missing in AUTH package
         END IF;
