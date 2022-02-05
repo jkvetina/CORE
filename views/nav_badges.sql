@@ -11,10 +11,10 @@ SELECT                              -- today errors on dashboard
     TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
 FROM logs l
 JOIN x
-    ON x.is_developer       = 'Y'
-WHERE l.created_at          >= TRUNC(SYSDATE)
+    ON x.app_id             = l.app_id
+    AND x.is_developer      = 'Y'
+    AND l.created_at        >= TRUNC(SYSDATE)
     AND l.flag              = 'E'
-    AND l.app_id            = x.app_id
 --
 UNION ALL
 SELECT                              -- today users
@@ -24,9 +24,21 @@ SELECT                              -- today users
     TO_CHAR(NULLIF(COUNT(DISTINCT s.user_id), 0)) AS badge
 FROM sessions s
 JOIN x
-    ON x.is_developer       = 'Y'
-WHERE s.created_at          >= TRUNC(SYSDATE)
-    AND s.app_id            = x.app_id
+    ON x.app_id             = s.app_id
+    AND x.is_developer      = 'Y'
+    AND s.created_at        >= TRUNC(SYSDATE)
+--
+UNION ALL
+SELECT                              -- today events
+    940 AS page_id,
+    ' ' AS page_alias,
+    --
+    TO_CHAR(NULLIF(COUNT(*), 0)) AS badge
+FROM log_events l
+JOIN x
+    ON x.app_id             = l.app_id
+    AND x.is_developer      = 'Y'
+    AND l.created_at        >= TRUNC(SYSDATE)
 --
 UNION ALL
 SELECT                              -- pages to add/remove
@@ -36,8 +48,8 @@ SELECT                              -- pages to add/remove
     TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
 FROM nav_overview n
 JOIN x
-    ON x.is_developer       = 'Y'
-WHERE n.app_id              = x.app_id
+    ON x.app_id             = n.app_id
+    AND x.is_developer      = 'Y'
     AND n.action            IS NOT NULL
 --
 UNION ALL
