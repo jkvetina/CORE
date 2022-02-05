@@ -10,6 +10,9 @@ CREATE TABLE translations (
     value_pl            VARCHAR2(256),
     value_hu            VARCHAR2(256),
     --
+    updated_by          VARCHAR2(30),
+    updated_at          DATE,
+    --
     CONSTRAINT pk_translations
         PRIMARY KEY (app_id, page_id, name),
     --
