@@ -204,6 +204,7 @@ wwv_flow_api.create_region_column(
 ,p_attribute_04=>'N'
 ,p_attribute_05=>'Y'
 ,p_attribute_06=>'0'
+,p_attribute_08=>'640'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
 ,p_lov_id=>wwv_flow_api.id(22069438611267708)
