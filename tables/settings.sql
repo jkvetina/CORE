@@ -9,6 +9,7 @@ CREATE TABLE settings (
     --
     is_numeric          CHAR(1),
     is_date             CHAR(1),
+    is_private          CHAR(1),
     --
     description_        VARCHAR2(1000),
     --
@@ -26,7 +27,10 @@ CREATE TABLE settings (
         CHECK ((is_numeric = 'Y' AND is_date IS NULL) OR is_numeric IS NULL),
     --
     CONSTRAINT ch_settings_is_date
-        CHECK ((is_date = 'Y' AND is_numeric IS NULL) OR is_date IS NULL)
+        CHECK ((is_date = 'Y' AND is_numeric IS NULL) OR is_date IS NULL),
+    --
+    CONSTRAINT ch_settings_is_private
+        CHECK (is_private = 'Y' OR is_private IS NULL)
 )
 STORAGE (BUFFER_POOL KEEP);
 --
@@ -39,5 +43,6 @@ COMMENT ON COLUMN settings.setting_context      IS 'To allow multiple values dep
 COMMENT ON COLUMN settings.setting_group        IS 'Group just for grouping set in APEX';
 COMMENT ON COLUMN settings.is_numeric           IS 'Flag to convert value to number';
 COMMENT ON COLUMN settings.is_date              IS 'Flag to convert value to date';
+COMMENT ON COLUMN settings.is_private           IS 'Visible for Developers only on Settings page';
 COMMENT ON COLUMN settings.description_         IS 'Description';
 

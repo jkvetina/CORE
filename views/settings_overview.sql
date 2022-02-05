@@ -4,7 +4,8 @@ WITH x AS (
         app.get_settings_package()      AS package_name,
         app.get_settings_prefix()       AS prefix,
         app.get_item('$SETTING_NAME')   AS setting_name,
-        app.get_app_id()                AS app_id
+        app.get_app_id()                AS app_id,
+        app.is_developer_y()            AS is_dev
     FROM DUAL
 ),
 p AS (
@@ -48,6 +49,7 @@ SELECT
     s.setting_value,
     s.is_numeric,
     s.is_date,
+    s.is_private,
     --
     p.procedure_name,
     p.data_type,
@@ -79,7 +81,8 @@ LEFT JOIN r
 LEFT JOIN v
     ON v.procedure_name     = x.prefix || s.setting_name
 WHERE s.setting_name        = NVL(x.setting_name, s.setting_name)
-    AND s.setting_context   IS NULL;
+    AND s.setting_context   IS NULL
+    AND (s.is_private       IS NULL OR x.is_dev = 'Y');
 --
 COMMENT ON TABLE settings_overview IS '[CORE - DASHBOARD] Settings';
 

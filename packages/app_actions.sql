@@ -412,7 +412,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    PROCEDURE set_setting (
+    PROCEDURE save_setting (
         in_action               CHAR,
         in_setting_name_old     settings.setting_name%TYPE,
         in_setting_name         settings.setting_name%TYPE,
@@ -420,6 +420,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_setting_value        settings.setting_value%TYPE         := NULL,
         in_is_numeric           settings.is_numeric%TYPE            := NULL,
         in_is_date              settings.is_date%TYPE               := NULL,
+        in_is_private           settings.is_private%TYPE            := NULL,
         in_description          settings.description_%TYPE          := NULL
     )
     AS
@@ -432,7 +433,8 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             'value',            in_setting_value,
             'group',            in_setting_group,
             'is_numeric',       in_is_numeric,
-            'is_date',          in_is_date
+            'is_date',          in_is_date,
+            'is_private',       in_is_private
         );
         --
         rec.app_id              := app.get_app_id();
@@ -442,6 +444,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec.setting_group       := in_setting_group;
         rec.is_numeric          := in_is_numeric;
         rec.is_date             := in_is_date;
+        rec.is_private          := in_is_private;
         rec.description_        := in_description;
         rec.updated_by          := app.get_user_id();
         rec.updated_at          := SYSDATE;
@@ -639,98 +642,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     WHEN app.app_exception THEN
         RAISE;
     WHEN OTHERS THEN
-        app.raise_error();
-    END;
-
-
-
-    PROCEDURE rebuild_settings
-    AS
-        q       VARCHAR2(32767);
-        b       VARCHAR2(32767);
-    BEGIN
-        app.log_module();
-        --
-        IF app.get_settings_package() IS NULL THEN
-            RETURN;
-        END IF;
-        --
-        app.refresh_user_source_views();
-        --
-        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
-        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
-        --
-        FOR c IN (
-            SELECT DISTINCT
-                s.setting_name,
-                s.is_numeric,
-                s.is_date
-            FROM settings s
-            WHERE s.app_id              = app.get_app_id()
-                AND s.setting_context   IS NULL
-            ORDER BY s.setting_name
-        ) LOOP
-            -- create specification
-            q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(app.settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
-            q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
-            q := q || '    )' || CHR(10);
-            q := q || '    RETURN ' || CASE
-                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
-                                WHEN c.is_date      = 'Y' THEN 'DATE'
-                                ELSE 'VARCHAR2' END || CHR(10);
-            q := q || '    RESULT_CACHE;' || CHR(10);
-
-            -- create package body
-            b := b || CHR(10);
-            b := b || '    FUNCTION ' || LOWER(app.settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
-            b := b || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
-            b := b || '    )' || CHR(10);
-            b := b || '    RETURN ' || CASE
-                                WHEN c.is_numeric   = 'Y' THEN 'NUMBER'
-                                WHEN c.is_date      = 'Y' THEN 'DATE'
-                                ELSE 'VARCHAR2' END || CHR(10);
-            b := b || '    RESULT_CACHE AS' || CHR(10);
-            b := b || '    BEGIN' || CHR(10);
-            b := b || '        RETURN ' || CASE
-                                    WHEN c.is_numeric   = 'Y' THEN 'TO_NUMBER('
-                                    WHEN c.is_date      = 'Y' THEN 'app.get_date('
-                                    END || 'app.get_setting (' || CHR(10);
-            b := b || '            in_name             => ''' || c.setting_name || ''',' || CHR(10);
-            b := b || '            in_context          => in_context' || CHR(10);
-            b := b || '        ' || CASE
-                                    WHEN NVL(c.is_numeric, c.is_date) = 'Y' THEN ')'
-                                    END || ');' || CHR(10);
-            b := b || '    EXCEPTION' || CHR(10);
-            b := b || '    WHEN NO_DATA_FOUND THEN' || CHR(10);
-            b := b || '        RETURN NULL;' || CHR(10);
-            b := b || '    END;' || CHR(10);
-        END LOOP;
-        --
-        q := q || CHR(10) || 'END;';
-        b := b || CHR(10) || 'END;';
-        --
-        EXECUTE IMMEDIATE q;
-        EXECUTE IMMEDIATE b;
-        --
-        recompile (
-            in_name     => app.get_settings_package(),
-            in_force    => TRUE
-        );
-        --
-        /*
-        DBMS_RESULT_CACHE.INVALIDATE (
-            owner   => app.schema_owner,
-            name    => app_actions.settings_package
-        );
-        */
-    EXCEPTION
-    WHEN app.app_exception THEN
-        RAISE;
-    WHEN OTHERS THEN
-        app.log_debug(q);       -- trimmed
-        app.log_debug(b);       -- trimmed
-        --
         app.raise_error();
     END;
 

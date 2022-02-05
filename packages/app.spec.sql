@@ -1455,6 +1455,13 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    --
+    -- Rebuild package containing function matching Settings table
+    --
+    PROCEDURE rebuild_settings;
+
+
+
 
 
 

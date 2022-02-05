@@ -29,20 +29,6 @@ CREATE OR REPLACE PACKAGE app_actions AS
      *
      */
 
-    -- for sending emails
-    smtp_from                   CONSTANT VARCHAR2(200)      := '';
-    smtp_username               CONSTANT VARCHAR2(50)       := NULL;
-    smtp_password               CONSTANT VARCHAR2(50)       := NULL;
-    smtp_host                   CONSTANT VARCHAR2(50)       := '';
-    smtp_port                   CONSTANT NUMBER(4)          := 25;
-    smtp_timeout                CONSTANT NUMBER(2)          := 20;
-
-
-
-
-
-
-
     -- ### Help functions
     --
 
@@ -196,7 +182,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
     --
     -- Store/update settings
     --
-    PROCEDURE set_setting (
+    PROCEDURE save_setting (
         in_action               CHAR,
         in_setting_name_old     settings.setting_name%TYPE,
         in_setting_name         settings.setting_name%TYPE,
@@ -204,6 +190,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_setting_value        settings.setting_value%TYPE         := NULL,
         in_is_numeric           settings.is_numeric%TYPE            := NULL,
         in_is_date              settings.is_date%TYPE               := NULL,
+        in_is_private           settings.is_private%TYPE            := NULL,
         in_description          settings.description_%TYPE          := NULL
     );
 
@@ -264,13 +251,6 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_c049         settings.setting_value%TYPE         := NULL,
         in_c050         settings.setting_value%TYPE         := NULL
     );
-
-
-
-    --
-    -- Rebuild package containing function matching Settings table
-    --
-    PROCEDURE rebuild_settings;
 
 
 
