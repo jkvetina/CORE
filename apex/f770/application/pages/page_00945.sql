@@ -565,8 +565,7 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'Create list of translations for apps/pages mapped to app/page translation items.',
-'<span style="display: none; &P945_DESC_DEVELOPERS."><br />Create T_* in Application Items (or as page items on page 0) or page specific translations as T###_* items on ### page.</span>',
+'Create list of translations for apps/pages mapped to app/page translation items. &P945_USECASE!RAW.',
 ''))
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
@@ -587,7 +586,7 @@ wwv_flow_api.create_page_button(
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(22941582140325320)
-,p_name=>'P945_DESC_DEVELOPERS'
+,p_name=>'P945_USECASE'
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(45292227752629868)
 ,p_display_as=>'NATIVE_HIDDEN'
@@ -596,10 +595,13 @@ wwv_flow_api.create_page_item(
 wwv_flow_api.create_page_computation(
  p_id=>wwv_flow_api.id(22941627257325321)
 ,p_computation_sequence=>10
-,p_computation_item=>'P945_DESC_DEVELOPERS'
+,p_computation_item=>'P945_USECASE'
 ,p_computation_point=>'BEFORE_BOX_BODY'
-,p_computation_type=>'STATIC_ASSIGNMENT'
-,p_computation=>'display: inline;'
+,p_computation_type=>'EXPRESSION'
+,p_computation_language=>'PLSQL'
+,p_computation=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'''<br />Create '' || app.get_translation_prefix() || ''_{name} items in application items (or as page items on page 0) '' ||',
+'''and/or page specific translations as '' || app.get_translation_prefix() || ''{page_id}_{name} items on page {page_id}.'''))
 ,p_security_scheme=>wwv_flow_api.id(9556407311505078)
 );
 wwv_flow_api.create_page_process(
