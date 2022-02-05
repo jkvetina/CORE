@@ -25,7 +25,10 @@ t AS (
             p.page_css_classes,
             p.page_mode,
             p.page_template,
-            p.page_comment          AS comments,
+            p.page_comment      AS comments,
+            --
+            '#'                 AS javascript_target,
+            i.item_source       AS javascript,
             --
             LEVEL - 1                                   AS depth,
             CONNECT_BY_ROOT NVL(n.order#, n.page_id)    AS page_root
@@ -38,6 +41,9 @@ t AS (
             AND p.page_id               = n.page_id
         LEFT JOIN apex_applications a
             ON a.application_id         = p.application_id
+        LEFT JOIN apex_application_page_items i
+            ON i.application_id         = n.app_id
+            AND i.item_name             = 'P' || TO_CHAR(n.page_id) || '_JAVASCRIPT_TARGET'
         CONNECT BY n.parent_id          = PRIOR n.page_id
             AND n.app_id                = PRIOR n.app_id
         START WITH n.parent_id          IS NULL
@@ -75,16 +81,21 @@ SELECT
     t.page_css_classes AS css_class,
     t.page_template,
     --
-    CASE WHEN t.page_mode = 'Normal' THEN NULL ELSE 'Y' END AS is_modal,
     n.is_hidden,
     n.is_reset,
     n.is_shared,
     --
+    CASE WHEN t.page_mode = 'Normal'    THEN NULL ELSE 'Y' END  AS is_modal,
+    CASE WHEN t.javascript IS NOT NULL  THEN 'Y' END            AS is_javascript,
+    t.javascript,
+    --
     CASE
         WHEN t.authorization_scheme LIKE '%MUST_NOT_BE_PUBLIC_USER%'
             THEN app.get_icon('fa-check-square', 'MUST_NOT_BE_PUBLIC_USER')
+            --
         WHEN t.authorization_scheme IS NULL AND n.page_id NOT IN (0, 9999)
             THEN app.get_icon('fa-warning', 'Auth scheme is missing')
+            --
         ELSE app_actions.get_html_a(app.get_page_link (
             in_page_id      => 920,
             in_app_id       => n.app_id,
@@ -93,13 +104,17 @@ SELECT
         ), t.authorization_scheme)
         END AS auth_scheme,
     --
-    CASE WHEN n.page_id > 0 AND r.page_id IS NULL
-        THEN app.get_page_link (
-            in_page_id      => n.page_id,
-            in_app_id       => n.app_id,
-            in_session_id   => CASE WHEN n.page_id = 9999 THEN 0 END
-        )
-        END AS page_url,
+    CASE
+        WHEN t.javascript_target IS NOT NULL
+            THEN t.javascript_target
+            --
+        WHEN n.page_id > 0 AND r.page_id IS NULL
+            THEN app.get_page_link (
+                in_page_id      => n.page_id,
+                in_app_id       => n.app_id,
+                in_session_id   => CASE WHEN n.page_id = 9999 THEN 0 END
+            )
+            END AS page_url,
     --
     t.comments,
     --
@@ -128,10 +143,10 @@ LEFT JOIN t
 LEFT JOIN nav_pages_to_remove r
     ON r.page_id            = n.page_id
 WHERE (
-    n.app_id            = x.app_id
+    n.app_id                = x.app_id
     OR (
-        n.is_shared     = 'Y'
-        AND n.page_id   NOT IN (
+        n.is_shared         = 'Y'
+        AND n.page_id       NOT IN (
             -- pages from active apps takes priority
             SELECT n.page_id
             FROM navigation n
@@ -157,20 +172,28 @@ SELECT
     n.css_class,
     n.page_template,
     --
-    CASE WHEN n.page_mode = 'Normal' THEN NULL ELSE 'Y' END AS is_modal,
     n.is_hidden,
     n.is_reset,
     n.is_shared,
+    --
+    CASE WHEN n.page_mode = 'Normal'    THEN NULL ELSE 'Y' END  AS is_modal,
+    CASE WHEN t.javascript IS NOT NULL  THEN 'Y' END            AS is_javascript,
+    t.javascript,
     --
     CASE WHEN n.auth_scheme LIKE '%MUST_NOT_BE_PUBLIC_USER%'
         THEN app.get_icon('fa-check-square', 'MUST_NOT_BE_PUBLIC_USER')
         ELSE n.auth_scheme
         END AS auth_scheme,
     --
-    app.get_page_link (
-        in_page_id      => n.page_id,
-        in_app_id       => n.app_id
-    ) AS page_url,
+    CASE
+        WHEN t.javascript_target IS NOT NULL
+            THEN t.javascript_target
+            --
+        ELSE app.get_page_link (
+            in_page_id      => n.page_id,
+            in_app_id       => n.app_id
+        )
+        END AS page_url,
     --
     n.comments,
     --
@@ -218,6 +241,7 @@ COMMENT ON COLUMN nav_overview.is_hidden        IS 'Flag for hiding item in menu
 COMMENT ON COLUMN nav_overview.is_reset         IS 'Flag for reset/clear page items; Y = clear, NULL = keep;';
 COMMENT ON COLUMN nav_overview.is_shared        IS 'Flag for sharing record with other apps';
 COMMENT ON COLUMN nav_overview.is_modal         IS 'Flag for modal dialogs';
+COMMENT ON COLUMN nav_overview.is_javascript    IS 'Flag for JavaScript as the target';
 COMMENT ON COLUMN nav_overview.auth_scheme      IS 'Auth scheme from APEX page specification';
 COMMENT ON COLUMN nav_overview.page_url         IS 'Page url to use as redirection target';
 COMMENT ON COLUMN nav_overview.allow_changes    IS 'APEX column to allow edit/delete only some rows';
