@@ -5,7 +5,6 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'SETTINGS';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_event_id           log_events.log_id%TYPE;
     curr_updated_by         settings.updated_by%TYPE;
     curr_updated_at         settings.updated_at%TYPE;
     --
@@ -63,7 +62,7 @@ COMPOUND TRIGGER
             END IF;
         END IF;
         --
-        curr_event_id := app.log_event('SETTINGS_CHANGED');
+        app.log_event('SETTINGS_CHANGED');
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;

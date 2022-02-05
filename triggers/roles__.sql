@@ -5,7 +5,6 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'ROLES';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_event_id           log_events.log_id%TYPE;
     curr_updated_by         roles.updated_by%TYPE;
     curr_updated_at         roles.updated_at%TYPE;
     --
@@ -43,12 +42,17 @@ COMPOUND TRIGGER
                 WHERE u.app_id      = :OLD.app_id
                     AND u.role_id   = :OLD.role_id;
                 --
-                curr_event_id := app.log_event('ROLE_ID_CHANGED');
+                app.log_event('ROLE_ID_CHANGED');
+                --
+            ELSIF INSERTING THEN
+                app.log_event('ROLE_CREATED');
             END IF;
         ELSE
             DELETE FROM user_roles u
             WHERE u.app_id      = :OLD.app_id
                 AND u.role_id   = :OLD.role_id;
+            --
+            app.log_event('ROLE_DELETED');
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN

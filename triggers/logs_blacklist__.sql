@@ -5,7 +5,6 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'LOGS_BLACKLIST';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_event_id           log_events.log_id%TYPE;
     curr_updated_by         logs_blacklist.updated_by%TYPE;
     curr_updated_at         logs_blacklist.updated_at%TYPE;
     --

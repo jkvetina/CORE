@@ -5,7 +5,6 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'USERS';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_event_id           log_events.log_id%TYPE;
     curr_updated_by         users.updated_by%TYPE;
     curr_updated_at         users.updated_at%TYPE;
     --
@@ -50,7 +49,10 @@ COMPOUND TRIGGER
                 SET l.user_id       = :NEW.user_id
                 WHERE l.user_id     = :OLD.user_id;
                 --
-                curr_event_id := app.log_event('USER_ID_CHANGED');
+                app.log_event('USER_ID_CHANGED');
+                --
+            ELSIF INSERTING THEN
+                app.log_event('USER_CREATED');
             END IF;
         ELSE
             DELETE FROM user_roles t
@@ -58,6 +60,8 @@ COMPOUND TRIGGER
             --
             DELETE FROM sessions t
             WHERE t.user_id = :OLD.user_id;
+            --
+            app.log_event('USER_DELETED');
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN

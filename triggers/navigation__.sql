@@ -5,7 +5,6 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'NAVIGATION';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_event_id           log_events.log_id%TYPE;
     curr_updated_by         navigation.updated_by%TYPE;
     curr_updated_at         navigation.updated_at%TYPE;
     --

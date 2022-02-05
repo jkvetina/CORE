@@ -5,7 +5,6 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'USER_ROLES';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_event_id           log_events.log_id%TYPE;
     curr_updated_by         user_roles.updated_by%TYPE;
     curr_updated_at         user_roles.updated_at%TYPE;
     --

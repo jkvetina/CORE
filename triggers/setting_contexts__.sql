@@ -5,7 +5,6 @@ COMPOUND TRIGGER
     in_table_name           CONSTANT user_tables.table_name%TYPE := 'SETTING_CONTEXTS';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_event_id           log_events.log_id%TYPE;
     curr_updated_by         setting_contexts.updated_by%TYPE;
     curr_updated_at         setting_contexts.updated_at%TYPE;
     --
@@ -43,7 +42,7 @@ COMPOUND TRIGGER
                 AND s.setting_context   = :OLD.context_id;
         END IF;
         --
-        curr_event_id := app.log_event('SETTING_CONTEXTS_CHANGED');
+        app.log_event('SETTING_CONTEXTS_CHANGED');
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
