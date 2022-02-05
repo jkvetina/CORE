@@ -3120,10 +3120,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- process existing data first
         app.process_dml_errors(in_table_name);
         --
-        EXECUTE IMMEDIATE
-            'DROP TABLE ' || app.get_dml_table(in_table_name) || ' PURGE';
-        --
-        app.log_success();
+        BEGIN
+            EXECUTE IMMEDIATE
+                'DROP TABLE ' || app.get_dml_table(in_table_name) || ' PURGE';
+            --
+            app.log_success();
+        EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE NOT IN (-942) THEN  -- table doesnt exists
+                RAISE;
+            END IF;
+        END;
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
