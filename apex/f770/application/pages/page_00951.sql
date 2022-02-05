@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220130212605'
+,p_last_upd_yyyymmddhh24miss=>'20220204211603'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(17065256063582738)
@@ -6017,23 +6017,15 @@ wwv_flow_api.create_page_process(
 ,p_process_name=>'SAVE_TABLES'
 ,p_attribute_01=>'PLSQL_CODE'
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'--app_actions.save_obj_tables (',
-'--',
-'app.log_action(''SAVE_TABLES'', :TABLE_NAME, :IS_READ_ONLY, :IS_ROW_MOV, :COMMENTS);',
-'',
-'-- lock/unlock table',
-'EXECUTE IMMEDIATE',
-'    ''ALTER TABLE '' || :TABLE_NAME ||',
-'    '' READ '' || CASE WHEN :IS_READ_ONLY = ''Y'' THEN ''ONLY'' ELSE ''WRITE'' END;',
-'',
-'-- row movement change',
-'EXECUTE IMMEDIATE',
-'    ''ALTER TABLE '' || :TABLE_NAME || '' '' ||',
-'    CASE WHEN :IS_ROW_MOV = ''Y'' THEN ''ENABLE'' ELSE ''DISABLE'' END || '' ROW MOVEMENT'';',
-'',
-'-- table comment',
-'EXECUTE IMMEDIATE',
-'    ''COMMENT ON TABLE '' || :TABLE_NAME || '' IS '''''' || :COMMENTS || '''''''';',
+'app_actions.save_obj_tables (',
+'    in_action               => :APEX$ROW_STATUS,',
+'    in_table_name           => :TABLE_NAME,',
+'    in_table_group          => :TABLE_GROUP,',
+'    in_is_dml_handler       => :IS_DML_HANDLER,',
+'    in_is_row_mov           => :IS_ROW_MOV,',
+'    in_is_read_only         => :IS_READ_ONLY,',
+'    in_comments             => :COMMENTS',
+');',
 ''))
 ,p_attribute_05=>'Y'
 ,p_attribute_06=>'N'
