@@ -267,40 +267,23 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
-    -- ### E-mails
+    -- ### GRID Handlers
     --
 
-    FUNCTION clob_to_blob (
-        in_clob CLOB
-    )
-    RETURN BLOB;
-
-
-
     --
-    -- Send UTF_8 email with compressed attachements
+    -- Update tables
     --
-    PROCEDURE send_mail (
-        in_to                   VARCHAR2,
-        in_subject              VARCHAR2,
-        in_body                 CLOB,
-        in_cc                   VARCHAR2        := NULL,
-        in_bcc                  VARCHAR2        := NULL,
-        in_from                 VARCHAR2        := NULL,
-        in_attach_name          VARCHAR2        := NULL,
-        in_attach_mime          VARCHAR2        := NULL,
-        in_attach_data          CLOB            := NULL,
-        in_compress             BOOLEAN         := FALSE
+    PROCEDURE save_obj_tables (
+        in_action               CHAR,
+        in_table_name           obj_tables.table_name%TYPE,
+        in_table_group          obj_tables.table_group%TYPE        := NULL,
+        in_is_dml_handler       obj_tables.is_dml_handler%TYPE     := NULL,
+        in_is_row_mov           obj_tables.is_row_mov%TYPE         := NULL,
+        in_is_read_only         obj_tables.is_read_only%TYPE       := NULL,
+        in_comments             obj_tables.comments%TYPE           := NULL
     );
 
 
-
-
-
-
-
-    -- ### GRID Handlers
-    --
 
     --
     -- Update table columns

@@ -1338,6 +1338,34 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    --
+    -- Send UTF_8 email with compressed attachements
+    --
+    PROCEDURE send_mail (
+        in_to                   VARCHAR2,
+        in_subject              VARCHAR2,
+        in_body                 CLOB,
+        in_cc                   VARCHAR2        := NULL,
+        in_bcc                  VARCHAR2        := NULL,
+        in_from                 VARCHAR2        := NULL,
+        in_attach_name          VARCHAR2        := NULL,
+        in_attach_mime          VARCHAR2        := NULL,
+        in_attach_data          CLOB            := NULL,
+        in_compress             BOOLEAN         := FALSE
+    );
+
+
+
+    --
+    -- Convert CLOB to BLOB
+    --
+    FUNCTION clob_to_blob (
+        in_clob CLOB
+    )
+    RETURN BLOB;
+
+
+
 
 
 

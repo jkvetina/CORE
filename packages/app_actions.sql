@@ -723,195 +723,65 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    FUNCTION clob_to_blob (
-        in_clob CLOB
-    )
-    RETURN BLOB
-    AS
-        out_blob        BLOB;
-        --
-        v_file_size     INTEGER     := DBMS_LOB.LOBMAXSIZE;
-        v_dest_offset   INTEGER     := 1;
-        v_src_offset    INTEGER     := 1;
-        v_blob_csid     NUMBER      := DBMS_LOB.DEFAULT_CSID;
-        v_lang_context  NUMBER      := DBMS_LOB.DEFAULT_LANG_CTX;
-        v_warning       INTEGER;
-        v_length        NUMBER;
-    BEGIN
-        DBMS_LOB.CREATETEMPORARY(out_blob, TRUE);
-        DBMS_LOB.CONVERTTOBLOB(out_blob, in_clob, v_file_size, v_dest_offset, v_src_offset, v_blob_csid, v_lang_context, v_warning);
-        RETURN out_blob;
-    END;
-
-
-
-    PROCEDURE send_mail (
-        in_to                   VARCHAR2,
-        in_subject              VARCHAR2,
-        in_body                 CLOB,
-        in_cc                   VARCHAR2        := NULL,
-        in_bcc                  VARCHAR2        := NULL,
-        in_from                 VARCHAR2        := NULL,
-        in_attach_name          VARCHAR2        := NULL,
-        in_attach_mime          VARCHAR2        := NULL,
-        in_attach_data          CLOB            := NULL,
-        in_compress             BOOLEAN         := FALSE
+    PROCEDURE save_obj_tables (
+        in_action               CHAR,
+        in_table_name           obj_tables.table_name%TYPE,
+        in_table_group          obj_tables.table_group%TYPE        := NULL,
+        in_is_dml_handler       obj_tables.is_dml_handler%TYPE     := NULL,
+        in_is_row_mov           obj_tables.is_row_mov%TYPE         := NULL,
+        in_is_read_only         obj_tables.is_read_only%TYPE       := NULL,
+        in_comments             obj_tables.comments%TYPE           := NULL
     ) AS
-        boundary                CONSTANT VARCHAR2(80)   := '-----5b9d8059445a8eb8c025f159131f02d94969a12c16363d4dec42e893b374cb85-----';
-        --
-        reply                   UTL_SMTP.REPLY;
-        conn                    UTL_SMTP.CONNECTION;
-        --
-        blob_content            BLOB;
-        blob_gzipped            BLOB;
-        blob_amount             BINARY_INTEGER          := 6000;
-        blob_offset             PLS_INTEGER             := 1;
-        buffer                  VARCHAR2(24000);
-        buffer_raw              RAW(6000);
-        --
-        FUNCTION quote_encoding (
-            in_text VARCHAR2
-        )
-        RETURN VARCHAR2 AS
-        BEGIN
-            RETURN '=?UTF-8?Q?' || REPLACE(
-                UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.QUOTED_PRINTABLE_ENCODE(
-                    UTL_RAW.CAST_TO_RAW(in_text))), '=' || UTL_TCP.CRLF, '') || '?=';
-        END;
-        --
-        FUNCTION quote_address (
-            in_address      VARCHAR2,
-            in_strip_name   BOOLEAN := FALSE
-        )
-        RETURN VARCHAR2 AS
-            in_found PLS_INTEGER;
-        BEGIN
-            IF in_strip_name THEN
-                RETURN REGEXP_REPLACE(in_address, '.*\s?<(\S+)>$', '\1');
-            ELSE
-                in_found := REGEXP_INSTR(in_address, '\s?<\S+@\S+\.\S{2,6}>$');
-                IF in_found > 1 THEN
-                    RETURN quote_encoding(RTRIM(SUBSTR(in_address, 1, in_found))) || SUBSTR(in_address, in_found);
-                ELSE
-                    RETURN in_address;
-                END IF;
-            END IF;
-        END;
-        --
-        PROCEDURE split_addresses (
-            in_out_conn     IN OUT NOCOPY   UTL_SMTP.CONNECTION,
-            in_to           IN              VARCHAR2
-        )
-        AS
-        BEGIN
-            FOR i IN (
-                SELECT LTRIM(RTRIM(REGEXP_SUBSTR(in_to, '[^;,]+', 1, LEVEL))) AS address
-                FROM DUAL
-                CONNECT BY REGEXP_SUBSTR(in_to, '[^;,]+', 1, LEVEL) IS NOT NULL)
-            LOOP
-                UTL_SMTP.RCPT(in_out_conn, quote_address(i.address, TRUE));
-            END LOOP;
-        END;
+        v_err_dml_changed       BOOLEAN;
     BEGIN
-        app.log_module(in_to, in_subject, in_cc, in_bcc, in_attach_name);
-
-        -- connect to SMTP server
-        reply := UTL_SMTP.OPEN_CONNECTION(smtp_host, smtp_port, conn, smtp_timeout);
-        UTL_SMTP.HELO(conn, smtp_host);
-        IF smtp_username IS NOT NULL THEN
-            UTL_SMTP.COMMAND(conn, 'AUTH LOGIN');
-            UTL_SMTP.COMMAND(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(smtp_username)));
-            IF smtp_password IS NOT NULL THEN
-                UTL_SMTP.COMMAND(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(smtp_password)));
+        app.log_module(in_table_name, in_table_group, in_is_dml_handler, in_is_row_mov, in_is_read_only, in_comments);
+        --
+        FOR c IN (
+            SELECT t.*
+            FROM obj_tables t
+            WHERE t.table_name = in_table_name
+        ) LOOP
+            -- lock/unlock table
+            IF NVL(c.is_read_only, '-') != NVL(in_is_read_only, '-') THEN
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE ' || in_table_name ||
+                    ' READ ' || CASE WHEN in_is_read_only = 'Y' THEN 'ONLY' ELSE 'WRITE' END;
             END IF;
-        END IF;
 
-        -- prepare headers
-        UTL_SMTP.MAIL(conn, quote_address(COALESCE(in_from, smtp_from), TRUE));
+            -- row movement change
+            IF NVL(c.is_row_mov, '-') != NVL(in_is_row_mov, '-') THEN
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE ' || in_table_name ||
+                    CASE WHEN in_is_row_mov = 'Y' THEN 'ENABLE' ELSE 'DISABLE' END || ' ROW MOVEMENT';
+            END IF;
 
-        -- handle multiple recipients
-        split_addresses(conn, in_to);
+            -- table comment
+            EXECUTE IMMEDIATE
+                'COMMENT ON TABLE ' || in_table_name ||
+                ' IS ''' || CASE WHEN in_comments NOT LIKE '[%]%' THEN REPLACE('[' || in_table_group || '] ', '[] ', '') END || in_comments || '''';
+
+            -- create/drop DML table
+            IF NVL(c.is_dml_handler, '-') != NVL(in_is_dml_handler, '-') THEN
+                IF in_is_dml_handler = 'Y' THEN
+                    app.create_dml_table(in_table_name);
+                ELSIF in_is_dml_handler IS NULL THEN
+                    app.drop_dml_table(in_table_name);
+                END IF;
+                --
+                v_err_dml_changed := TRUE;
+            END IF;
+        END LOOP;
         --
-        IF in_cc IS NOT NULL THEN
-            split_addresses(conn, in_cc);
+        IF v_err_dml_changed THEN
+            app.create_dml_errors_view();
         END IF;
         --
-        IF in_bcc IS NOT NULL THEN
-            split_addresses(conn, in_bcc);
-        END IF;
-
-        -- continue with headers
-        UTL_SMTP.OPEN_DATA(conn);
-        --
-        UTL_SMTP.WRITE_DATA(conn, 'Date: '      || TO_CHAR(SYSDATE, 'DD-MON-YYYY HH24:MI:SS') || UTL_TCP.CRLF);
-        UTL_SMTP.WRITE_DATA(conn, 'From: '      || quote_address(COALESCE(in_from, smtp_from)) || UTL_TCP.CRLF);
-        UTL_SMTP.WRITE_DATA(conn, 'To: '        || quote_address(in_to) || UTL_TCP.CRLF);
-        UTL_SMTP.WRITE_DATA(conn, 'Subject: '   || quote_encoding(in_subject) || UTL_TCP.CRLF);
-        UTL_SMTP.WRITE_DATA(conn, 'Reply-To: '  || in_from || UTL_TCP.CRLF);
-        UTL_SMTP.WRITE_DATA(conn, 'MIME-Version: 1.0' || UTL_TCP.CRLF);
-        UTL_SMTP.WRITE_DATA(conn, 'Content-Type: multipart/mixed; boundary="' || boundary || '"' || UTL_TCP.CRLF || UTL_TCP.CRLF);
-
-        -- prepare body content
-        IF in_body IS NOT NULL THEN
-            UTL_SMTP.WRITE_DATA(conn, '--' || boundary || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Type: ' || 'text/html' || '; charset="utf-8"' || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Transfer-Encoding: base64' || UTL_TCP.CRLF || UTL_TCP.CRLF);
-            --
-            FOR i IN 0 .. TRUNC((DBMS_LOB.GETLENGTH(in_body) - 1) / 12000) LOOP
-                UTL_SMTP.WRITE_RAW_DATA(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(DBMS_LOB.SUBSTR(in_body, 12000, i * 12000 + 1))));
-            END LOOP;
-            --
-            UTL_SMTP.WRITE_DATA(conn, UTL_TCP.CRLF || UTL_TCP.CRLF);
-        END IF;
-
-        -- prepare attachment
-        IF in_attach_name IS NOT NULL AND in_compress THEN
-            -- compress attachment
-            UTL_SMTP.WRITE_DATA(conn, '--' || boundary || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Transfer-Encoding: base64' || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Type: ' || 'application/octet-stream' || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Disposition: attachment; filename="' || in_attach_name || '.gz"' || UTL_TCP.CRLF || UTL_TCP.CRLF);
-            --
-            blob_content := app_actions.clob_to_blob(in_attach_data);
-            DBMS_LOB.CREATETEMPORARY(blob_gzipped, TRUE, DBMS_LOB.CALL);
-            DBMS_LOB.OPEN(blob_gzipped, DBMS_LOB.LOB_READWRITE);
-            --
-            UTL_COMPRESS.LZ_COMPRESS(blob_content, blob_gzipped, quality => 8);
-            --
-            WHILE blob_offset <= DBMS_LOB.GETLENGTH(blob_gzipped) LOOP
-                DBMS_LOB.READ(blob_gzipped, blob_amount, blob_offset, buffer_raw);
-                UTL_SMTP.WRITE_RAW_DATA(conn, UTL_ENCODE.BASE64_ENCODE(buffer_raw));
-                blob_offset := blob_offset + blob_amount;
-            END LOOP;
-            DBMS_LOB.FREETEMPORARY(blob_gzipped);
-            --
-            UTL_SMTP.WRITE_DATA(conn, UTL_TCP.CRLF || UTL_TCP.CRLF);
-        ELSIF in_attach_name IS NOT NULL THEN
-            -- regular attachment
-            UTL_SMTP.WRITE_DATA(conn, '--' || boundary || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Transfer-Encoding: base64' || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Type: ' || in_attach_mime || '; name="' || in_attach_name || '"' || UTL_TCP.CRLF);
-            UTL_SMTP.WRITE_DATA(conn, 'Content-Disposition: attachment; filename="' || in_attach_name || '"' || UTL_TCP.CRLF || UTL_TCP.CRLF);
-            --
-            FOR i IN 0 .. TRUNC((DBMS_LOB.GETLENGTH(in_attach_data) - 1) / 12000) LOOP
-                UTL_SMTP.WRITE_RAW_DATA(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(DBMS_LOB.SUBSTR(in_attach_data, 12000, i * 12000 + 1))));
-            END LOOP;
-            --
-            UTL_SMTP.WRITE_DATA(conn, UTL_TCP.CRLF || UTL_TCP.CRLF);
-        END IF;
-
-        -- close
-        UTL_SMTP.WRITE_DATA(conn, '--' || boundary || '--' || UTL_TCP.CRLF);
-        UTL_SMTP.CLOSE_DATA(conn);
-        UTL_SMTP.QUIT(conn);
+        app.log_success();
     EXCEPTION
-    WHEN UTL_SMTP.TRANSIENT_ERROR OR UTL_SMTP.PERMANENT_ERROR THEN
-        BEGIN
-            UTL_SMTP.QUIT(conn);
-        EXCEPTION
-        WHEN UTL_SMTP.TRANSIENT_ERROR OR UTL_SMTP.PERMANENT_ERROR THEN
-            NULL;
-        END;
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 

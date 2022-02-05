@@ -3110,6 +3110,227 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    PROCEDURE send_mail (
+        in_to                   VARCHAR2,
+        in_subject              VARCHAR2,
+        in_body                 CLOB,
+        in_cc                   VARCHAR2        := NULL,
+        in_bcc                  VARCHAR2        := NULL,
+        in_from                 VARCHAR2        := NULL,
+        in_attach_name          VARCHAR2        := NULL,
+        in_attach_mime          VARCHAR2        := NULL,
+        in_attach_data          CLOB            := NULL,
+        in_compress             BOOLEAN         := FALSE
+    ) AS
+        smtp_from               VARCHAR2(256);
+        smtp_username           VARCHAR2(256);
+        smtp_password           VARCHAR2(256);
+        smtp_host               VARCHAR2(256);
+        smtp_port               NUMBER(4);
+        smtp_timeout            NUMBER(2);
+        --
+        boundary                CONSTANT VARCHAR2(128)      := '-----5b9d8059445a8eb8c025f159131f02d94969a12c16363d4dec42e893b374cb85-----';
+        --
+        reply                   UTL_SMTP.REPLY;
+        conn                    UTL_SMTP.CONNECTION;
+        --
+        blob_content            BLOB;
+        blob_gzipped            BLOB;
+        blob_amount             BINARY_INTEGER              := 6000;
+        blob_offset             PLS_INTEGER                 := 1;
+        buffer                  VARCHAR2(32767);
+        buffer_raw              RAW(6000);                  -- must match blob_amount^
+        --
+        FUNCTION quote_encoding (
+            in_text VARCHAR2
+        )
+        RETURN VARCHAR2 AS
+        BEGIN
+            RETURN '=?UTF-8?Q?' || REPLACE(
+                UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.QUOTED_PRINTABLE_ENCODE(
+                    UTL_RAW.CAST_TO_RAW(in_text))), '=' || UTL_TCP.CRLF, '') || '?=';
+        END;
+        --
+        FUNCTION quote_address (
+            in_address      VARCHAR2,
+            in_strip_name   BOOLEAN := FALSE
+        )
+        RETURN VARCHAR2 AS
+            in_found PLS_INTEGER;
+        BEGIN
+            IF in_strip_name THEN
+                RETURN REGEXP_REPLACE(in_address, '.*\s?<(\S+)>$', '\1');
+            ELSE
+                in_found := REGEXP_INSTR(in_address, '\s?<\S+@\S+\.\S{2,6}>$');
+                IF in_found > 1 THEN
+                    RETURN quote_encoding(RTRIM(SUBSTR(in_address, 1, in_found))) || SUBSTR(in_address, in_found);
+                ELSE
+                    RETURN in_address;
+                END IF;
+            END IF;
+        END;
+        --
+        PROCEDURE split_addresses (
+            in_out_conn     IN OUT NOCOPY   UTL_SMTP.CONNECTION,
+            in_to           IN              VARCHAR2
+        )
+        AS
+        BEGIN
+            FOR i IN (
+                SELECT LTRIM(RTRIM(REGEXP_SUBSTR(in_to, '[^;,]+', 1, LEVEL))) AS address
+                FROM DUAL
+                CONNECT BY REGEXP_SUBSTR(in_to, '[^;,]+', 1, LEVEL) IS NOT NULL)
+            LOOP
+                UTL_SMTP.RCPT(in_out_conn, quote_address(i.address, TRUE));
+            END LOOP;
+        END;
+    BEGIN
+        app.log_module(in_to, in_subject, in_cc, in_bcc, in_attach_name);
+
+        -- load setup
+        smtp_from       := COALESCE(in_from, app.get_setting('SMTP_FROM'));
+        smtp_host       := app.get_setting('SMTP_HOST');
+        smtp_port       := COALESCE(TO_NUMBER(app.get_setting('SMTP_PORT')), 25);
+        smtp_timeout    := COALESCE(TO_NUMBER(app.get_setting('SMTP_TIMEOUT')), 25);
+        smtp_username   := app.get_setting('SMTP_USER');
+        smtp_password   := app.get_setting('SMTP_PWD');
+        --
+        IF (smtp_host IS NULL OR smtp_port IS NULL OR smtp_from IS NULL) THEN
+            app.raise_error('SMTP_SETUP_MISSING');
+        END IF;
+
+        -- connect to SMTP server
+        reply := UTL_SMTP.OPEN_CONNECTION(smtp_host, smtp_port, conn, smtp_timeout);
+        UTL_SMTP.HELO(conn, smtp_host);
+        IF smtp_username IS NOT NULL THEN
+            UTL_SMTP.COMMAND(conn, 'AUTH LOGIN');
+            UTL_SMTP.COMMAND(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(smtp_username)));
+            IF smtp_password IS NOT NULL THEN
+                UTL_SMTP.COMMAND(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(smtp_password)));
+            END IF;
+        END IF;
+
+        -- prepare headers
+        UTL_SMTP.MAIL(conn, quote_address(smtp_from, TRUE));
+        --
+        -- apex_applications.email_from
+        --
+
+        -- handle multiple recipients
+        split_addresses(conn, in_to);
+        --
+        IF in_cc IS NOT NULL THEN
+            split_addresses(conn, in_cc);
+        END IF;
+        --
+        IF in_bcc IS NOT NULL THEN
+            split_addresses(conn, in_bcc);
+        END IF;
+
+        -- continue with headers
+        UTL_SMTP.OPEN_DATA(conn);
+        --
+        UTL_SMTP.WRITE_DATA(conn, 'Date: '      || TO_CHAR(SYSDATE, 'DD-MON-YYYY HH24:MI:SS') || UTL_TCP.CRLF);
+        UTL_SMTP.WRITE_DATA(conn, 'From: '      || quote_address(smtp_from) || UTL_TCP.CRLF);
+        UTL_SMTP.WRITE_DATA(conn, 'To: '        || quote_address(in_to) || UTL_TCP.CRLF);
+        UTL_SMTP.WRITE_DATA(conn, 'Subject: '   || quote_encoding(in_subject) || UTL_TCP.CRLF);
+        UTL_SMTP.WRITE_DATA(conn, 'Reply-To: '  || quote_address(smtp_from) || UTL_TCP.CRLF);
+        UTL_SMTP.WRITE_DATA(conn, 'MIME-Version: 1.0' || UTL_TCP.CRLF);
+        UTL_SMTP.WRITE_DATA(conn, 'Content-Type: multipart/mixed; boundary="' || boundary || '"' || UTL_TCP.CRLF || UTL_TCP.CRLF);
+
+        -- prepare body content
+        IF in_body IS NOT NULL THEN
+            UTL_SMTP.WRITE_DATA(conn, '--' || boundary || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Type: ' || 'text/html' || '; charset="utf-8"' || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Transfer-Encoding: base64' || UTL_TCP.CRLF || UTL_TCP.CRLF);
+            --
+            FOR i IN 0 .. TRUNC((DBMS_LOB.GETLENGTH(in_body) - 1) / 12000) LOOP
+                UTL_SMTP.WRITE_RAW_DATA(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(DBMS_LOB.SUBSTR(in_body, 12000, i * 12000 + 1))));
+            END LOOP;
+            --
+            UTL_SMTP.WRITE_DATA(conn, UTL_TCP.CRLF || UTL_TCP.CRLF);
+        END IF;
+
+        -- prepare attachment
+        IF in_attach_name IS NOT NULL AND in_compress THEN
+            -- compress attachment
+            UTL_SMTP.WRITE_DATA(conn, '--' || boundary || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Transfer-Encoding: base64' || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Type: ' || 'application/octet-stream' || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Disposition: attachment; filename="' || in_attach_name || '.gz"' || UTL_TCP.CRLF || UTL_TCP.CRLF);
+            --
+            blob_content := app.clob_to_blob(in_attach_data);
+            DBMS_LOB.CREATETEMPORARY(blob_gzipped, TRUE, DBMS_LOB.CALL);
+            DBMS_LOB.OPEN(blob_gzipped, DBMS_LOB.LOB_READWRITE);
+            --
+            UTL_COMPRESS.LZ_COMPRESS(blob_content, blob_gzipped, quality => 8);
+            --
+            WHILE blob_offset <= DBMS_LOB.GETLENGTH(blob_gzipped) LOOP
+                DBMS_LOB.READ(blob_gzipped, blob_amount, blob_offset, buffer_raw);
+                UTL_SMTP.WRITE_RAW_DATA(conn, UTL_ENCODE.BASE64_ENCODE(buffer_raw));
+                blob_offset := blob_offset + blob_amount;
+            END LOOP;
+            DBMS_LOB.FREETEMPORARY(blob_gzipped);
+            --
+            UTL_SMTP.WRITE_DATA(conn, UTL_TCP.CRLF || UTL_TCP.CRLF);
+        ELSIF in_attach_name IS NOT NULL THEN
+            -- regular attachment
+            UTL_SMTP.WRITE_DATA(conn, '--' || boundary || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Transfer-Encoding: base64' || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Type: ' || in_attach_mime || '; name="' || in_attach_name || '"' || UTL_TCP.CRLF);
+            UTL_SMTP.WRITE_DATA(conn, 'Content-Disposition: attachment; filename="' || in_attach_name || '"' || UTL_TCP.CRLF || UTL_TCP.CRLF);
+            --
+            FOR i IN 0 .. TRUNC((DBMS_LOB.GETLENGTH(in_attach_data) - 1) / 12000) LOOP
+                UTL_SMTP.WRITE_RAW_DATA(conn, UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(DBMS_LOB.SUBSTR(in_attach_data, 12000, i * 12000 + 1))));
+            END LOOP;
+            --
+            UTL_SMTP.WRITE_DATA(conn, UTL_TCP.CRLF || UTL_TCP.CRLF);
+        END IF;
+
+        -- close
+        UTL_SMTP.WRITE_DATA(conn, '--' || boundary || '--' || UTL_TCP.CRLF);
+        UTL_SMTP.CLOSE_DATA(conn);
+        UTL_SMTP.QUIT(conn);
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN UTL_SMTP.TRANSIENT_ERROR OR UTL_SMTP.PERMANENT_ERROR THEN
+        BEGIN
+            UTL_SMTP.QUIT(conn);
+        EXCEPTION
+        WHEN UTL_SMTP.TRANSIENT_ERROR OR UTL_SMTP.PERMANENT_ERROR THEN
+            NULL;
+        END;
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    FUNCTION clob_to_blob (
+        in_clob CLOB
+    )
+    RETURN BLOB
+    AS
+        out_blob        BLOB;
+        --
+        v_file_size     INTEGER     := DBMS_LOB.LOBMAXSIZE;
+        v_dest_offset   INTEGER     := 1;
+        v_src_offset    INTEGER     := 1;
+        v_blob_csid     NUMBER      := DBMS_LOB.DEFAULT_CSID;
+        v_lang_context  NUMBER      := DBMS_LOB.DEFAULT_LANG_CTX;
+        v_warning       INTEGER;
+        v_length        NUMBER;
+    BEGIN
+        DBMS_LOB.CREATETEMPORARY(out_blob, TRUE);
+        DBMS_LOB.CONVERTTOBLOB(out_blob, in_clob, v_file_size, v_dest_offset, v_src_offset, v_blob_csid, v_lang_context, v_warning);
+        RETURN out_blob;
+    END;
+
+
+
     PROCEDURE drop_dml_table (
         in_table_name           logs.module_name%TYPE
     )
@@ -3580,7 +3801,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-
     PROCEDURE rebuild_settings
     AS
         q       VARCHAR2(32767);
@@ -3671,6 +3891,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         app.raise_error();
     END;
+
 
 
 
