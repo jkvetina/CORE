@@ -1449,6 +1449,13 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+    --
+    -- Rebuild package containing function matching Settings table
+    --
+    PROCEDURE rebuild_settings;
+
+
+
 
 
 
@@ -1480,13 +1487,6 @@ CREATE OR REPLACE PACKAGE app AS
         in_arg4                 VARCHAR2 := NULL
     )
     RETURN VARCHAR2;
-
-
-
-    --
-    -- Rebuild package containing function matching Settings table
-    --
-    PROCEDURE rebuild_settings;
 
 
 
