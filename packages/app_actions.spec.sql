@@ -303,6 +303,16 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
     --
+    -- Move columns in a table
+    --
+    PROCEDURE move_table_columns_bottom (
+        in_table_name       VARCHAR2,
+        in_columns          VARCHAR2
+    );
+
+
+
+    --
     -- Update translations
     --
     PROCEDURE save_translations_overview (

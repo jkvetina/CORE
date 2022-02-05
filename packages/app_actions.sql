@@ -905,6 +905,30 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    PROCEDURE move_table_columns_bottom (
+        in_table_name       VARCHAR2,
+        in_columns          VARCHAR2
+    )
+    AS
+    BEGIN
+        app.log_module(in_table_name, in_columns);
+        --
+        FOR c IN (
+            SELECT t.column_value AS column_name
+            FROM TABLE(APEX_STRING.SPLIT(RTRIM(in_columns, ':'), ':')) t
+        ) LOOP
+            EXECUTE IMMEDIATE
+                'ALTER TABLE ' || in_table_name || ' MODIFY ' || c.column_name || ' INVISIBLE';
+            --
+            EXECUTE IMMEDIATE
+                'ALTER TABLE ' || in_table_name || ' MODIFY ' || c.column_name || ' VISIBLE';
+        END LOOP;
+        --
+        app.log_success();
+    END;
+
+
+
     PROCEDURE save_translations_overview (
         in_action           CHAR,
         in_app_id           translations_overview.app_id%TYPE,
