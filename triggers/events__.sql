@@ -36,6 +36,8 @@ COMPOUND TRIGGER
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
             --
+            :NEW.app_id     := COALESCE(:NEW.app_id, app.get_app_id());
+            --
             IF UPDATING AND :NEW.event_id != :OLD.event_id THEN
                 UPDATE log_events e
                 SET e.event_id      = :NEW.event_id
