@@ -568,7 +568,9 @@ CREATE OR REPLACE PACKAGE app AS
     -- Get name of item and check if it is valid
     --
     FUNCTION get_item_name (
-        in_name                 VARCHAR2
+        in_name                 apex_application_page_items.item_name%TYPE,
+        in_page_id              apex_application_page_items.page_id%TYPE            := NULL,
+        in_app_id               apex_application_page_items.application_id%TYPE     := NULL
     )
     RETURN VARCHAR2;
 
@@ -740,6 +742,18 @@ CREATE OR REPLACE PACKAGE app AS
     PROCEDURE apply_items (
         in_items                VARCHAR2
     );
+
+
+
+    --
+    -- Get items used in a view on region (grid/report) to filter its content
+    --
+    FUNCTION get_region_filters (
+        in_region_id            apex_application_page_regions.static_id%TYPE,
+        in_page_id              apex_application_page_regions.page_id%TYPE          := NULL,
+        in_app_id               apex_application_page_regions.application_id%TYPE   := NULL
+    )
+    RETURN VARCHAR2;
 
 
 

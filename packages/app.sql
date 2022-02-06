@@ -1063,7 +1063,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             p_page              => out_page_id,
             p_clear_cache       => CASE WHEN in_reset THEN out_page_id END,
             p_items             => out_names,
-            p_values            => out_values
+            p_values            => NULLIF(out_values, 'NULL')
             /*
             p_request            IN VARCHAR2 DEFAULT NULL,
             p_debug              IN VARCHAR2 DEFAULT NULL,
@@ -1088,12 +1088,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN CASE WHEN NOT in_arguments_only
+        RETURN RTRIM(CASE WHEN NOT in_arguments_only
             THEN UTL_URL.UNESCAPE (
                 OWA_UTIL.GET_CGI_ENV('SCRIPT_NAME') ||
-                OWA_UTIL.GET_CGI_ENV('PATH_INFO')
+                OWA_UTIL.GET_CGI_ENV('PATH_INFO')   || '?'
             ) END ||
-            RTRIM('?' || UTL_URL.UNESCAPE(OWA_UTIL.GET_CGI_ENV('QUERY_STRING')), '?');
+            UTL_URL.UNESCAPE(OWA_UTIL.GET_CGI_ENV('QUERY_STRING')), '?');
     EXCEPTION
     WHEN OTHERS THEN
         RETURN NULL;
@@ -1271,28 +1271,34 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION get_item_name (
-        in_name                 VARCHAR2
+        in_name                 apex_application_page_items.item_name%TYPE,
+        in_page_id              apex_application_page_items.page_id%TYPE            := NULL,
+        in_app_id               apex_application_page_items.application_id%TYPE     := NULL
     )
     RETURN VARCHAR2
     AS
         v_item_name             apex_application_page_items.item_name%TYPE;
+        v_page_id               apex_application_page_items.page_id%TYPE;
+        v_app_id                apex_application_page_items.application_id%TYPE;
         is_valid                CHAR;
     BEGIN
-        v_item_name := REPLACE(in_name, app.page_item_wild, app.page_item_prefix || app.get_page_id() || '_');
+        v_app_id        := NVL(in_app_id, app.get_real_app_id());
+        v_page_id       := NVL(in_page_id, app.get_page_id());
+        v_item_name     := REPLACE(in_name, app.page_item_wild, app.page_item_prefix || v_page_id || '_');
 
         -- check if item exists
         BEGIN
             SELECT 'Y' INTO is_valid
             FROM apex_application_page_items p
-            WHERE p.application_id      = app.get_real_app_id()
-                AND p.page_id           IN (0, app.get_page_id())
+            WHERE p.application_id      = v_app_id
+                AND p.page_id           IN (0, v_page_id)
                 AND p.item_name         = v_item_name;
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
             BEGIN
                 SELECT 'Y' INTO is_valid
                 FROM apex_application_items g
-                WHERE g.application_id      = app.get_real_app_id()
+                WHERE g.application_id      = v_app_id
                     AND g.item_name         = in_name;
             EXCEPTION
             WHEN NO_DATA_FOUND THEN
@@ -1605,6 +1611,49 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 NULL;
             END;
         END LOOP;
+    END;
+
+
+
+    FUNCTION get_region_filters (
+        in_region_id            apex_application_page_regions.static_id%TYPE,
+        in_page_id              apex_application_page_regions.page_id%TYPE          := NULL,
+        in_app_id               apex_application_page_regions.application_id%TYPE   := NULL
+    )
+    RETURN VARCHAR2
+    AS
+        out_filters             VARCHAR2(32767);
+    BEGIN
+        FOR c IN (
+            SELECT r.page_id, i.item_name, app.get_item(i.item_name) AS item_value
+            FROM user_source_views s
+            JOIN apex_application_page_items i
+                ON i.item_name          = app.get_item_name(REPLACE(REGEXP_SUBSTR(s.text, '''(\$?[A-Z0-9_]+)[^'']'), ''''), i.page_id, i.application_id)
+            JOIN apex_application_page_regions r
+                ON r.application_id     = i.application_id
+                AND r.page_id           = i.page_id
+                AND r.static_id         IS NOT NULL
+                AND r.query_type_code   = 'TABLE'
+                AND r.table_name        = s.name
+                AND s.text              LIKE '%app.get_%item%(%'
+            WHERE r.application_id      = COALESCE(in_app_id, app.get_app_id())
+                AND r.page_id           = COALESCE(in_page_id, app.get_page_id())
+                AND r.static_id         = in_region_id
+        ) LOOP
+            IF c.item_value IS NOT NULL THEN
+                out_filters := out_filters ||
+                    '<span class="ITEM_NAME">' || REPLACE(c.item_name, 'P' || c.page_id || '_') || '</span>' ||
+                    '<span class="ITEM_VALUE"><a href="' ||
+                        app.get_page_url(c.page_id, c.item_name, 'NULL', in_reset => FALSE) ||
+                        '" title="Clear filter">' || c.item_value || '</a></span>';
+            END IF;
+        END LOOP;
+        --
+        IF out_filters IS NULL THEN
+            RETURN NULL;
+        END IF;
+        --
+        RETURN '<div class="REGION_FILTERS"><span class="ITEM_NAME">Active filters:</span>' || out_filters || '</div>';
     END;
 
 

@@ -246,3 +246,23 @@ ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
     color:                  #111;
 }
 
+
+
+/* REGION FILTERS (ITEMS USED TO FILTER VIEW) ABOVE REPORT/GRID */
+.REGION_FILTERS {
+    font-size:              85%;
+    color:                  #555;
+    padding:                0 1rem 1.2rem;
+    margin-top:             -0.5rem;
+}
+.REGION_FILTERS .ITEM_NAME {
+    padding:                0 0.5rem 0 0;
+}
+.REGION_FILTERS .ITEM_VALUE {
+    color:                  #000;
+    padding:                0 2rem 0 0;
+}
+.REGION_FILTERS a {
+    color:                  #000;
+}
+
