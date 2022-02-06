@@ -1,26 +1,34 @@
 CREATE OR REPLACE VIEW obj_tables AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME')     AS table_name,
-        app.get_dml_owner()             AS dml_owner
+        app.get_item('$TABLE_NAME')                 AS table_name,
+        app.get_dml_owner()                         AS dml_owner,
+        --
+        UPPER(app.get_item('$SEARCH_TABLES'))       AS search_tables,
+        UPPER(app.get_item('$SEARCH_COLUMNS'))      AS search_columns,
+        UPPER(app.get_item('$SEARCH_DATA_TYPE'))    AS search_data_type,
+        app.get_number_item('$SEARCH_SIZE')         AS search_size
     FROM DUAL
 ),
-m AS (
-    SELECT /*+ MATERIALIZE */
-        m.mview_name
-    FROM user_mviews m
-),
-s AS (
-    -- columns count
-    SELECT /*+ MATERIALIZE */
+c AS (
+    -- search for tables, columns, data types, count columns, pass table comment
+    SELECT
         c.table_name,
-        COUNT(*)                AS count_cols
+        MAX(m.comments)         AS comments,
+        COUNT(*)                AS count_cols,
+        --
+        MAX(CASE WHEN c.column_name LIKE x.search_columns   || '%' ESCAPE '\'   THEN 'Y' END) AS is_found_column,
+        MAX(CASE WHEN c.data_type   LIKE x.search_data_type || '%' ESCAPE '\'   THEN 'Y' END) AS is_found_data_type,
+        MAX(CASE WHEN NVL(c.data_precision, c.data_length) = x.search_size      THEN 'Y' END) AS is_found_size
     FROM user_tab_cols c
+    LEFT JOIN user_tab_comments m
+        ON m.table_name         = c.table_name
     CROSS JOIN x
     WHERE c.table_name          = NVL(x.table_name, c.table_name)
+        AND (c.table_name       LIKE '%' || x.search_tables || '%' ESCAPE '\' OR x.search_tables IS NULL)
     GROUP BY c.table_name
 ),
-c AS (
+n AS (
     -- constraints overview
     SELECT /*+ MATERIALIZE */
         c.table_name,
@@ -68,6 +76,7 @@ p AS (
     GROUP BY p.table_name
 ),
 d AS (
+    -- dml tables
     SELECT
         t.table_name,
         a.table_name                AS dml_handler,
@@ -82,11 +91,16 @@ d AS (
         AND i.name          = a.table_name
         AND i.type          = 'TABLE'
     GROUP BY t.table_name, a.table_name
+),
+m AS (
+    SELECT /*+ MATERIALIZE */
+        m.mview_name
+    FROM user_mviews m
 )
 --
 SELECT
     t.table_name,
-    s.count_cols,
+    c.count_cols,
     t.num_rows              AS count_rows,
     --
     CASE
@@ -95,10 +109,10 @@ SELECT
         ELSE REGEXP_SUBSTR(t.table_name, '^[^_]+')
         END AS table_group,
     --
-    CASE WHEN c.count_pk    IS NOT NULL THEN 'Y' END AS is_pk,
-    CASE WHEN c.count_uq    IS NOT NULL THEN 'Y' END AS is_uq,
+    CASE WHEN n.count_pk    IS NOT NULL THEN 'Y' END AS is_pk,
+    CASE WHEN n.count_uq    IS NOT NULL THEN 'Y' END AS is_uq,
     --
-    c.count_fk,
+    n.count_fk,
     i.count_ix,
     g.count_trg,
     --
@@ -140,19 +154,19 @@ JOIN user_objects o
     ON o.object_name            = t.table_name
     AND o.object_type           = 'TABLE'           -- skip views
 CROSS JOIN x
-LEFT JOIN m
-    ON m.mview_name             = t.table_name      -- skip mviews
-LEFT JOIN user_tab_comments c
-    ON c.table_name             = t.table_name
+JOIN c ON c.table_name          = t.table_name
 --
-LEFT JOIN s ON s.table_name     = t.table_name
-LEFT JOIN c ON c.table_name     = t.table_name
+LEFT JOIN n ON n.table_name     = t.table_name
 LEFT JOIN i ON i.table_name     = t.table_name
 LEFT JOIN g ON g.table_name     = t.table_name
 LEFT JOIN p ON p.table_name     = t.table_name
 LEFT JOIN d ON d.table_name     = t.table_name
+LEFT JOIN m ON m.mview_name     = t.table_name      -- skip mviews
 --
-WHERE t.table_name      = NVL(x.table_name, t.table_name)
-    AND t.table_name    != app.get_dml_table(t.table_name)
-    AND m.mview_name    IS NULL;
+WHERE t.table_name              = NVL(x.table_name, t.table_name)
+    AND t.table_name            != app.get_dml_table(t.table_name)
+    AND m.mview_name            IS NULL
+    AND (c.is_found_column      = 'Y'  OR x.search_columns      IS NULL)
+    AND (c.is_found_data_type   = 'Y'  OR x.search_data_type    IS NULL)
+    AND (c.is_found_size        = 'Y'  OR x.search_size         IS NULL);
 
