@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220129093608'
+,p_last_upd_yyyymmddhh24miss=>'20220206164722'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14220162747378949)
@@ -984,10 +984,7 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'$(''.SEARCH_FIELDS'').hide();',
-'$(''#BUTTON_CLOSE_SEARCH'').hide();',
-'$(''#BUTTON_SHOW_SEARCH'').show().focus();',
-'$(''#BUTTON_REBUILD'').show();',
+'hide_search_fields();',
 ''))
 );
 wwv_flow_api.create_page_da_event(
@@ -1007,12 +1004,7 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'$(''.t-HeroRegion-col.t-HeroRegion-col--content .HIDDEN'').removeClass(''HIDDEN'');',
-'//',
-'$(''.SEARCH_FIELDS'').show();',
-'$(''#BUTTON_REBUILD'').hide();',
-'$(''#BUTTON_SHOW_SEARCH'').hide();',
-'$(''#BUTTON_CLOSE_SEARCH'').show().focus();',
+'show_search_fields();',
 ''))
 );
 wwv_flow_api.create_page_da_action(
@@ -1023,12 +1015,7 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'Y'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'$(''.t-HeroRegion-col.t-HeroRegion-col--content .HIDDEN'').removeClass(''HIDDEN'');',
-'//',
-'$(''.SEARCH_FIELDS'').show();',
-'$(''#BUTTON_REBUILD'').hide();',
-'$(''#BUTTON_SHOW_SEARCH'').hide();',
-'$(''#BUTTON_CLOSE_SEARCH'').show().focus();',
+'show_search_fields();',
 ''))
 ,p_server_condition_type=>'ITEM_IS_NOT_NULL'
 ,p_server_condition_expr1=>'P955_SHOW_SEARCH'
@@ -1060,9 +1047,11 @@ wwv_flow_api.create_page_process(
 '    OR :P955_SEARCH_COLUMNS     IS NOT NULL',
 '    OR :P955_SEARCH_SOURCE      IS NOT NULL',
 ') THEN',
-'    :P955_VIEW_NAME             := NULL;',
 '    :P955_SHOW_SEARCH           := ''Y'';',
+'    :P955_VIEW_NAME             := NULL;',
 'END IF;',
+'--',
+':P955_SEARCH_VIEWS := NVL(:P955_SEARCH_VIEWS, :P955_VIEW_NAME);',
 '',
 '-- make button HOT, sometimes',
 ':P955_REFRESH_HOT := ''t-Button--hot'';',

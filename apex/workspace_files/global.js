@@ -80,3 +80,21 @@ var unified_ig_toolbar = function(config) {
     return config;
 };
 
+
+
+// show/hide search fields
+var show_search_fields = function() {
+    $('.t-HeroRegion-col.t-HeroRegion-col--content .HIDDEN').removeClass('HIDDEN');
+    //
+    $('.SEARCH_FIELDS').show();
+    $('#BUTTON_SHOW_SEARCH').hide();
+    $('#BUTTON_CLOSE_SEARCH').show();
+    $('.SEARCH_FIELDS').find('input')[0].focus();
+};
+//
+var hide_search_fields = function() {
+    $('.SEARCH_FIELDS').hide();
+    $('#BUTTON_CLOSE_SEARCH').hide();
+    $('#BUTTON_SHOW_SEARCH').show().focus();
+};
+

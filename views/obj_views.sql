@@ -120,19 +120,15 @@ SELECT
     --
     v.last_ddl_time
 FROM v
-JOIN c
-    ON c.view_name              = v.view_name
-LEFT JOIN r
-    ON r.view_name              = v.view_name
-LEFT JOIN u
-    ON u.view_name              = v.view_name
-LEFT JOIN p
-    ON p.table_name             = v.view_name
 CROSS JOIN x
-LEFT JOIN s
-    ON s.view_name              = v.view_name
+JOIN c ON c.view_name           = v.view_name
+LEFT JOIN r ON r.view_name      = v.view_name
+LEFT JOIN u ON u.view_name      = v.view_name
+LEFT JOIN p ON p.table_name     = v.view_name
+LEFT JOIN s ON s.view_name      = v.view_name
 LEFT JOIN user_tab_comments c
     ON c.table_name             = v.view_name
+--
 WHERE (c.is_found_column = 'Y'  OR x.search_columns IS NULL)
     AND (s.is_found_text = 'Y'  OR x.search_source IS NULL);
 
