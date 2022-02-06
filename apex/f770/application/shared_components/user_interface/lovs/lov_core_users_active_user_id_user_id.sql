@@ -1,7 +1,7 @@
-prompt --application/shared_components/user_interface/lovs/lov_users_user_id_user_id_active_y
+prompt --application/shared_components/user_interface/lovs/lov_core_users_active_user_id_user_id
 begin
 --   Manifest
---     LOV_USERS (USER_ID, USER_ID, ACTIVE=Y)
+--     LOV_CORE_USERS_ACTIVE (USER_ID, USER_ID)
 --   Manifest End
 wwv_flow_api.component_begin (
  p_version_yyyy_mm_dd=>'2021.04.15'
@@ -13,7 +13,7 @@ wwv_flow_api.component_begin (
 );
 wwv_flow_api.create_list_of_values(
  p_id=>wwv_flow_api.id(22067838698249746)
-,p_lov_name=>'LOV_USERS (USER_ID, USER_ID, ACTIVE=Y)'
+,p_lov_name=>'LOV_CORE_USERS_ACTIVE (USER_ID, USER_ID)'
 ,p_source_type=>'TABLE'
 ,p_location=>'LOCAL'
 ,p_use_local_sync_table=>false

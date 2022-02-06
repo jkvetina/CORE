@@ -25,10 +25,12 @@ prompt --install
 @@application/shared_components/navigation/tabs/standard.sql
 @@application/shared_components/navigation/tabs/parent.sql
 @@application/shared_components/user_interface/lovs/login_remember_username.sql
+@@application/shared_components/user_interface/lovs/lov_core_events_event_id_event_name.sql
 @@application/shared_components/user_interface/lovs/lov_core_flags_name_value.sql
 @@application/shared_components/user_interface/lovs/lov_core_languages.sql
 @@application/shared_components/user_interface/lovs/lov_core_pages_page_id_page_name.sql
-@@application/shared_components/user_interface/lovs/lov_users_user_id_user_id_active_y.sql
+@@application/shared_components/user_interface/lovs/lov_core_roles_role_id_role_name.sql
+@@application/shared_components/user_interface/lovs/lov_core_users_active_user_id_user_id.sql
 @@application/pages/page_groups.sql
 @@application/comments.sql
 @@application/shared_components/navigation/breadcrumbs/breadcrumb.sql
