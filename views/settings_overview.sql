@@ -58,13 +58,17 @@ SELECT
     v.references            AS references_views,
     --
     CASE
+        WHEN s.is_private = 'Y'
+            THEN NULL
+            --
         WHEN p.procedure_name IS NOT NULL
             AND (
                 (p.data_type    = 'VARCHAR2'    AND s.is_numeric IS NULL AND s.is_date IS NULL)
                 OR (p.data_type = 'NUMBER'      AND s.is_numeric = 'Y')
                 OR (p.data_type = 'DATE'        AND s.is_date = 'Y')
             )
-        THEN NULL
+            THEN NULL
+            --
         ELSE app.get_icon('fa-warning', 'Rebuild needed')
         END AS action_check,
     --
@@ -74,12 +78,11 @@ SELECT
 FROM settings s
 JOIN x
     ON x.app_id             = s.app_id
-LEFT JOIN p
-    ON p.procedure_name     = x.prefix || s.setting_name
-LEFT JOIN r
-    ON r.procedure_name     = x.prefix || s.setting_name
-LEFT JOIN v
-    ON v.procedure_name     = x.prefix || s.setting_name
+--
+LEFT JOIN p ON p.procedure_name = x.prefix || s.setting_name
+LEFT JOIN r ON r.procedure_name = x.prefix || s.setting_name
+LEFT JOIN v ON v.procedure_name = x.prefix || s.setting_name
+--
 WHERE s.setting_name        = NVL(x.setting_name, s.setting_name)
     AND s.setting_context   IS NULL
     AND (s.is_private       IS NULL OR x.is_dev = 'Y');

@@ -3786,7 +3786,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         IF NOT in_force THEN
             SELECT o.last_ddl_time INTO v_table_time
             FROM user_objects o
-            WHERE o.object_name     = in_table_name
+            WHERE o.object_name     = NVL(in_table_name, o.object_name)
                 AND o.object_type   = 'TABLE';
             --
             SELECT MAX(o.last_ddl_time) INTO v_views_time
@@ -3795,7 +3795,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
             -- refresh not needed
             IF v_table_time > v_views_time THEN
-                app.log_result('SKIPPING');
+                app.log_result('SKIPPING', in_view_name);
                 RETURN;
             END IF;
         ELSE
@@ -3823,8 +3823,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         COMMIT;
 
         -- alter table to update last refresh date
-        EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' ADD tmp_col NUMBER';
-        EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' DROP COLUMN tmp_col';
+        IF in_table_name IS NOT NULL THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' ADD tmp_col NUMBER';
+            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' DROP COLUMN tmp_col';
+        END IF;
         --
         app.log_success();
     EXCEPTION
@@ -3850,6 +3852,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
         --
         app.refresh_user_source_views();
+        --
+        app.log_result('BUILDING', app.get_settings_package());
         --
         q := 'CREATE OR REPLACE PACKAGE '       || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
         b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
@@ -3908,11 +3912,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
         EXECUTE IMMEDIATE q;
         EXECUTE IMMEDIATE b;
         --
+        app.log_success();
+        --
         recompile (
             in_name     => app.get_settings_package(),
             in_force    => TRUE
         );
-        --
         /*
         DBMS_RESULT_CACHE.INVALIDATE (
             owner   => app.schema_owner,

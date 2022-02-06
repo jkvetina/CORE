@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220205130844'
+,p_last_upd_yyyymmddhh24miss=>'20220206184006'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(11853608143169127)
@@ -4636,8 +4636,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''REBUILD_PACKAGE'');',
 '--',
-'app_actions.rebuild_settings();',
-'app.refresh_user_source_views();',
+'app.rebuild_settings();',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
