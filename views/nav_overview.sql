@@ -96,7 +96,7 @@ SELECT
         WHEN t.authorization_scheme IS NULL AND n.page_id NOT IN (0, 9999)
             THEN app.get_icon('fa-warning', 'Auth scheme is missing')
             --
-        ELSE app_actions.get_html_a(app.get_page_link (
+        ELSE app_actions.get_html_a(app.get_page_url (
             in_page_id      => 920,
             in_app_id       => n.app_id,
             in_names        => 'P920_AUTH_SCHEME',
@@ -109,7 +109,7 @@ SELECT
             THEN t.javascript_target
             --
         WHEN n.page_id > 0 AND r.page_id IS NULL
-            THEN app.get_page_link (
+            THEN app.get_page_url (
                 in_page_id      => n.page_id,
                 in_app_id       => n.app_id,
                 in_session_id   => CASE WHEN n.page_id = 9999 THEN 0 END
@@ -127,7 +127,7 @@ SELECT
             THEN app.get_icon('fa-minus-square', 'Remove record from Navigation table')
         END AS action,
     --
-    app.get_page_link (
+    app.get_page_url (
         in_page_id          => x.page_id,
         in_app_id           => x.core_app_id,
         in_names            => 'P' || TO_CHAR(x.page_id) || '_REMOVE_PAGE',
@@ -189,7 +189,7 @@ SELECT
         WHEN t.javascript_target IS NOT NULL
             THEN t.javascript_target
             --
-        ELSE app.get_page_link (
+        ELSE app.get_page_url (
             in_page_id      => n.page_id,
             in_app_id       => n.app_id
         )
@@ -209,7 +209,7 @@ SELECT
     --
     app.get_icon('fa-plus-square', 'Create record in Navigation table') AS action,
     --
-    app.get_page_link (
+    app.get_page_url (
         in_page_id         => x.page_id,
         in_app_id          => x.core_app_id,
         in_names           => 'P' || TO_CHAR(x.page_id) || '_ADD_PAGE',

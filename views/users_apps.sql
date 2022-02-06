@@ -18,7 +18,7 @@ p AS (
         --
         app.get_app_homepage(a.application_id) AS app_homepage,
         --
-        app.get_page_link (
+        app.get_page_url (
             in_page_id      => app.get_app_homepage(a.application_id),
             in_app_id       => a.application_id,
             in_session_id   => CASE WHEN a.application_id = x.core_app_id THEN 0 END
@@ -62,7 +62,7 @@ SELECT
         END AS action,
     --
     CASE WHEN p.app_id IS NULL
-        THEN app.get_page_link(922,
+        THEN app.get_page_url(922,
             in_names        => 'P922_ACTION,P922_APP_ID',
             in_values       => 'REMOVE,' || TO_CHAR(a.app_id)
         ) END AS action_url,
@@ -131,7 +131,7 @@ SELECT
         END AS action,
     --
     CASE WHEN a.app_id IS NULL
-        THEN app.get_page_link(922,
+        THEN app.get_page_url(922,
             in_names        => 'P922_ACTION,P922_APP_ID',
             in_values       => 'ADD,' || TO_CHAR(p.app_id)
         ) END AS action_url,

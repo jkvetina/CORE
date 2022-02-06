@@ -20,7 +20,7 @@ f AS (
 )
 SELECT
     app.get_icon('fa-plus-square') AS action,
-    app.get_page_link(951,
+    app.get_page_url(951,
         in_names        => 'P951_TABLE_NAME,P951_INDEX_NAME,P951_INDEX_ADD',
         in_values       => f.table_name || ',' || f.index_name || ',Y'
     ) AS action_url,

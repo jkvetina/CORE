@@ -1009,15 +1009,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_page_link (
+    FUNCTION get_page_url (
         in_page_id              navigation.page_id%TYPE     := NULL,
-        in_app_id               navigation.app_id%TYPE      := NULL,
         in_names                VARCHAR2                    := NULL,
         in_values               VARCHAR2                    := NULL,
         in_overload             VARCHAR2                    := NULL,    -- JSON object to overload passed items/values
         in_transform            BOOLEAN                     := FALSE,   -- to pass all page items to new page
         in_reset                BOOLEAN                     := TRUE,    -- reset page items
-        in_session_id           sessions.session_id%TYPE    := NULL
+        in_session_id           sessions.session_id%TYPE    := NULL,
+        in_app_id               navigation.app_id%TYPE      := NULL
     )
     RETURN VARCHAR2
     AS
@@ -1054,21 +1054,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             out_names   := out_names  || c.item_name  || ',';
             out_values  := out_values || c.item_value || ',';
         END LOOP;
-
-
-        -- check existance of reset item on target page
-        SELECT MAX(i.item_name) INTO reset_item
-        FROM apex_application_page_items i
-        WHERE i.application_id  = app.get_app_id()
-            AND i.page_id       = out_page_id
-            AND i.item_name     = 'P' || out_page_id || '_RESET';
-
-        -- auto add reset item to args if not passed already
-        IF reset_item IS NOT NULL AND NVL(INSTR(out_names, reset_item), 0) = 0 THEN
-            out_names   := reset_item || ',' || out_names;
-            out_values  := 'Y,' || out_values;
-        END IF;
-
 */
 
         -- generate url
@@ -1080,16 +1065,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
             p_items             => out_names,
             p_values            => out_values
             /*
-            p_session            IN NUMBER   DEFAULT APEX.G_INSTANCE,
             p_request            IN VARCHAR2 DEFAULT NULL,
             p_debug              IN VARCHAR2 DEFAULT NULL,
-            p_clear_cache        IN VARCHAR2 DEFAULT NULL,
-            p_items              IN VARCHAR2 DEFAULT NULL,
-            p_values             IN VARCHAR2 DEFAULT NULL,
             p_printer_friendly   IN VARCHAR2 DEFAULT NULL,
             p_trace              IN VARCHAR2 DEFAULT NULL,       
             p_triggering_element IN VARCHAR2 DEFAULT 'this',
-            p_plain_url          IN BOOLEAN DEFAULT FALSE )
+            p_plain_url          IN BOOLEAN DEFAULT FALSE
             */
         );
     EXCEPTION
@@ -1110,9 +1091,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN CASE WHEN NOT in_arguments_only
             THEN UTL_URL.UNESCAPE (
                 OWA_UTIL.GET_CGI_ENV('SCRIPT_NAME') ||
-                OWA_UTIL.GET_CGI_ENV('PATH_INFO')   || '?'
+                OWA_UTIL.GET_CGI_ENV('PATH_INFO')
             ) END ||
-            UTL_URL.UNESCAPE(OWA_UTIL.GET_CGI_ENV('QUERY_STRING'));
+            RTRIM('?' || UTL_URL.UNESCAPE(OWA_UTIL.GET_CGI_ENV('QUERY_STRING')), '?');
     EXCEPTION
     WHEN OTHERS THEN
         RETURN NULL;
@@ -1267,7 +1248,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- check if we are in APEX or not
         HTP.INIT;
-        out_target := app.get_page_link (
+        out_target := app.get_page_url (
             in_page_id          => in_page_id,
             in_names            => in_names,
             in_values           => in_values,

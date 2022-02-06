@@ -8,11 +8,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     AS
     BEGIN
         RETURN CASE in_object_type
-            WHEN 'TABLE'        THEN app.get_page_link(951, in_names => 'P951_TABLE_NAME',      in_values => in_object_name)
-            WHEN 'TRIGGER'      THEN app.get_page_link(952, in_names => 'P952_TRIGGER_NAME',    in_values => in_object_name)
-            WHEN 'VIEW'         THEN app.get_page_link(955, in_names => 'P955_VIEW_NAME',       in_values => in_object_name)
-            WHEN 'PACKAGE'      THEN app.get_page_link(960, in_names => 'P960_PACKAGE_NAME',    in_values => in_object_name)
-            WHEN 'JOB'          THEN app.get_page_link(905, in_names => 'P905_JOB_NAME',        in_values => in_object_name)
+            WHEN 'TABLE'        THEN app.get_page_url(951, 'P951_TABLE_NAME',   in_object_name)
+            WHEN 'TRIGGER'      THEN app.get_page_url(952, 'P952_TRIGGER_NAME', in_object_name)
+            WHEN 'VIEW'         THEN app.get_page_url(955, 'P955_VIEW_NAME',    in_object_name)
+            WHEN 'PACKAGE'      THEN app.get_page_url(960, 'P960_PACKAGE_NAME', in_object_name)
+            WHEN 'JOB'          THEN app.get_page_url(905, 'P905_JOB_NAME',     in_object_name)
             END;
     END;
 

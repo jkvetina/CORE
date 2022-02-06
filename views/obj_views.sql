@@ -45,11 +45,7 @@ u AS (
 p AS (
     SELECT
         r.table_name,
-        LISTAGG(DISTINCT app_actions.get_html_a (
-            app.get_page_link(910,
-                in_names    => 'P910_PAGE_ID',
-                in_values   => r.page_id
-            ), r.page_id), ', ')
+        LISTAGG(DISTINCT app_actions.get_html_a(app.get_page_url(910, 'P910_PAGE_ID', r.page_id), r.page_id), ', ')
             WITHIN GROUP (ORDER BY r.page_id) AS used_on_pages
     FROM apex_application_page_regions r
     JOIN x

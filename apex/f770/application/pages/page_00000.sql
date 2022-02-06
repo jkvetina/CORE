@@ -566,11 +566,7 @@ wwv_flow_api.create_page_item(
 ,p_item_sequence=>20
 ,p_item_plug_id=>wwv_flow_api.id(16222425620514113)
 ,p_use_cache_before_default=>'NO'
-,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.get_page_link(910,',
-'    in_names    => ''P910_PAGE_ID'',',
-'    in_values   => app.get_page_id()',
-')'))
+,p_source=>'app.get_page_url(910, ''P910_PAGE_ID'', app.get_page_id())'
 ,p_source_type=>'EXPRESSION'
 ,p_source_language=>'PLSQL'
 ,p_display_as=>'NATIVE_HIDDEN'
