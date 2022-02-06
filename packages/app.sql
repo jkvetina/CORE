@@ -734,6 +734,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         app.log_success(recent_request_id);
         --
+        -- log_warning for long page loads
+        --
         COMMIT;
     EXCEPTION
     WHEN app.app_exception THEN
@@ -3407,8 +3409,18 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- drop existing tables
         app.drop_dml_table(in_table_name);
+        --
+        IF app.get_dml_table(in_table_name) IS NULL THEN
+            RETURN;
+        END IF;
 
-        -- create DML log tables for all tables
+        -- create DML log table
+        --
+        IF app.is_debug_on() THEN
+            app.log_debug('DML', app.get_owner(app.get_app_id()) || '.' || in_table_name);
+            app.log_debug('ERR', app.get_owner(app.get_app_id()), app.get_dml_table(in_table_name));
+        END IF;
+        --
         DBMS_ERRLOG.CREATE_ERROR_LOG (
             dml_table_name          => app.get_owner(app.get_app_id()) || '.' || in_table_name,
             err_log_table_owner     => app.get_owner(app.get_app_id()),
@@ -3421,98 +3433,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 'GRANT ALL ON ' || app.get_dml_table(in_table_name) ||
                 ' TO ' || app.get_owner(app.get_app_id());
         END IF;
-        --
-        app.log_success();
-    EXCEPTION
-    WHEN app.app_exception THEN
-        RAISE;
-    WHEN OTHERS THEN
-        app.raise_error();
-    END;
-
-
-
-    PROCEDURE create_dml_errors_view
-    AS
-        q_block         VARCHAR2(32767);
-        q               CLOB;
-        comments        DBMS_UTILITY.LNAME_ARRAY;  -- TABLE OF VARCHAR2(4000) INDEX BY BINARY_INTEGER;
-    BEGIN
-        app.log_module();
-        --
-        DBMS_LOB.CREATETEMPORARY(q, TRUE);
-
-        -- backup view columns comments
-        FOR c IN (
-            SELECT table_name, column_name, comments
-            FROM user_col_comments
-            WHERE table_name = app.view_dml_errors
-        ) LOOP
-            comments(comments.count) :=
-                'COMMENT ON COLUMN ' || c.table_name || '.' || c.column_name ||
-                ' IS ''' || REPLACE(c.comments, '''', '''''') || '''';
-        END LOOP;
-
-        -- create header with correct data types
-        q_block := q_block || 'CREATE OR REPLACE VIEW ' || app.view_dml_errors || ' AS'     || CHR(10);
-        q_block := q_block || 'SELECT'                                                      || CHR(10);
-        q_block := q_block || '    --'                                                      || CHR(10);
-        q_block := q_block || '    -- THIS VIEW IS GENERATED'                               || CHR(10);
-        q_block := q_block || '    --'                                                      || CHR(10);
-        q_block := q_block || '    0           AS log_id,'                                  || CHR(10);
-        q_block := q_block || '    ''-''         AS operation,'                             || CHR(10);
-        q_block := q_block || '    ''-''         AS table_name,'                            || CHR(10);
-        q_block := q_block || '    ''UROWID''    AS table_rowid,'                           || CHR(10);
-        q_block := q_block || '    ROWID       AS dml_rowid,'                               || CHR(10);
-        q_block := q_block || '    ''-''         AS error_message,'                         || CHR(10);
-        q_block := q_block || '    ''-''         AS json_data'                              || CHR(10);
-        q_block := q_block || 'FROM DUAL'                                                   || CHR(10);
-        q_block := q_block || 'WHERE ROWNUM = 0'                                            || CHR(10);
-        --
-        DBMS_LOB.WRITEAPPEND(q, LENGTH(q_block), q_block);
-        q_block := '';
-
-        -- append all existing tables
-        FOR c IN (
-            SELECT
-                t.table_name    AS data_table,
-                a.table_name    AS error_table,
-                --
-                LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
-            FROM user_tables t
-            JOIN all_tables a
-                ON a.owner                          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()))
-                AND a.owner || '.' || a.table_name  = app.get_dml_table(t.table_name)
-            JOIN all_tab_cols c
-                ON c.owner          = a.owner
-                AND c.table_name    = a.table_name
-                AND c.column_name   NOT LIKE 'ORA_ERR_%$'
-            GROUP BY t.table_name, a.table_name
-            ORDER BY 1
-        ) LOOP
-            app.log_result(c.data_table, c.error_table);
-            --
-            q_block := 'UNION ALL'                                              || CHR(10);
-            q_block := q_block || 'SELECT'                                      || CHR(10);
-            q_block := q_block || '    TO_NUMBER(t.ora_err_tag$),'              || CHR(10);
-            q_block := q_block || '    t.ora_err_optyp$,'                       || CHR(10);
-            q_block := q_block || '    ''' || c.data_table || ''','             || CHR(10);
-            q_block := q_block || '    CAST(t.ora_err_rowid$ AS VARCHAR2(30)),' || CHR(10);
-            q_block := q_block || '    t.ROWID,'                                || CHR(10);
-            q_block := q_block || '    t.ora_err_mesg$,'                        || CHR(10);
-            --
-            q_block := q_block || '    JSON_OBJECT(' || c.list_columns || ' ABSENT ON NULL)' || CHR(10);
-            q_block := q_block || 'FROM ' || c.error_table || ' t'              || CHR(10);
-            --
-            DBMS_LOB.WRITEAPPEND(q, LENGTH(q_block), q_block);
-        END LOOP;
-        --
-        EXECUTE IMMEDIATE q;
-
-        -- add comments
-        FOR i IN comments.FIRST .. comments.LAST LOOP
-            EXECUTE IMMEDIATE comments(i);
-        END LOOP;
         --
         app.log_success();
     EXCEPTION
@@ -3538,51 +3458,77 @@ CREATE OR REPLACE PACKAGE BODY app AS
             json_data           VARCHAR2(4000)
         );
         rec                     log_dml_error;      -- logs_dml_errors%ROWTYPE; avoid references
+        --
         r                       SYS_REFCURSOR;
+        q                       VARCHAR2(32767);
     BEGIN
-        IF app.is_debug_on() THEN
-            app.log_module(in_table_name);
-        END IF;
-
-        -- dynamic query to avoid references to avoid recompilation errors on APP package
-        OPEN r FOR
-            'SELECT * FROM ' || view_dml_errors ||
-            CASE WHEN in_table_name IS NOT NULL
-                THEN ' WHERE table_name = ''' || in_table_name || '''' END;
+        app.log_module(in_table_name);
         --
-        LOOP
-            FETCH r INTO rec;
-            EXIT WHEN r%NOTFOUND;
-            --
-            app.log_error (
-                in_action_name      => 'DML_ERROR',
-                in_arg1             => rec.operation,
-                in_arg2             => rec.table_name,
-                in_arg3             => rec.table_rowid,
-                in_arg4             => rec.dml_rowid,
-                in_arg5             => rec.error_message,
-                in_arg6             => rec.json_data,
-                in_parent_id        => rec.log_id,
+        FOR c IN (
+            SELECT
+                t.table_name    AS data_table,
+                a.table_name    AS error_table,
                 --
-                in_payload          => app.get_dml_query (
-                    in_log_id       => rec.log_id,
-                    in_table_name   => rec.table_name,
-                    in_table_rowid  => rec.table_rowid,
-                    in_operation    => rec.operation
-                ) || CHR(10) || '--' || CHR(10)
-            );
-    
-            -- remove from DML ERR table
-            EXECUTE IMMEDIATE
-                'DELETE FROM ' || app.get_dml_table(rec.table_name) ||
-                ' WHERE ora_err_tag$ = :id'
-                USING rec.log_id;
+                LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
+            FROM user_tables t
+            JOIN all_tables a
+                ON a.owner          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()))
+                AND a.table_name    = app.get_dml_table(t.table_name)
+                AND a.table_name    != t.table_name
+            JOIN all_tab_cols c
+                ON c.owner          = a.owner
+                AND c.table_name    = a.table_name
+                AND c.column_name   NOT LIKE 'ORA_ERR_%$'
+            WHERE t.table_name      = NVL(in_table_name, t.table_name)
+            GROUP BY t.table_name, a.table_name
+            ORDER BY 1
+        ) LOOP
+            app.log_result(c.data_table, c.error_table);
+            --
+            q :=      'SELECT'                                                      || CHR(10);
+            q := q || '    TO_NUMBER(t.ora_err_tag$),'                              || CHR(10);
+            q := q || '    t.ora_err_optyp$,'                                       || CHR(10);
+            q := q || '    ''' || c.data_table || ''','                             || CHR(10);
+            q := q || '    CAST(t.ora_err_rowid$ AS VARCHAR2(30)),'                 || CHR(10);
+            q := q || '    t.ROWID,'                                                || CHR(10);
+            q := q || '    t.ora_err_mesg$,'                                        || CHR(10);
+            q := q || '    JSON_OBJECT(' || c.list_columns || ' ABSENT ON NULL)'    || CHR(10);
+            q := q || 'FROM ' || c.error_table || ' t';
+            --
+            OPEN r FOR q;
+            LOOP
+                FETCH r INTO rec;
+                EXIT WHEN r%NOTFOUND;
+                --
+                app.log_error (
+                    in_action_name      => 'DML_ERROR',
+                    in_arg1             => rec.operation,
+                    in_arg2             => rec.table_name,
+                    in_arg3             => rec.table_rowid,
+                    in_arg4             => rec.dml_rowid,
+                    in_arg5             => rec.error_message,
+                    in_arg6             => rec.json_data,
+                    in_parent_id        => rec.log_id,
+                    --
+                    in_payload          => app.get_dml_query (
+                        in_log_id       => rec.log_id,
+                        in_table_name   => rec.table_name,
+                        in_table_rowid  => rec.table_rowid,
+                        in_operation    => rec.operation
+                    ) || CHR(10) || '--' || CHR(10)
+                );
+        
+                -- remove from DML ERR table
+                EXECUTE IMMEDIATE
+                    'DELETE FROM ' || app.get_dml_table(rec.table_name) ||
+                    ' WHERE ora_err_tag$ = :id'
+                    USING rec.log_id;
+            END LOOP;
+            --
+            CLOSE r;
         END LOOP;
-        CLOSE r;
         --
-        IF app.is_debug_on() THEN
-            app.log_success();
-        END IF;
+        app.log_success();
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;

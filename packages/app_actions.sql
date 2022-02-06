@@ -732,7 +732,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_is_read_only         obj_tables.is_read_only%TYPE       := NULL,
         in_comments             obj_tables.comments%TYPE           := NULL
     ) AS
-        v_err_dml_changed       BOOLEAN;
     BEGIN
         app.log_module(in_table_name, in_table_group, in_is_dml_handler, in_is_row_mov, in_is_read_only, in_comments);
         --
@@ -767,14 +766,8 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 ELSIF in_is_dml_handler IS NULL THEN
                     app.drop_dml_table(in_table_name);
                 END IF;
-                --
-                v_err_dml_changed := TRUE;
             END IF;
         END LOOP;
-        --
-        IF v_err_dml_changed THEN
-            app.create_dml_errors_view();
-        END IF;
         --
         app.log_success();
     EXCEPTION

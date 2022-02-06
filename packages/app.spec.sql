@@ -81,7 +81,6 @@ CREATE OR REPLACE PACKAGE app AS
     dml_tables_owner            CONSTANT VARCHAR2(30)           := NULL;        -- NULL = same as current owner
     dml_tables_prefix           CONSTANT VARCHAR2(30)           := '';          -- ERR$
     dml_tables_postfix          CONSTANT VARCHAR2(30)           := '_E$';
-    view_dml_errors             CONSTANT VARCHAR2(30)           := 'LOGS_DML_ERRORS';
 
     -- translations
     transl_item_prefix          CONSTANT VARCHAR2(30)           := 'T';
@@ -1402,13 +1401,6 @@ CREATE OR REPLACE PACKAGE app AS
     PROCEDURE create_dml_table (
         in_table_name           logs.module_name%TYPE
     );
-
-
-
-    --
-    -- Merge all DML error tables (_E$) into single view
-    --
-    PROCEDURE create_dml_errors_view;
 
 
 
