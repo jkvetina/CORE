@@ -1,12 +1,12 @@
-CREATE OR REPLACE TRIGGER events__
-FOR UPDATE OR INSERT OR DELETE ON events
+CREATE OR REPLACE TRIGGER event_subscriptions__
+FOR UPDATE OR INSERT OR DELETE ON event_subscriptions
 COMPOUND TRIGGER
 
-    in_table_name           CONSTANT user_tables.table_name%TYPE := 'EVENTS';
+    in_table_name           CONSTANT user_tables.table_name%TYPE := 'EVENT_SUBSCRIPTIONS';
     --
     curr_log_id             logs.log_id%TYPE;
-    curr_updated_by         events.updated_by%TYPE;
-    curr_updated_at         events.updated_at%TYPE;
+    curr_updated_by         event_subscriptions.updated_by%TYPE;
+    curr_updated_at         event_subscriptions.updated_at%TYPE;
     --
     rows_inserted           PLS_INTEGER := 0;
     rows_updated            PLS_INTEGER := 0;
@@ -35,28 +35,11 @@ COMPOUND TRIGGER
         IF NOT DELETING THEN
             :NEW.updated_by := curr_updated_by;
             :NEW.updated_at := curr_updated_at;
-            --
-            :NEW.app_id     := COALESCE(:NEW.app_id, app.get_app_id());
-            --
-            IF UPDATING AND :NEW.event_id != :OLD.event_id THEN
-                UPDATE log_events e
-                SET e.event_id      = :NEW.event_id
-                WHERE e.app_id      = :OLD.app_id
-                    AND e.event_id  = :OLD.event_id;
-                --
-                UPDATE event_subscriptions e
-                SET e.event_id      = :NEW.event_id
-                WHERE e.app_id      = :OLD.app_id
-                    AND e.event_id  = :OLD.event_id;
+
+            -- check function name
+            IF NOT REGEXP_LIKE(:NEW.eval_function, '^([A-Z0-9_]+].)?([A-Z0-9_]+)$') THEN
+                app.raise_error('WRONG_FUNCTION_NAME', :NEW.eval_function);
             END IF;
-        ELSE
-            DELETE FROM log_events e
-            WHERE e.app_id      = :OLD.app_id
-                AND e.event_id  = :OLD.event_id;
-            --
-            DELETE FROM event_subscriptions e
-            WHERE e.app_id      = :OLD.app_id
-                AND e.event_id  = :OLD.event_id;
         END IF;
     EXCEPTION
     WHEN app.app_exception THEN
