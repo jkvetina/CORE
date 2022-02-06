@@ -45,12 +45,24 @@ SELECT                              -- pages to add/remove
     910 AS page_id,
     ' ' AS page_alias,
     --
-    TO_CHAR(NULLIF(COUNT(*), 0))    AS badge
+    TO_CHAR(NULLIF(COUNT(*), 0)) AS badge
 FROM nav_overview n
 JOIN x
     ON x.app_id             = n.app_id
     AND x.is_developer      = 'Y'
     AND n.action            IS NOT NULL
+--
+UNION ALL
+SELECT                              -- pages to add/remove
+    970 AS page_id,
+    ' ' AS page_alias,
+    --
+    TO_CHAR(NULLIF(COUNT(*), 0)) AS badge
+FROM settings s
+JOIN x
+    ON x.app_id             = s.app_id
+    AND x.is_developer      = 'Y'
+    AND s.updated_at        >= TRUNC(SYSDATE)
 --
 UNION ALL
 SELECT                              -- running jobs
