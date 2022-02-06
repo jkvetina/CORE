@@ -25,6 +25,12 @@ f AS (
 SELECT
     p.object_name               AS package_name,
     --
+    CASE
+        WHEN REGEXP_LIKE(p.object_name, '^A\d+$')           THEN 'CORE - Application roles...'
+        WHEN REGEXP_LIKE(p.object_name, '^S\d+$')           THEN 'CORE - Application settings'
+        WHEN p.object_name IN ('APP', 'APP_ACTIONS', 'GEN') THEN 'CORE'
+        END AS package_group,
+    --
     NULLIF(COUNT(p.procedure_name) - MIN(f.count_functions), 0) AS count_procedures,
     --
     NULLIF(MIN(f.count_functions), 0)   AS count_functions,
