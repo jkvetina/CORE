@@ -2757,9 +2757,16 @@ CREATE OR REPLACE PACKAGE BODY app AS
             out_result.additional_info  := '';
         END IF;
         */
-
-        out_result.message          := '[' || v_log_id || '] ' || REGEXP_REPLACE(out_result.message, '^(ORA-\d+:\s*)\s*', '');
+        out_result.message          := REGEXP_REPLACE(out_result.message, '^(ORA-\d+:\s*)\s*', '') || ' #' || v_log_id;
         out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;  -- also removes HTML entities
+        --
+        IF app.is_developer() THEN
+            out_result.message := REPLACE(out_result.message, ' #' || v_log_id,
+                '<br />#<a href="' ||
+                app.get_page_url(902, 'P902_LOG_ID', v_log_id) ||
+                '" style="font-weight: bold; text-decoration: none;">' || v_log_id || '</a>'
+            );
+        END IF;
         --
         RETURN out_result;
     EXCEPTION
