@@ -3483,49 +3483,54 @@ CREATE OR REPLACE PACKAGE BODY app AS
             GROUP BY t.table_name, a.table_name
             ORDER BY 1
         ) LOOP
-            app.log_result(c.data_table, c.error_table);
-            --
-            q :=      'SELECT'                                                      || CHR(10);
-            q := q || '    TO_NUMBER(t.ora_err_tag$),'                              || CHR(10);
-            q := q || '    t.ora_err_optyp$,'                                       || CHR(10);
-            q := q || '    ''' || c.data_table || ''','                             || CHR(10);
-            q := q || '    CAST(t.ora_err_rowid$ AS VARCHAR2(30)),'                 || CHR(10);
-            q := q || '    t.ROWID,'                                                || CHR(10);
-            q := q || '    t.ora_err_mesg$,'                                        || CHR(10);
-            q := q || '    JSON_OBJECT(' || c.list_columns || ' ABSENT ON NULL)'    || CHR(10);
-            q := q || 'FROM ' || c.error_table || ' t';
-            --
-            OPEN r FOR q;
-            LOOP
-                FETCH r INTO rec;
-                EXIT WHEN r%NOTFOUND;
+            BEGIN
+                q :=      'SELECT'                                                      || CHR(10);
+                q := q || '    TO_NUMBER(t.ora_err_tag$),'                              || CHR(10);
+                q := q || '    t.ora_err_optyp$,'                                       || CHR(10);
+                q := q || '    ''' || c.data_table || ''','                             || CHR(10);
+                q := q || '    CAST(t.ora_err_rowid$ AS VARCHAR2(30)),'                 || CHR(10);
+                q := q || '    t.ROWID,'                                                || CHR(10);
+                q := q || '    t.ora_err_mesg$,'                                        || CHR(10);
+                q := q || '    JSON_OBJECT(' || c.list_columns || ' ABSENT ON NULL)'    || CHR(10);
+                q := q || 'FROM ' || c.error_table || ' t';
                 --
-                app.log_error (
-                    in_action_name      => 'DML_ERROR',
-                    in_arg1             => rec.operation,
-                    in_arg2             => rec.table_name,
-                    in_arg3             => rec.table_rowid,
-                    in_arg4             => rec.dml_rowid,
-                    in_arg5             => rec.error_message,
-                    in_arg6             => rec.json_data,
-                    in_parent_id        => rec.log_id,
+                OPEN r FOR q;
+                LOOP
+                    FETCH r INTO rec;
+                    EXIT WHEN r%NOTFOUND;
                     --
-                    in_payload          => app.get_dml_query (
-                        in_log_id       => rec.log_id,
-                        in_table_name   => rec.table_name,
-                        in_table_rowid  => rec.table_rowid,
-                        in_operation    => rec.operation
-                    ) || CHR(10) || '--' || CHR(10)
-                );
-        
-                -- remove from DML ERR table
-                EXECUTE IMMEDIATE
-                    'DELETE FROM ' || app.get_dml_table(rec.table_name) ||
-                    ' WHERE ora_err_tag$ = :id'
-                    USING rec.log_id;
-            END LOOP;
-            --
-            CLOSE r;
+                    app.log_error (
+                        in_action_name      => 'DML_ERROR',
+                        in_arg1             => rec.operation,
+                        in_arg2             => rec.table_name,
+                        in_arg3             => rec.table_rowid,
+                        in_arg4             => rec.dml_rowid,
+                        in_arg5             => rec.error_message,
+                        in_arg6             => rec.json_data,
+                        in_parent_id        => rec.log_id,
+                        --
+                        in_payload          => app.get_dml_query (
+                            in_log_id       => rec.log_id,
+                            in_table_name   => rec.table_name,
+                            in_table_rowid  => rec.table_rowid,
+                            in_operation    => rec.operation
+                        ) || CHR(10) || '--' || CHR(10)
+                    );
+            
+                    -- remove from DML ERR table
+                    EXECUTE IMMEDIATE
+                        'DELETE FROM ' || app.get_dml_table(rec.table_name) ||
+                        ' WHERE ora_err_tag$ = :id'
+                        USING rec.log_id;
+                END LOOP;
+                --
+                CLOSE r;
+            EXCEPTION
+            WHEN OTHERS THEN
+                app.log_debug(c.data_table, c.error_table, q);
+                --
+                RAISE;
+            END;
         END LOOP;
         --
         app.log_success();
