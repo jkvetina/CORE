@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW obj_packages AS
 WITH s AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         s.name                  AS package_name,
         COUNT(s.line)           AS count_lines
     FROM user_source s
@@ -14,7 +14,7 @@ WITH s AS (
     GROUP BY s.name
 ),
 f AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         a.package_name,
         SUM(CASE WHEN a.position = 0 THEN 1 ELSE 0 END) AS count_functions
     FROM s

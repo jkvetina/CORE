@@ -2,7 +2,9 @@ CREATE OR REPLACE VIEW obj_modules AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_item('$PACKAGE_NAME')               AS package_name,
+        app.get_item('$MODULE_NAME')                AS module_name,
         app.get_item('$MODULE_TYPE')                AS module_type,
+        app.get_item('$ARGUMENT_NAME')              AS argument_name,
         --
         UPPER(app.get_item('$SEARCH_PACKAGES'))     AS search_packages,
         UPPER(app.get_item('$SEARCH_MODULES'))      AS search_modules,
@@ -10,16 +12,20 @@ WITH x AS (
         LOWER(app.get_item('$SEARCH_SOURCE'))       AS search_source
     FROM DUAL
 ),
-p AS (
-    SELECT
+i AS (
+    -- find modules and start lines in spec and body
+    SELECT /*+ MATERIALIZE */
         i.object_name,
         i.object_type,
         i.name                  AS module_name,
         i.type                  AS module_type,
-        i.line                                                                                  AS start_line,
-        LEAD(i.line) OVER (PARTITION BY i.object_name, i.object_type ORDER BY i.line) - 1       AS end_line,
-        ROW_NUMBER() OVER (PARTITION BY i.object_name, i.object_type, i.name ORDER BY i.line)   AS overload,
+        i.line                  AS start_line,
         --
+        LEAD(i.line) OVER (PARTITION BY i.object_name, i.object_type ORDER BY p.subprogram_id, i.line) - 1      AS end_line,
+        ROW_NUMBER() OVER (PARTITION BY i.object_name, i.object_type, p.subprogram_id ORDER BY p.subprogram_id) AS overload_check,
+        --
+        NVL(p.overload, 1)      AS overload,
+        p.subprogram_id,
         p.authid,
         p.result_cache
     FROM user_identifiers i
@@ -30,17 +36,27 @@ p AS (
     JOIN user_procedures p                          -- only public procedures
         ON p.object_name        = i.object_name
         AND p.procedure_name    = i.name
-        AND p.object_type       = 'PACKAGE'
-        AND NVL(p.overload, 1)  = 1
-    JOIN x
-        ON s.name               = NVL(x.package_name, s.name)
-        AND (p.object_name      LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
     WHERE i.type                IN ('PROCEDURE', 'FUNCTION')
         AND i.object_type       IN ('PACKAGE', 'PACKAGE BODY')
         AND i.usage             = CASE s.type WHEN 'PACKAGE BODY' THEN 'DEFINITION' ELSE 'DECLARATION' END
 ),
+p AS (
+    SELECT /*+ MATERIALIZE */
+        i.*
+    FROM i
+    JOIN i f
+        ON f.object_name        = i.object_name
+        AND f.object_type       = i.object_type
+        AND f.module_name       = i.module_name
+        AND f.overload          = i.overload
+        AND f.overload_check    = i.overload_check
+        AND f.overload          = f.overload_check
+    JOIN x
+        ON i.object_name        = NVL(x.package_name, i.object_name)
+        AND (i.object_name      LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
+),
 s AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         s.name,
         s.type,
         s.line,
@@ -53,7 +69,10 @@ s AS (
 ),
 e AS (
     -- find ending lines
-    SELECT s.name, s.type, s.line
+    SELECT /*+ MATERIALIZE */
+        s.name,
+        s.type,
+        s.line
     FROM s
     WHERE (
         (s.type = 'PACKAGE BODY' AND REGEXP_LIKE(UPPER(s.text), '^\s*END(\s+[A-Z0-9_]+)?\s*;')) OR
@@ -62,11 +81,12 @@ e AS (
 ),
 t AS (
     -- calculate module start and end lines
-    SELECT
-        p.object_name AS package_name,
+    SELECT /*+ MATERIALIZE */
+        p.object_name       AS package_name,
         p.module_name,
         p.module_type,
-        CASE WHEN MAX(p.overload) OVER (PARTITION BY p.object_name, p.module_name) > 1 THEN p.overload END AS overload,
+        p.subprogram_id,
+        p.overload,
         p.authid,
         p.result_cache,
         --
@@ -81,36 +101,37 @@ t AS (
         ON e.name       = p.object_name
         AND e.type      = p.object_type
         AND e.line      BETWEEN p.start_line AND NVL(p.end_line, 999999)
-    GROUP BY p.object_name, p.module_name, p.module_type, p.overload, p.authid, p.result_cache
+    GROUP BY p.object_name, p.module_name, p.module_type, p.subprogram_id, p.overload, p.authid, p.result_cache
 ),
 a AS (
     -- arguments
-    SELECT
+    SELECT /*+ MATERIALIZE */
         t.package_name,
         t.module_name,
         t.module_type,
-        t.overload,
+        t.subprogram_id,
         --
         NULLIF(SUM(CASE WHEN a.in_out LIKE 'IN%' THEN 1 ELSE 0 END), 0)                             AS args_in,
         NULLIF(SUM(CASE WHEN a.in_out LIKE '%OUT' AND position > 0 THEN 1 ELSE 0 END), 0)           AS args_out,
-        MAX(CASE WHEN (a.argument_name LIKE x.search_arguments || '%' ESCAPE '\') THEN 'Y' END)     AS is_arg_present
+        MAX(CASE WHEN (a.argument_name LIKE x.search_arguments || '%' ESCAPE '\') THEN 'Y' END)     AS is_arg_present,
+        MAX(CASE WHEN a.argument_name = x.argument_name THEN 'Y' END)                               AS is_arg_match
     FROM t
     CROSS JOIN x
     LEFT JOIN user_arguments a
         ON a.package_name       = t.package_name
         AND a.object_name       = t.module_name
-        AND NVL(a.overload, 0)  = NVL(t.overload, 0)
-    GROUP BY t.package_name, t.module_name, t.module_type, t.overload
+        AND a.subprogram_id     = t.subprogram_id
+    GROUP BY t.package_name, t.module_name, t.module_type, t.subprogram_id
 ),
 d AS (
     -- documentation lines
-    SELECT
-        d.package_name, d.module_name, d.module_type, d.overload, --s.line, s.text
+    SELECT /*+ MATERIALIZE */
+        d.package_name, d.module_name, d.module_type, d.subprogram_id, --s.line, s.text
         LISTAGG(REGEXP_SUBSTR(s.text, '^\s*--\s*(.*)\s*$', 1, 1, NULL, 1), '<br />') WITHIN GROUP (ORDER BY s.line) AS comment_,
         MIN(s.line) AS doc_start
     FROM (
         SELECT
-            t.package_name, t.module_name, t.module_type, t.overload,
+            t.package_name, t.module_name, t.module_type, t.subprogram_id,
             MAX(s.line) + 1     AS doc_start,
             t.spec_start - 1    AS doc_end
         FROM t
@@ -119,18 +140,18 @@ d AS (
             AND s.type      = 'PACKAGE'
             AND s.line      < t.spec_start
             AND REGEXP_LIKE(s.text, '^\s*$')
-        GROUP BY t.package_name, t.module_name, t.module_type, t.overload, t.spec_start
+        GROUP BY t.package_name, t.module_name, t.module_type, t.subprogram_id, t.spec_start
     ) d
     LEFT JOIN s
         ON s.name           = d.package_name
         AND s.type          = 'PACKAGE'
         AND s.line          BETWEEN d.doc_start AND d.doc_end
         AND NOT REGEXP_LIKE(s.text, '^\s*--\s*$')
-    GROUP BY d.package_name, d.module_name, d.module_type, d.overload
+    GROUP BY d.package_name, d.module_name, d.module_type, d.subprogram_id
 ),
 g AS (
     -- group for related modules
-    SELECT
+    SELECT /*+ MATERIALIZE */
         s.name,
         s.line,
         RTRIM(REGEXP_REPLACE(s.text, '^\s*--\s*###\s*', ''))    AS group_name,
@@ -144,21 +165,24 @@ g AS (
 ),
 f AS (
     -- search source code
-    SELECT t.package_name, t.module_name, t.overload
+    SELECT /*+ MATERIALIZE */
+        t.package_name,
+        t.module_name,
+        t.subprogram_id
     FROM t
     JOIN s
         ON s.name           = t.package_name
         AND s.type          = 'PACKAGE BODY'
         AND s.line          BETWEEN t.body_start AND t.body_end
         AND s.is_found_text = 'Y'
-    GROUP BY t.package_name, t.module_name, t.overload
+    GROUP BY t.package_name, t.module_name, t.subprogram_id
 ),
 q AS (
     -- search statements
-    SELECT
+    SELECT /*+ MATERIALIZE */
         t.package_name,
         t.module_name,
-        t.overload,
+        t.subprogram_id,
         --
         --s.type,  -- SELECT, INSERT, UPDATE, DELETE, MERGE, EXECUTE IMMEDIATE, FETCH, OPEN, CLOSE, COMMIT, ROLLBACK
         --
@@ -168,7 +192,7 @@ q AS (
         ON s.object_name    = t.package_name
         AND s.object_type   = 'PACKAGE BODY'
         AND s.line          BETWEEN t.body_start AND t.body_end
-    GROUP BY t.package_name, t.module_name, t.overload
+    GROUP BY t.package_name, t.module_name, t.subprogram_id
 )
 SELECT
     t.package_name,
@@ -205,19 +229,21 @@ SELECT
 FROM t
 JOIN x
     ON t.package_name                   = NVL(x.package_name, t.package_name)
+    AND t.module_name                   = NVL(x.module_name, t.module_name)
     AND SUBSTR(t.module_type, 1, 1)     = NVL(x.module_type, SUBSTR(t.module_type, 1, 1))
     --
     AND (t.package_name LIKE x.search_packages || '%' ESCAPE '\'    OR x.search_packages    IS NULL)
-    AND (t.module_name LIKE x.search_modules || '%' ESCAPE '\'      OR x.search_modules     IS NULL)
+    AND (t.module_name  LIKE x.search_modules  || '%' ESCAPE '\'    OR x.search_modules     IS NULL)
 JOIN a
     ON a.package_name       = t.package_name
     AND a.module_name       = t.module_name
-    AND NVL(a.overload, 0)  = NVL(t.overload, 0)
+    AND a.subprogram_id     = t.subprogram_id
     AND (a.is_arg_present   = 'Y' OR x.search_arguments IS NULL)
+    AND (a.is_arg_match     = 'Y' OR x.argument_name IS NULL)
 JOIN d
     ON d.package_name       = t.package_name
     AND d.module_name       = t.module_name
-    AND NVL(d.overload, 0)  = NVL(t.overload, 0)
+    AND d.subprogram_id     = t.subprogram_id
 LEFT JOIN s b
     ON b.name               = t.package_name
     AND b.type              = 'PACKAGE'
@@ -231,11 +257,11 @@ LEFT JOIN s n
 LEFT JOIN f
     ON f.package_name       = t.package_name
     AND f.module_name       = t.module_name
-    AND NVL(f.overload, 0)  = NVL(t.overload, 0)
+    AND f.subprogram_id     = t.subprogram_id
 LEFT JOIN q
     ON q.package_name       = t.package_name
     AND q.module_name       = t.module_name
-    AND NVL(q.overload, 0)  = NVL(t.overload, 0)
+    AND q.subprogram_id     = t.subprogram_id
 WHERE (f.module_name IS NOT NULL OR x.search_source IS NULL);
 --
 COMMENT ON TABLE obj_modules                    IS 'Find package modules (procedures and functions) and their boundaries (start-end lines)';
