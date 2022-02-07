@@ -3681,7 +3681,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
-        in_table_name           CONSTANT user_objects.object_name%TYPE := 'USER_SOURCE_VIEWS';
+        in_table_name           CONSTANT user_objects.object_name%TYPE := 'USER_SOURCE_VIEWS';  -- @TODO: remove hardcoded name
         --
         v_table_time            user_objects.last_ddl_time%TYPE;
         v_views_time            user_objects.last_ddl_time%TYPE;
@@ -3773,10 +3773,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         COMMIT;
 
-        -- alter table to update last refresh date
+        -- alter table to update last refresh date, but avoid APP package invalidation
         IF in_table_name IS NOT NULL THEN
-            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' ADD tmp_col NUMBER';
-            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' DROP COLUMN tmp_col';
+            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' ADD tmp_' || log_id.CURRVAL || ' NUMBER(1) INVISIBLE';
+            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' SET UNUSED (tmp_' || log_id.CURRVAL || ')';
         END IF;
         --
         app.log_success();
