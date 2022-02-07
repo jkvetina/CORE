@@ -3793,21 +3793,23 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     PROCEDURE rebuild_settings
     AS
-        q       VARCHAR2(32767);
-        b       VARCHAR2(32767);
-    BEGIN
-        app.log_module();
+        v_package_name      VARCHAR2(64);
         --
-        IF app.get_settings_package() IS NULL THEN
+        q                   VARCHAR2(32767);    -- spec
+        b                   VARCHAR2(32767);    -- body
+    BEGIN
+        v_package_name := app.get_settings_package();
+        --
+        app.log_module(v_package_name);
+        --
+        IF v_package_name IS NULL THEN
             RETURN;
         END IF;
         --
         app.refresh_user_source_views();
         --
-        app.log_result('BUILDING', app.get_settings_package());
-        --
-        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
-        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(app.get_settings_package()) || ' AS' || CHR(10);
+        q := 'CREATE OR REPLACE PACKAGE '       || LOWER(v_package_name) || ' AS' || CHR(10);
+        b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(v_package_name) || ' AS' || CHR(10);
         --
         FOR c IN (
             SELECT DISTINCT
@@ -3863,10 +3865,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
         EXECUTE IMMEDIATE q;
         EXECUTE IMMEDIATE b;
         --
+        app.log_debug('PACKAGE_CREATED');
         app.log_success();
         --
         recompile (
-            in_name     => app.get_settings_package(),
+            in_name     => v_package_name,
             in_force    => TRUE
         );
         /*
