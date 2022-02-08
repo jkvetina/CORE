@@ -587,9 +587,7 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'Y'
 ,p_action=>'NATIVE_JAVASCRIPT_CODE'
 ,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'// manipulate grids',
-'// specifically change Save button style on grid change',
-'apex_page_loaded();',
+'apex_page_loaded();  // check global.js file',
 ''))
 );
 wwv_flow_api.component_end;

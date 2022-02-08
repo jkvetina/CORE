@@ -1,12 +1,60 @@
-// INTERACTIVE GRIDS - look for css change on Edit button and apply it to Save button
+//
+// WAIT FOR ELEMENT TO EXIST
+//
+var wait_for_element = function(search, start, fn, disconnect) {
+    var ob  = new MutationObserver(function(mutations) {
+        if ($(search).length) {
+            fn(search, start);
+            if (disconnect) {
+                observer.disconnect();  // keep observing
+            }
+        }
+    });
+    //
+    ob.observe(document.getElementById(start), {
+        childList: true,
+        subtree: true
+    });
+};
+
+var hide_success_message = function(search, start) {
+    var $start = $('#' + start);
+    //
+    setTimeout(function() {
+        apex.message.hidePageSuccess();  // hide message
+        var content = $start.text().trim();
+        if (content.length) {
+            console.log('MESSAGE CLOSED:', content);
+        }
+        $start.html('').removeClass('u-visible');  // clean APEX mess
+    }, 4000);
+};
+
+
+
+//
+// WHEN PAGE LOADS
+//
 var apex_page_loaded = function() {
+    //
+    // WAIT FOR SUCCESS MESSAGE
+    //
+    const search    = '#APEX_SUCCESS_MESSAGE.u-visible > .t-Body-alert > #t_Alert_Success';
+    const start     = 'APEX_SUCCESS_MESSAGE';
+    //
+    wait_for_element(search, start, hide_success_message);
+    hide_success_message(search.replace('.u-visible', ''), start);  // hide existing messages
+
+    //
+    // INTERACTIVE GRIDS - look for css change on Edit button and apply it to Save button
+    //
     var observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             var $target = $(mutation.target);
             if ($target.hasClass('is-active')) {
                 var $save = $target.parent().parent().find('button.a-Button.a-Toolbar-item.js-actionButton[data-action="save"]');
                 $save.addClass('is-active');
-                // remove observer when fired ?
+                //observer.disconnect();  // remove observer when fired
             }
         });
     });
@@ -23,7 +71,9 @@ var apex_page_loaded = function() {
 
 
 
+//
 // INTERACTIVE GRIDS - fold (hide) requested group (Control Break)
+//
 var fold_grid_group = function(grid_id, group_name, group_value) {
     (function loop(i) {
         setTimeout(function() {
@@ -44,14 +94,16 @@ var fold_grid_group = function(grid_id, group_name, group_value) {
 
 
 
-// common toolbar for all grids
+//
+// COMMON TOOLBAR FOR ALL GRIDS
+//
 // just put following code in Region - Attributes - JavaScript Initialization Code
 // and assign Static ID to region
-/**
+/*
 function(config) {
     return unified_ig_toolbar(config);
 }
- */
+*/
 var unified_ig_toolbar = function(config) {
     var $ = apex.jQuery;
     var toolbarData = $.apex.interactiveGrid.copyDefaultToolbar();
@@ -73,16 +125,18 @@ var unified_ig_toolbar = function(config) {
         addrowAction.iconBeforeLabel    = true;
         addrowAction.label              = ' ';
         addrowAction.hot                = false;
-
+        //
         config.toolbarData = toolbarData;
     }
-
+    //
     return config;
 };
 
 
 
-// show/hide search fields
+//
+// SHOW/HIDE SEARCH FIELDS
+//
 var show_search_fields = function() {
     $('.t-HeroRegion-col.t-HeroRegion-col--content .HIDDEN').removeClass('HIDDEN');
     //
