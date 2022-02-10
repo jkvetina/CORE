@@ -35,6 +35,12 @@ wwv_flow_api.create_build_option(
 ,p_build_option_status=>'EXCLUDE'
 ,p_on_upgrade_keep_status=>true
 );
+wwv_flow_api.create_build_option(
+ p_id=>wwv_flow_api.id(23805297856892551)
+,p_build_option_name=>'TEMPORARILY_HIDDEN'
+,p_build_option_status=>'EXCLUDE'
+,p_on_upgrade_keep_status=>true
+);
 wwv_flow_api.component_end;
 end;
 /
