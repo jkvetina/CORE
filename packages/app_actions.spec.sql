@@ -107,6 +107,39 @@ CREATE OR REPLACE PACKAGE app_actions AS
     --
     --
     --
+    PROCEDURE save_users (
+        in_action                       CHAR,
+        out_user_id             IN OUT  users_overview.out_user_id%TYPE,
+        in_user_id                      users_overview.user_id%TYPE,
+        in_user_login                   users_overview.user_login%TYPE,
+        in_user_name                    users_overview.user_name%TYPE,
+        in_lang_id                      users_overview.lang_id%TYPE,
+        in_is_active                    users_overview.is_active%TYPE
+    );
+
+
+
+    --
+    --
+    --
+    PROCEDURE save_roles (
+        in_action                   CHAR,
+        out_app_id          IN OUT  roles_overview.out_app_id%TYPE,
+        out_role_id         IN OUT  roles_overview.out_role_id%TYPE,
+        in_app_id                   roles_overview.app_id%TYPE,
+        in_role_id                  roles_overview.role_id%TYPE,
+        in_role_name                roles_overview.role_name%TYPE,
+        in_role_group               roles_overview.role_group%TYPE,
+        in_description_             roles_overview.description_%TYPE,
+        in_is_active                roles_overview.is_active%TYPE,
+        in_order#                   roles_overview.order#%TYPE
+    );
+
+
+
+    --
+    --
+    --
     PROCEDURE prep_user_roles_pivot (
         in_page_id              apex_application_pages.page_id%TYPE
     );

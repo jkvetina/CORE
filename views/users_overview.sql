@@ -55,6 +55,8 @@ b AS (
     GROUP BY l.user_id
 )
 SELECT
+    u.user_id               AS out_user_id,
+    --
     u.user_id,
     u.user_login,
     u.user_name,

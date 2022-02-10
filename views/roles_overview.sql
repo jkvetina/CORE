@@ -1,15 +1,18 @@
 CREATE OR REPLACE VIEW roles_overview AS
 SELECT
+    r.app_id            AS out_app_id,
+    r.role_id           AS out_role_id,
+    --
     r.app_id,
-    --
-    u.count_users,
-    --
     r.role_id,
     r.role_name,
     r.role_group,
     r.description_,
     r.is_active,
     r.order#,
+    --
+    u.count_users,
+    --
     r.updated_by,
     r.updated_at
 FROM roles r

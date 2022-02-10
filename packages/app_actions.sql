@@ -205,6 +205,155 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+
+
+
+
+    PROCEDURE save_users (
+        in_action                       CHAR,
+        out_user_id             IN OUT  users_overview.out_user_id%TYPE,
+        in_user_id                      users_overview.user_id%TYPE,
+        in_user_login                   users_overview.user_login%TYPE,
+        in_user_name                    users_overview.user_name%TYPE,
+        in_lang_id                      users_overview.lang_id%TYPE,
+        in_is_active                    users_overview.is_active%TYPE
+    ) AS
+        rec                             users%ROWTYPE;
+    BEGIN
+        app.log_module_json (
+            'action',                   in_action,
+            'old_user_id',              out_user_id,
+            'user_id',                  in_user_id,
+            'user_login',               in_user_login,
+            'user_name',                in_user_name,
+            'lang_id',                  in_lang_id,
+            'is_active',                in_is_active
+        );
+        --
+        rec.user_id             := in_user_id;
+        rec.user_login          := in_user_login;
+        rec.user_name           := in_user_name;
+        rec.lang_id             := in_lang_id;
+        rec.is_active           := in_is_active;
+        rec.updated_by          := app.get_user_id();
+        rec.updated_at          := SYSDATE;
+        --
+        IF in_action = 'D' THEN
+            DELETE FROM users t
+            WHERE t.user_id         = out_user_id;
+            --
+            app.log_event('USER_DELETED');
+        ELSE
+            -- resolve some dependencies
+            IF rec.user_id != out_user_id THEN
+                UPDATE user_roles r
+                SET r.user_id       = rec.user_id
+                WHERE r.user_id     = out_user_id;
+                --
+                UPDATE sessions s
+                SET s.user_id       = rec.user_id
+                WHERE s.user_id     = out_user_id;
+                --
+                UPDATE log_events l
+                SET l.user_id       = rec.user_id
+                WHERE l.user_id     = out_user_id;
+            END IF;
+
+            -- update or create record
+            UPDATE users t
+            SET ROW = rec
+            WHERE t.user_id         = out_user_id;
+            --
+            IF SQL%ROWCOUNT = 0 THEN
+                INSERT INTO users
+                VALUES rec;
+                --
+                app.log_event('USER_CREATED');
+            END IF;
+        END IF;
+        --
+        out_user_id                     := rec.user_id;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.log_error();
+        RAISE;
+    END;
+
+
+
+    PROCEDURE save_roles (
+        in_action                   CHAR,
+        out_app_id          IN OUT  roles_overview.out_app_id%TYPE,
+        out_role_id         IN OUT  roles_overview.out_role_id%TYPE,
+        in_app_id                   roles_overview.app_id%TYPE,
+        in_role_id                  roles_overview.role_id%TYPE,
+        in_role_name                roles_overview.role_name%TYPE,
+        in_role_group               roles_overview.role_group%TYPE,
+        in_description_             roles_overview.description_%TYPE,
+        in_is_active                roles_overview.is_active%TYPE,
+        in_order#                   roles_overview.order#%TYPE
+    ) AS
+        rec                         roles%ROWTYPE;
+    BEGIN
+        app.log_module_json (
+            'action',               in_action,
+            'old_app_id',           out_app_id,
+            'old_role_id',          out_role_id,
+            'role_id',              in_role_id,
+            'role_name',            in_role_name,
+            'role_group',           in_role_group,
+            'is_active',            in_is_active,
+            'order#',               in_order#
+        );
+        --
+        rec.app_id                  := COALESCE(in_app_id, app.get_app_id());
+        rec.role_id                 := in_role_id;
+        rec.role_name               := in_role_name;
+        rec.role_group              := in_role_group;
+        rec.description_            := in_description_;
+        rec.is_active               := in_is_active;
+        rec.order#                  := in_order#;
+        rec.updated_by              := app.get_user_id();
+        rec.updated_at              := SYSDATE;
+        --
+        IF in_action = 'D' THEN
+            DELETE FROM roles t
+            WHERE t.app_id          = out_app_id
+                AND t.role_id       = out_role_id;
+            --
+            app.log_event('ROLE_DELETED');
+        ELSE
+            UPDATE roles t
+            SET ROW = rec
+            WHERE t.app_id          = out_app_id
+                AND t.role_id       = out_role_id;
+            --
+            IF SQL%ROWCOUNT = 0 THEN
+                INSERT INTO roles
+                VALUES rec;
+                --
+                app.log_event('ROLE_CREATED');
+            END IF;
+        END IF;
+        --
+        out_app_id                  := rec.app_id;
+        out_role_id                 := rec.role_id;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.log_error();
+        RAISE;
+    END;
+
+
+
     PROCEDURE prep_user_roles_pivot (
         in_page_id              apex_application_pages.page_id%TYPE
     ) AS
