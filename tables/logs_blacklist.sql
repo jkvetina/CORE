@@ -23,6 +23,8 @@ CREATE TABLE logs_blacklist (
 )
 STORAGE (BUFFER_POOL KEEP);
 --
+ALTER TABLE logs_blacklist DISABLE CONSTRAINT fk_logs_blacklist_user_id;
+--
 COMMENT ON TABLE  logs_blacklist                IS '[CORE] Define what logs will or wont be tracked';
 --
 COMMENT ON COLUMN logs_blacklist.app_id         IS 'App ID';

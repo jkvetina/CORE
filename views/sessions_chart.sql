@@ -39,6 +39,7 @@ LEFT JOIN logs l
     AND (l.session_id   = z.session_id  OR z.session_id IS NULL)
     AND (l.user_id      = z.user_id     OR z.user_id    IS NULL)
     AND z.bucket_id     = app.get_time_bucket(l.created_at, z.buckets)
+    AND l.user_id       NOT IN ('NOBODY')
 GROUP BY z.bucket_id, TO_CHAR(z.start_at, 'HH24:MI');
 --
 COMMENT ON TABLE sessions_chart IS '[CORE - DASHBOARD] Chart for Sessions';

@@ -18,6 +18,7 @@ s AS (
         AND (s.user_id      = x.user_id     OR x.user_id    IS NULL)
         AND s.created_at    >= x.today
         AND s.created_at    < x.today + 1
+    WHERE s.user_id         NOT IN ('NOBODY')
 ),
 l AS (
     SELECT

@@ -17,6 +17,7 @@ CREATE TABLE sessions (
     CONSTRAINT fk_sessions_users
         FOREIGN KEY (user_id)
         REFERENCES users (user_id)
+        DEFERRABLE INITIALLY DEFERRED
 )
 STORAGE (BUFFER_POOL KEEP);
 --

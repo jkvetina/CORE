@@ -16,7 +16,8 @@ CREATE TABLE user_roles (
     --
     CONSTRAINT fk_users_roles_user_id
         FOREIGN KEY (user_id)
-        REFERENCES users (user_id),
+        REFERENCES users (user_id)
+        DEFERRABLE INITIALLY DEFERRED,
     --
     CONSTRAINT fk_users_roles_role_id
         FOREIGN KEY (app_id, role_id)
