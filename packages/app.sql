@@ -5,7 +5,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
     recent_tree_id              logs.log_id%TYPE;       -- for logs_tree view
     --
     map_tree                    app.arr_map_tree;
-    log_blacklist               app.arr_log_setup := app.arr_log_setup();
 
     -- possible exception when parsing call stack
     BAD_DEPTH EXCEPTION;
@@ -448,7 +447,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE create_session
+    PROCEDURE create_session (
+        in_init_map             BOOLEAN                     := TRUE
+    )
     AS
         PRAGMA AUTONOMOUS_TRANSACTION;
         --
@@ -457,6 +458,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_is_active             users.is_active%TYPE;
         rec                     sessions%ROWTYPE;
     BEGIN
+        IF in_init_map THEN
+            app.init_map();
+        END IF;
+
         --app.log_module();
         v_user_login            := app.get_user_id();
         --
@@ -507,7 +512,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
             action_name => NULL
         );
         --
-        app.init();                             -- init setup, maps...
         app.set_user_id();                      -- convert user_login to user_id
         rec.user_id := app.get_user_id();       -- update needed
 
@@ -595,6 +599,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_workspace_id          apex_applications.workspace%TYPE;
         v_user_name             apex_workspace_sessions.user_name%TYPE;
     BEGIN
+        app.init_map();
         app.log_module_json (
             'user_id',          in_user_id,
             'app_id',           in_app_id,
@@ -668,7 +673,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- continue with standard process as from APEX
-        app.create_session();
+        app.create_session(in_init_map => FALSE);
         --
         IF in_items IS NOT NULL THEN
             app.apply_items(in_items);
@@ -2563,7 +2568,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.created_at          := SYSTIMESTAMP;
 
         -- dont log blacklisted records
-        IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec) THEN
+        IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec.flag, rec.module_name, rec.action_name) THEN
             RETURN NULL;    -- skip blacklisted record only if there is no error and debug mode off
         END IF;
 
@@ -2658,20 +2663,28 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION is_blacklisted (
-        in_row                  logs%ROWTYPE
+        in_flag                 logs.flag%TYPE,
+        in_module_name          logs.module_name%TYPE,
+        in_action_name          logs.action_name%TYPE
     )
     RETURN BOOLEAN
+    RESULT_CACHE
     AS
+        v_blacklisted          CHAR;
     BEGIN
-        FOR i IN 1 .. log_blacklist.COUNT LOOP
-            IF (in_row.flag             = log_blacklist(i).flag             OR log_blacklist(i).flag          IS NULL)
-                AND (in_row.module_name LIKE log_blacklist(i).module_like   OR log_blacklist(i).module_like   IS NULL)
-                AND (in_row.action_name LIKE log_blacklist(i).action_like   OR log_blacklist(i).action_like   IS NULL)
-            THEN
-                RETURN TRUE;
-            END IF;
-        END LOOP;
+        SELECT 'Y' INTO V_blacklisted
+        FROM logs_blacklist t
+        WHERE (t.app_id         = app.get_app_id()      OR t.app_id         IS NULL)
+            AND (t.user_id      = app.get_user_id()     OR t.user_id        IS NULL)
+            AND (t.page_id      = app.get_page_id()     OR t.page_id        IS NULL)
+            AND (t.flag         = in_flag               OR t.flag           IS NULL)
+            --
+            AND (in_module_name LIKE t.module_like ESCAPE '\' OR t.module_like  IS NULL)
+            AND (in_action_name LIKE t.action_like ESCAPE '\' OR t.action_like  IS NULL OR in_action_name IS NULL);
         --
+        RETURN TRUE;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
         RETURN FALSE;
     END;
 
@@ -3984,27 +3997,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE init
+    PROCEDURE init_map
     AS
     BEGIN
         -- clear map for tracking logs hierarchy
         map_tree := app.arr_map_tree();
-
-        -- load blacklisted records from logs_blacklist table when session starts
-        -- this block is initialized with every APEX request
-        -- so app_id, user_id and page_id wont change until next request
-        SELECT t.*
-        BULK COLLECT INTO log_blacklist
-        FROM logs_blacklist t
-        WHERE t.app_id          = app.get_app_id()
-            AND (t.user_id      = app.get_user_id()     OR t.user_id    IS NULL)
-            AND (t.page_id      = app.get_page_id()     OR t.page_id    IS NULL);
-    EXCEPTION
-    WHEN app.app_exception THEN
-        RAISE;
-    WHEN OTHERS THEN
-        app.raise_error();
     END;
 
+BEGIN
+    app.init_map();
 END;
 /

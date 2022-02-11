@@ -85,9 +85,6 @@ CREATE OR REPLACE PACKAGE app AS
     -- translations
     transl_item_prefix          CONSTANT VARCHAR2(30)           := 'T';
 
-    -- arrays to specify adhoc requests
-    TYPE arr_log_setup          IS VARRAY(100) OF logs_blacklist%ROWTYPE;
-
     -- list/array of log_id
     TYPE arr_logs_log_id IS
         TABLE OF logs.log_id%TYPE
@@ -327,7 +324,9 @@ CREATE OR REPLACE PACKAGE app AS
     --
     -- Create session from APEX
     --
-    PROCEDURE create_session;
+    PROCEDURE create_session (
+        in_init_map             BOOLEAN                     := TRUE
+    );
 
 
 
@@ -1179,9 +1178,12 @@ CREATE OR REPLACE PACKAGE app AS
     -- Check if we log current record or not
     --
     FUNCTION is_blacklisted (
-        in_row                  logs%ROWTYPE
+        in_flag                 logs.flag%TYPE,
+        in_module_name          logs.module_name%TYPE,
+        in_action_name          logs.action_name%TYPE
     )
-    RETURN BOOLEAN;
+    RETURN BOOLEAN
+    RESULT_CACHE;
 
 
 
@@ -1506,7 +1508,7 @@ CREATE OR REPLACE PACKAGE app AS
     --
     -- Reload settings and clear callstack maps
     --
-    PROCEDURE init;
+    PROCEDURE init_map;
 
 END;
 /
