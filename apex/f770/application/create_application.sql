@@ -73,6 +73,8 @@ wwv_flow_api.create_flow(
 ,p_substitution_value_09=>'YYYY-MM-DD HH24:MI:SS'
 ,p_substitution_string_10=>'FORMAT_TIME'
 ,p_substitution_value_10=>'HH24:MI:SS'
+,p_substitution_string_11=>'DEFAULT_LANG'
+,p_substitution_value_11=>'EN'
 ,p_last_updated_by=>'DEV'
 ,p_last_upd_yyyymmddhh24miss=>'20220203230435'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')

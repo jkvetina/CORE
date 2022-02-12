@@ -30,15 +30,23 @@ wwv_flow_api.create_list_of_values(
 ,p_query_table=>'NAVIGATION'
 ,p_return_column_name=>'PAGE_ID'
 ,p_display_column_name=>'PAGE_ID'
+,p_group_column_name=>'PAGE_GROUP'
 ,p_group_sort_direction=>'ASC'
 ,p_default_sort_column_name=>'PAGE_ID'
 ,p_default_sort_direction=>'ASC'
 );
 wwv_flow_api.create_list_of_values_cols(
+ p_id=>wwv_flow_api.id(23874404662051650)
+,p_query_column_name=>'PAGE_GROUP'
+,p_heading=>'Page Group'
+,p_display_sequence=>10
+,p_data_type=>'VARCHAR2'
+);
+wwv_flow_api.create_list_of_values_cols(
  p_id=>wwv_flow_api.id(22075308778885815)
 ,p_query_column_name=>'PAGE_ID'
 ,p_heading=>'Page Id'
-,p_display_sequence=>10
+,p_display_sequence=>15
 ,p_data_type=>'NUMBER'
 );
 wwv_flow_api.create_list_of_values_cols(

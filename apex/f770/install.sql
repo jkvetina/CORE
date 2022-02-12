@@ -31,6 +31,7 @@ prompt --install
 @@application/shared_components/user_interface/lovs/lov_core_languages.sql
 @@application/shared_components/user_interface/lovs/lov_core_pages_page_id_page_name.sql
 @@application/shared_components/user_interface/lovs/lov_core_roles_role_id_role_name.sql
+@@application/shared_components/user_interface/lovs/lov_core_templates.sql
 @@application/shared_components/user_interface/lovs/lov_core_users_active_user_id_user_id.sql
 @@application/pages/page_groups.sql
 @@application/comments.sql
