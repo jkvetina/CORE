@@ -33,7 +33,7 @@ d AS (
 SELECT
     d.log_id,
     d.job_group,
-    MIN(d.job_log_id)           AS job_log_id,
+    MAX(d.job_log_id)           AS job_log_id,
     d.job_name,
     MIN(d.start_date)           AS first_date,
     MAX(d.start_date)           AS last_date,

@@ -1,4 +1,9 @@
 CREATE OR REPLACE VIEW scheduler_planned AS
+WITH x AS (
+    SELECT /*+ MATERIALIZE */
+        app.get_item('$JOB_NAME')   AS job_name
+    FROM DUAL
+)
 SELECT
     j.job_name,
     j.job_type,
@@ -20,7 +25,9 @@ SELECT
     CASE WHEN j.state = 'SCHEDULED' AND j.enabled = 'TRUE'  THEN 'Y' END AS is_enabled,
     --
     j.comments
-FROM user_scheduler_jobs j;
+FROM user_scheduler_jobs j
+JOIN x
+    ON j.job_name       = NVL(x.job_name, j.job_name);
 --
 COMMENT ON TABLE scheduler_planned IS '[CORE - DASHBOARD] Planned jobs';
 
