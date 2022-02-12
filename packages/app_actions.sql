@@ -321,6 +321,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec.updated_at              := SYSDATE;
         --
         IF in_action = 'D' THEN
+            -- delete related tables
+            DELETE FROM user_roles t
+            WHERE t.app_id          = out_app_id
+                AND t.role_id       = out_role_id;
+            --
             DELETE FROM roles t
             WHERE t.app_id          = out_app_id
                 AND t.role_id       = out_role_id;
@@ -411,7 +416,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    PROCEDURE save_user_roles (
+    PROCEDURE save_user_roles_pivot (
         in_action       CHAR,
         in_c001         VARCHAR2 := NULL,
         in_c002         VARCHAR2 := NULL,
@@ -557,6 +562,71 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         RAISE;
     WHEN OTHERS THEN
         app.raise_error();
+    END;
+
+
+
+    PROCEDURE save_apps (
+        in_action                               CHAR,
+        in_app_id                               users_apps.app_id%TYPE,
+        in_description_                         users_apps.description_%TYPE,
+        --in_is_offline                           users_apps.is_offline%TYPE,
+        in_is_visible                           users_apps.is_visible%TYPE
+        --in_is_available                         users_apps.is_available%TYPE,
+        --in_global_notification                  users_apps.global_notification%TYPE,
+    ) AS
+        rec                                     apps%ROWTYPE;
+    BEGIN
+        app.log_module_json (
+            'action',                           in_action,
+            'app_id',                           in_app_id,
+            'description_',                     in_description_,
+            --'is_offline',                       in_is_offline,
+            'is_visible',                       in_is_visible
+            --'is_available',                     in_is_available,
+            --'global_notification',              in_global_notification,
+        );
+        --
+        rec.app_id                  := COALESCE(in_app_id, app.get_app_id());
+        rec.description_            := in_description_;
+        rec.is_visible              := in_is_visible;
+        rec.updated_by              := app.get_user_id();
+        rec.updated_at              := SYSDATE;
+        --
+        IF in_action = 'D' THEN
+            IF app.is_developer() THEN
+                DELETE FROM sessions            WHERE app_id = rec.app_id;
+                DELETE FROM navigation          WHERE app_id = rec.app_id;
+                DELETE FROM user_roles          WHERE app_id = rec.app_id;
+                DELETE FROM roles               WHERE app_id = rec.app_id;
+                DELETE FROM log_events          WHERE app_id = rec.app_id;
+                DELETE FROM events              WHERE app_id = rec.app_id;
+                DELETE FROM setting_contexts    WHERE app_id = rec.app_id;
+                DELETE FROM settings            WHERE app_id = rec.app_id;
+                DELETE FROM logs_blacklist      WHERE app_id = rec.app_id;
+                DELETE FROM logs                WHERE app_id = rec.app_id;
+            END IF;
+            --
+            DELETE FROM apps t
+            WHERE t.app_id          = in_app_id;
+        ELSE
+            UPDATE apps t
+            SET ROW = rec
+            WHERE t.app_id          = in_app_id;
+            --
+            IF SQL%ROWCOUNT = 0 THEN
+                INSERT INTO apps
+                VALUES rec;
+            END IF;
+        END IF;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.log_error();
+        RAISE;
     END;
 
 

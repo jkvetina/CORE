@@ -149,7 +149,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
     --
     --
     --
-    PROCEDURE save_user_roles (
+    PROCEDURE save_user_roles_pivot (
         in_action       CHAR,
         in_c001         VARCHAR2 := NULL,
         in_c002         VARCHAR2 := NULL,
@@ -201,6 +201,23 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_c048         VARCHAR2 := NULL,
         in_c049         VARCHAR2 := NULL,
         in_c050         VARCHAR2 := NULL
+    );
+
+
+
+
+
+    --
+    --
+    --
+    PROCEDURE save_apps (
+        in_action                               CHAR,
+        in_app_id                               users_apps.app_id%TYPE,
+        in_description_                         users_apps.description_%TYPE,
+        --in_is_offline                           users_apps.is_offline%TYPE,
+        in_is_visible                           users_apps.is_visible%TYPE
+        --in_is_available                         users_apps.is_available%TYPE,
+        --in_global_notification                  users_apps.global_notification%TYPE,
     );
 
 

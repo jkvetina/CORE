@@ -6379,9 +6379,7 @@ wwv_flow_api.create_page_process(
 ,p_process_name=>'SAVE_USER_ROLES'
 ,p_attribute_01=>'PLSQL_CODE'
 ,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'app.log_action(''SAVE_USER_ROLES'');',
-'--',
-'app_actions.save_user_roles (',
+'app_actions.save_user_roles_pivot (',
 '    in_action   => :APEX$ROW_STATUS,',
 '    in_c001     => :C001,',
 '    in_c002     => :C002,',

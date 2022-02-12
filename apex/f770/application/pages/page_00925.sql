@@ -2278,11 +2278,17 @@ wwv_flow_api.create_page_process(
 ,p_region_id=>wwv_flow_api.id(49094543186245983)
 ,p_process_type=>'NATIVE_IG_DML'
 ,p_process_name=>'SAVE_APPLICATIONS'
-,p_attribute_01=>'TABLE'
-,p_attribute_03=>'APPS'
+,p_attribute_01=>'PLSQL_CODE'
+,p_attribute_04=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'app_actions.save_apps (',
+'    in_action           => :APEX$ROW_STATUS,',
+'    in_app_id           => :APP_ID,',
+'    in_description_     => :DESCRIPTION_,',
+'    in_is_visible       => :IS_VISIBLE',
+');',
+''))
 ,p_attribute_05=>'Y'
 ,p_attribute_06=>'N'
-,p_attribute_08=>'Y'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
 wwv_flow_api.create_page_process(
