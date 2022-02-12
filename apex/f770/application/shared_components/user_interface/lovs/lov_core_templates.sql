@@ -44,6 +44,7 @@ wwv_flow_api.create_list_of_values_cols(
 wwv_flow_api.create_list_of_values_cols(
  p_id=>wwv_flow_api.id(23871694446996293)
 ,p_query_column_name=>'TEMPLATE_ID'
+,p_heading=>'Template Id'
 ,p_display_sequence=>20
 ,p_data_type=>'VARCHAR2'
 );

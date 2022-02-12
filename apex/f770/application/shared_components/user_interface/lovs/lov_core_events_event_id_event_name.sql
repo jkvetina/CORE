@@ -28,6 +28,7 @@ wwv_flow_api.create_list_of_values(
 wwv_flow_api.create_list_of_values_cols(
  p_id=>wwv_flow_api.id(23358483413799019)
 ,p_query_column_name=>'EVENT_ID'
+,p_heading=>'Event Id'
 ,p_display_sequence=>10
 ,p_data_type=>'VARCHAR2'
 );

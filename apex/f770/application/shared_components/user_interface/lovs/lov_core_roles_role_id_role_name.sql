@@ -28,6 +28,7 @@ wwv_flow_api.create_list_of_values(
 wwv_flow_api.create_list_of_values_cols(
  p_id=>wwv_flow_api.id(23356131632779194)
 ,p_query_column_name=>'ROLE_ID'
+,p_heading=>'Role Id'
 ,p_display_sequence=>10
 ,p_data_type=>'VARCHAR2'
 );

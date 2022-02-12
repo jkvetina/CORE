@@ -37,7 +37,7 @@ wwv_flow_api.create_list_of_values(
 wwv_flow_api.create_list_of_values_cols(
  p_id=>wwv_flow_api.id(22077393048900459)
 ,p_query_column_name=>'FLAG_VALUE'
-,p_heading=>'Flag Code'
+,p_heading=>'Flag'
 ,p_display_sequence=>10
 ,p_data_type=>'VARCHAR2'
 );
