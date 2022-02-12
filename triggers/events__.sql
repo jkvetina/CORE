@@ -44,7 +44,7 @@ COMPOUND TRIGGER
                 WHERE e.app_id      = :OLD.app_id
                     AND e.event_id  = :OLD.event_id;
                 --
-                UPDATE event_subscriptions e
+                UPDATE mail_subscriptions e
                 SET e.event_id      = :NEW.event_id
                 WHERE e.app_id      = :OLD.app_id
                     AND e.event_id  = :OLD.event_id;
@@ -54,7 +54,7 @@ COMPOUND TRIGGER
             WHERE e.app_id      = :OLD.app_id
                 AND e.event_id  = :OLD.event_id;
             --
-            DELETE FROM event_subscriptions e
+            DELETE FROM mail_subscriptions e
             WHERE e.app_id      = :OLD.app_id
                 AND e.event_id  = :OLD.event_id;
         END IF;
