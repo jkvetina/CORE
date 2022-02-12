@@ -67,6 +67,60 @@ var apex_page_loaded = function() {
             attributes: true
         });
     });
+
+    //
+    // SHOW NOTIFICATIONS
+    //
+    var item_success        = 'P0_MESSAGE_SUCCESS';
+    var item_error          = 'P0_MESSAGE_ERROR';
+    var item_alert          = 'P0_MESSAGE_ALERT';
+    // confirm
+    var item_callback       = 'P0_MESSAGE_CALLBACK';  // contains function name
+    //
+    var item_success_value  = apex.item(item_success).getValue();
+    var item_error_value    = apex.item(item_error).getValue();
+    var item_alert_value    = apex.item(item_alert).getValue();
+    var item_callback_value = apex.item(item_callback).getValue();
+
+    // catch error close event
+    apex.message.setThemeHooks({
+        beforeShow: function(pMsgType, pElement$) {  // beforeShow, beforeHide
+            //if (pMsgType === apex.message.TYPE.ERROR) {  // SUCCESS, ERROR
+            //}
+            console.log('MESSAGE:', pMsgType, pElement$);
+        },
+        beforeHide: function(pMsgType, pElement$) {  // beforeShow, beforeHide
+            //if (pMsgType === apex.message.TYPE.ERROR) {  // SUCCESS, ERROR
+            //}
+        }
+    });
+
+    // show notifications based on page zero items
+    if (item_error_value.length) {
+        // show error/warning
+        apex.message.showErrors([{
+            type:       apex.message.TYPE.ERROR,
+            location:   ['page'],
+            message:    item_error_value,
+            unsafe:     false
+        }]);
+    }
+    else if (item_success_value.length) {
+        // show success
+        apex.message.showPageSuccess(item_success_value);
+    }
+
+    // show alert
+    if (item_alert_value.length) {
+        apex.message.alert(item_alert_value, function() {
+            console.log('ALERT CLOSED');
+            //
+            if (item_callback_value.length) {
+                console.log('CALLBACK INITIATED:', item_callback_value);
+                new Function(item_callback_value)();
+            }
+        });
+    }
 };
 
 

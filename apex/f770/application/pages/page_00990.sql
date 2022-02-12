@@ -17,6 +17,7 @@ wwv_flow_api.create_page(
 ,p_name=>'&APP_USER.'
 ,p_alias=>'USER'
 ,p_step_title=>'User Info'
+,p_warn_on_unsaved_changes=>'N'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(9490872346072322)
 ,p_page_css_classes=>'USER_NAME'
@@ -199,6 +200,7 @@ wwv_flow_api.create_page_button(
 ,p_button_condition_type=>'NEVER'
 ,p_icon_css_classes=>'fa-window-new'
 ,p_button_cattributes=>'target="_blank"'
+,p_required_patch=>wwv_flow_api.id(21742571422268062)
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(9519736699540350)
@@ -390,6 +392,24 @@ wwv_flow_api.create_page_da_action(
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_SUBMIT_PAGE'
 ,p_attribute_02=>'Y'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(23727248774559221)
+,p_process_sequence=>10
+,p_process_point=>'AFTER_HEADER'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'MESSAGES'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'--:P0_MESSAGE_SUCCESS := ''SUCCESS_MSG'';',
+'--:P0_MESSAGE_ERROR := ''ERROR_MSG'';',
+'--',
+'--:P0_MESSAGE_ALERT := ''ALERT_MSG'';',
+'--:P0_MESSAGE_CALLBACK := ''console.log("CALLING_SOMETHING", "LOG_ID", 123)'';',
+'--',
+'NULL;',
+''))
+,p_process_clob_language=>'PLSQL'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(9560618719581619)

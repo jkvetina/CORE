@@ -117,6 +117,13 @@ CREATE OR REPLACE PACKAGE BODY a770 AS
     )
     AS
     BEGIN
+        -- clear items for messages
+        app.set_item('P0_MESSAGE',             in_raise => FALSE);
+        app.set_item('P0_MESSAGE_SUCCESS',     in_raise => FALSE);
+        app.set_item('P0_MESSAGE_ERROR',       in_raise => FALSE);
+        app.set_item('P0_MESSAGE_ALERT',       in_raise => FALSE);
+        app.set_item('P0_MESSAGE_CALLBACK',    in_raise => FALSE);
+
         --app.log_module();
         --
         IF app.get_page_id() IN (9999, 100) THEN    -- only for login page and home page  -- @TODO: remove hardcoded numbers
