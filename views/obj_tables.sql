@@ -20,7 +20,7 @@ c AS (
         MAX(CASE WHEN c.column_name LIKE x.search_columns   || '%' ESCAPE '\'   THEN 'Y' END) AS is_found_column,
         MAX(CASE WHEN c.data_type   LIKE x.search_data_type || '%' ESCAPE '\'   THEN 'Y' END) AS is_found_data_type,
         MAX(CASE WHEN NVL(c.data_precision, c.data_length) = x.search_size      THEN 'Y' END) AS is_found_size
-    FROM user_tab_cols c
+    FROM user_tab_columns c
     LEFT JOIN user_tab_comments m
         ON m.table_name         = c.table_name
     CROSS JOIN x

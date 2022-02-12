@@ -1,7 +1,12 @@
 CREATE OR REPLACE VIEW obj_columns AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_item('$TABLE_NAME') AS table_name,
+        --
+        UPPER(app.get_item('$SEARCH_TABLES'))       AS search_tables,
+        UPPER(app.get_item('$SEARCH_COLUMNS'))      AS search_columns,
+        UPPER(app.get_item('$SEARCH_DATA_TYPE'))    AS search_data_type,
+        app.get_number_item('$SEARCH_SIZE')         AS search_size
     FROM DUAL
 ),
 c AS (
@@ -26,13 +31,18 @@ c AS (
         --
         c.nullable,
         c.data_default,
-        c.avg_col_len
+        c.avg_col_len,
+        --
+        CASE WHEN c.column_name LIKE x.search_columns   || '%' ESCAPE '\'   THEN 'Y' END AS is_found_column,
+        CASE WHEN c.data_type   LIKE x.search_data_type || '%' ESCAPE '\'   THEN 'Y' END AS is_found_data_type,
+        CASE WHEN NVL(c.data_precision, c.data_length) = x.search_size      THEN 'Y' END AS is_found_size
     FROM user_tab_columns c
     JOIN user_tables t
         ON t.table_name         = c.table_name
     CROSS JOIN x
     WHERE t.table_name          = NVL(x.table_name, t.table_name)
         AND t.table_name        != app.get_dml_table(t.table_name)
+        AND (c.table_name       LIKE '%' || x.search_tables || '%' ESCAPE '\' OR x.search_tables IS NULL)
 ),
 n AS (
     SELECT
@@ -70,10 +80,14 @@ SELECT
     --
     m.comments
 FROM c
+CROSS JOIN x
 LEFT JOIN n
     ON n.table_name     = c.table_name
     AND n.column_name   = c.column_name
 LEFT JOIN user_col_comments m
     ON m.table_name     = c.table_name
-    AND m.column_name   = c.column_name;
-
+    AND m.column_name   = c.column_name
+WHERE 1 = 1
+    AND (c.is_found_column      = 'Y'  OR x.search_columns      IS NULL)
+    AND (c.is_found_data_type   = 'Y'  OR x.search_data_type    IS NULL)
+    AND (c.is_found_size        = 'Y'  OR x.search_size         IS NULL);
