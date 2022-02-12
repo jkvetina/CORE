@@ -236,8 +236,8 @@ wwv_flow_api.create_region_column(
 ,p_group_id=>wwv_flow_api.id(22940696441325311)
 ,p_use_group_for=>'BOTH'
 ,p_attribute_05=>'BOTH'
-,p_is_required=>false
-,p_max_length=>32767
+,p_is_required=>true
+,p_max_length=>64
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
 ,p_filter_is_required=>false

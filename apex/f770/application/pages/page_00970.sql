@@ -507,7 +507,8 @@ wwv_flow_api.create_region_column(
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>120
 ,p_value_alignment=>'CENTER'
-,p_attribute_01=>'Y'
+,p_attribute_01=>'N'
+,p_attribute_02=>'Y'
 ,p_is_required=>false
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
@@ -4404,6 +4405,7 @@ wwv_flow_api.create_page_da_event(
 ,p_triggering_region_id=>wwv_flow_api.id(11853720141169128)
 ,p_bind_type=>'bind'
 ,p_bind_event_type=>'NATIVE_IG|REGION TYPE|interactivegridsave'
+,p_display_when_type=>'NEVER'
 );
 wwv_flow_api.create_page_da_action(
  p_id=>wwv_flow_api.id(12066015388897750)
