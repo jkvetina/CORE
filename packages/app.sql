@@ -3630,20 +3630,31 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION get_dml_table (
         in_table_name           logs.module_name%TYPE,
-        in_owner                CHAR                    := NULL
+        in_owner                CHAR                    := NULL,
+        in_existing_only        BOOLEAN                 := FALSE
     )
     RETURN VARCHAR2
     AS
+        v_table_name            all_tables.table_name%TYPE;
+        v_valid                 CHAR;
     BEGIN
-        RETURN
-            CASE WHEN in_owner IS NOT NULL
-                THEN app.get_dml_owner() || '.'
-                END ||
-            app.dml_tables_prefix ||
+        v_table_name := app.dml_tables_prefix ||
             REGEXP_REPLACE(REGEXP_REPLACE(in_table_name,
                 '(' || REPLACE(app.dml_tables_postfix, '$', '\$') || ')$', ''),
                 '^(' || REPLACE(app.dml_tables_prefix, '$', '\$') || ')', '') ||
             app.dml_tables_postfix;
+        --
+        IF in_existing_only THEN
+            SELECT 'Y' INTO v_valid
+            FROM all_tables t
+            WHERE t.owner           = COALESCE(in_owner, app.get_dml_owner())
+                AND t.table_name    = v_table_name;
+        END IF;
+        --
+        RETURN CASE WHEN in_owner IS NOT NULL THEN app.get_dml_owner() || '.' END || v_table_name;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
     END;
 
 

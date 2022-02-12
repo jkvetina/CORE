@@ -1448,7 +1448,8 @@ CREATE OR REPLACE PACKAGE app AS
     --
     FUNCTION get_dml_table (
         in_table_name           logs.module_name%TYPE,
-        in_owner                CHAR                    := NULL
+        in_owner                CHAR                    := NULL,
+        in_existing_only        BOOLEAN                 := FALSE
     )
     RETURN VARCHAR2;
 
