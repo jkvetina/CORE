@@ -1690,14 +1690,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION get_json_object (
-        in_name1                VARCHAR2    := NULL,        in_value1               VARCHAR2    := NULL,
-        in_name2                VARCHAR2    := NULL,        in_value2               VARCHAR2    := NULL,
-        in_name3                VARCHAR2    := NULL,        in_value3               VARCHAR2    := NULL,
-        in_name4                VARCHAR2    := NULL,        in_value4               VARCHAR2    := NULL,
-        in_name5                VARCHAR2    := NULL,        in_value5               VARCHAR2    := NULL,
-        in_name6                VARCHAR2    := NULL,        in_value6               VARCHAR2    := NULL,
-        in_name7                VARCHAR2    := NULL,        in_value7               VARCHAR2    := NULL,
-        in_name8                VARCHAR2    := NULL,        in_value8               VARCHAR2    := NULL
+        in_name01               logs.arguments%TYPE := NULL,            in_value01  logs.arguments%TYPE := NULL,
+        in_name02               logs.arguments%TYPE := NULL,            in_value02  logs.arguments%TYPE := NULL,
+        in_name03               logs.arguments%TYPE := NULL,            in_value03  logs.arguments%TYPE := NULL,
+        in_name04               logs.arguments%TYPE := NULL,            in_value04  logs.arguments%TYPE := NULL,
+        in_name05               logs.arguments%TYPE := NULL,            in_value05  logs.arguments%TYPE := NULL,
+        in_name06               logs.arguments%TYPE := NULL,            in_value06  logs.arguments%TYPE := NULL,
+        in_name07               logs.arguments%TYPE := NULL,            in_value07  logs.arguments%TYPE := NULL,
+        in_name08               logs.arguments%TYPE := NULL,            in_value08  logs.arguments%TYPE := NULL,
+        in_name09               logs.arguments%TYPE := NULL,            in_value09  logs.arguments%TYPE := NULL,
+        in_name10               logs.arguments%TYPE := NULL,            in_value10  logs.arguments%TYPE := NULL,
+        in_name11               logs.arguments%TYPE := NULL,            in_value11  logs.arguments%TYPE := NULL,
+        in_name12               logs.arguments%TYPE := NULL,            in_value12  logs.arguments%TYPE := NULL,
+        in_name13               logs.arguments%TYPE := NULL,            in_value13  logs.arguments%TYPE := NULL,
+        in_name14               logs.arguments%TYPE := NULL,            in_value14  logs.arguments%TYPE := NULL,
+        in_name15               logs.arguments%TYPE := NULL,            in_value15  logs.arguments%TYPE := NULL,
+        in_name16               logs.arguments%TYPE := NULL,            in_value16  logs.arguments%TYPE := NULL,
+        in_name17               logs.arguments%TYPE := NULL,            in_value17  logs.arguments%TYPE := NULL,
+        in_name18               logs.arguments%TYPE := NULL,            in_value18  logs.arguments%TYPE := NULL,
+        in_name19               logs.arguments%TYPE := NULL,            in_value19  logs.arguments%TYPE := NULL,
+        in_name20               logs.arguments%TYPE := NULL,            in_value20  logs.arguments%TYPE := NULL
     )
     RETURN VARCHAR2
     AS
@@ -1705,14 +1717,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         -- construct a key-value pairs
         v_obj := JSON_OBJECT_T(JSON_OBJECT (
-            CASE WHEN (in_name1 IS NULL OR in_value1 IS NULL) THEN '__' ELSE in_name1 END VALUE in_value1,
-            CASE WHEN (in_name2 IS NULL OR in_value2 IS NULL) THEN '__' ELSE in_name2 END VALUE in_value2,
-            CASE WHEN (in_name3 IS NULL OR in_value3 IS NULL) THEN '__' ELSE in_name3 END VALUE in_value3,
-            CASE WHEN (in_name4 IS NULL OR in_value4 IS NULL) THEN '__' ELSE in_name4 END VALUE in_value4,
-            CASE WHEN (in_name5 IS NULL OR in_value5 IS NULL) THEN '__' ELSE in_name5 END VALUE in_value5,
-            CASE WHEN (in_name6 IS NULL OR in_value6 IS NULL) THEN '__' ELSE in_name6 END VALUE in_value6,
-            CASE WHEN (in_name7 IS NULL OR in_value7 IS NULL) THEN '__' ELSE in_name7 END VALUE in_value7,
-            CASE WHEN (in_name8 IS NULL OR in_value8 IS NULL) THEN '__' ELSE in_name8 END VALUE in_value8
+            CASE WHEN (in_name01 IS NULL OR in_value01 IS NULL) THEN '__' ELSE in_name01 END VALUE in_value01,
+            CASE WHEN (in_name02 IS NULL OR in_value02 IS NULL) THEN '__' ELSE in_name02 END VALUE in_value02,
+            CASE WHEN (in_name03 IS NULL OR in_value03 IS NULL) THEN '__' ELSE in_name03 END VALUE in_value03,
+            CASE WHEN (in_name04 IS NULL OR in_value04 IS NULL) THEN '__' ELSE in_name04 END VALUE in_value04,
+            CASE WHEN (in_name05 IS NULL OR in_value05 IS NULL) THEN '__' ELSE in_name05 END VALUE in_value05,
+            CASE WHEN (in_name06 IS NULL OR in_value06 IS NULL) THEN '__' ELSE in_name06 END VALUE in_value06,
+            CASE WHEN (in_name07 IS NULL OR in_value07 IS NULL) THEN '__' ELSE in_name07 END VALUE in_value07,
+            CASE WHEN (in_name08 IS NULL OR in_value08 IS NULL) THEN '__' ELSE in_name08 END VALUE in_value08,
+            CASE WHEN (in_name09 IS NULL OR in_value09 IS NULL) THEN '__' ELSE in_name09 END VALUE in_value09,
+            CASE WHEN (in_name10 IS NULL OR in_value10 IS NULL) THEN '__' ELSE in_name10 END VALUE in_value10,
+            CASE WHEN (in_name11 IS NULL OR in_value11 IS NULL) THEN '__' ELSE in_name11 END VALUE in_value11,
+            CASE WHEN (in_name12 IS NULL OR in_value12 IS NULL) THEN '__' ELSE in_name12 END VALUE in_value12,
+            CASE WHEN (in_name13 IS NULL OR in_value13 IS NULL) THEN '__' ELSE in_name13 END VALUE in_value13,
+            CASE WHEN (in_name14 IS NULL OR in_value14 IS NULL) THEN '__' ELSE in_name14 END VALUE in_value14,
+            CASE WHEN (in_name15 IS NULL OR in_value15 IS NULL) THEN '__' ELSE in_name15 END VALUE in_value15,
+            CASE WHEN (in_name16 IS NULL OR in_value16 IS NULL) THEN '__' ELSE in_name16 END VALUE in_value16,
+            CASE WHEN (in_name17 IS NULL OR in_value17 IS NULL) THEN '__' ELSE in_name17 END VALUE in_value17,
+            CASE WHEN (in_name18 IS NULL OR in_value18 IS NULL) THEN '__' ELSE in_name18 END VALUE in_value18,
+            CASE WHEN (in_name19 IS NULL OR in_value19 IS NULL) THEN '__' ELSE in_name19 END VALUE in_value19,
+            CASE WHEN (in_name20 IS NULL OR in_value20 IS NULL) THEN '__' ELSE in_name20 END VALUE in_value20
         ));
         v_obj.REMOVE('__');     -- remove empty pairs
         --
@@ -1820,14 +1844,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION log_module_json (
-        in_name1                logs.arguments%TYPE     := NULL,        in_value1   logs.arguments%TYPE     := NULL,
-        in_name2                logs.arguments%TYPE     := NULL,        in_value2   logs.arguments%TYPE     := NULL,
-        in_name3                logs.arguments%TYPE     := NULL,        in_value3   logs.arguments%TYPE     := NULL,
-        in_name4                logs.arguments%TYPE     := NULL,        in_value4   logs.arguments%TYPE     := NULL,
-        in_name5                logs.arguments%TYPE     := NULL,        in_value5   logs.arguments%TYPE     := NULL,
-        in_name6                logs.arguments%TYPE     := NULL,        in_value6   logs.arguments%TYPE     := NULL,
-        in_name7                logs.arguments%TYPE     := NULL,        in_value7   logs.arguments%TYPE     := NULL,
-        in_name8                logs.arguments%TYPE     := NULL,        in_value8   logs.arguments%TYPE     := NULL,
+        in_name01               logs.arguments%TYPE     := NULL,        in_value01  logs.arguments%TYPE     := NULL,
+        in_name02               logs.arguments%TYPE     := NULL,        in_value02  logs.arguments%TYPE     := NULL,
+        in_name03               logs.arguments%TYPE     := NULL,        in_value03  logs.arguments%TYPE     := NULL,
+        in_name04               logs.arguments%TYPE     := NULL,        in_value04  logs.arguments%TYPE     := NULL,
+        in_name05               logs.arguments%TYPE     := NULL,        in_value05  logs.arguments%TYPE     := NULL,
+        in_name06               logs.arguments%TYPE     := NULL,        in_value06  logs.arguments%TYPE     := NULL,
+        in_name07               logs.arguments%TYPE     := NULL,        in_value07  logs.arguments%TYPE     := NULL,
+        in_name08               logs.arguments%TYPE     := NULL,        in_value08  logs.arguments%TYPE     := NULL,
+        in_name09               logs.arguments%TYPE     := NULL,        in_value09  logs.arguments%TYPE     := NULL,
+        in_name10               logs.arguments%TYPE     := NULL,        in_value10  logs.arguments%TYPE     := NULL,
+        in_name11               logs.arguments%TYPE     := NULL,        in_value11  logs.arguments%TYPE     := NULL,
+        in_name12               logs.arguments%TYPE     := NULL,        in_value12  logs.arguments%TYPE     := NULL,
+        in_name13               logs.arguments%TYPE     := NULL,        in_value13  logs.arguments%TYPE     := NULL,
+        in_name14               logs.arguments%TYPE     := NULL,        in_value14  logs.arguments%TYPE     := NULL,
+        in_name15               logs.arguments%TYPE     := NULL,        in_value15  logs.arguments%TYPE     := NULL,
+        in_name16               logs.arguments%TYPE     := NULL,        in_value16  logs.arguments%TYPE     := NULL,
+        in_name17               logs.arguments%TYPE     := NULL,        in_value17  logs.arguments%TYPE     := NULL,
+        in_name18               logs.arguments%TYPE     := NULL,        in_value18  logs.arguments%TYPE     := NULL,
+        in_name19               logs.arguments%TYPE     := NULL,        in_value19  logs.arguments%TYPE     := NULL,
+        in_name20               logs.arguments%TYPE     := NULL,        in_value20  logs.arguments%TYPE     := NULL,
         --
         in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
@@ -1838,14 +1874,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN app.log__ (
             in_flag             => app.flag_module,
             in_arguments        => app.get_json_object (
-                in_name1,       in_value1,
-                in_name2,       in_value2,
-                in_name3,       in_value3,
-                in_name4,       in_value4,
-                in_name5,       in_value5,
-                in_name6,       in_value6,
-                in_name7,       in_value7,
-                in_name8,       in_value8
+                in_name01,       in_value01,
+                in_name02,       in_value02,
+                in_name03,       in_value03,
+                in_name04,       in_value04,
+                in_name05,       in_value05,
+                in_name06,       in_value06,
+                in_name07,       in_value07,
+                in_name08,       in_value08,
+                in_name09,       in_value09,
+                in_name10,       in_value10,
+                in_name11,       in_value11,
+                in_name12,       in_value12,
+                in_name13,       in_value13,
+                in_name14,       in_value14,
+                in_name15,       in_value15,
+                in_name16,       in_value16,
+                in_name17,       in_value17,
+                in_name18,       in_value18,
+                in_name19,       in_value19,
+                in_name20,       in_value20
             ),
             in_payload          => in_payload,
             in_parent_id        => in_parent_id
@@ -1855,14 +1903,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     PROCEDURE log_module_json (
-        in_name1                logs.arguments%TYPE     := NULL,        in_value1   logs.arguments%TYPE     := NULL,
-        in_name2                logs.arguments%TYPE     := NULL,        in_value2   logs.arguments%TYPE     := NULL,
-        in_name3                logs.arguments%TYPE     := NULL,        in_value3   logs.arguments%TYPE     := NULL,
-        in_name4                logs.arguments%TYPE     := NULL,        in_value4   logs.arguments%TYPE     := NULL,
-        in_name5                logs.arguments%TYPE     := NULL,        in_value5   logs.arguments%TYPE     := NULL,
-        in_name6                logs.arguments%TYPE     := NULL,        in_value6   logs.arguments%TYPE     := NULL,
-        in_name7                logs.arguments%TYPE     := NULL,        in_value7   logs.arguments%TYPE     := NULL,
-        in_name8                logs.arguments%TYPE     := NULL,        in_value8   logs.arguments%TYPE     := NULL,
+        in_name01               logs.arguments%TYPE     := NULL,        in_value01  logs.arguments%TYPE     := NULL,
+        in_name02               logs.arguments%TYPE     := NULL,        in_value02  logs.arguments%TYPE     := NULL,
+        in_name03               logs.arguments%TYPE     := NULL,        in_value03  logs.arguments%TYPE     := NULL,
+        in_name04               logs.arguments%TYPE     := NULL,        in_value04  logs.arguments%TYPE     := NULL,
+        in_name05               logs.arguments%TYPE     := NULL,        in_value05  logs.arguments%TYPE     := NULL,
+        in_name06               logs.arguments%TYPE     := NULL,        in_value06  logs.arguments%TYPE     := NULL,
+        in_name07               logs.arguments%TYPE     := NULL,        in_value07  logs.arguments%TYPE     := NULL,
+        in_name08               logs.arguments%TYPE     := NULL,        in_value08  logs.arguments%TYPE     := NULL,
+        in_name09               logs.arguments%TYPE     := NULL,        in_value09  logs.arguments%TYPE     := NULL,
+        in_name10               logs.arguments%TYPE     := NULL,        in_value10  logs.arguments%TYPE     := NULL,
+        in_name11               logs.arguments%TYPE     := NULL,        in_value11  logs.arguments%TYPE     := NULL,
+        in_name12               logs.arguments%TYPE     := NULL,        in_value12  logs.arguments%TYPE     := NULL,
+        in_name13               logs.arguments%TYPE     := NULL,        in_value13  logs.arguments%TYPE     := NULL,
+        in_name14               logs.arguments%TYPE     := NULL,        in_value14  logs.arguments%TYPE     := NULL,
+        in_name15               logs.arguments%TYPE     := NULL,        in_value15  logs.arguments%TYPE     := NULL,
+        in_name16               logs.arguments%TYPE     := NULL,        in_value16  logs.arguments%TYPE     := NULL,
+        in_name17               logs.arguments%TYPE     := NULL,        in_value17  logs.arguments%TYPE     := NULL,
+        in_name18               logs.arguments%TYPE     := NULL,        in_value18  logs.arguments%TYPE     := NULL,
+        in_name19               logs.arguments%TYPE     := NULL,        in_value19  logs.arguments%TYPE     := NULL,
+        in_name20               logs.arguments%TYPE     := NULL,        in_value20  logs.arguments%TYPE     := NULL,
         --
         in_parent_id            logs.log_parent%TYPE    := NULL,
         in_payload              logs.payload%TYPE       := NULL
@@ -1873,14 +1933,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id := app.log__ (
             in_flag             => app.flag_module,
             in_arguments        => app.get_json_object (
-                in_name1,       in_value1,
-                in_name2,       in_value2,
-                in_name3,       in_value3,
-                in_name4,       in_value4,
-                in_name5,       in_value5,
-                in_name6,       in_value6,
-                in_name7,       in_value7,
-                in_name8,       in_value8
+                in_name01,       in_value01,
+                in_name02,       in_value02,
+                in_name03,       in_value03,
+                in_name04,       in_value04,
+                in_name05,       in_value05,
+                in_name06,       in_value06,
+                in_name07,       in_value07,
+                in_name08,       in_value08,
+                in_name09,       in_value09,
+                in_name10,       in_value10,
+                in_name11,       in_value11,
+                in_name12,       in_value12,
+                in_name13,       in_value13,
+                in_name14,       in_value14,
+                in_name15,       in_value15,
+                in_name16,       in_value16,
+                in_name17,       in_value17,
+                in_name18,       in_value18,
+                in_name19,       in_value19,
+                in_name20,       in_value20
             ),
             in_payload          => in_payload,
             in_parent_id        => in_parent_id
