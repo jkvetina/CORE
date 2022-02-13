@@ -31,6 +31,7 @@ CREATE OR REPLACE PACKAGE gen AS
 
     -- defaults
     in_prefix                   CONSTANT VARCHAR2(4)        := 'in_';
+    out_prefix                  CONSTANT VARCHAR2(4)        := 'out_';
     rec_prefix                  CONSTANT VARCHAR2(4)        := 'rec.';
     proc_prefix                 CONSTANT VARCHAR2(30)       := 'save_';
     --
@@ -80,7 +81,20 @@ CREATE OR REPLACE PACKAGE gen AS
     --
     PROCEDURE get_table_where (
         in_table_name           user_tables.table_name%TYPE,
-        in_prepend              VARCHAR2                        := NULL
+        in_prepend              VARCHAR2                        := NULL,
+        in_prefix               VARCHAR2                        := NULL,
+        in_postfix              VARCHAR2                        := NULL
+    );
+
+
+
+    --
+    -- Generate processing handler
+    --
+    PROCEDURE create_handler (
+        in_table_name           user_tables.table_name%TYPE,
+        in_target_table         user_tables.table_name%TYPE             := NULL,
+        in_proc_prefix          user_procedures.procedure_name%TYPE     := NULL
     );
 
 
@@ -95,16 +109,28 @@ CREATE OR REPLACE PACKAGE gen AS
         in_page_id              apex_application_pages.page_id%TYPE             := NULL
     );
 
-
-
-    --
-    -- Generate processing handler
-    --
-    PROCEDURE create_handler (
-        in_table_name           user_tables.table_name%TYPE,
-        in_target_table         user_tables.table_name%TYPE             := NULL,
-        in_proc_prefix          user_procedures.procedure_name%TYPE     := NULL
-    );
-
 END;
 /
+
+
+
+    FUNCTION get_view_tables (
+        in_table_like       VARCHAR2,
+        in_table2_like      VARCHAR2 := NULL,
+        in_table3_like      VARCHAR2 := NULL,
+        in_table4_like      VARCHAR2 := NULL,
+        in_table5_like      VARCHAR2 := NULL,
+        in_table6_like      VARCHAR2 := NULL,
+        in_table7_like      VARCHAR2 := NULL,
+        in_table8_like      VARCHAR2 := NULL
+    )
+    RETURN VARCHAR2;
+
+
+/*
+    PROCEDURE get_view (
+        in_tables       VARCHAR2,
+        in_view_name    VARCHAR2        := NULL
+    );
+*/
+
