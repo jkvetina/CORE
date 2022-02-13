@@ -975,7 +975,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- transform icons
-        FOR i IN 1 .. NVL(REGEXP_COUNT(out_name, '(#fa-)'), 0) LOOP
+        FOR i IN 1 .. NVL(REGEXP_COUNT(out_name, '(#fa-)'), 0) + 1 LOOP
             out_search  := REGEXP_SUBSTR(out_name, '(#fa-[[:alnum:]+_-]+\s*)+');
             out_name    := REPLACE(
                 out_name,
