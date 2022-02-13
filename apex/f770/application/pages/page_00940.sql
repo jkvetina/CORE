@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220212190410'
+,p_last_upd_yyyymmddhh24miss=>'20220213193554'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23157653094829539)
@@ -1041,6 +1041,10 @@ wwv_flow_api.create_region_column_group(
  p_id=>wwv_flow_api.id(23305789993761013)
 ,p_heading=>'Evaluation'
 );
+wwv_flow_api.create_region_column_group(
+ p_id=>wwv_flow_api.id(24136925841306103)
+,p_heading=>'Results'
+);
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(23158237264829545)
 ,p_name=>'APP_ID'
@@ -1055,7 +1059,7 @@ wwv_flow_api.create_region_column(
 ,p_use_as_row_header=>false
 ,p_enable_sort_group=>true
 ,p_enable_control_break=>true
-,p_is_primary_key=>false
+,p_is_primary_key=>true
 ,p_default_type=>'EXPRESSION'
 ,p_default_language=>'PLSQL'
 ,p_default_expression=>'app.get_app_id()'
@@ -1166,7 +1170,7 @@ wwv_flow_api.create_region_column(
 ,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
 ,p_heading=>'Active'
 ,p_heading_alignment=>'CENTER'
-,p_display_sequence=>80
+,p_display_sequence=>90
 ,p_value_alignment=>'CENTER'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'Y'
@@ -1193,7 +1197,7 @@ wwv_flow_api.create_region_column(
 ,p_source_type=>'DB_COLUMN'
 ,p_source_expression=>'UPDATED_BY'
 ,p_data_type=>'VARCHAR2'
-,p_is_query_only=>false
+,p_is_query_only=>true
 ,p_item_type=>'NATIVE_HIDDEN'
 ,p_display_sequence=>120
 ,p_attribute_01=>'Y'
@@ -1202,7 +1206,6 @@ wwv_flow_api.create_region_column(
 ,p_enable_sort_group=>true
 ,p_enable_control_break=>true
 ,p_is_primary_key=>false
-,p_duplicate_value=>true
 ,p_include_in_export=>false
 );
 wwv_flow_api.create_region_column(
@@ -1211,16 +1214,16 @@ wwv_flow_api.create_region_column(
 ,p_source_type=>'DB_COLUMN'
 ,p_source_expression=>'UPDATED_AT'
 ,p_data_type=>'DATE'
-,p_is_query_only=>false
+,p_is_query_only=>true
 ,p_item_type=>'NATIVE_HIDDEN'
 ,p_display_sequence=>130
 ,p_attribute_01=>'Y'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
 ,p_filter_is_required=>false
 ,p_use_as_row_header=>false
 ,p_enable_sort_group=>true
 ,p_enable_control_break=>true
 ,p_is_primary_key=>false
-,p_duplicate_value=>true
 ,p_include_in_export=>false
 );
 wwv_flow_api.create_region_column(
@@ -1248,7 +1251,7 @@ wwv_flow_api.create_region_column(
 ,p_item_type=>'NATIVE_TEXT_FIELD'
 ,p_heading=>'Evaluation'
 ,p_heading_alignment=>'LEFT'
-,p_display_sequence=>100
+,p_display_sequence=>80
 ,p_value_alignment=>'LEFT'
 ,p_group_id=>wwv_flow_api.id(23305064686761006)
 ,p_use_group_for=>'BOTH'
@@ -1276,12 +1279,22 @@ wwv_flow_api.create_region_column(
 ,p_source_expression=>'PROCESSED_LOG_ID'
 ,p_data_type=>'NUMBER'
 ,p_is_query_only=>false
-,p_item_type=>'NATIVE_HIDDEN'
-,p_display_sequence=>110
-,p_attribute_01=>'Y'
+,p_item_type=>'NATIVE_DISPLAY_ONLY'
+,p_heading=>'Log Id*'
+,p_heading_alignment=>'RIGHT'
+,p_display_sequence=>100
+,p_value_alignment=>'RIGHT'
+,p_group_id=>wwv_flow_api.id(24136925841306103)
+,p_use_group_for=>'BOTH'
+,p_attribute_02=>'VALUE'
+,p_attribute_05=>'PLAIN'
+,p_enable_filter=>true
+,p_filter_is_required=>false
+,p_filter_lov_type=>'DISTINCT'
 ,p_use_as_row_header=>false
 ,p_enable_sort_group=>true
 ,p_enable_control_break=>true
+,p_enable_hide=>true
 ,p_is_primary_key=>false
 ,p_duplicate_value=>true
 ,p_include_in_export=>false
@@ -1296,7 +1309,7 @@ wwv_flow_api.create_region_column(
 ,p_item_type=>'NATIVE_POPUP_LOV'
 ,p_heading=>'Schedule Id'
 ,p_heading_alignment=>'LEFT'
-,p_display_sequence=>70
+,p_display_sequence=>60
 ,p_value_alignment=>'LEFT'
 ,p_group_id=>wwv_flow_api.id(23305184629761007)
 ,p_use_group_for=>'BOTH'
@@ -1307,7 +1320,7 @@ wwv_flow_api.create_region_column(
 ,p_attribute_05=>'Y'
 ,p_attribute_06=>'0'
 ,p_attribute_08=>'800'
-,p_is_required=>false
+,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
 ,p_lov_id=>wwv_flow_api.id(24119159536460151)
@@ -1323,7 +1336,7 @@ wwv_flow_api.create_region_column(
 ,p_enable_sort_group=>true
 ,p_enable_control_break=>true
 ,p_enable_hide=>true
-,p_is_primary_key=>false
+,p_is_primary_key=>true
 ,p_duplicate_value=>true
 ,p_include_in_export=>true
 );
@@ -1337,7 +1350,7 @@ wwv_flow_api.create_region_column(
 ,p_item_type=>'NATIVE_POPUP_LOV'
 ,p_heading=>'Template Id'
 ,p_heading_alignment=>'LEFT'
-,p_display_sequence=>60
+,p_display_sequence=>70
 ,p_value_alignment=>'LEFT'
 ,p_group_id=>wwv_flow_api.id(23305184629761007)
 ,p_use_group_for=>'BOTH'
@@ -1366,6 +1379,39 @@ wwv_flow_api.create_region_column(
 ,p_enable_hide=>true
 ,p_is_primary_key=>false
 ,p_duplicate_value=>true
+,p_include_in_export=>true
+);
+wwv_flow_api.create_region_column(
+ p_id=>wwv_flow_api.id(24136878031306102)
+,p_name=>'PROCESSED_AT'
+,p_source_type=>'DB_COLUMN'
+,p_source_expression=>'PROCESSED_AT'
+,p_data_type=>'DATE'
+,p_is_query_only=>true
+,p_item_type=>'NATIVE_DATE_PICKER_JET'
+,p_heading=>'Processed At'
+,p_heading_alignment=>'CENTER'
+,p_display_sequence=>110
+,p_value_alignment=>'CENTER'
+,p_group_id=>wwv_flow_api.id(24136925841306103)
+,p_use_group_for=>'BOTH'
+,p_attribute_01=>'N'
+,p_attribute_02=>'POPUP'
+,p_attribute_03=>'NONE'
+,p_attribute_06=>'NONE'
+,p_attribute_09=>'N'
+,p_attribute_11=>'Y'
+,p_format_mask=>'&FORMAT_DATE_TIME.'
+,p_is_required=>false
+,p_enable_filter=>true
+,p_filter_is_required=>false
+,p_filter_date_ranges=>'ALL'
+,p_filter_lov_type=>'DISTINCT'
+,p_use_as_row_header=>false
+,p_enable_sort_group=>true
+,p_enable_control_break=>true
+,p_enable_hide=>true
+,p_is_primary_key=>false
 ,p_include_in_export=>true
 );
 wwv_flow_api.create_interactive_grid(
@@ -1453,7 +1499,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(23318015185763139)
 ,p_view_id=>wwv_flow_api.id(23310341069763120)
-,p_display_seq=>6
+,p_display_seq=>7
 ,p_column_id=>wwv_flow_api.id(23304720056761003)
 ,p_is_visible=>true
 ,p_is_frozen=>false
@@ -1486,7 +1532,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(23373336279326503)
 ,p_view_id=>wwv_flow_api.id(23310341069763120)
-,p_display_seq=>8
+,p_display_seq=>6
 ,p_column_id=>wwv_flow_api.id(23305651794761012)
 ,p_is_visible=>true
 ,p_is_frozen=>false
@@ -1494,15 +1540,16 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(23384690920375530)
 ,p_view_id=>wwv_flow_api.id(23310341069763120)
-,p_display_seq=>14
+,p_display_seq=>8
 ,p_column_id=>wwv_flow_api.id(23305833292761014)
 ,p_is_visible=>true
 ,p_is_frozen=>false
+,p_width=>100
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(23532563806774993)
 ,p_view_id=>wwv_flow_api.id(23310341069763120)
-,p_display_seq=>5
+,p_display_seq=>4
 ,p_column_id=>wwv_flow_api.id(23308778059761043)
 ,p_is_visible=>true
 ,p_is_frozen=>false
@@ -1510,10 +1557,19 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(23533458749774995)
 ,p_view_id=>wwv_flow_api.id(23310341069763120)
-,p_display_seq=>4
+,p_display_seq=>5
 ,p_column_id=>wwv_flow_api.id(23308819232761044)
 ,p_is_visible=>true
 ,p_is_frozen=>false
+);
+wwv_flow_api.create_ig_report_column(
+ p_id=>wwv_flow_api.id(24144398938758713)
+,p_view_id=>wwv_flow_api.id(23310341069763120)
+,p_display_seq=>10
+,p_column_id=>wwv_flow_api.id(24136878031306102)
+,p_is_visible=>true
+,p_is_frozen=>false
+,p_width=>140
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23307018575761026)
@@ -1530,7 +1586,7 @@ wwv_flow_api.create_page_plug(
 'Weekdays are similar (1-7 for Monday to Sunday) or MON, TUE, WED, THU, FRI, SAT, SUN names or even ranges (MON-FRI, SAT-SUN).',
 'First Monday of the month can be written as 1+MON in Weekdays, last Friday as L+FRI in Weekdays.',
 'Hours can be specified as 0-23, minutes as 0-59. Lists and ranges are also possible (hours: 0, 12 to send at midnight and noon or 8-17 to send in every hour during working hours) or (minutes: 0, 15, 30, 45 to send 4 times per hour). You can specify e'
-||'xact combination in Hours as HH:MM (from 00:00 to 23:59).',
+||'xact combination in Hours as HH:MM (from 00:00 to 23:59). Time is in server timezone, current tIme on server is: &P940_SERVER_TIME..',
 'You must fill Minutes or Interval (number of minutes from last notification). Other fields are optional. Empty field (except Interval) represents any value. All fields in row must match to trigger the notification.',
 ''))
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -2140,6 +2196,18 @@ wwv_flow_api.create_page_button(
 ,p_button_redirect_url=>'f?p=&APP_ID.:940:&SESSION.::&DEBUG.:940::'
 ,p_icon_css_classes=>'fa-refresh'
 );
+wwv_flow_api.component_end;
+end;
+/
+begin
+wwv_flow_api.component_begin (
+ p_version_yyyy_mm_dd=>'2021.04.15'
+,p_release=>'21.1.7'
+,p_default_workspace_id=>9014660246496943
+,p_default_application_id=>770
+,p_default_id_offset=>0
+,p_default_owner=>'CORE'
+);
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(23155383268829516)
 ,p_button_sequence=>10
@@ -2180,18 +2248,6 @@ wwv_flow_api.create_page_button(
 ,p_button_condition=>'P940_SHOW_SUBSCRIPTIONS'
 ,p_button_condition_type=>'ITEM_IS_NULL'
 ,p_icon_css_classes=>'fa-envelope-open-o'
-);
-wwv_flow_api.component_end;
-end;
-/
-begin
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
-,p_default_workspace_id=>9014660246496943
-,p_default_application_id=>770
-,p_default_id_offset=>0
-,p_default_owner=>'CORE'
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(23157920143829542)
@@ -2251,6 +2307,23 @@ wwv_flow_api.create_page_item(
 ,p_item_plug_id=>wwv_flow_api.id(21827346720427653)
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(23730115240559250)
+,p_name=>'P940_SERVER_TIME'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(23307018575761026)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_computation(
+ p_id=>wwv_flow_api.id(24136736564306101)
+,p_computation_sequence=>10
+,p_computation_item=>'P940_SERVER_TIME'
+,p_computation_point=>'BEFORE_BOX_BODY'
+,p_computation_type=>'EXPRESSION'
+,p_computation_language=>'PLSQL'
+,p_computation=>'TO_CHAR(SYSDATE, ''HH24:MI'')'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(11413761841181961)
