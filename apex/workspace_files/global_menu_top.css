@@ -51,6 +51,7 @@
     font-weight:            400;
     text-decoration:        none;
     color:                  #fff;
+    outline:                none;
 }
 #t_Header > #top_header > nav .HIDDEN {
     display:                none;

@@ -266,3 +266,18 @@ ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
     color:                  #000;
 }
 
+
+
+/* TABS */
+.t-Tabs--simple {
+    margin-bottom:          2rem;
+}
+.t-Tabs--simple .t-Tabs-link {
+    padding:                1rem 1.5rem;
+}
+.t-Tabs--simple .is-active .t-Tabs-link {
+    box-shadow:             none;
+    border-bottom:          6px solid #7A7363;
+    outline:                none;
+}
+
