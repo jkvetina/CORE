@@ -368,10 +368,10 @@ CREATE OR REPLACE PACKAGE app_actions AS
     PROCEDURE save_translations_overview (
         in_action           CHAR,
         in_app_id           translations_overview.app_id%TYPE,
-        in_page_id_old      translations_overview.page_id_old%TYPE,
-        in_page_id          translations_overview.page_id%TYPE,
-        in_name_old         translations_overview.name_old%TYPE,
+        in_old_name         translations_overview.old_name%TYPE,
+        in_old_page_id      translations_overview.old_page_id%TYPE,
         in_name             translations_overview.name%TYPE,
+        in_page_id          translations_overview.page_id%TYPE,
         in_value_en         translations_overview.value_en%TYPE       := NULL,
         in_value_cz         translations_overview.value_cz%TYPE       := NULL,
         in_value_sk         translations_overview.value_sk%TYPE       := NULL,

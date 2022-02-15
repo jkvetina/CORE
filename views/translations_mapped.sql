@@ -8,7 +8,7 @@ WITH x AS (
     FROM DUAL
 )
 SELECT t.name, i.item_name
-FROM translations t
+FROM translation_items t
 JOIN x
     ON x.app_id             = t.app_id
     AND x.page_id           IN (0, x.page_id)
@@ -23,7 +23,7 @@ GROUP BY t.name, i.item_name
 UNION
 --
 SELECT t.name, i.item_name
-FROM translations t
+FROM translation_items t
 JOIN x
     ON x.app_id             = t.app_id
 JOIN apex_application_items i

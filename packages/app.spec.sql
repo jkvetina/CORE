@@ -212,10 +212,10 @@ CREATE OR REPLACE PACKAGE app AS
     -- Translate page item
     --
     FUNCTION get_translation (
-        in_name                 translations.name%TYPE,
-        in_page_id              translations.page_id%TYPE   := NULL,
-        in_app_id               translations.app_id%TYPE    := NULL,
-        in_lang                 users.lang_id%TYPE          := NULL
+        in_name                 translation_items.name%TYPE,
+        in_page_id              translation_items.page_id%TYPE  := NULL,
+        in_app_id               translation_items.app_id%TYPE   := NULL,
+        in_lang                 users.lang_id%TYPE              := NULL
     )
     RETURN translations.value_en%TYPE;
 

@@ -11,7 +11,7 @@ m AS (
         t.page_id,
         t.name,
         --
-        NVL(i.item_name, a.item_name) AS item_name,
+        NVL(i.item_name, a.item_name)   AS item_name,
         --
         t.value_en,
         t.value_cz,
@@ -19,9 +19,9 @@ m AS (
         t.value_pl,
         t.value_hu,
         --
-        t.name                  AS name_old,
-        t.page_id               AS page_id_old
-    FROM translations t
+        t.name                  AS old_name,
+        t.page_id               AS old_page_id
+    FROM translation_items t
     JOIN x
         ON x.app_id             = t.app_id
     LEFT JOIN apex_application_page_items i
@@ -48,8 +48,8 @@ SELECT
     m.value_pl,
     m.value_hu,
     --
-    m.name_old,
-    m.page_id_old
+    m.old_name,
+    m.old_page_id
 FROM m
 UNION ALL
 --
@@ -66,8 +66,8 @@ SELECT
     NULL,
     NULL,
     --
-    REGEXP_REPLACE(i.item_name, '^' || x.item_prefix || '\d*_', '') AS name_old,
-    i.page_id                                                       AS page_id_old
+    REGEXP_REPLACE(i.item_name, '^' || x.item_prefix || '\d*_', '') AS old_name,
+    i.page_id                                                       AS old_page_id
 FROM apex_application_page_items i
 JOIN x
     ON x.app_id             = i.application_id
@@ -93,8 +93,8 @@ SELECT
     NULL,
     NULL,
     --
-    REGEXP_REPLACE(i.item_name, '^' || x.item_prefix || '\d*_', '') AS name_old,
-    0                                                               AS page_id_old
+    REGEXP_REPLACE(i.item_name, '^' || x.item_prefix || '\d*_', '') AS old_name,
+    0                                                               AS old_page_id
 FROM apex_application_items i
 JOIN x
     ON x.app_id             = i.application_id

@@ -1144,19 +1144,19 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     PROCEDURE save_translations_overview (
         in_action           CHAR,
         in_app_id           translations_overview.app_id%TYPE,
-        in_page_id_old      translations_overview.page_id_old%TYPE,
-        in_page_id          translations_overview.page_id%TYPE,
-        in_name_old         translations_overview.name_old%TYPE,
+        in_old_name         translations_overview.old_name%TYPE,
+        in_old_page_id      translations_overview.old_page_id%TYPE,
         in_name             translations_overview.name%TYPE,
+        in_page_id          translations_overview.page_id%TYPE,
         in_value_en         translations_overview.value_en%TYPE       := NULL,
         in_value_cz         translations_overview.value_cz%TYPE       := NULL,
         in_value_sk         translations_overview.value_sk%TYPE       := NULL,
         in_value_pl         translations_overview.value_pl%TYPE       := NULL,
         in_value_hu         translations_overview.value_hu%TYPE       := NULL
     ) AS
-        rec                 translations%ROWTYPE;
+        rec                 translation_items%ROWTYPE;
     BEGIN
-        app.log_module(in_action, in_page_id_old, in_page_id, in_name_old, in_name);
+        app.log_module(in_action, in_old_page_id, in_page_id, in_old_name, in_name);
         --
         rec.app_id          := in_app_id;
         rec.page_id         := NVL(in_page_id, 0);
@@ -1168,23 +1168,23 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec.value_hu        := in_value_hu;
         --
         IF in_action = 'D' THEN
-            DELETE FROM translations t
+            DELETE FROM translation_items t
             WHERE t.app_id      = in_app_id
-                AND t.page_id   = in_page_id_old
-                AND t.name      = in_name_old;
+                AND t.page_id   = in_old_page_id
+                AND t.name      = in_old_name;
             --
             app.log_success();
             RETURN;
         END IF;
         --
-        UPDATE translations t
+        UPDATE translation_items t
         SET ROW             = rec
         WHERE t.app_id      = in_app_id
-            AND t.page_id   = in_page_id_old
-            AND t.name      = in_name_old;
+            AND t.page_id   = in_old_page_id
+            AND t.name      = in_old_name;
         --
         IF SQL%ROWCOUNT = 0 THEN
-            INSERT INTO translations
+            INSERT INTO translation_items
             VALUES rec;
         END IF;
         --

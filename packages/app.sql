@@ -248,28 +248,43 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
     FUNCTION get_translation (
-        in_name                 translations.name%TYPE,
-        in_page_id              translations.page_id%TYPE   := NULL,
-        in_app_id               translations.app_id%TYPE    := NULL,
-        in_lang                 users.lang_id%TYPE          := NULL
+        in_name                 translation_items.name%TYPE,
+        in_page_id              translation_items.page_id%TYPE  := NULL,
+        in_app_id               translation_items.app_id%TYPE   := NULL,
+        in_lang                 users.lang_id%TYPE              := NULL
     )
     RETURN translations.value_en%TYPE
     AS
-        out_value               translations.value_en%TYPE;
+        out_value               translation_items.value_en%TYPE;
     BEGIN
         -- how often do you add new languages?
-        SELECT
-            CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
-                WHEN 'CZ' THEN  MIN(t.value_cz) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                WHEN 'SK' THEN  MIN(t.value_sk) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                WHEN 'PL' THEN  MIN(t.value_pl) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                WHEN 'HU' THEN  MIN(t.value_hu) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC) END
-        INTO out_value
-        FROM translations t
-        WHERE t.app_id      = COALESCE(in_app_id, app.get_app_id())
-            AND t.page_id   IN (0, COALESCE(in_page_id, app.get_page_id()))
-            AND t.name      = in_name;
+        BEGIN
+            SELECT
+                CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
+                    WHEN 'CZ' THEN  MIN(t.value_cz) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
+                    WHEN 'SK' THEN  MIN(t.value_sk) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
+                    WHEN 'PL' THEN  MIN(t.value_pl) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
+                    WHEN 'HU' THEN  MIN(t.value_hu) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
+                    ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC) END
+            INTO out_value
+            FROM translation_items t
+            WHERE t.app_id      = COALESCE(in_app_id, app.get_app_id())
+                AND t.page_id   IN (0, COALESCE(in_page_id, app.get_page_id()))
+                AND t.name      = in_name;
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            SELECT
+                CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
+                    WHEN 'CZ' THEN  t.value_cz
+                    WHEN 'SK' THEN  t.value_sk
+                    WHEN 'PL' THEN  t.value_pl
+                    WHEN 'HU' THEN  t.value_hu
+                    ELSE            t.value_en END
+            INTO out_value
+            FROM translations t
+            WHERE t.app_id      = COALESCE(in_app_id, app.get_app_id())
+                AND t.name      = in_name;
+        END;
         --
         RETURN out_value;
     EXCEPTION
