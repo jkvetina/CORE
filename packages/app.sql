@@ -2896,6 +2896,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
             );
         END IF;
 
+        -- translate message
+        out_result.message := NVL(app.get_translation(out_result.message), out_result.message);
+
         -- show only the latest error message to common users
         /*
         IF p_error.ora_sqlcode = app.app_exception_code THEN
