@@ -29,7 +29,7 @@ wwv_flow_api.create_theme(
 ,p_sidebar_display_point=>'REGION_POSITION_02'
 ,p_login_template=>wwv_flow_api.id(9029239547569870)
 ,p_default_button_template=>wwv_flow_api.id(9145249029569999)
-,p_default_region_template=>wwv_flow_api.id(9080157814569926)
+,p_default_region_template=>wwv_flow_api.id(9049155795569902)
 ,p_default_chart_template=>wwv_flow_api.id(9080157814569926)
 ,p_default_form_template=>wwv_flow_api.id(9080157814569926)
 ,p_default_reportr_template=>wwv_flow_api.id(9080157814569926)
