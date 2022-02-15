@@ -247,50 +247,66 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_translation (
-        in_name                 translation_items.name%TYPE,
-        in_page_id              translation_items.page_id%TYPE  := NULL,
-        in_app_id               translation_items.app_id%TYPE   := NULL,
-        in_lang                 users.lang_id%TYPE              := NULL
+    FUNCTION get_translated_item (
+        in_name                 VARCHAR2,
+        in_page_id              navigation.page_id%TYPE     := NULL,
+        in_app_id               navigation.app_id%TYPE      := NULL,
+        in_lang                 users.lang_id%TYPE          := NULL
     )
-    RETURN translations.value_en%TYPE
+    RETURN VARCHAR2
     AS
-        out_value               translation_items.value_en%TYPE;
+        out_value               translated_items.value_en%TYPE;
     BEGIN
         -- how often do you add new languages?
-        BEGIN
-            SELECT
-                CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
-                    WHEN 'CZ' THEN  MIN(t.value_cz) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                    WHEN 'SK' THEN  MIN(t.value_sk) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                    WHEN 'PL' THEN  MIN(t.value_pl) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                    WHEN 'HU' THEN  MIN(t.value_hu) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC)
-                    ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.page_id DESC) END
-            INTO out_value
-            FROM translation_items t
-            WHERE t.app_id      = COALESCE(in_app_id, app.get_app_id())
-                AND t.page_id   IN (0, COALESCE(in_page_id, app.get_page_id()))
-                AND t.name      = in_name;
-        EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            SELECT
-                CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
-                    WHEN 'CZ' THEN  t.value_cz
-                    WHEN 'SK' THEN  t.value_sk
-                    WHEN 'PL' THEN  t.value_pl
-                    WHEN 'HU' THEN  t.value_hu
-                    ELSE            t.value_en END
-            INTO out_value
-            FROM translations t
-            WHERE t.app_id      = COALESCE(in_app_id, app.get_app_id())
-                AND t.name      = in_name;
-        END;
+        SELECT
+            CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
+                WHEN 'CZ' THEN  MIN(t.value_cz) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
+                WHEN 'SK' THEN  MIN(t.value_sk) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
+                WHEN 'PL' THEN  MIN(t.value_pl) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
+                WHEN 'HU' THEN  MIN(t.value_hu) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
+                ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC) END
+        INTO out_value
+        FROM translated_items t
+        WHERE t.app_id          = COALESCE(in_app_id, app.get_app_id())
+            AND t.item_name     IN (
+                in_name,
+                REGEXP_REPLACE(in_name, '^([A-Z]+)[_]', '\1' || COALESCE(in_page_id, app.get_page_id()) || '_'),
+                REGEXP_REPLACE(in_name, '^([A-Z]+)[_]', '\1' || '0_')
+            );
         --
         RETURN out_value;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        -- app.log_warning() ?
-        -- create translation ?
+        RETURN NULL;
+    END;
+
+
+
+    FUNCTION get_translated_message (
+        in_name                 VARCHAR2,
+        in_app_id               navigation.app_id%TYPE      := NULL,
+        in_lang                 users.lang_id%TYPE          := NULL
+    )
+    RETURN VARCHAR2
+    AS
+        out_value               translated_messages.value_en%TYPE;
+    BEGIN
+        -- how often do you add new languages?
+        SELECT
+            CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
+                WHEN 'CZ' THEN  t.value_cz
+                WHEN 'SK' THEN  t.value_sk
+                WHEN 'PL' THEN  t.value_pl
+                WHEN 'HU' THEN  t.value_hu
+                ELSE            t.value_en END
+        INTO out_value
+        FROM translated_messages t
+        WHERE t.app_id          = COALESCE(in_app_id, app.get_app_id())
+            AND t.message       = in_name;
+        --
+        RETURN out_value;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
         RETURN NULL;
     END;
 
@@ -2897,7 +2913,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- translate message
-        out_result.message := NVL(app.get_translation(out_result.message), out_result.message);
+        out_result.message := NVL(app.get_translated_message(out_result.message), out_result.message);
 
         -- show only the latest error message to common users
         /*

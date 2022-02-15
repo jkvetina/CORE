@@ -327,8 +327,7 @@ CREATE OR REPLACE PACKAGE BODY gen AS
         DBMS_OUTPUT.PUT_LINE('    WHEN app.app_exception THEN');
         DBMS_OUTPUT.PUT_LINE('        RAISE;');
         DBMS_OUTPUT.PUT_LINE('    WHEN OTHERS THEN');
-        DBMS_OUTPUT.PUT_LINE('        app.log_error();');
-        DBMS_OUTPUT.PUT_LINE('        RAISE;');
+        DBMS_OUTPUT.PUT_LINE('        app.raise_error();');
         DBMS_OUTPUT.PUT_LINE('    END;');
     END;
 

@@ -209,15 +209,27 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Translate page item
+    -- Translate page/app item
     --
-    FUNCTION get_translation (
-        in_name                 translation_items.name%TYPE,
-        in_page_id              translation_items.page_id%TYPE  := NULL,
-        in_app_id               translation_items.app_id%TYPE   := NULL,
-        in_lang                 users.lang_id%TYPE              := NULL
+    FUNCTION get_translated_item (
+        in_name                 VARCHAR2,
+        in_page_id              navigation.page_id%TYPE     := NULL,
+        in_app_id               navigation.app_id%TYPE      := NULL,
+        in_lang                 users.lang_id%TYPE          := NULL
     )
-    RETURN translations.value_en%TYPE;
+    RETURN VARCHAR2;
+
+
+
+    --
+    -- Translate message
+    --
+    FUNCTION get_translated_message (
+        in_name                 VARCHAR2,
+        in_app_id               navigation.app_id%TYPE      := NULL,
+        in_lang                 users.lang_id%TYPE          := NULL
+    )
+    RETURN VARCHAR2;
 
 
 

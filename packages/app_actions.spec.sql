@@ -365,18 +365,31 @@ CREATE OR REPLACE PACKAGE app_actions AS
     --
     -- Update translations
     --
-    PROCEDURE save_translations_overview (
-        in_action           CHAR,
-        in_app_id           translations_overview.app_id%TYPE,
-        in_old_name         translations_overview.old_name%TYPE,
-        in_old_page_id      translations_overview.old_page_id%TYPE,
-        in_name             translations_overview.name%TYPE,
-        in_page_id          translations_overview.page_id%TYPE,
-        in_value_en         translations_overview.value_en%TYPE       := NULL,
-        in_value_cz         translations_overview.value_cz%TYPE       := NULL,
-        in_value_sk         translations_overview.value_sk%TYPE       := NULL,
-        in_value_pl         translations_overview.value_pl%TYPE       := NULL,
-        in_value_hu         translations_overview.value_hu%TYPE       := NULL
+    PROCEDURE save_translated_items (
+        in_action                       CHAR,
+        out_item_name           IN OUT  translated_items_overview.out_item_name%TYPE,
+        in_item_name                    translated_items_overview.item_name%TYPE,
+        in_value_en                     translated_items_overview.value_en%TYPE,
+        in_value_cz                     translated_items_overview.value_cz%TYPE,
+        in_value_sk                     translated_items_overview.value_sk%TYPE,
+        in_value_pl                     translated_items_overview.value_pl%TYPE,
+        in_value_hu                     translated_items_overview.value_hu%TYPE
+    );
+
+
+
+    --
+    -- Update translations
+    --
+    PROCEDURE save_translated_messages (
+        in_action                   CHAR,
+        out_message         IN OUT  translated_messages_overview.out_message%TYPE,
+        in_message                  translated_messages_overview.message%TYPE,
+        in_value_en                 translated_messages_overview.value_en%TYPE,
+        in_value_cz                 translated_messages_overview.value_cz%TYPE,
+        in_value_sk                 translated_messages_overview.value_sk%TYPE,
+        in_value_pl                 translated_messages_overview.value_pl%TYPE,
+        in_value_hu                 translated_messages_overview.value_hu%TYPE
     );
 
 END;

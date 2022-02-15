@@ -279,8 +279,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     WHEN app.app_exception THEN
         RAISE;
     WHEN OTHERS THEN
-        app.log_error();
-        RAISE;
+        app.raise_error();
     END;
 
 
@@ -353,8 +352,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     WHEN app.app_exception THEN
         RAISE;
     WHEN OTHERS THEN
-        app.log_error();
-        RAISE;
+        app.raise_error();
     END;
 
 
@@ -625,8 +623,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     WHEN app.app_exception THEN
         RAISE;
     WHEN OTHERS THEN
-        app.log_error();
-        RAISE;
+        app.raise_error();
     END;
 
 
@@ -1141,54 +1138,111 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
-    PROCEDURE save_translations_overview (
-        in_action           CHAR,
-        in_app_id           translations_overview.app_id%TYPE,
-        in_old_name         translations_overview.old_name%TYPE,
-        in_old_page_id      translations_overview.old_page_id%TYPE,
-        in_name             translations_overview.name%TYPE,
-        in_page_id          translations_overview.page_id%TYPE,
-        in_value_en         translations_overview.value_en%TYPE       := NULL,
-        in_value_cz         translations_overview.value_cz%TYPE       := NULL,
-        in_value_sk         translations_overview.value_sk%TYPE       := NULL,
-        in_value_pl         translations_overview.value_pl%TYPE       := NULL,
-        in_value_hu         translations_overview.value_hu%TYPE       := NULL
+    PROCEDURE save_translated_items (
+        in_action                       CHAR,
+        out_item_name           IN OUT  translated_items_overview.out_item_name%TYPE,
+        in_item_name                    translated_items_overview.item_name%TYPE,
+        in_value_en                     translated_items_overview.value_en%TYPE,
+        in_value_cz                     translated_items_overview.value_cz%TYPE,
+        in_value_sk                     translated_items_overview.value_sk%TYPE,
+        in_value_pl                     translated_items_overview.value_pl%TYPE,
+        in_value_hu                     translated_items_overview.value_hu%TYPE
     ) AS
-        rec                 translation_items%ROWTYPE;
+        rec                             translated_items%ROWTYPE;
+        v_log_id                        logs.log_id%TYPE;
     BEGIN
-        app.log_module(in_action, in_old_page_id, in_page_id, in_old_name, in_name);
+        v_log_id := app.log_module_json (
+            'action',                   in_action,
+            'old_item_name',            out_item_name,
+            'item_name',                in_item_name
+        );
         --
-        rec.app_id          := in_app_id;
-        rec.page_id         := NVL(in_page_id, 0);
-        rec.name            := in_name;
-        rec.value_en        := in_value_en;
-        rec.value_cz        := in_value_cz;
-        rec.value_sk        := in_value_sk;
-        rec.value_pl        := in_value_pl;
-        rec.value_hu        := in_value_hu;
+        rec.app_id              := app.get_app_id();
+        rec.item_name           := in_item_name;
+        rec.value_en            := in_value_en;
+        rec.value_cz            := in_value_cz;
+        rec.value_sk            := in_value_sk;
+        rec.value_pl            := in_value_pl;
+        rec.value_hu            := in_value_hu;
+        rec.updated_by          := app.get_user_id();
+        rec.updated_at          := SYSDATE;
         --
         IF in_action = 'D' THEN
-            DELETE FROM translation_items t
-            WHERE t.app_id      = in_app_id
-                AND t.page_id   = in_old_page_id
-                AND t.name      = in_old_name;
+            DELETE FROM translated_items t
+            WHERE t.app_id              = rec.app_id
+                AND t.item_name         = out_item_name;
+        ELSE
+            UPDATE translated_items t
+            SET ROW = rec
+            WHERE t.app_id              = rec.app_id
+                AND t.item_name         = out_item_name;
             --
-            app.log_success();
-            RETURN;
+            IF SQL%ROWCOUNT = 0 THEN
+                INSERT INTO translated_items
+                VALUES rec;
+            END IF;
         END IF;
         --
-        UPDATE translation_items t
-        SET ROW             = rec
-        WHERE t.app_id      = in_app_id
-            AND t.page_id   = in_old_page_id
-            AND t.name      = in_old_name;
+        out_item_name                   := rec.item_name;
         --
-        IF SQL%ROWCOUNT = 0 THEN
-            INSERT INTO translation_items
-            VALUES rec;
+        app.log_success(v_log_id);
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE save_translated_messages (
+        in_action                   CHAR,
+        out_message         IN OUT  translated_messages_overview.out_message%TYPE,
+        in_message                  translated_messages_overview.message%TYPE,
+        in_value_en                 translated_messages_overview.value_en%TYPE,
+        in_value_cz                 translated_messages_overview.value_cz%TYPE,
+        in_value_sk                 translated_messages_overview.value_sk%TYPE,
+        in_value_pl                 translated_messages_overview.value_pl%TYPE,
+        in_value_hu                 translated_messages_overview.value_hu%TYPE
+    ) AS
+        rec                         translated_messages%ROWTYPE;
+        v_log_id                    logs.log_id%TYPE;
+    BEGIN
+        v_log_id := app.log_module_json (
+            'action',               in_action,
+            'old_message',          out_message,
+            'message',              in_message
+        );
+        --
+        rec.app_id              := app.get_app_id();
+        rec.message             := in_message;
+        rec.value_en            := in_value_en;
+        rec.value_cz            := in_value_cz;
+        rec.value_sk            := in_value_sk;
+        rec.value_pl            := in_value_pl;
+        rec.value_hu            := in_value_hu;
+        rec.updated_by          := app.get_user_id();
+        rec.updated_at          := SYSDATE;
+        --
+        IF in_action = 'D' THEN
+            DELETE FROM translated_messages t
+            WHERE t.app_id          = rec.app_id
+                AND t.message       = out_message;
+        ELSE
+            UPDATE translated_messages t
+            SET ROW = rec
+            WHERE t.app_id          = rec.app_id
+                AND t.message       = out_message;
+            --
+            IF SQL%ROWCOUNT = 0 THEN
+                INSERT INTO translated_messages
+                VALUES rec;
+            END IF;
         END IF;
         --
-        app.log_success();
+        out_message                 := rec.message;
+        --
+        app.log_success(v_log_id);
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;

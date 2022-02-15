@@ -20,10 +20,10 @@ wwv_flow_api.create_flow_process(
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '-- load translations',
 'FOR c IN (',
-'    SELECT t.name, t.item_name',
-'    FROM translations_mapped t',
+'    SELECT t.item_name',
+'    FROM translated_items t',
 ') LOOP',
-'    app.set_item(c.item_name, app.get_translation(c.name), in_raise => FALSE);',
+'    app.set_item(c.item_name, app.get_translated_item(c.item_name), in_raise => FALSE);',
 'END LOOP;'))
 ,p_process_clob_language=>'PLSQL'
 );
