@@ -22,17 +22,19 @@ div.t-Dialog-body .t-HeroRegion {
 
 /* STRETCH HERO REGION + SHOW CLOSE BUTTON ON RIGHT EDGE */
 .t-HeroRegion-col.t-HeroRegion-col--right {
-    display:        none;
+    display:                none;
+}
+.t-HeroRegion-col .t-HeroRegion-title {
+    margin-bottom: 1rem;
 }
 .t-HeroRegion-col.t-HeroRegion-col--content button.RIGHT {
-    float:          right;
-    position:       relative;
-    right:          0;
-    top:            1rem;
+    float:                  right;
+    position:               relative;
+    right:                  0;
+    top:                    1rem;
 }
-
 .t-HeroRegion-col.t-HeroRegion-col--content {
-    line-height:    150%;
+    line-height:            150%;
 }
 
 
@@ -227,8 +229,8 @@ footer.t-Footer div.t-Footer-top a {  /* LINK TO TOP */
 
 /* DIVIDER FOR LIST VIEW */
 ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
-    font-weight: normal;
-    background: transparent;
+    font-weight:            normal;
+    background:             transparent;
 }
 
 
@@ -269,13 +271,13 @@ ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
 
 
 /* TABS */
-.t-Tabs--simple {
-    margin-bottom:          2rem;
+ul.t-Tabs.t-Tabs--simple {
+    margin:                 0 1.5rem 1.5rem;
 }
-.t-Tabs--simple .t-Tabs-link {
+ul.t-Tabs.t-Tabs--simple .t-Tabs-link {
     padding:                1rem 1.5rem;
 }
-.t-Tabs--simple .is-active .t-Tabs-link {
+ul.t-Tabs.t-Tabs--simple .is-active .t-Tabs-link {
     box-shadow:             none;
     border-bottom:          6px solid #7A7363;
     outline:                none;
