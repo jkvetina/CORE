@@ -5,7 +5,7 @@ WITH x AS (
     FROM DUAL
 )
 SELECT
-    t.message       AS out_message,
+    t.message               AS out_message,
     t.message,
     --
     t.value_en,

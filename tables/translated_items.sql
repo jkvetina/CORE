@@ -25,6 +25,7 @@ COMMENT ON TABLE  translated_items             IS '[CORE] Translations for page/
 --
 COMMENT ON COLUMN translated_items.app_id      IS 'APEX application ID';
 COMMENT ON COLUMN translated_items.item_name   IS 'Item name (preferrably) to translate';
+--
 COMMENT ON COLUMN translated_items.value_en    IS 'Translated value';
 COMMENT ON COLUMN translated_items.value_cz    IS 'Translated value';
 COMMENT ON COLUMN translated_items.value_sk    IS 'Translated value';

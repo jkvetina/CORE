@@ -12,7 +12,7 @@ t AS (
         ON x.app_id             = t.app_id
 ),
 p AS (
-    SELECT t.item_name
+    SELECT t.item_name, i.page_id
     FROM t
     JOIN apex_application_page_items i
         ON i.application_id     = t.app_id
@@ -27,7 +27,7 @@ a AS (
         AND a.item_name         = t.item_name
 )
 SELECT
-    t.item_name     AS out_item_name,
+    t.item_name             AS out_item_name,
     t.item_name,
     --
     CASE SUBSTR(t.item_name, 1, 1)
@@ -36,6 +36,9 @@ SELECT
         WHEN 'C' THEN 'COLUMN'
         WHEN 'L' THEN 'LABEL'
         END AS item_type,
+    --
+    REGEXP_REPLACE(t.item_name, '^([A-Z]+)\d*[_]', '\1_')                       AS item_group,
+    TO_NUMBER(REGEXP_SUBSTR(t.item_name, '^[A-Z]+(\d*)[_]', 1, 1, NULL, 1))     AS page_id,
     --
     CASE WHEN p.item_name IS NOT NULL THEN 'Y' END AS is_page_item,
     CASE WHEN a.item_name IS NOT NULL THEN 'Y' END AS is_app_item,
@@ -46,8 +49,11 @@ SELECT
     t.value_pl,
     t.value_hu
 FROM t
-LEFT JOIN p ON p.item_name = t.item_name
-LEFT JOIN a ON a.item_name = t.item_name;
+LEFT JOIN p
+    ON p.item_name      = t.item_name
+    AND p.page_id       = TO_NUMBER(REGEXP_SUBSTR(t.item_name, '^[A-Z]+(\d*)[_]', 1, 1, NULL, 1))
+LEFT JOIN a
+    ON a.item_name      = t.item_name;
 --
 COMMENT ON TABLE  translated_items_overview     IS '[CORE - DASHBOARD] Use page/app items to translate application';
 
