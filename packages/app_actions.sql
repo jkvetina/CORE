@@ -1142,6 +1142,8 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_action                       CHAR,
         out_item_name           IN OUT  translated_items_overview.out_item_name%TYPE,
         in_item_name                    translated_items_overview.item_name%TYPE,
+        in_item_group                   translated_items_overview.item_group%TYPE,
+        in_page_id                      translated_items_overview.page_id%TYPE,
         in_value_en                     translated_items_overview.value_en%TYPE,
         in_value_cz                     translated_items_overview.value_cz%TYPE,
         in_value_sk                     translated_items_overview.value_sk%TYPE,
@@ -1154,11 +1156,13 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         v_log_id := app.log_module_json (
             'action',                   in_action,
             'old_item_name',            out_item_name,
-            'item_name',                in_item_name
+            'item_name',                in_item_name,
+            'item_group',               in_item_group,
+            'page_id',                  in_page_id
         );
         --
         rec.app_id              := app.get_app_id();
-        rec.item_name           := in_item_name;
+        rec.item_name           := REGEXP_REPLACE(in_item_group, '^([A-Z]+)[_]', '\1' || in_page_id || '_');
         rec.value_en            := in_value_en;
         rec.value_cz            := in_value_cz;
         rec.value_sk            := in_value_sk;
