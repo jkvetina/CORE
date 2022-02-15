@@ -3343,7 +3343,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- connect to SMTP server
-        reply := UTL_SMTP.OPEN_CONNECTION(smtp_host, smtp_port, conn, smtp_timeout);
+        BEGIN
+            reply := UTL_SMTP.OPEN_CONNECTION(smtp_host, smtp_port, conn, smtp_timeout);
+        EXCEPTION
+        WHEN OTHERS THEN
+            app.log_error('CONNECTION_FAILED');
+            RETURN;
+        END;
+        --
         UTL_SMTP.HELO(conn, smtp_host);
         IF smtp_username IS NOT NULL THEN
             UTL_SMTP.COMMAND(conn, 'AUTH LOGIN');
@@ -3444,10 +3451,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         WHEN UTL_SMTP.TRANSIENT_ERROR OR UTL_SMTP.PERMANENT_ERROR THEN
             NULL;
         END;
-    WHEN app.app_exception THEN
-        RAISE;
     WHEN OTHERS THEN
-        app.raise_error();
+        app.log_error('SEND_MAIL_FAILED');
     END;
 
 
