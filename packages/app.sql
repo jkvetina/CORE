@@ -510,7 +510,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
             WHERE a.application_id = rec.app_id;
 
             -- also add first pages into Navigation table
-            app_actions.nav_autoupdate();
+            EXECUTE IMMEDIATE
+                'BEGIN app_actions.nav_autoupdate(); END;';  -- to remove dependency
             --
             UPDATE navigation n
             SET n.order# = CASE
