@@ -294,6 +294,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
         out_value               translated_messages.value_en%TYPE;
+        out_default             translated_messages.value_en%TYPE;
     BEGIN
         -- how often do you add new languages?
         SELECT
@@ -302,13 +303,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 WHEN 'SK' THEN  t.value_sk
                 WHEN 'PL' THEN  t.value_pl
                 WHEN 'HU' THEN  t.value_hu
-                ELSE            t.value_en END
-        INTO out_value
+                ELSE            t.value_en END,
+            --
+            t.value_en
+        INTO out_value, out_default
         FROM translated_messages t
         WHERE t.app_id          = COALESCE(in_app_id, app.get_app_id())
             AND t.message       = in_name;
         --
-        RETURN out_value;
+        RETURN NVL(out_value, out_default);
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
