@@ -1006,7 +1006,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         out_name                apex_application_pages.page_name%TYPE       := in_name;
         out_search              apex_application_pages.page_name%TYPE;
     BEGIN
-        IF in_name IS NULL THEN
+        IF out_name IS NULL THEN
             SELECT p.page_name INTO out_name
             FROM apex_application_pages p
             WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
@@ -1022,6 +1022,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 ' &' || 'nbsp; <span class="fa' || REPLACE(REPLACE(out_search, '#fa-', '+'), '+', ' fa-') || '"></span> &' || 'nbsp; '
             );
         END LOOP;
+
+        -- translations
+        out_name := REPLACE (
+            out_name, '&' || 'T_PAGE_NAME.',
+            COALESCE (
+                app.get_translated_item('T_PAGE_NAME',  in_page_id, in_app_id, in_exact_match => TRUE),
+                app.get_translated_item('T_PAGE_TITLE', in_page_id, in_app_id, in_exact_match => TRUE),
+                app.get_translated_item('T_PAGE_NAME',  in_page_id, in_app_id, 'EN'),
+                app.get_translated_item('T_PAGE_TITLE', in_page_id, in_app_id, 'EN')
+            )
+        );
 
         -- custom name conversion
         out_name := NVL(app.call_custom_function(NULL, out_name), out_name);
