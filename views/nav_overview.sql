@@ -77,7 +77,12 @@ SELECT
             )
         END AS page_name,
     --
-    t.page_title,
+    app.get_page_title (
+        in_app_id       => n.app_id,
+        in_page_id      => n.page_id,
+        in_name         => t.page_title
+    ) AS page_title,
+    --
     t.page_css_classes AS css_class,
     t.page_template,
     --

@@ -1036,18 +1036,32 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION get_page_title (
         in_page_id              navigation.page_id%TYPE     := NULL,
-        in_app_id               navigation.app_id%TYPE      := NULL
+        in_app_id               navigation.app_id%TYPE      := NULL,
+        in_name                 VARCHAR2                    := NULL
     )
     RETURN VARCHAR2
     AS
-        out_title               apex_application_pages.page_title%TYPE;
+        out_name                apex_application_pages.page_title%TYPE      := in_name;
     BEGIN
-        SELECT p.page_title INTO out_title
-        FROM apex_application_pages p
-        WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
-            AND p.page_id           = COALESCE(in_page_id, app.get_page_id());
+        IF out_name IS NULL THEN
+            SELECT p.page_title INTO out_name
+            FROM apex_application_pages p
+            WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
+                AND p.page_id           = COALESCE(in_page_id, app.get_page_id());
+        END IF;
+
+        -- translations
+        out_name := REPLACE(out_name, '&' || 'T_PAGE_TITLE.', app.get_translated_item('T_PAGE_TITLE', in_page_id, in_app_id));
         --
-        RETURN out_title;
+        IF out_name IS NULL THEN
+            out_name := app.get_page_name (     -- fallback, reuse page name when title is missing
+                in_page_id      => in_page_id,
+                in_app_id       => in_app_id,
+                in_name         => in_name
+            );
+        END IF;
+        --
+        RETURN out_name;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
