@@ -17,19 +17,6 @@ var wait_for_element = function(search, start, fn, disconnect) {
     });
 };
 
-var hide_success_message = function(search, start) {
-    var $start = $('#' + start);
-    //
-    setTimeout(function() {
-        apex.message.hidePageSuccess();  // hide message
-        var content = $start.text().trim();
-        if (content.length) {
-            console.log('MESSAGE CLOSED:', content);
-        }
-        $start.html('').removeClass('u-visible');  // clean APEX mess
-    }, 4000);
-};
-
 
 
 //
@@ -41,9 +28,6 @@ var apex_page_loaded = function() {
     //
     const search    = '#APEX_SUCCESS_MESSAGE.u-visible > .t-Body-alert > #t_Alert_Success';
     const start     = 'APEX_SUCCESS_MESSAGE';
-    //
-    wait_for_element(search, start, hide_success_message);
-    hide_success_message(search.replace('.u-visible', ''), start);  // hide existing messages
 
     //
     // INTERACTIVE GRIDS - look for css change on Edit button and apply it to Save button
@@ -86,7 +70,11 @@ var apex_page_loaded = function() {
     apex.message.setThemeHooks({
         beforeShow: function(pMsgType, pElement$) {  // beforeShow, beforeHide
             //if (pMsgType === apex.message.TYPE.ERROR) {  // SUCCESS, ERROR
-            //}
+            if (pMsgType === apex.message.TYPE.SUCCESS) {
+                setTimeout(() => {
+                    apex.message.hidePageSuccess();  // hide message
+                }, 3000);
+            }
             console.log('MESSAGE:', pMsgType, pElement$);
         },
         beforeHide: function(pMsgType, pElement$) {  // beforeShow, beforeHide
