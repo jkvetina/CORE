@@ -251,11 +251,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
         in_name                 VARCHAR2,
         in_page_id              navigation.page_id%TYPE     := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL,
-        in_lang                 users.lang_id%TYPE          := NULL
+        in_lang                 users.lang_id%TYPE          := NULL,
+        in_exact_match          BOOLEAN                     := FALSE
     )
     RETURN VARCHAR2
     AS
         out_value               translated_items.value_en%TYPE;
+        out_default             translated_items.value_en%TYPE;
     BEGIN
         -- how often do you add new languages?
         SELECT
@@ -264,8 +266,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 WHEN 'SK' THEN  MIN(t.value_sk) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
                 WHEN 'PL' THEN  MIN(t.value_pl) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
                 WHEN 'HU' THEN  MIN(t.value_hu) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
-                ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC) END
-        INTO out_value
+                ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC) END,
+            --
+            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
+        INTO out_value, out_default
         FROM translated_items t
         WHERE t.app_id          = COALESCE(in_app_id, app.get_app_id())
             AND t.item_name     IN (
@@ -274,7 +278,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 REGEXP_REPLACE(in_name, '^([A-Z]+)[_]', '\1' || '0_')
             );
         --
-        RETURN out_value;
+        RETURN NVL(out_value, CASE WHEN NOT in_exact_match THEN out_default END);
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;

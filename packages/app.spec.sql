@@ -215,7 +215,8 @@ CREATE OR REPLACE PACKAGE app AS
         in_name                 VARCHAR2,
         in_page_id              navigation.page_id%TYPE     := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL,
-        in_lang                 users.lang_id%TYPE          := NULL
+        in_lang                 users.lang_id%TYPE          := NULL,
+        in_exact_match          BOOLEAN                     := FALSE
     )
     RETURN VARCHAR2;
 
