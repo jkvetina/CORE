@@ -611,7 +611,8 @@ wwv_flow_api.create_report_region(
 'FROM apex_application_page_items i',
 'WHERE i.application_id      = app.get_app_id()',
 '    AND i.page_id           = 0',
-'    AND i.item_name         NOT IN (''P0_NAVIGATION'', ''P0_REQUEST_LOG'');',
+'    AND i.item_name         NOT IN (''P0_NAVIGATION'', ''P0_REQUEST_LOG'')',
+'ORDER BY 1;',
 ''))
 ,p_ajax_enabled=>'Y'
 ,p_lazy_loading=>false
@@ -647,13 +648,15 @@ wwv_flow_api.create_report_columns(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(22939890463325303)
 ,p_plug_name=>'TRANSLATIONS'
+,p_region_css_classes=>'HIDDEN'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9049155795569902)
 ,p_plug_display_sequence=>20
 ,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_grid_row_css_classes=>'HIDDEN'
+,p_plug_grid_column_css_classes=>'HIDDEN'
 ,p_plug_display_point=>'REGION_POSITION_05'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_plug_display_condition_type=>'NEVER'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
