@@ -53,7 +53,22 @@ wwv_flow_api.create_flow(
 '&CORE_SCHEMA..app.create_session();',
 ''))
 ,p_vpd_teardown_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'&CORE_SCHEMA..app.exit_session();',
+'-- some pages cause APP package invalidation',
+'DECLARE',
+'    STATE_INVALIDATED EXCEPTION;',
+'    PRAGMA EXCEPTION_INIT(STATE_INVALIDATED, -04061);',
+'BEGIN',
+'    &CORE_SCHEMA..app.exit_session();',
+'EXCEPTION',
+'--WHEN STATE_INVALIDATED THEN',
+'WHEN OTHERS THEN',
+'--',
+'-- reset package state ???',
+'-- request_id is lost',
+'--',
+'    app.log_warning(''APP_INVALIDATED'');',
+'    &CORE_SCHEMA..app.exit_session();    ',
+'END;',
 ''))
 ,p_runtime_api_usage=>'T:O'
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
@@ -76,7 +91,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_11=>'DEFAULT_LANG'
 ,p_substitution_value_11=>'EN'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220203230435'
+,p_last_upd_yyyymmddhh24miss=>'20220216201417'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>64
 ,p_ui_type_name => null
