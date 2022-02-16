@@ -19,7 +19,7 @@ wwv_flow_api.create_list_of_values(
 '    REPLACE(c.column_name, ''VALUE_'', '''') AS lang_id,',
 '    c.column_id',
 'FROM user_tab_cols c',
-'WHERE c.table_name      = ''TRANSLATIONS''',
+'WHERE c.table_name      = ''TRANSLATED_ITEMS''',
 '    AND c.column_name   LIKE ''VALUE_%'' ESCAPE ''\'';',
 ''))
 ,p_source_type=>'SQL'

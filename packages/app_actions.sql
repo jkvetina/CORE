@@ -1140,10 +1140,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
     PROCEDURE save_translated_items (
         in_action                       CHAR,
+        out_page_id             IN OUT  translated_items_overview.out_page_id%TYPE,
         out_item_name           IN OUT  translated_items_overview.out_item_name%TYPE,
-        in_item_name                    translated_items_overview.item_name%TYPE,
-        in_item_group                   translated_items_overview.item_group%TYPE,
         in_page_id                      translated_items_overview.page_id%TYPE,
+        in_item_name                    translated_items_overview.item_name%TYPE,
+        in_item_type                    translated_items_overview.item_type%TYPE,
         in_value_en                     translated_items_overview.value_en%TYPE,
         in_value_cz                     translated_items_overview.value_cz%TYPE,
         in_value_sk                     translated_items_overview.value_sk%TYPE,
@@ -1155,14 +1156,15 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     BEGIN
         v_log_id := app.log_module_json (
             'action',                   in_action,
+            'old_page_id',              out_page_id,
             'old_item_name',            out_item_name,
-            'item_name',                in_item_name,
-            'item_group',               in_item_group,
-            'page_id',                  in_page_id
+            'page_id',                  in_page_id,
+            'item_name',                in_item_name
         );
         --
         rec.app_id              := app.get_app_id();
-        rec.item_name           := REGEXP_REPLACE(in_item_group, '^([A-Z]+)[_]', '\1' || in_page_id || '_');
+        rec.page_id             := in_page_id;
+        rec.item_name           := in_item_name;
         rec.value_en            := in_value_en;
         rec.value_cz            := in_value_cz;
         rec.value_sk            := in_value_sk;
@@ -1174,11 +1176,13 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         IF in_action = 'D' THEN
             DELETE FROM translated_items t
             WHERE t.app_id              = rec.app_id
+                AND t.page_id           = out_page_id
                 AND t.item_name         = out_item_name;
         ELSE
             UPDATE translated_items t
             SET ROW = rec
             WHERE t.app_id              = rec.app_id
+                AND t.page_id           = out_page_id
                 AND t.item_name         = out_item_name;
             --
             IF SQL%ROWCOUNT = 0 THEN
@@ -1187,6 +1191,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             END IF;
         END IF;
         --
+        out_page_id                     := rec.page_id;
         out_item_name                   := rec.item_name;
         --
         app.log_success(v_log_id);

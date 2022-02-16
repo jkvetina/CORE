@@ -262,23 +262,20 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- how often do you add new languages?
         SELECT
             CASE COALESCE(in_lang, app.get_user_lang(), 'EN')
-                WHEN 'CZ' THEN  MIN(t.value_cz) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
-                WHEN 'SK' THEN  MIN(t.value_sk) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
-                WHEN 'PL' THEN  MIN(t.value_pl) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
-                WHEN 'HU' THEN  MIN(t.value_hu) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
-                ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC) END,
+                WHEN 'CZ' THEN  MIN(t.value_cz) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC, t.page_id DESC)
+                WHEN 'SK' THEN  MIN(t.value_sk) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC, t.page_id DESC)
+                WHEN 'PL' THEN  MIN(t.value_pl) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC, t.page_id DESC)
+                WHEN 'HU' THEN  MIN(t.value_hu) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC, t.page_id DESC)
+                ELSE            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC, t.page_id DESC) END,
             --
-            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC)
+            MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC, t.page_id DESC)
         INTO out_value, out_default
         FROM translated_items t
         WHERE t.app_id          = COALESCE(in_app_id, app.get_app_id())
-            AND t.item_name     IN (
-                in_name,
-                REGEXP_REPLACE(in_name, '^([A-Z]+)[_]', '\1' || COALESCE(in_page_id, app.get_page_id()) || '_'),
-                REGEXP_REPLACE(in_name, '^([A-Z]+)[_]', '\1' || '0_')
-            );
+            AND t.page_id       IN (0, COALESCE(in_page_id, app.get_page_id()))
+            AND t.item_name     = in_name;
         --
-        RETURN NVL(out_value, CASE WHEN NOT in_exact_match THEN out_default END);
+        RETURN COALESCE(out_value, out_default, '{' || in_name || '}');
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
@@ -311,7 +308,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         WHERE t.app_id          = COALESCE(in_app_id, app.get_app_id())
             AND t.message       = in_name;
         --
-        RETURN NVL(out_value, out_default);
+        RETURN COALESCE(out_value, out_default, in_name);
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
@@ -1016,7 +1013,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- transform icons
         FOR i IN 1 .. NVL(REGEXP_COUNT(out_name, '(#fa-)'), 0) + 1 LOOP
             out_search  := REGEXP_SUBSTR(out_name, '(#fa-[[:alnum:]+_-]+\s*)+');
-            out_name    := REPLACE(
+            out_name    := REPLACE (
                 out_name,
                 out_search,
                 ' &' || 'nbsp; <span class="fa' || REPLACE(REPLACE(out_search, '#fa-', '+'), '+', ' fa-') || '"></span> &' || 'nbsp; '
@@ -1025,17 +1022,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- translations
         out_name := REPLACE (
-            out_name, '&' || 'T_PAGE_NAME.',
+            out_name,
+            '&' || app.transl_page_name || '.',
             COALESCE (
-                app.get_translated_item('T_PAGE_NAME',  in_page_id, in_app_id, in_exact_match => TRUE),
-                app.get_translated_item('T_PAGE_TITLE', in_page_id, in_app_id, in_exact_match => TRUE),
-                app.get_translated_item('T_PAGE_NAME',  in_page_id, in_app_id, 'EN'),
-                app.get_translated_item('T_PAGE_TITLE', in_page_id, in_app_id, 'EN')
+                app.get_translated_item(app.transl_page_name,  in_page_id, in_app_id),
+                app.get_translated_item(app.transl_page_title, in_page_id, in_app_id)
             )
         );
-
-        -- custom name conversion
-        out_name := NVL(app.call_custom_function(NULL, out_name), out_name);
         --
         RETURN REGEXP_REPLACE(out_name, '((^\s*&' || 'nbsp;\s*)|(\s*&' || 'nbsp;\s*$))', '');  -- trim hard spaces
     EXCEPTION
@@ -1048,31 +1041,28 @@ CREATE OR REPLACE PACKAGE BODY app AS
     FUNCTION get_page_title (
         in_page_id              navigation.page_id%TYPE     := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL,
-        in_name                 VARCHAR2                    := NULL
+        in_title                VARCHAR2                    := NULL
     )
     RETURN VARCHAR2
     AS
-        out_name                apex_application_pages.page_title%TYPE      := in_name;
+        out_title               apex_application_pages.page_title%TYPE      := in_title;
     BEGIN
-        IF out_name IS NULL THEN
-            SELECT p.page_title INTO out_name
+        IF out_title IS NULL THEN
+            SELECT p.page_title INTO out_title
             FROM apex_application_pages p
             WHERE p.application_id      = COALESCE(in_app_id, app.get_app_id())
                 AND p.page_id           = COALESCE(in_page_id, app.get_page_id());
         END IF;
 
         -- translations
-        out_name := REPLACE(out_name, '&' || 'T_PAGE_TITLE.', app.get_translated_item('T_PAGE_TITLE', in_page_id, in_app_id));
-        --
-        IF out_name IS NULL THEN
-            out_name := app.get_page_name (     -- fallback, reuse page name when title is missing
-                in_page_id      => in_page_id,
-                in_app_id       => in_app_id,
-                in_name         => in_name
-            );
-        END IF;
-        --
-        RETURN out_name;
+        RETURN REPLACE (
+            out_title,
+            '&' || app.transl_page_title || '.',
+            COALESCE (
+                app.get_translated_item(app.transl_page_title, in_page_id, in_app_id),
+                app.get_translated_item(app.transl_page_name,  in_page_id, in_app_id)
+            )
+        );
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;

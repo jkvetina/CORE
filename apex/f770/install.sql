@@ -22,6 +22,10 @@ prompt --install
 @@application/shared_components/logic/application_items/g_tomorrow.sql
 @@application/shared_components/logic/application_items/g_version.sql
 @@application/shared_components/logic/application_items/g_yesterday.sql
+@@application/shared_components/logic/application_items/t_button_refresh.sql
+@@application/shared_components/logic/application_items/t_button_submit.sql
+@@application/shared_components/logic/application_items/t_page_name.sql
+@@application/shared_components/logic/application_items/t_page_title.sql
 @@application/shared_components/logic/application_settings.sql
 @@application/shared_components/navigation/tabs/standard.sql
 @@application/shared_components/navigation/tabs/parent.sql

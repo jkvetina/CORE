@@ -84,6 +84,8 @@ CREATE OR REPLACE PACKAGE app AS
 
     -- translations
     transl_item_prefix          CONSTANT VARCHAR2(30)           := 'T';
+    transl_page_name            CONSTANT VARCHAR2(30)           := 'T_PAGE_NAME';
+    transl_page_title           CONSTANT VARCHAR2(30)           := 'T_PAGE_TITLE';
 
     -- list/array of log_id
     TYPE arr_logs_log_id IS
@@ -485,7 +487,7 @@ CREATE OR REPLACE PACKAGE app AS
     FUNCTION get_page_title (
         in_page_id              navigation.page_id%TYPE     := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL,
-        in_name                 VARCHAR2                    := NULL
+        in_title                VARCHAR2                    := NULL
     )
     RETURN VARCHAR2;
 
