@@ -83,6 +83,11 @@ var apex_page_loaded = function() {
         }
     });
 
+    // hide message already created on page
+    setTimeout(() => {
+        apex.message.hidePageSuccess();  // hide message
+    }, 3000);
+
     // show notifications based on page zero items
     if (item_error_value.length) {
         // show error/warning
