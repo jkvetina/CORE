@@ -205,8 +205,7 @@ CREATE OR REPLACE PACKAGE app AS
     -- Get user language
     --
     FUNCTION get_user_lang
-    RETURN users.lang_id%TYPE
-    RESULT_CACHE;
+    RETURN users.lang_id%TYPE;
 
 
 

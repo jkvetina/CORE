@@ -231,7 +231,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
     FUNCTION get_user_lang
     RETURN users.lang_id%TYPE
-    RESULT_CACHE
     AS
         out_lang                users.lang_id%TYPE;
     BEGIN
