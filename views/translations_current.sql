@@ -14,7 +14,7 @@ SELECT
 FROM translated_items t
 JOIN x
     ON x.app_id                 = t.app_id
-    AND x.page_id               = t.page_id
+    AND (x.page_id              = t.page_id OR t.page_id = 0)
 LEFT JOIN apex_application_page_items i
     ON i.application_id         = t.app_id
     AND i.page_id               = t.page_id
