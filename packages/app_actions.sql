@@ -277,21 +277,23 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         -- show untranslated items to developers
         IF app.is_developer() THEN
             FOR c IN (
-                SELECT i.item_name
+                SELECT
+                    i.item_name,
+                    app.get_translated_item(i.item_name) AS item_value
                 FROM apex_application_page_items i
-                WHERE i.application_id  = app.get_app_id()
-                    AND i.page_id       = app.get_page_id()
-                    AND i.item_name     LIKE 'T%'
-            ) LOOP
-                IF app.get_translated_item(c.item_name) IS NULL THEN
-                    app.set_item (
-                        in_name     => c.item_name,
-                        in_value    => '{' || c.item_name || '}',
-                        in_raise    => FALSE
-                    );
+                WHERE i.application_id      = app.get_app_id()
+                    AND i.page_id           = app.get_page_id()
+                    AND i.item_name         LIKE 'T%'
                     --
-                    app.log_warning('MISSING_TRANSLATION', c.item_name);
-                END IF;
+                    AND app.get_translated_item(i.item_name) = '{' || i.item_name || '}'
+            ) LOOP
+                app.set_item (
+                    in_name     => c.item_name,
+                    in_value    => c.item_value,
+                    in_raise    => FALSE
+                );
+                --
+                app.log_warning('MISSING_TRANSLATION', c.item_name);
             END LOOP;
         END IF;
         
