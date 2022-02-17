@@ -134,6 +134,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         END LOOP;
         --
         app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 
@@ -165,6 +170,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         END LOOP;
         --
         app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 
@@ -201,6 +211,12 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         UPDATE SET g.order#     = n.new_order#;
         --
         app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
     PROCEDURE init_filters
     AS
     BEGIN
