@@ -17,24 +17,7 @@ wwv_flow_api.create_flow_process(
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_GLOBALS'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'DECLARE',
-'    v_date DATE;',
-'BEGIN',
-'    v_date := COALESCE(app.get_date_item(''$TODAY''), app.get_date_item(''G_TODAY''), TRUNC(SYSDATE));',
-'    --',
-'    app.set_item(''G_TODAY'',         app.get_date(v_date));',
-'    app.set_item(''G_TODAY_LABEL'',   ''Filter Date ('' || INITCAP(RTRIM(TO_CHAR(v_date, ''DAY''))) ||',
-'        CASE v_date',
-'            WHEN TRUNC(SYSDATE)     THEN '' - Today''',
-'            WHEN TRUNC(SYSDATE) - 1 THEN '' - Yesterday''',
-'            ELSE '''' END || '')''',
-'    );',
-'    app.set_item(''G_YESTERDAY'',     app.get_date(v_date - 1));',
-'    app.set_item(''G_TOMORROW'',      app.get_date(v_date + 1));',
-'    --',
-'    app.set_item(''$TODAY'', in_raise => FALSE);',
-'END;'))
+,p_process_sql_clob=>'app_actions.init_globals();'
 ,p_process_clob_language=>'PLSQL'
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 );

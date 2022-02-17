@@ -97,6 +97,18 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+    PROCEDURE init_filters;
+
+
+
+    PROCEDURE init_globals;
+
+
+
+    PROCEDURE init_translations;
+
+
+
 
 
 

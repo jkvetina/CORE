@@ -201,6 +201,120 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         UPDATE SET g.order#     = n.new_order#;
         --
         app.log_success();
+    PROCEDURE init_filters
+    AS
+    BEGIN
+        FOR c IN (
+            SELECT i.item_name, r.static_id
+            FROM apex_application_page_items i
+            JOIN apex_application_page_regions r
+                ON r.application_id     = i.application_id
+                AND r.page_id           = i.page_id
+                AND r.static_id         IS NOT NULL
+            WHERE i.item_name           LIKE 'P' || TO_CHAR(r.page_id) || '_FILTERS_' || r.static_id
+                AND r.application_id    = app.get_app_id()
+                AND r.page_id           = app.get_page_id()
+        ) LOOP
+            app.set_item(c.item_name, app.get_region_filters(c.static_id));
+        END LOOP;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE init_globals
+    AS
+        v_date      DATE;
+        v_today     DATE;
+    BEGIN
+        v_date      := COALESCE(app.get_date_item('$TODAY'), app.get_date_item('G_TODAY'), TRUNC(SYSDATE));
+        v_today     := app.get_date(v_date);
+        --
+        app.set_item('G_TODAY',         v_today);
+        app.set_item('G_TODAY_LABEL',   'Filter Date (' || INITCAP(RTRIM(TO_CHAR(v_date, 'DAY'))) ||
+            CASE v_date
+                WHEN TRUNC(SYSDATE)     THEN ' - Today'
+                WHEN TRUNC(SYSDATE) - 1 THEN ' - Yesterday'
+                ELSE '' END || ')'
+        );
+        app.set_item('G_YESTERDAY',     v_today - 1);
+        app.set_item('G_TOMORROW',      v_today + 1);
+        --
+        app.set_item('$TODAY', in_raise => FALSE);
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE init_translations
+    AS
+        v_footer VARCHAR2(4000);
+    BEGIN
+        -- show untranslated items to developers
+        IF app.is_developer() THEN
+            FOR c IN (
+                SELECT i.item_name
+                FROM apex_application_page_items i
+                WHERE i.application_id  = app.get_app_id()
+                    AND i.page_id       = app.get_page_id()
+                    AND i.item_name     LIKE 'T%'
+            ) LOOP
+                IF app.get_translated_item(c.item_name) IS NULL THEN
+                    app.set_item (
+                        in_name     => c.item_name,
+                        in_value    => '{' || c.item_name || '}',
+                        in_raise    => FALSE
+                    );
+                    --
+                    app.log_warning('MISSING_TRANSLATION', c.item_name);
+                END IF;
+            END LOOP;
+        END IF;
+        
+        -- load translations
+        FOR c IN (
+            SELECT
+                NVL(t.page_item_name, t.app_item_name) AS item_name
+            FROM translations_current t
+            WHERE NVL(t.page_item_name, t.app_item_name) IS NOT NULL
+            --
+            -- @TODO: T_GRID* MISSING -> THEN MOVE TO MESSAGES
+            --
+            -- @TODO: MESSAGES matching APP ITEMS prepare too
+            --
+        ) LOOP
+            app.set_item (
+                in_name     => c.item_name,
+                in_value    => app.get_translated_item(c.item_name),
+                in_raise    => FALSE
+            );
+            IF app.is_debug_on() THEN
+                app.log_debug('SET_TRANSLATION', c.item_name, app.get_translated_item(c.item_name));
+            END IF;
+        END LOOP;
+        
+        -- show page comment into footer
+        SELECT p.page_comment INTO v_footer
+        FROM apex_application_pages p
+        WHERE p.application_id  = app.get_app_id()
+            AND p.page_id       = app.get_page_id();
+        --
+        IF v_footer IS NOT NULL THEN
+            app.set_item('G_FOOTER', v_footer);
+        END IF;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
     END;
 
 

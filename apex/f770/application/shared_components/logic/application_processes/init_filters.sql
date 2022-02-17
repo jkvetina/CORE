@@ -17,21 +17,7 @@ wwv_flow_api.create_flow_process(
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_FILTERS'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'-- show filters',
-'FOR c IN (',
-'    SELECT i.item_name, r.static_id',
-'    FROM apex_application_page_items i',
-'    JOIN apex_application_page_regions r',
-'        ON r.application_id     = i.application_id',
-'        AND r.page_id           = i.page_id',
-'        AND r.static_id         IS NOT NULL',
-'    WHERE i.item_name           LIKE ''P'' || r.page_id || ''_FILTERS_'' || r.static_id',
-'        AND r.application_id    = app.get_app_id()',
-'        AND r.page_id           = app.get_page_id()',
-') LOOP',
-'    app.set_item(c.item_name, app.get_region_filters(c.static_id));',
-'END LOOP;'))
+,p_process_sql_clob=>'app_actions.init_filters();'
 ,p_process_clob_language=>'PLSQL'
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 );
