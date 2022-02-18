@@ -237,8 +237,9 @@ ul.a-ListView li.a-ListView-divider.ui-bar-inherit {
 
 /* SHOW SOURCE CODE AS MONOSPACE */
 .SOURCE_CODE div.t-Form-itemWrapper,
-.SOURCE_CODE td.t-Report-cell {
-    font-family:            monospace;
+.SOURCE_CODE td.t-Report-cell,
+span.SOURCE_CODE {
+    font-family:            'Roboto Mono', monospace;
     white-space:            pre;
 }
 .SOURCE_CODE td.t-Report-cell {
