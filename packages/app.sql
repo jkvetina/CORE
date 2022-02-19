@@ -2693,7 +2693,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.created_at          := SYSTIMESTAMP;
 
         -- dont log blacklisted records
-        IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec.flag, rec.module_name, rec.action_name) THEN
+        IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec.flag, rec.module_name, rec.action_name) AND rec.flag NOT IN (app.flag_error, app.flag_warning) THEN
             RETURN NULL;    -- skip blacklisted record only if there is no error and debug mode off
         END IF;
 
