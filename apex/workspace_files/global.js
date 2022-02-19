@@ -155,6 +155,17 @@ var unified_ig_toolbar = function(config) {
     var $ = apex.jQuery;
     var toolbarData = $.apex.interactiveGrid.copyDefaultToolbar();
     var toolbarGroup = toolbarData.toolbarFind('actions4');
+    //var actionsGroup = toolbarData.toolbarFind('actions1');
+
+    // show refresh button before save button
+    // https://docs.oracle.com/en/database/oracle/application-express/20.1/aexjs/interactiveGrid.html#actions-section
+    toolbarGroup.controls.push({
+        type            : 'BUTTON',
+        action          : 'refresh',
+        icon            : 'fa fa-refresh',
+        iconBeforeLabel : true,
+        label           : ' '  // how to get rid of the space and show just icon?
+    });
 
     // only for developers
     if ($('#apexDevToolbar.a-DevToolbar')) {
@@ -172,9 +183,9 @@ var unified_ig_toolbar = function(config) {
         addrowAction.iconBeforeLabel    = true;
         addrowAction.label              = ' ';
         addrowAction.hot                = false;
-        //
-        config.toolbarData = toolbarData;
     }
+    //
+    config.toolbarData = toolbarData;
     //
     return config;
 };
