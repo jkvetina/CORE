@@ -73,7 +73,6 @@
     font-family:            'Roboto Slab', serif;
     font-style:             normal;
     font-weight:            400;
-    font-size:              1.3rem;
 }
 #t_Header > #top_header > nav ul li a {
     display:                block;
@@ -132,7 +131,7 @@
     color:                  #fff;
     font-family:            'Roboto', sans-serif;
     font-weight:            bold;
-    font-size:              1rem;
+    font-size:              1.1rem;
 }
 
 
@@ -153,7 +152,7 @@
  */
 #t_Header > #top_header > nav ul li {
     background:             #7A9867;
-    font-size:              1.3rem;
+    font-size:              1.4rem;
 }
 
 
