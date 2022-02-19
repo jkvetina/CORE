@@ -162,9 +162,9 @@ var unified_ig_toolbar = function(config) {
     toolbarGroup.controls.push({
         type            : 'BUTTON',
         action          : 'refresh',
-        icon            : 'fa fa-refresh',
+        icon            : '',  // fa fa-refresh
         iconBeforeLabel : true,
-        label           : ' '  // how to get rid of the space and show just icon?
+        label           : 'Refresh Data'  // how to get rid of the space and show just icon?
     });
 
     // only for developers

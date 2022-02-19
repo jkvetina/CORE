@@ -1,4 +1,9 @@
 CREATE OR REPLACE VIEW translated_extracts AS
+--
+-- @TODO: seradit podle display_position path (connect by)
+--
+-- @TODO: MINUS FOR REMOVED ITEMS/PAGES
+--
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()    AS app_id,
