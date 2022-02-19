@@ -1803,7 +1803,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         v_args                  logs.arguments%TYPE;
     BEGIN
-        map_tree := app.arr_map_tree();
+        app.init_map();
 
         -- parse arguments
         v_args := app.get_request_url(in_arguments_only => TRUE);
@@ -4144,6 +4144,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         -- clear map for tracking logs hierarchy
         map_tree := app.arr_map_tree();
+        --
+        recent_log_id       := NULL;
+        recent_request_id   := NULL;
+        recent_tree_id      := NULL;
     END;
 
 BEGIN
