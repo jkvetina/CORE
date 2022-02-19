@@ -2736,12 +2736,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- add call stack
         IF (SQLCODE != 0 OR INSTR(app.track_callstack, rec.flag) > 0) THEN
-            rec.payload := SUBSTR(rec.payload || app.get_shorter_stack(app.get_call_stack()), 1, app.length_payload);
+            rec.payload := SUBSTR(rec.payload || CHR(10) || '--' || CHR(10) || app.get_shorter_stack(app.get_call_stack()), 1, app.length_payload);
         END IF;
 
         -- add error stack
         IF SQLCODE != 0 THEN
-            rec.payload := SUBSTR(rec.payload || app.get_shorter_stack(app.get_error_stack()), 1, app.length_payload);
+            rec.payload := SUBSTR(rec.payload || CHR(10) || '--' || CHR(10) || app.get_shorter_stack(app.get_error_stack()), 1, app.length_payload);
         END IF;
 
         -- print message to console
@@ -3560,7 +3560,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- create DML log table
-        --
         IF app.is_debug_on() THEN
             app.log_debug('DML', app.get_owner(app.get_app_id()) || '.' || in_table_name);
             app.log_debug('ERR', app.get_owner(app.get_app_id()), app.get_dml_table(in_table_name));
@@ -3659,7 +3658,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                             in_table_name   => rec.table_name,
                             in_table_rowid  => rec.table_rowid,
                             in_operation    => rec.operation
-                        ) || CHR(10) || '--' || CHR(10)
+                        )
                     );
             
                     -- remove from DML ERR table
