@@ -3605,6 +3605,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         r                       SYS_REFCURSOR;
         q                       VARCHAR2(32767);
+        dml_log_id              logs.log_id%TYPE;
+        --
+        PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         app.log_module(in_table_name);
         --
@@ -3616,7 +3619,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
             FROM user_tables t
             JOIN all_tables a
-                ON a.owner          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()))
+                ON a.owner          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()), USER)
                 AND a.table_name    = app.get_dml_table(t.table_name)
                 AND a.table_name    != t.table_name
             JOIN all_tab_cols c
@@ -3643,7 +3646,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     FETCH r INTO rec;
                     EXIT WHEN r%NOTFOUND;
                     --
-                    app.log_error (
+                    dml_log_id := app.log_error (
                         in_action_name      => 'DML_ERROR',
                         in_arg1             => rec.operation,
                         in_arg2             => rec.table_name,
@@ -3662,10 +3665,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     );
             
                     -- remove from DML ERR table
-                    EXECUTE IMMEDIATE
-                        'DELETE FROM ' || app.get_dml_table(rec.table_name) ||
-                        ' WHERE ora_err_tag$ = :id'
-                        USING rec.log_id;
+                    IF dml_log_id IS NOT NULL THEN
+                        EXECUTE IMMEDIATE
+                            'DELETE FROM ' || app.get_dml_table(rec.table_name) ||
+                            ' WHERE ora_err_tag$ = :id'
+                            USING rec.log_id;
+                        COMMIT;
+                    END IF;
                 END LOOP;
                 --
                 CLOSE r;
@@ -3678,10 +3684,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END LOOP;
         --
         app.log_success();
+        --
+        COMMIT;
     EXCEPTION
     WHEN app.app_exception THEN
+        COMMIT;
         RAISE;
     WHEN OTHERS THEN
+        COMMIT;
         app.raise_error();
     END;
 
