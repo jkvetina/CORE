@@ -2793,7 +2793,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         in_action_name          logs.action_name%TYPE
     )
     RETURN BOOLEAN
-    RESULT_CACHE
     AS
         v_blacklisted          CHAR;
     BEGIN

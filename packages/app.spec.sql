@@ -1225,8 +1225,7 @@ CREATE OR REPLACE PACKAGE app AS
         in_module_name          logs.module_name%TYPE,
         in_action_name          logs.action_name%TYPE
     )
-    RETURN BOOLEAN
-    RESULT_CACHE;
+    RETURN BOOLEAN;
 
 
 
