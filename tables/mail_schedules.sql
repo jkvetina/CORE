@@ -20,13 +20,13 @@ CREATE TABLE mail_schedules (
         PRIMARY KEY (app_id, schedule_id),
     --
     CONSTRAINT ch_mail_schedules_month
-        CHECK (REGEXP_LIKE(schedule_month,      '^(\d+,?\s*)+$') OR schedule_month IS NULL),
+        CHECK (REGEXP_LIKE(schedule_month,      '^(\d+,?\s*)|(\d+[-]\d+,?\s*)+|([A-Z]{3}\s*)+|([A-Z]{3}[-,][A-Z]{3},?\s*)+$') OR schedule_month IS NULL),
     --
     CONSTRAINT ch_mail_schedules_day
-        CHECK (REGEXP_LIKE(schedule_day,        '^(\d+,?\s*)+$') OR schedule_day IS NULL),
+        CHECK (REGEXP_LIKE(schedule_day,        '^(\d+,?\s*)|(\d+[-]\d+,?\s*)+$') OR schedule_day IS NULL),
     --
     CONSTRAINT ch_mail_schedules_weekday
-        CHECK (REGEXP_LIKE(schedule_weekday,    '^(\d+,?\s*)+|(\d+[-]\d+)$') OR schedule_weekday IS NULL),
+        CHECK (REGEXP_LIKE(schedule_weekday,    '^(\d+,?\s*)|(\d+[-]\d+,?\s*)+|([A-Z]{3},?\s*)+|([A-Z]{3}[-][A-Z]{3},?\s*)+$') OR schedule_weekday IS NULL),
     --
     CONSTRAINT ch_mail_schedules_hour
         CHECK (REGEXP_LIKE(schedule_hour,       '^(\d+,?\s*)+|(\d+[-]\d,?\s*)+$') OR schedule_hour IS NULL),
@@ -35,7 +35,10 @@ CREATE TABLE mail_schedules (
         CHECK (REGEXP_LIKE(schedule_minute,     '^(\d+,?\s*)+$') OR schedule_minute IS NULL),
     --
     CONSTRAINT ch_mail_schedules_interval
-        CHECK (REGEXP_LIKE(schedule_interval,   '^(\d+)$') OR schedule_interval IS NULL)
+        CHECK (REGEXP_LIKE(schedule_interval,   '^(\d+)$') OR schedule_interval IS NULL),
+    --
+    CONSTRAINT ch_mail_schedules_min_or_int
+        CHECK ((schedule_minute IS NULL AND schedule_interval IS NOT NULL) OR (schedule_minute IS NOT NULL AND schedule_interval IS NULL))
 );
 --
 COMMENT ON TABLE  mail_schedules                        IS '[CORE] mail_schedules...';
