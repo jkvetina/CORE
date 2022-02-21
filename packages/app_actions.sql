@@ -325,14 +325,12 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             FROM apex_application_pages p
             WHERE p.application_id  = app.get_app_id()
                 AND p.page_id       = app.get_page_id();
-            --
-            IF v_footer IS NOT NULL THEN
-                app.set_item('G_FOOTER', v_footer);
-            END IF;
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
             NULL;
         END;
+        --
+        app.set_item('G_FOOTER', v_footer);
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
