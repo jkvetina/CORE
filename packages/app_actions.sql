@@ -342,7 +342,137 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    PROCEDURE rebuild_page_947
+    AS
+        in_app_id           CONSTANT apex_application_pages.application_id%TYPE         := app.get_app_id();
+        in_page_id          CONSTANT apex_application_pages.page_id%TYPE                := 947;
+        in_group_name       CONSTANT apex_application_page_groups.page_group_name%TYPE  := 'DASHBOARD';
+        in_page_name        CONSTANT apex_application_pages.page_name%TYPE              := 'TRANSLATIONS';
+    BEGIN
+        app.log_module();
 
+        -- get all rows from translation table and create items on page for each of them
+        FOR c IN (
+            SELECT
+                a.application_id,
+                a.owner                     AS p_owner,
+                a.workspace_id              AS p_workspace_id,
+                a.application_id            AS p_application_id,
+                r.api_compatibility         AS p_version,
+                r.version_no                AS p_release,
+                i.user_interface_id         AS p_interface_id,
+                g.group_id                  AS p_group_id,
+                m.template_id               AS p_template_id,
+                f.template_id               AS p_field_template,
+                0                           AS p_region_id
+            FROM apex_release r
+            JOIN apex_applications a
+                ON a.application_id         = in_app_id
+            JOIN apex_appl_user_interfaces i
+                ON i.application_id         = a.application_id
+            JOIN apex_application_templates m
+                ON m.application_id         = in_app_id
+                AND m.template_type         = 'Region'
+                AND m.internal_name         = 'BLANK_WITH_ATTRIBUTES'
+            JOIN apex_application_templates f
+                ON f.application_id         = a.application_id
+                AND f.theme_number          = 42
+                AND f.internal_name         = 'OPTIONAL_FLOATING'
+            LEFT JOIN apex_application_page_groups g
+                ON g.application_id         = a.application_id
+                AND g.page_group_name       = in_group_name
+        ) LOOP
+            -- fake page import
+            wwv_flow_api.import_begin (
+                p_version_yyyy_mm_dd        => c.p_version,
+                p_release                   => c.p_release,
+                p_default_workspace_id      => c.p_workspace_id,
+                p_default_application_id    => c.application_id,
+                p_default_id_offset         => 0,
+                p_default_owner             => c.p_owner
+            );
+
+            -- drop page
+            wwv_flow_api.remove_page (
+                p_flow_id   => wwv_flow.g_flow_id,
+                p_page_id   => in_page_id
+            );
+
+            -- create page
+            wwv_flow_api.create_page (
+                p_id                            => in_page_id,
+                p_user_interface_id             => wwv_flow_api.id(c.p_interface_id),
+                p_name                          => in_page_name,
+                p_alias                         => '',
+                p_step_title                    => in_page_name,
+                p_autocomplete_on_off           => 'OFF',
+                p_group_id                      => wwv_flow_api.id(c.p_group_id),
+                p_page_template_options         => '#DEFAULT#',
+                p_last_updated_by               => USER,
+                p_last_upd_yyyymmddhh24miss     => TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+            );
+
+            -- create region
+            c.p_region_id := wwv_flow_id.next_val;
+            --
+            wwv_flow_api.create_page_plug(
+                p_id                            => wwv_flow_api.id(c.p_region_id),
+                p_plug_name                     => in_page_name,
+                p_region_template_options       => '#DEFAULT#',
+                p_plug_template                 => wwv_flow_api.id(c.p_template_id),
+                p_plug_display_sequence         => 10,
+                p_include_in_reg_disp_sel_yn    => 'Y',
+                p_plug_grid_row_css_classes     => 'HIDDEN',
+                p_plug_display_point            => 'BODY',
+                p_plug_query_options            => 'DERIVED_REPORT_COLUMNS',
+                p_attribute_01                  => 'N',
+                p_attribute_02                  => 'HTML'
+            );
+
+            -- create items
+            FOR d IN (
+                SELECT
+                    t.item_name,
+                    ROW_NUMBER() OVER (ORDER BY t.item_name) * 10 AS display_sequence
+                FROM translated_items t
+                LEFT JOIN apex_application_items i
+                    ON i.application_id     = t.app_id
+                    AND i.item_name         = t.item_name
+                LEFT JOIN apex_application_page_items p
+                    ON p.application_id     = t.app_id
+                    AND p.item_name         = t.item_name
+                WHERE t.app_id              = in_app_id
+                    AND i.item_name         IS NULL
+                    AND p.item_name         IS NULL
+                GROUP BY t.item_name
+            ) LOOP
+                wwv_flow_api.create_page_item (
+                    p_id                        => wwv_flow_api.id(wwv_flow_id.next_val),
+                    p_name                      => d.item_name,
+                    p_item_sequence             => d.display_sequence,
+                    p_item_plug_id              => wwv_flow_api.id(c.p_region_id),
+                    p_prompt                    => ' ',
+                    p_display_as                => 'NATIVE_TEXT_FIELD',
+                    p_cSize                     => 2000,
+                    p_field_template            => wwv_flow_api.id(c.p_field_template),
+                    p_item_template_options     => '#DEFAULT#',
+                    p_attribute_01              => 'N',
+                    p_attribute_02              => 'N',
+                    p_attribute_04              => 'TEXT',
+                    p_attribute_05              => 'BOTH'
+                );
+            END LOOP;
+            --
+            wwv_flow_api.import_end(p_auto_install_sup_obj => nvl(wwv_flow_application_install.get_auto_install_sup_obj, false));
+        END LOOP;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
 
 
 

@@ -70,7 +70,7 @@ wwv_flow_api.create_flow(
 '    &CORE_SCHEMA..app.exit_session();    ',
 'END;',
 ''))
-,p_runtime_api_usage=>'T:O'
+,p_runtime_api_usage=>'T:O:W'
 ,p_security_scheme=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_rejoin_existing_sessions=>'N'
 ,p_csv_encoding=>'Y'
@@ -91,7 +91,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_11=>'DEFAULT_LANG'
 ,p_substitution_value_11=>'EN'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220216201417'
+,p_last_upd_yyyymmddhh24miss=>'20220221195742'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>64
 ,p_ui_type_name => null

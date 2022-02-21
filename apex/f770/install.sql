@@ -23,10 +23,6 @@ prompt --install
 @@application/shared_components/logic/application_items/g_tomorrow.sql
 @@application/shared_components/logic/application_items/g_version.sql
 @@application/shared_components/logic/application_items/g_yesterday.sql
-@@application/shared_components/logic/application_items/t_button_refresh.sql
-@@application/shared_components/logic/application_items/t_button_submit.sql
-@@application/shared_components/logic/application_items/t_page_name.sql
-@@application/shared_components/logic/application_items/t_page_title.sql
 @@application/shared_components/logic/application_settings.sql
 @@application/shared_components/navigation/tabs/standard.sql
 @@application/shared_components/navigation/tabs/parent.sql
@@ -137,6 +133,7 @@ prompt --install
 @@application/pages/page_00925.sql
 @@application/pages/page_00940.sql
 @@application/pages/page_00945.sql
+@@application/pages/page_00947.sql
 @@application/pages/page_00950.sql
 @@application/pages/page_00951.sql
 @@application/pages/page_00952.sql

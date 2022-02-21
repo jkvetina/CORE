@@ -97,15 +97,31 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+    --
+    -- Compute filters used on page region
+    --
     PROCEDURE init_filters;
 
 
 
+    --
+    -- Compute global items
+    --
     PROCEDURE init_globals;
 
 
 
+    --
+    -- Compute translations for active page
+    --
     PROCEDURE init_translations;
+
+
+
+    --
+    -- Create page with page items from translation table
+    --
+    PROCEDURE rebuild_page_947;
 
 
 

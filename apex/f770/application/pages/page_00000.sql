@@ -20,7 +20,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_protection_level=>'D'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220215062908'
+,p_last_upd_yyyymmddhh24miss=>'20220221190224'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(16222516003514114)
@@ -646,27 +646,12 @@ wwv_flow_api.create_report_columns(
 ,p_include_in_export=>'Y'
 );
 wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(22939890463325303)
-,p_plug_name=>'TRANSLATIONS'
-,p_region_css_classes=>'HIDDEN'
-,p_region_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(9049155795569902)
-,p_plug_display_sequence=>20
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_grid_row_css_classes=>'HIDDEN'
-,p_plug_grid_column_css_classes=>'HIDDEN'
-,p_plug_display_point=>'REGION_POSITION_05'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
-wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23726400898559213)
 ,p_plug_name=>'NOTIFICATIONS'
 ,p_region_css_classes=>'HIDDEN'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9049155795569902)
-,p_plug_display_sequence=>30
+,p_plug_display_sequence=>20
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_grid_row_css_classes=>'HIDDEN'
 ,p_plug_display_point=>'REGION_POSITION_05'
