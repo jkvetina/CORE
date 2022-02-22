@@ -17,8 +17,8 @@ JOIN x
     AND (x.page_id              = t.page_id OR t.page_id = 0)
 LEFT JOIN apex_application_page_items i
     ON i.application_id         = t.app_id
-    AND i.page_id               = t.page_id
-    AND i.item_name             = REGEXP_REPLACE(t.item_name, '^([A-Z]+)[_]', '\1' || t.page_id || '_')
+    AND i.page_id               IN (947, t.page_id)
+    AND i.item_name             = t.item_name
 LEFT JOIN apex_application_items a
     ON a.application_id         = t.app_id
     AND a.item_name             = t.item_name;

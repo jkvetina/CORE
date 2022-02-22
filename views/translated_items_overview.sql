@@ -10,7 +10,7 @@ SELECT
     t.page_id,
     t.item_name,
     --
-    NULL                AS item_type,   -- @TODO: fix later
+    REGEXP_SUBSTR(t.item_name, '^[^_]+[_]([^_]+)', 1, 1, NULL, 1) AS item_type,
     --
     CASE WHEN i.item_name IS NOT NULL THEN 'Y' END AS is_page_item,
     CASE WHEN a.item_name IS NOT NULL THEN 'Y' END AS is_app_item,
@@ -25,8 +25,8 @@ JOIN x
     ON x.app_id             = t.app_id
 LEFT JOIN apex_application_page_items i
     ON i.application_id     = t.app_id
-    AND i.page_id           = t.page_id
-    AND i.item_name         = REGEXP_REPLACE(t.item_name, '^([A-Z]+)[_]', '\1' || t.page_id || '_')
+    AND i.page_id           IN (947, t.page_id)
+    AND i.item_name         = t.item_name
 LEFT JOIN apex_application_items a
     ON a.application_id     = t.app_id
     AND a.item_name         = t.item_name;

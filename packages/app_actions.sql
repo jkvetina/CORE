@@ -274,52 +274,24 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     AS
         v_footer VARCHAR2(4000);
     BEGIN
-        -- show untranslated items to developers
-        IF app.is_developer() THEN
-            FOR c IN (
-                SELECT
-                    i.item_name,
-                    app.get_translated_item(i.item_name) AS item_value
-                FROM apex_application_page_items i
-                WHERE i.application_id      = app.get_app_id()
-                    AND i.page_id           = app.get_page_id()
-                    AND i.item_name         LIKE 'T%'
-                    --
-                    AND app.get_translated_item(i.item_name) = '{' || i.item_name || '}'
-            ) LOOP
-                app.set_item (
-                    in_name     => c.item_name,
-                    in_value    => c.item_value,
-                    in_raise    => FALSE
-                );
-                --
-                app.log_warning('MISSING_TRANSLATION', c.item_name);
-            END LOOP;
-        END IF;
-        
         -- load translations
         FOR c IN (
             SELECT
-                NVL(t.page_item_name, t.app_item_name) AS item_name
+                t.item_name,
+                app.get_translated_item(t.item_name) AS item_value
             FROM translations_current t
-            WHERE NVL(t.page_item_name, t.app_item_name) IS NOT NULL
-            --
-            -- @TODO: T_GRID* MISSING -> THEN MOVE TO MESSAGES
-            --
-            -- @TODO: MESSAGES matching APP ITEMS prepare too
-            --
         ) LOOP
             app.set_item (
                 in_name     => c.item_name,
-                in_value    => app.get_translated_item(c.item_name),
+                in_value    => COALESCE(c.item_value, CASE WHEN app.is_developer_y() = 'Y' THEN '${' || c.item_name || '}' END),
                 in_raise    => FALSE
             );
             IF app.is_debug_on() THEN
-                app.log_debug('SET_TRANSLATION', c.item_name, app.get_translated_item(c.item_name));
+                app.log_debug('SET_TRANSLATION', c.item_name, c.item_value);
             END IF;
         END LOOP;
         
-        -- show page comment into footer
+        -- show page comment in footer
         BEGIN
             SELECT p.page_comment INTO v_footer
             FROM apex_application_pages p

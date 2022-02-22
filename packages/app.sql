@@ -1351,7 +1351,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             SELECT 'Y' INTO is_valid
             FROM apex_application_page_items p
             WHERE p.application_id      = v_app_id
-                AND p.page_id           IN (0, v_page_id)
+                AND p.page_id           IN (0, v_page_id, 947)
                 AND p.item_name         = v_item_name;
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
