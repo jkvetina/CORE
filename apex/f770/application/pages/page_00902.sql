@@ -804,7 +804,9 @@ wwv_flow_api.create_page_da_action(
 'if (curr) {',
 '    var grid = apex.region(''LOGS_TREE'').widget().interactiveGrid(''getViews'', ''grid'');',
 '    var rec = grid.model.getRecord(curr);',
-'    grid.setSelectedRecords([rec], true);',
+'    if (rec) {',
+'        grid.setSelectedRecords([rec], true);',
+'    }',
 '}',
 ''))
 );
