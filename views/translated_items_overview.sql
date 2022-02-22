@@ -10,7 +10,7 @@ SELECT
     t.page_id,
     t.item_name,
     --
-    REGEXP_SUBSTR(t.item_name, '^[^_]+[_]([^_]+)', 1, 1, NULL, 1) AS item_type,
+    REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1) AS item_type,
     --
     CASE WHEN i.item_name IS NOT NULL THEN 'Y' END AS is_page_item,
     CASE WHEN a.item_name IS NOT NULL THEN 'Y' END AS is_app_item,

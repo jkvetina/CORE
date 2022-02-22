@@ -410,6 +410,21 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
     --
+    -- Process new extracts
+    --
+    PROCEDURE save_translated_items_new (
+        in_action                           CHAR,
+        in_item_type                        VARCHAR2,
+        in_item_name                        VARCHAR2,
+        in_page_id                          NUMBER,
+        in_value_en                         VARCHAR2,
+        in_field_static_id                  VARCHAR2,
+        in_field_replacement                VARCHAR2
+    );
+
+
+
+    --
     -- Update translations
     --
     PROCEDURE save_translated_messages (

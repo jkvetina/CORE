@@ -83,9 +83,8 @@ CREATE OR REPLACE PACKAGE app AS
     dml_tables_postfix          CONSTANT VARCHAR2(30)           := '_E$';
 
     -- translations
-    transl_item_prefix          CONSTANT VARCHAR2(30)           := 'T';
-    transl_page_name            CONSTANT VARCHAR2(30)           := 'T_PAGE_NAME';
-    transl_page_title           CONSTANT VARCHAR2(30)           := 'T_PAGE_TITLE';
+    transl_page_name            CONSTANT VARCHAR2(30)           := 'PAGE_NAME';
+    transl_page_title           CONSTANT VARCHAR2(30)           := 'PAGE_TITLE';
 
     -- list/array of log_id
     TYPE arr_logs_log_id IS
@@ -232,15 +231,6 @@ CREATE OR REPLACE PACKAGE app AS
         in_lang                 users.lang_id%TYPE          := NULL
     )
     RETURN VARCHAR2;
-
-
-
-    --
-    -- Get prefix for page/app items
-    --
-    FUNCTION get_translation_prefix
-    RETURN VARCHAR2
-    RESULT_CACHE;
 
 
 

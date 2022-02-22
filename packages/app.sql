@@ -315,17 +315,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION get_translation_prefix
-    RETURN VARCHAR2
-    RESULT_CACHE
-    AS
-        PRAGMA UDF;             -- SQL only
-    BEGIN
-        RETURN transl_item_prefix;
-    END;
-
-
-
     FUNCTION is_active_user (
         in_user_id              users.user_id%TYPE          := NULL
     )
@@ -1054,14 +1043,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- translations
-        RETURN REPLACE (
-            out_title,
-            '&' || app.transl_page_title || '.',
-            COALESCE (
-                app.get_translated_item(app.transl_page_title, in_page_id, in_app_id),
-                app.get_translated_item(app.transl_page_name,  in_page_id, in_app_id)
-            )
-        );
+        out_title := REPLACE(out_title, '&' || app.transl_page_title  || '.', app.get_translated_item(app.transl_page_title, in_page_id, in_app_id));
+        out_title := REPLACE(out_title, '&' || app.transl_page_name   || '.', app.get_translated_item(app.transl_page_name,  in_page_id, in_app_id));
+        --
+        RETURN out_title;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
@@ -3366,11 +3351,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         app.log_module(in_to, in_subject, in_cc, in_bcc, in_attach_name);
 
-        -- load setup
+        -- SMTP setup
         smtp_from       := COALESCE(in_from, app.get_setting('SMTP_FROM'));
         smtp_host       := app.get_setting('SMTP_HOST');
         smtp_port       := COALESCE(TO_NUMBER(app.get_setting('SMTP_PORT')), 25);
-        smtp_timeout    := COALESCE(TO_NUMBER(app.get_setting('SMTP_TIMEOUT')), 25);
+        smtp_timeout    := COALESCE(TO_NUMBER(app.get_setting('SMTP_TIMEOUT')), 10);
         smtp_username   := app.get_setting('SMTP_USER');
         smtp_password   := app.get_setting('SMTP_PWD');
         --

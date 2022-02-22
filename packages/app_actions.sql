@@ -217,6 +217,9 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     WHEN OTHERS THEN
         app.raise_error();
     END;
+
+
+
     PROCEDURE init_filters
     AS
     BEGIN
@@ -283,7 +286,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         ) LOOP
             app.set_item (
                 in_name     => c.item_name,
-                in_value    => COALESCE(c.item_value, CASE WHEN app.is_developer_y() = 'Y' THEN '${' || c.item_name || '}' END),
+                in_value    => COALESCE(c.item_value, CASE WHEN app.is_developer_y() = 'Y' THEN '{' || c.item_name || '}' END),
                 in_raise    => FALSE
             );
             IF app.is_debug_on() THEN
@@ -1430,6 +1433,58 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         out_page_id                     := rec.page_id;
         out_item_name                   := rec.item_name;
+        --
+        app.log_success(v_log_id);
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE save_translated_items_new (
+        in_action                           CHAR,
+        in_item_type                        VARCHAR2,
+        in_item_name                        VARCHAR2,
+        in_page_id                          NUMBER,
+        in_value_en                         VARCHAR2,
+        in_field_static_id                  VARCHAR2,
+        in_field_replacement                VARCHAR2
+    ) AS
+        rec                                 translated_items%ROWTYPE;
+        v_log_id                            logs.log_id%TYPE;
+    BEGIN
+        v_log_id := app.log_module_json (
+            'action',                       in_action,
+            'item_type',                    in_item_type,
+            'item_name',                    in_item_name,
+            'page_id',                      in_page_id,
+            'value_en',                     in_value_en
+        );
+        --
+        IF in_action = 'D' THEN
+            RETURN;
+        END IF;
+        --
+        rec.app_id              := app.get_app_id();
+        rec.page_id             := in_page_id;
+        rec.item_name           := in_item_name;
+        rec.value_en            := in_value_en;
+        rec.updated_by          := app.get_user_id();
+        rec.updated_at          := SYSDATE;
+        --
+        UPDATE translated_items t
+        SET ROW = rec
+        WHERE t.app_id              = rec.app_id
+            AND t.page_id           = in_page_id
+            AND t.item_name         = in_item_name;
+        --
+        IF SQL%ROWCOUNT = 0 THEN
+            INSERT INTO translated_items
+            VALUES rec;
+        END IF;
         --
         app.log_success(v_log_id);
     EXCEPTION
