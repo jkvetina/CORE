@@ -14,15 +14,15 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>905
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'#fa-server-play Jobs'
+,p_name=>'#fa-server-play &PAGE_NAME.'
 ,p_alias=>'JOBS'
-,p_step_title=>'Jobs'
+,p_step_title=>'&PAGE_NAME.'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220215053236'
+,p_last_upd_yyyymmddhh24miss=>'20220222182913'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24352849275954702)

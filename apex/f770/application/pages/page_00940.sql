@@ -14,15 +14,15 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>940
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'#fa-tags Events'
+,p_name=>'#fa-tags &PAGE_NAME.'
 ,p_alias=>'EVENTS'
-,p_step_title=>'Events'
+,p_step_title=>'&PAGE_NAME.'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220215063615'
+,p_last_upd_yyyymmddhh24miss=>'20220222182939'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24354422549954718)
@@ -350,11 +350,11 @@ wwv_flow_api.create_ig_report_view(
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(23248325420421531)
 ,p_view_id=>wwv_flow_api.id(23246915543421526)
-,p_display_seq=>3
+,p_display_seq=>2
 ,p_column_id=>wwv_flow_api.id(23156357941829526)
 ,p_is_visible=>true
 ,p_is_frozen=>false
-,p_width=>240
+,p_width=>320
 ,p_sort_order=>1
 ,p_sort_direction=>'ASC'
 ,p_sort_nulls=>'LAST'

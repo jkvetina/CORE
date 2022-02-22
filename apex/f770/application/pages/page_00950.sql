@@ -16,13 +16,13 @@ wwv_flow_api.create_page(
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
 ,p_name=>'#fa-database'
 ,p_alias=>'DATABASE'
-,p_step_title=>'Database Objects'
+,p_step_title=>'&PAGE_NAME.'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(15841923064543077)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220129093130'
+,p_last_upd_yyyymmddhh24miss=>'20220222182956'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218446056378932)

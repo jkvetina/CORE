@@ -14,10 +14,10 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>961
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'#fa-file-code-o Source Code'
+,p_name=>'#fa-file-code-o &PAGE_NAME.'
 ,p_alias=>'SOURCE-CODE'
 ,p_page_mode=>'MODAL'
-,p_step_title=>'Source Code'
+,p_step_title=>'&PAGE_NAME.'
 ,p_warn_on_unsaved_changes=>'N'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(15841923064543077)
@@ -26,7 +26,7 @@ wwv_flow_api.create_page(
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_dialog_width=>'1024'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220130110757'
+,p_last_upd_yyyymmddhh24miss=>'20220222183109'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(16023674651727221)

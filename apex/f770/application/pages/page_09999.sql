@@ -16,7 +16,7 @@ wwv_flow_api.create_page(
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
 ,p_name=>'#fa-coffee'
 ,p_alias=>'LOGIN'
-,p_step_title=>'Login'
+,p_step_title=>'&PAGE_NAME.'
 ,p_warn_on_unsaved_changes=>'N'
 ,p_first_item=>'AUTO_FIRST_ITEM'
 ,p_autocomplete_on_off=>'OFF'
@@ -26,7 +26,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_page_is_public_y_n=>'Y'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20211231070553'
+,p_last_upd_yyyymmddhh24miss=>'20220222183146'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9173764313570124)

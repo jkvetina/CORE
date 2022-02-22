@@ -14,15 +14,15 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>915
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'#fa-user-secret Sessions'
+,p_name=>'#fa-user-secret &PAGE_NAME.'
 ,p_alias=>'SESSIONS'
-,p_step_title=>'Sessions'
+,p_step_title=>'&PAGE_NAME.'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220206122140'
+,p_last_upd_yyyymmddhh24miss=>'20220222182923'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(20856814673868425)

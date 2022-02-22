@@ -14,17 +14,17 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>902
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'Log &P902_LOG_ID.'
+,p_name=>'&PAGE_NAME. &P902_LOG_ID.'
 ,p_alias=>'LOG'
 ,p_page_mode=>'MODAL'
-,p_step_title=>'Log &P902_LOG_ID.'
+,p_step_title=>'&PAGE_NAME. &P902_LOG_ID.'
 ,p_warn_on_unsaved_changes=>'N'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#:ui-dialog--stretch'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220130152559'
+,p_last_upd_yyyymmddhh24miss=>'20220222182906'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(32439252690717788)

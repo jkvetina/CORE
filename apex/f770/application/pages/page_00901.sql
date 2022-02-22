@@ -14,16 +14,16 @@ wwv_flow_api.component_begin (
 wwv_flow_api.create_page(
  p_id=>901
 ,p_user_interface_id=>wwv_flow_api.id(9169746885570061)
-,p_name=>'#fa-bug Logs'
+,p_name=>'#fa-bug &PAGE_NAME.'
 ,p_alias=>'LOGS'
-,p_step_title=>'Logs'
+,p_step_title=>'&PAGE_NAME.'
 ,p_warn_on_unsaved_changes=>'N'
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_api.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220206121217'
+,p_last_upd_yyyymmddhh24miss=>'20220222182900'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9262174270429022)
