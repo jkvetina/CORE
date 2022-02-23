@@ -386,27 +386,10 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             );
 
             -- create region
-            c.p_region_id := wwv_flow_id.next_val;
-            --
-            wwv_flow_api.create_page_plug(
-                p_id                            => wwv_flow_api.id(c.p_region_id),
-                p_plug_name                     => in_page_name,
-                p_region_template_options       => '#DEFAULT#',
-                p_plug_template                 => wwv_flow_api.id(c.p_template_id),
-                p_plug_display_sequence         => 10,
-                p_include_in_reg_disp_sel_yn    => 'Y',
-                p_plug_grid_row_css_classes     => 'HIDDEN',
-                p_plug_display_point            => 'BODY',
-                p_plug_query_options            => 'DERIVED_REPORT_COLUMNS',
-                p_attribute_01                  => 'N',
-                p_attribute_02                  => 'HTML'
-            );
-
-            -- create items
-            FOR d IN (
+            FOR r IN (
                 SELECT
-                    t.item_name,
-                    ROW_NUMBER() OVER (ORDER BY t.item_name) * 10 AS display_sequence
+                    REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1) AS item_type,
+                    ROW_NUMBER() OVER(ORDER BY REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1)) * 10 AS display_sequence
                 FROM translated_items t
                 LEFT JOIN apex_application_items i
                     ON i.application_id     = t.app_id
@@ -414,26 +397,64 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 LEFT JOIN apex_application_page_items p
                     ON p.application_id     = t.app_id
                     AND p.item_name         = t.item_name
-                WHERE t.app_id              = in_app_id
+                WHERE t.app_id              = 770--in_app_id
                     AND i.item_name         IS NULL
                     AND p.item_name         IS NULL
-                GROUP BY t.item_name
+                GROUP BY REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1)
+                ORDER BY 1
             ) LOOP
-                wwv_flow_api.create_page_item (
-                    p_id                        => wwv_flow_api.id(wwv_flow_id.next_val),
-                    p_name                      => d.item_name,
-                    p_item_sequence             => d.display_sequence,
-                    p_item_plug_id              => wwv_flow_api.id(c.p_region_id),
-                    p_prompt                    => ' ',
-                    p_display_as                => 'NATIVE_TEXT_FIELD',
-                    p_cSize                     => 2000,
-                    p_field_template            => wwv_flow_api.id(c.p_field_template),
-                    p_item_template_options     => '#DEFAULT#',
-                    p_attribute_01              => 'N',
-                    p_attribute_02              => 'N',
-                    p_attribute_04              => 'TEXT',
-                    p_attribute_05              => 'BOTH'
+                c.p_region_id := wwv_flow_id.next_val;
+                --
+                wwv_flow_api.create_page_plug (
+                    p_id                            => wwv_flow_api.id(c.p_region_id),
+                    p_plug_name                     => r.item_type,
+                    p_region_template_options       => '#DEFAULT#',
+                    p_plug_template                 => wwv_flow_api.id(c.p_template_id),
+                    p_plug_display_sequence         => r.display_sequence,
+                    p_include_in_reg_disp_sel_yn    => 'Y',
+                    p_plug_grid_row_css_classes     => 'HIDDEN',
+                    p_plug_display_point            => 'BODY',
+                    p_plug_query_options            => 'DERIVED_REPORT_COLUMNS',
+                    p_attribute_01                  => 'N',
+                    p_attribute_02                  => 'HTML'
                 );
+
+                -- create items
+                FOR d IN (
+                    SELECT
+                        t.item_name,
+                        ROW_NUMBER() OVER (ORDER BY t.item_name) * 10 AS display_sequence
+                    FROM translated_items t
+                    LEFT JOIN apex_application_items i
+                        ON i.application_id     = t.app_id
+                        AND i.item_name         = t.item_name
+                    LEFT JOIN apex_application_page_items p
+                        ON p.application_id     = t.app_id
+                        AND p.item_name         = t.item_name
+                    WHERE t.app_id              = in_app_id
+                        AND i.item_name         IS NULL
+                        AND p.item_name         IS NULL
+                        AND t.item_name         LIKE r.item_type || '%' ESCAPE '\'
+                    GROUP BY t.item_name
+                ) LOOP
+                    wwv_flow_api.create_page_item (
+                        p_id                        => wwv_flow_api.id(wwv_flow_id.next_val),
+                        p_name                      => d.item_name,
+                        p_item_sequence             => d.display_sequence,
+                        p_item_plug_id              => wwv_flow_api.id(c.p_region_id),
+                        p_use_cache_before_default  => 'NO',
+                        p_prompt                    => ' ',
+                        p_display_as                => 'NATIVE_TEXT_FIELD',
+                        p_cSize                     => 2000,
+                        p_field_template            => wwv_flow_api.id(c.p_field_template),
+                        p_item_template_options     => '#DEFAULT#',
+                        p_is_persistent             => 'N',
+                        p_attribute_01              => 'N',
+                        p_attribute_02              => 'N',
+                        p_attribute_04              => 'TEXT',
+                        p_attribute_05              => 'BOTH'
+                    );
+                END LOOP;
             END LOOP;
             --
             wwv_flow_api.import_end(p_auto_install_sup_obj => nvl(wwv_flow_application_install.get_auto_install_sup_obj, false));
