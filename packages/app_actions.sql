@@ -254,10 +254,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         v_today     := app.get_date(v_date);
         --
         app.set_item('G_TODAY',         v_today);
-        app.set_item('G_TODAY_LABEL',   'Filter Date (' || INITCAP(RTRIM(TO_CHAR(v_date, 'DAY'))) ||
+        app.set_item('G_TODAY_LABEL',   app.get_translated_item('LABEL_FILTER_DATE') ||
+            ' (' || app.get_translated_item('LABEL_' || RTRIM(TO_CHAR(v_date, 'DAY'))) ||
             CASE v_date
-                WHEN TRUNC(SYSDATE)     THEN ' - Today'
-                WHEN TRUNC(SYSDATE) - 1 THEN ' - Yesterday'
+                WHEN TRUNC(SYSDATE)     THEN ' - ' || app.get_translated_item('LABEL_TODAY')
+                WHEN TRUNC(SYSDATE) - 1 THEN ' - ' || app.get_translated_item('LABEL_YESTERDAY')
                 ELSE '' END || ')'
         );
         app.set_item('G_YESTERDAY',     v_today - 1);
