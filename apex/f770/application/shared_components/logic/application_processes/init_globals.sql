@@ -13,7 +13,7 @@ wwv_flow_api.component_begin (
 );
 wwv_flow_api.create_flow_process(
  p_id=>wwv_flow_api.id(10627210683574012)
-,p_process_sequence=>0
+,p_process_sequence=>2
 ,p_process_point=>'BEFORE_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_GLOBALS'
