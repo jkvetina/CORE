@@ -24,7 +24,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9844735592500475)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220222182844'
+,p_last_upd_yyyymmddhh24miss=>'20220223212212'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24353619732954710)
@@ -40,7 +40,8 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24354213874954716)
-,p_plug_name=>'User Info'
+,p_plug_name=>'&REGION_FORM_USERS.'
+,p_region_name=>'TAB_USER_INFO'
 ,p_parent_plug_id=>wwv_flow_api.id(24353619732954710)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9049155795569902)
@@ -52,7 +53,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(9264299805429043)
-,p_plug_name=>'User Info'
+,p_plug_name=>'&REGION_FORM_USERS.'
 ,p_parent_plug_id=>wwv_flow_api.id(24354213874954716)
 ,p_icon_css_classes=>'fa-user'
 ,p_region_template_options=>'#DEFAULT#'
@@ -97,7 +98,8 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24353849126954712)
-,p_plug_name=>'User Roles'
+,p_plug_name=>'&REGION_USER_ROLES.'
+,p_region_name=>'TAB_USER_ROLES'
 ,p_parent_plug_id=>wwv_flow_api.id(24353762558954711)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9049155795569902)
@@ -145,7 +147,7 @@ wwv_flow_api.create_card(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(10243395317410322)
-,p_plug_name=>'User Roles'
+,p_plug_name=>'&REGION_USER_ROLES.'
 ,p_parent_plug_id=>wwv_flow_api.id(24353849126954712)
 ,p_icon_css_classes=>'fa-id-badge'
 ,p_region_template_options=>'#DEFAULT#'
@@ -158,7 +160,8 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24354076692954714)
-,p_plug_name=>'Applications'
+,p_plug_name=>'&REGION_USER_APPS.'
+,p_region_name=>'TAB_USER_APPS'
 ,p_parent_plug_id=>wwv_flow_api.id(24353762558954711)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9049155795569902)
@@ -215,7 +218,7 @@ wwv_flow_api.create_card_action(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(12994888224936908)
-,p_plug_name=>'Applications'
+,p_plug_name=>'&REGION_USER_APPS.'
 ,p_parent_plug_id=>wwv_flow_api.id(24354076692954714)
 ,p_icon_css_classes=>'fa-map-o'
 ,p_region_template_options=>'#DEFAULT#'
@@ -268,7 +271,7 @@ wwv_flow_api.create_page_item(
 ,p_item_default=>'app.get_user_id()'
 ,p_item_default_type=>'EXPRESSION'
 ,p_item_default_language=>'PLSQL'
-,p_prompt=>'User Id'
+,p_prompt=>'&LABEL_USER_ID.'
 ,p_source=>'USER_ID'
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_TEXT_FIELD'
@@ -290,7 +293,7 @@ wwv_flow_api.create_page_item(
 ,p_item_sequence=>20
 ,p_item_plug_id=>wwv_flow_api.id(9519532707540348)
 ,p_item_source_plug_id=>wwv_flow_api.id(9519532707540348)
-,p_prompt=>'User Login'
+,p_prompt=>'&LABEL_USER_LOGIN.'
 ,p_source=>'USER_LOGIN'
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_TEXT_FIELD'
@@ -312,7 +315,7 @@ wwv_flow_api.create_page_item(
 ,p_item_sequence=>30
 ,p_item_plug_id=>wwv_flow_api.id(9519532707540348)
 ,p_item_source_plug_id=>wwv_flow_api.id(9519532707540348)
-,p_prompt=>'User Name'
+,p_prompt=>'&LABEL_USER_NAME.'
 ,p_source=>'USER_NAME'
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_TEXT_FIELD'
@@ -333,7 +336,7 @@ wwv_flow_api.create_page_item(
 ,p_item_sequence=>40
 ,p_item_plug_id=>wwv_flow_api.id(9519532707540348)
 ,p_item_source_plug_id=>wwv_flow_api.id(9519532707540348)
-,p_prompt=>'Lang Id'
+,p_prompt=>'&LABEL_LANG_ID.'
 ,p_source=>'LANG_ID'
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_SELECT_LIST'
