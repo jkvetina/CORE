@@ -1427,7 +1427,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec.app_id              := app.get_app_id();
         rec.page_id             := in_page_id;
         rec.item_name           := in_item_name;
-        rec.value_en            := in_value_en;
+        rec.value_en            := COALESCE(in_value_en, INITCAP(REPLACE(REGEXP_REPLACE(rec.item_name, '^[^_]+[_]', ''), '_', ' ')));
         rec.value_cz            := in_value_cz;
         rec.value_sk            := in_value_sk;
         rec.value_pl            := in_value_pl;
@@ -1493,7 +1493,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec.app_id              := app.get_app_id();
         rec.page_id             := in_page_id;
         rec.item_name           := in_item_name;
-        rec.value_en            := in_value_en;
+        rec.value_en            := COALESCE(in_value_en, INITCAP(REPLACE(REGEXP_REPLACE(rec.item_name, '^[^_]+[_]', ''), '_', ' ')));
         rec.updated_by          := app.get_user_id();
         rec.updated_at          := SYSDATE;
         --
