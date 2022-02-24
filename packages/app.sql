@@ -181,7 +181,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         );
 
         -- set session language
-        APEX_UTIL.SET_SESSION_LANG(app.get_user_lang());
+        APEX_UTIL.SET_SESSION_LANG(REPLACE(app.get_user_lang(), 'CZ', 'CS'));
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
