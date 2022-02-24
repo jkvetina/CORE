@@ -28,10 +28,15 @@ wwv_flow_api.create_message(
  p_id=>wwv_flow_api.id(25002332653328923)
 ,p_name=>'APEX.IG.CHANGES_SAVED'
 ,p_message_language=>'cs'
-,p_message_text=>unistr('Ulo\017Eeno')
+,p_message_text=>unistr('Ulo\017Eeno [CZ]')
 ,p_is_js_message=>true
 );
-null;
+wwv_flow_api.create_message(
+ p_id=>wwv_flow_api.id(26178820728351588)
+,p_name=>'APEX.IG.CHANGES_SAVED'
+,p_message_text=>'Saved [EN]'
+,p_is_js_message=>true
+);
 wwv_flow_api.component_end;
 end;
 /
