@@ -417,9 +417,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_item_type                        VARCHAR2,
         in_item_name                        VARCHAR2,
         in_page_id                          NUMBER,
-        in_value_en                         VARCHAR2,
-        in_field_static_id                  VARCHAR2,
-        in_field_replacement                VARCHAR2
+        in_value_en                         VARCHAR2
     );
 
 
