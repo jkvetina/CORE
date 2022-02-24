@@ -14,8 +14,8 @@ prompt --install
 @@application/shared_components/security/authorizations/is_active_user.sql
 @@application/shared_components/security/app_access_control/is_administrator.sql
 @@application/shared_components/navigation/navigation_bar.sql
-@@application/shared_components/logic/application_processes/init_globals.sql
 @@application/shared_components/logic/application_processes/init_translations.sql
+@@application/shared_components/logic/application_processes/init_globals.sql
 @@application/shared_components/logic/application_processes/init_filters.sql
 @@application/shared_components/logic/application_items/g_footer.sql
 @@application/shared_components/logic/application_items/g_today.sql
@@ -30,6 +30,7 @@ prompt --install
 @@application/shared_components/user_interface/lovs/lov_core_events_event_id_event_name.sql
 @@application/shared_components/user_interface/lovs/lov_core_flags_name_value.sql
 @@application/shared_components/user_interface/lovs/lov_core_languages.sql
+@@application/shared_components/user_interface/lovs/lov_core_pages_page_id_alias.sql
 @@application/shared_components/user_interface/lovs/lov_core_pages_page_id_page_name.sql
 @@application/shared_components/user_interface/lovs/lov_core_roles_role_id_role_name.sql
 @@application/shared_components/user_interface/lovs/lov_core_schedules.sql
