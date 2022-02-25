@@ -17,7 +17,7 @@ wwv_flow_api.create_list_of_values(
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
 '    p.page_id,',
-'    TO_CHAR(p.page_id) || '' - '' || p.page_alias As page_name,',
+'    TO_CHAR(p.page_id) || '' - '' || p.page_alias AS page_name,',
 '    p.page_group',
 'FROM apex_application_pages p',
 'WHERE p.application_id  = NVL(app.get_app_id(), :APP_ID)',
@@ -29,6 +29,7 @@ wwv_flow_api.create_list_of_values(
 ,p_query_table=>'NAVIGATION'
 ,p_return_column_name=>'PAGE_ID'
 ,p_display_column_name=>'PAGE_NAME'
+,p_group_column_name=>'PAGE_GROUP'
 ,p_group_sort_direction=>'ASC'
 ,p_default_sort_column_name=>'PAGE_ID'
 ,p_default_sort_direction=>'ASC'
