@@ -25,7 +25,7 @@ wwv_flow_api.create_flow(
 ,p_session_timeout_warning_sec=>600
 ,p_compatibility_mode=>'19.2'
 ,p_flow_language=>'en-gb'
-,p_flow_language_derived_from=>'FLOW_PRIMARY_LANGUAGE'
+,p_flow_language_derived_from=>'SESSION'
 ,p_date_format=>'&FORMAT_DATE.'
 ,p_date_time_format=>'&FORMAT_DATE_TIME.'
 ,p_timestamp_format=>'DS'
@@ -91,7 +91,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_11=>'DEFAULT_LANG'
 ,p_substitution_value_11=>'EN'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220221195742'
+,p_last_upd_yyyymmddhh24miss=>'20220225214538'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>64
 ,p_ui_type_name => null
