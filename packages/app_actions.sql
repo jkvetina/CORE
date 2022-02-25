@@ -398,7 +398,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 LEFT JOIN apex_application_page_items p
                     ON p.application_id     = t.app_id
                     AND p.item_name         = t.item_name
-                WHERE t.app_id              = 770--in_app_id
+                WHERE t.app_id              = in_app_id
                     AND i.item_name         IS NULL
                     AND p.item_name         IS NULL
                 GROUP BY REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1)
@@ -443,13 +443,23 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                         p_name                      => d.item_name,
                         p_item_sequence             => d.display_sequence,
                         p_item_plug_id              => wwv_flow_api.id(c.p_region_id),
-                        p_use_cache_before_default  => CASE WHEN d.item_name NOT LIKE 'GRID%' THEN 'NO' END,
+                        p_use_cache_before_default  => CASE
+                            WHEN    d.item_name NOT LIKE 'GRID%'
+                                AND d.item_name NOT LIKE 'FORM%'
+                                AND d.item_name NOT LIKE 'CHART%'
+                                THEN 'NO'
+                            END,
                         p_prompt                    => ' ',
                         p_display_as                => 'NATIVE_TEXT_FIELD',
                         p_cSize                     => 2000,
                         p_field_template            => wwv_flow_api.id(c.p_field_template),
                         p_item_template_options     => '#DEFAULT#',
-                        p_is_persistent             => CASE WHEN d.item_name NOT LIKE 'GRID%' THEN 'N' END,
+                        p_is_persistent             => CASE
+                            WHEN    d.item_name NOT LIKE 'GRID%'
+                                AND d.item_name NOT LIKE 'FORM%'
+                                AND d.item_name NOT LIKE 'CHART%'
+                                THEN 'N'
+                            END,
                         p_attribute_01              => 'N',
                         p_attribute_02              => 'N',
                         p_attribute_04              => 'TEXT',
