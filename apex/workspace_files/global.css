@@ -60,6 +60,13 @@ table.a-GV-table a span.fa:hover {
 
 
 
+/* FIX SPACE IN GRID BUTTON WHE NO TEXT IS PRESENT */
+span.a-Icon.fa.ICON_ONLY {
+    margin-right: 0;
+}
+
+
+
 /* CHECKBOX IN GRID + IN REPORT HEADER */
 table.a-GV-table .apex-item-single-checkbox input:checked+.u-checkbox,
 table.a-GV-table .apex-item-single-checkbox input:checked+label,
