@@ -425,18 +425,25 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                     SELECT
                         t.item_name,
                         ROW_NUMBER() OVER (ORDER BY t.item_name) * 10 AS display_sequence
-                    FROM translated_items t
-                    LEFT JOIN apex_application_items i
-                        ON i.application_id     = t.app_id
-                        AND i.item_name         = t.item_name
-                    LEFT JOIN apex_application_page_items p
-                        ON p.application_id     = t.app_id
-                        AND p.item_name         = t.item_name
-                    WHERE t.app_id              = in_app_id
-                        AND i.item_name         IS NULL
-                        AND p.item_name         IS NULL
-                        AND t.item_name         LIKE r.item_type || '%' ESCAPE '\'
-                    GROUP BY t.item_name
+                    FROM (
+                        SELECT t.item_name
+                        FROM translated_items t
+                        LEFT JOIN apex_application_items i
+                            ON i.application_id     = t.app_id
+                            AND i.item_name         = t.item_name
+                        LEFT JOIN apex_application_page_items p
+                            ON p.application_id     = t.app_id
+                            AND p.item_name         = t.item_name
+                        WHERE t.app_id              = in_app_id
+                            AND i.item_name         IS NULL
+                            AND p.item_name         IS NULL
+                            AND t.item_name         LIKE r.item_type || '%' ESCAPE '\'
+                        GROUP BY t.item_name
+                        UNION ALL
+                        --
+                        SELECT t.item_name
+                        FROM translations_slipped t
+                    ) t
                 ) LOOP
                     wwv_flow_api.create_page_item (
                         p_id                        => wwv_flow_api.id(wwv_flow_id.next_val),
