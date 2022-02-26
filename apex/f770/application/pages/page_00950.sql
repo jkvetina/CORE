@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220222182956'
+,p_last_upd_yyyymmddhh24miss=>'20220226175854'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218446056378932)
@@ -34,6 +34,7 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_grid_column_span=>6
 ,p_plug_display_point=>'BODY'
+,p_plug_source=>'List of objects in &P950_SCHEMA. schema.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -303,6 +304,14 @@ wwv_flow_api.create_page_item(
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(25435523465523603)
+,p_name=>'P950_SCHEMA'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(14218446056378932)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'Y'
+);
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(14431206414036864)
 ,p_process_sequence=>10
@@ -354,9 +363,13 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_DEFAULTS'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'-- hot button',
 'SELECT NVL(MAX(''t-Button--hot''), '' '') INTO :P950_RECOMPILE_HOT',
 'FROM user_objects o',
 'WHERE o.status != ''VALID'';',
+'',
+'-- help message',
+':P950_SCHEMA := app.get_owner(app.get_app_id());',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
