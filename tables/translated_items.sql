@@ -18,7 +18,10 @@ CREATE TABLE translated_items (
     --
     CONSTRAINT fk_translated_items_page_id
         FOREIGN KEY (app_id, page_id)
-        REFERENCES navigation (app_id, page_id)
+        REFERENCES navigation (app_id, page_id),
+    --
+    CONSTRAINT ch_translated_items_name
+        CHECK (REGEXP_LIKE(item_name, '^([A-Z][A-Z0-9-_]*)$'))
 )
 STORAGE (BUFFER_POOL KEEP);
 --

@@ -39,7 +39,7 @@ FROM (
     --
     UNION ALL
     SELECT
-        x.region_item_like || COALESCE(r.static_id, p.static_id, TO_CHAR(r.region_id)) AS item_name,
+        x.region_item_like || COALESCE(r.static_id, p.static_id, '?') AS item_name,
         r.page_id,
         r.region_name AS value_en
         --
@@ -62,7 +62,7 @@ FROM (
     --
     UNION ALL
     SELECT
-        x.help_item_like || COALESCE(r.static_id, p.static_id, TO_CHAR(r.region_id)) AS item_name,
+        x.help_item_like || COALESCE(r.static_id, p.static_id, '?') AS item_name,
         r.page_id,
         DBMS_LOB.SUBSTR(r.region_source, 2000) AS value_en
         --
