@@ -448,35 +448,40 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                     ) t
                     GROUP BY t.item_name
                 ) LOOP
-                    wwv_flow_api.create_page_item (
-                        p_id                        => wwv_flow_api.id(wwv_flow_id.next_val),
-                        p_name                      => d.item_name,
-                        p_item_sequence             => d.display_sequence,
-                        p_item_plug_id              => wwv_flow_api.id(c.p_region_id),
-                        p_use_cache_before_default  => CASE
-                            WHEN    d.item_name NOT LIKE 'GRID%'
-                                AND d.item_name NOT LIKE 'FORM%'
-                                AND d.item_name NOT LIKE 'CHART%'
-                                THEN 'NO'
-                            END,
-                        p_prompt                    => ' ',
-                        p_source                    => '{' || d.item_name || '}',
-                        p_source_type               => 'STATIC',
-                        p_display_as                => 'NATIVE_TEXT_FIELD',
-                        p_csize                     => 2000,  -- translated_items.value_en%TYPE
-                        p_field_template            => wwv_flow_api.id(c.p_field_template),
-                        p_item_template_options     => '#DEFAULT#',
-                        p_is_persistent             => CASE
-                            WHEN    d.item_name NOT LIKE 'GRID%'
-                                AND d.item_name NOT LIKE 'FORM%'
-                                AND d.item_name NOT LIKE 'CHART%'
-                                THEN 'N'
-                            END,
-                        p_attribute_01              => 'N',
-                        p_attribute_02              => 'N',
-                        p_attribute_04              => 'TEXT',
-                        p_attribute_05              => 'BOTH'
-                    );
+                    BEGIN
+                        wwv_flow_api.create_page_item (
+                            p_id                        => wwv_flow_api.id(wwv_flow_id.next_val),
+                            p_name                      => d.item_name,
+                            p_item_sequence             => d.display_sequence,
+                            p_item_plug_id              => wwv_flow_api.id(c.p_region_id),
+                            p_use_cache_before_default  => CASE
+                                WHEN    d.item_name NOT LIKE 'GRID%'
+                                    AND d.item_name NOT LIKE 'FORM%'
+                                    AND d.item_name NOT LIKE 'CHART%'
+                                    THEN 'NO'
+                                END,
+                            p_prompt                    => ' ',
+                            p_source                    => '{' || d.item_name || '}',
+                            p_source_type               => 'STATIC',
+                            p_display_as                => 'NATIVE_TEXT_FIELD',
+                            p_csize                     => 2000,  -- translated_items.value_en%TYPE
+                            p_field_template            => wwv_flow_api.id(c.p_field_template),
+                            p_item_template_options     => '#DEFAULT#',
+                            p_is_persistent             => CASE
+                                WHEN    d.item_name NOT LIKE 'GRID%'
+                                    AND d.item_name NOT LIKE 'FORM%'
+                                    AND d.item_name NOT LIKE 'CHART%'
+                                    THEN 'N'
+                                END,
+                            p_attribute_01              => 'N',
+                            p_attribute_02              => 'N',
+                            p_attribute_04              => 'TEXT',
+                            p_attribute_05              => 'BOTH'
+                        );
+                    EXCEPTION
+                    WHEN OTHERS THEN
+                        app.log_error('ITEM_ERROR', d.item_name, d.display_sequence);
+                    END;
                 END LOOP;
             END LOOP;
             --
