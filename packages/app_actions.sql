@@ -255,7 +255,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         app.set_item('G_TODAY',         v_today);
         app.set_item('G_TODAY_LABEL',   app.get_translated_item('LABEL_FILTER_DATE') ||
-            ' (' || app.get_translated_item('LABEL_DATE_' || RTRIM(TO_CHAR(v_date, 'DAY'))) ||
+            ' (' || app.get_translated_item('LABEL_DATE_' || RTRIM(TO_CHAR(v_date, 'DY', 'NLS_DATE_LANGUAGE=ENGLISH'))) ||
             CASE v_date
                 WHEN TRUNC(SYSDATE)     THEN ' - ' || app.get_translated_item('LABEL_DATE_TODAY')
                 WHEN TRUNC(SYSDATE) - 1 THEN ' - ' || app.get_translated_item('LABEL_DATE_YESTERDAY')
