@@ -389,19 +389,22 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             -- create region
             FOR r IN (
                 SELECT
-                    REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1) AS item_type,
-                    ROW_NUMBER() OVER(ORDER BY REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1)) * 10 AS display_sequence
-                FROM translated_items t
-                LEFT JOIN apex_application_items i
-                    ON i.application_id     = t.app_id
-                    AND i.item_name         = t.item_name
-                LEFT JOIN apex_application_page_items p
-                    ON p.application_id     = t.app_id
-                    AND p.item_name         = t.item_name
-                WHERE t.app_id              = in_app_id
-                    AND i.item_name         IS NULL
-                    AND p.item_name         IS NULL
-                GROUP BY REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1)
+                    t.item_type,
+                    ROW_NUMBER() OVER(ORDER BY t.item_type) * 10 AS display_sequence
+                FROM (
+                    SELECT REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1) AS item_type
+                    FROM translated_items t
+                    LEFT JOIN apex_application_items i
+                        ON i.application_id     = t.app_id
+                        AND i.item_name         = t.item_name
+                    LEFT JOIN apex_application_page_items p
+                        ON p.application_id     = t.app_id
+                        AND p.item_name         = t.item_name
+                    WHERE t.app_id              = in_app_id
+                        AND i.item_name         IS NULL
+                        AND p.item_name         IS NULL
+                ) t
+                GROUP BY t.item_type
                 ORDER BY 1
             ) LOOP
                 c.p_region_id := wwv_flow_id.next_val;
@@ -484,8 +487,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                     END;
                 END LOOP;
             END LOOP;
-            --
-            wwv_flow_api.import_end(p_auto_install_sup_obj => nvl(wwv_flow_application_install.get_auto_install_sup_obj, false));
+
+            -- exit
+            wwv_flow_api.import_end (
+                p_auto_install_sup_obj => NVL(wwv_flow_application_install.get_auto_install_sup_obj, FALSE)
+            );
         END LOOP;
         --
         app.log_success();
