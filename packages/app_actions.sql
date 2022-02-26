@@ -457,8 +457,10 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                                 THEN 'NO'
                             END,
                         p_prompt                    => ' ',
+                        p_source                    => '{' || d.item_name || '}',
+                        p_source_type               => 'STATIC',
                         p_display_as                => 'NATIVE_TEXT_FIELD',
-                        p_cSize                     => 2000,
+                        p_csize                     => 2000,  -- translated_items.value_en%TYPE
                         p_field_template            => wwv_flow_api.id(c.p_field_template),
                         p_item_template_options     => '#DEFAULT#',
                         p_is_persistent             => CASE
