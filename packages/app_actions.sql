@@ -433,6 +433,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                             AND i.item_name         = t.item_name
                         LEFT JOIN apex_application_page_items p
                             ON p.application_id     = t.app_id
+                            AND p.page_id           NOT IN (947)
                             AND p.item_name         = t.item_name
                         WHERE t.app_id              = in_app_id
                             AND i.item_name         IS NULL
@@ -443,7 +444,9 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                         --
                         SELECT t.item_name
                         FROM translations_slipped t
+                        WHERE t.item_name           LIKE r.item_type || '%' ESCAPE '\'
                     ) t
+                    GROUP BY t.item_name
                 ) LOOP
                     wwv_flow_api.create_page_item (
                         p_id                        => wwv_flow_api.id(wwv_flow_id.next_val),
