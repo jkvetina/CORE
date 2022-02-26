@@ -236,12 +236,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         SELECT u.lang_id INTO out_lang
         FROM users u
-        WHERE u.user_id = app.get_user_id();
+        WHERE u.user_id     = app.get_user_id()
+            AND u.lang_id   IS NOT NULL;
         --
         RETURN out_lang;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RETURN NULL;
+        RETURN REPLACE(UPPER(SUBSTR(OWA_UTIL.GET_CGI_ENV('HTTP_ACCEPT_LANGUAGE'), 1, 2)), 'CS', 'CZ');
     END;
 
 
