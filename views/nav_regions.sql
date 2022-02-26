@@ -93,14 +93,19 @@ s AS (
     START WITH r.parent_region_id   IS NULL
 )
 SELECT
-    p.page_group || ' ' || r.page_id || ' ' || p.page_title AS page_group,
+    p.page_group || ' ' || r.page_id || ' ' || app.get_page_title(r.page_id) AS page_group,
     r.page_id,
     --r.region_id,
     --
     CASE WHEN r.icon_css_classes IS NOT NULL THEN app.get_icon(r.icon_css_classes) END AS region_icon,
     --
-    REPLACE(RPAD(' ', 3 * (s.lvl - 1)), ' ', '&' || 'nbsp; ') || r.region_name  AS region_name,
-    RTRIM(LTRIM(REPLACE(r.region_name, '[GRID]', '')))                          AS region_name_,
+    REPLACE(RPAD(' ', 3 * (s.lvl - 1)), ' ', '&' || 'nbsp; ') ||
+        CASE WHEN app.get_translated_item(LTRIM(RTRIM(r.region_name, '.'), '&'), r.page_id) NOT LIKE '{%}'
+            THEN app.get_translated_item(LTRIM(RTRIM(r.region_name, '.'), '&'), r.page_id)
+            ELSE REPLACE(r.region_name, '&', '&' || 'amp;')
+            END AS region_name,
+    --
+    RTRIM(LTRIM(REPLACE(r.region_name, '[GRID]', ''))) AS region_name_,
     --
     --r.parent_region_id,
     --r.source_type,
