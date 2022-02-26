@@ -30,29 +30,6 @@ var apex_page_loaded = function() {
     const start     = 'APEX_SUCCESS_MESSAGE';
 
     //
-    // INTERACTIVE GRIDS - look for css change on Edit button and apply it to Save button
-    //
-    var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            var $target = $(mutation.target);
-            if ($target.hasClass('is-active')) {
-                var $save = $target.parent().parent().find('button.a-Button.a-Toolbar-item.js-actionButton[data-action="save"]');
-                $save.addClass('is-active');
-                //observer.disconnect();  // remove observer when fired
-            }
-        });
-    });
-    //
-    $.each($('div.a-Toolbar-toggleButton.js-actionCheckbox.a-Toolbar-item[data-action="edit"] > label'), function(i, el) {
-        // assign unique ID + apply tracker/observer
-        $el = $(el);
-        $el.attr('id', 'OBSERVE_' + $el.attr('for'));
-        observer.observe($el[0], {
-            attributes: true
-        });
-    });
-
-    //
     // SHOW NOTIFICATIONS
     //
     var item_success        = 'P0_MESSAGE_SUCCESS';
@@ -114,6 +91,34 @@ var apex_page_loaded = function() {
             }
         });
     }
+
+    //
+    // FIX GRID TOOLBARS
+    //
+    fix_toolbars();
+
+    //
+    // INTERACTIVE GRIDS - look for css change on Edit button and apply it to Save button
+    //
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            var $target = $(mutation.target);
+            if ($target.hasClass('is-active')) {
+                var $save = $target.parent().parent().find('button.a-Button.a-Toolbar-item.js-actionButton[data-action="save"]');
+                $save.addClass('is-active');
+                //observer.disconnect();  // remove observer when fired
+            }
+        });
+    });
+    //
+    $.each($('div.a-Toolbar-toggleButton.js-actionCheckbox.a-Toolbar-item[data-action="edit"] > label'), function(i, el) {
+        // assign unique ID + apply tracker/observer
+        $el = $(el);
+        $el.attr('id', 'OBSERVE_' + $el.attr('for'));
+        observer.observe($el[0], {
+            attributes: true
+        });
+    });
 };
 
 
@@ -144,50 +149,74 @@ var fold_grid_group = function(grid_id, group_name, group_value) {
 //
 // COMMON TOOLBAR FOR ALL GRIDS
 //
-// just put following code in Region - Attributes - JavaScript Initialization Code
-// and assign Static ID to region
-/*
-function(config) {
-    return unified_ig_toolbar(config);
-}
-*/
-var unified_ig_toolbar = function(config) {
-    var $ = apex.jQuery;
-    var toolbarData = $.apex.interactiveGrid.copyDefaultToolbar();
-    var toolbarGroup = toolbarData.toolbarFind('actions4');
-    //var actionsGroup = toolbarData.toolbarFind('actions1');
+var fix_toolbars = function () {
+    $('.a-IG').each(function() {
+        var id = $(this).attr('id').replace('_ig', '');
+        //console.log('GRID MODIFIED', id);
+        fix_toolbar(id);
+    })
+};
+//
+var fix_toolbar = function (region_id) {
+    var widget      = apex.region(region_id).widget();
+    var actions     = widget.interactiveGrid('getActions');
+    var toolbar     = widget.interactiveGrid('getToolbar');
+    var config      = $.extend(true, {}, toolbar.toolbar('option'));
+    //
+    config.data     = $.apex.interactiveGrid.copyDefaultToolbar();
+    var action1     = config.data.toolbarFind('actions1');
+    var action2     = config.data.toolbarFind('actions2');
+    var action3     = config.data.toolbarFind('actions3');
+    var action4     = config.data.toolbarFind('actions4');
+
+    // manipulate buttons
+    // https://docs.oracle.com/en/database/oracle/application-express/20.1/aexjs/interactiveGrid.html#actions-section
+    //
+    // grid actions
+    // apex.region("ID").widget().interactiveGrid("getActions").list()
+    //
+    // row actions
+    // apex.region("ID").widget().interactiveGrid("getViews").grid.rowActionMenu$.menu("option")
+    //
+
+    // hide some buttons
+    actions.hide('reset-report');
+
+    // modify add row button as a plus sign without text
+    for (var i = 0; i < action3.controls.length; i++) {
+        var button = action3.controls[i];
+        if (button.action == 'selection-add-row') {
+            button.icon             = 'fa fa-plus ICON_ONLY';
+            button.iconBeforeLabel  = true;
+            button.label            = ' ';
+            break;
+        }
+    }
 
     // show refresh button before save button
-    // https://docs.oracle.com/en/database/oracle/application-express/20.1/aexjs/interactiveGrid.html#actions-section
-    toolbarGroup.controls.push({
+    action4.controls.push({
         type            : 'BUTTON',
         action          : 'refresh',
-        icon            : '',  // fa fa-refresh
-        iconBeforeLabel : true,
-        label           : 'Refresh Data'  // how to get rid of the space and show just icon?
+        label           : 'Refresh Data',
+        icon            : '',
+        iconBeforeLabel : true
     });
 
     // only for developers
     if ($('#apexDevToolbar.a-DevToolbar')) {
         // add a filter button after the actions menu
-        toolbarGroup.controls.push({
-            type            : 'BUTTON',
-            action          : 'save-report',
-            label           : 'Save as Default',
-            icon            : ''  // no icon
+        action4.controls.push({
+            type        : 'BUTTON',
+            action      : 'save-report',
+            label       : 'Save as Default',
+            icon        : ''  // no icon
         });
-
-        // add row button as a plus sign without text
-        addrowAction                    = toolbarData.toolbarFind('selection-add-row'),
-        addrowAction.icon               = 'fa fa-plus';
-        addrowAction.iconBeforeLabel    = true;
-        addrowAction.label              = ' ';
-        addrowAction.hot                = false;
     }
-    //
-    config.toolbarData = toolbarData;
-    //
-    return config;
+
+    // update toolbar
+    //actions.set('edit', true);
+    toolbar.toolbar('option', 'data', config.data);
+    toolbar.toolbar('refresh');
 };
 
 

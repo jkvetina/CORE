@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220222183123'
+,p_last_upd_yyyymmddhh24miss=>'20220226152532'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(22466550523652533)
@@ -331,11 +331,6 @@ wwv_flow_api.create_interactive_grid(
 ,p_fixed_header=>'PAGE'
 ,p_show_icon_view=>false
 ,p_show_detail_view=>false
-,p_javascript_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'function(config) {',
-'    return unified_ig_toolbar(config);',
-'}',
-''))
 );
 wwv_flow_api.create_ig_report(
  p_id=>wwv_flow_api.id(22850157432354111)
@@ -699,11 +694,6 @@ wwv_flow_api.create_interactive_grid(
 ,p_fixed_header=>'PAGE'
 ,p_show_icon_view=>false
 ,p_show_detail_view=>false
-,p_javascript_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'function(config) {',
-'    return unified_ig_toolbar(config);',
-'}',
-''))
 );
 wwv_flow_api.create_ig_report(
  p_id=>wwv_flow_api.id(26466139034220682)
@@ -1119,11 +1109,15 @@ wwv_flow_api.create_interactive_grid(
 ,p_fixed_header=>'PAGE'
 ,p_show_icon_view=>false
 ,p_show_detail_view=>false
-,p_javascript_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'function(config) {',
-'    return unified_ig_toolbar(config);',
-'}',
-''))
+);
+wwv_flow_api.create_ig_report(
+ p_id=>wwv_flow_api.id(26466733495220683)
+,p_interactive_grid_id=>wwv_flow_api.id(26271065437185741)
+,p_static_id=>'114307'
+,p_type=>'PRIMARY'
+,p_default_view=>'GRID'
+,p_show_row_number=>false
+,p_settings_area_expanded=>false
 );
 wwv_flow_api.component_end;
 end;
@@ -1136,15 +1130,6 @@ wwv_flow_api.component_begin (
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
 ,p_default_owner=>'CORE'
-);
-wwv_flow_api.create_ig_report(
- p_id=>wwv_flow_api.id(26466733495220683)
-,p_interactive_grid_id=>wwv_flow_api.id(26271065437185741)
-,p_static_id=>'114307'
-,p_type=>'PRIMARY'
-,p_default_view=>'GRID'
-,p_show_row_number=>false
-,p_settings_area_expanded=>false
 );
 wwv_flow_api.create_ig_report_view(
  p_id=>wwv_flow_api.id(26466993924220683)
