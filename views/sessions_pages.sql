@@ -53,10 +53,10 @@ SELECT
     r.avg_time,
     r.max_time,
     r.diff_time,
-    r.page_title || '\nRequests: <b>' || r.count_requests || '</b>'     AS tooltip_requests,
-    r.page_title || '\nUsers: <b>' || r.count_users || '</b>'           AS tooltip_users,
-    r.page_title || '\nAvg Time: <b>' || r.avg_time || '</b>'           AS tooltip_avg_time,
-    r.page_title || '\nMax Time: <b>' || r.max_time || '</b>'           AS tooltip_max_time
+    r.page_title || '\nRequests: <b>' || TO_CHAR(r.count_requests) || '</b>'    AS tooltip_requests,
+    r.page_title || '\nUsers: <b>' || TO_CHAR(r.count_users) || '</b>'          AS tooltip_users,
+    r.page_title || '\nAvg Time: <b>' || TO_CHAR(r.avg_time) || '</b>'          AS tooltip_avg_time,
+    r.page_title || '\nMax Time: <b>' || TO_CHAR(r.max_time) || '</b>'          AS tooltip_max_time
 FROM r;
 --
 COMMENT ON TABLE sessions_pages IS '[CORE - DASHBOARD] Pages Performance';
