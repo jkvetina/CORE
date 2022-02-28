@@ -203,6 +203,86 @@ var fix_toolbar = function (region_id) {
         }
     }
 
+    // add action to save all rows in grid
+    if ($region.hasClass('SAVE_ALL')) {
+        actions.add({
+            name    : 'SAVE_ALL',
+            action  : function(event, element) {
+                var region_id   = event.delegateTarget.id.replace('_ig', '');
+                var grid        = apex.region(region_id).widget();
+                var model       = grid.interactiveGrid('getViews', 'grid').model;
+                //
+                model.forEach(function(r) {
+                    try {
+                        if (!model.getValue(r, 'ITEM_NAME').endsWith('?')) {
+                            model.setValue(r, 'ITEM_TYPE', model.getValue(r, 'ITEM_TYPE') + ' ');  // fake change
+                        }
+                    }
+                    catch(err) {  // deleted rows cant be changed
+                    }
+                });
+                grid.interactiveGrid('getActions').invoke('save');
+                grid.interactiveGrid('getCurrentView').model.fetch();
+            }
+        });
+        //
+        action2.controls.push({
+            type        : 'BUTTON',
+            label       : 'Save All Rows',
+            id          : 'save_all_rows',
+            icon        : '',
+            action      : 'SAVE_ALL'
+        });
+    }
+
+    // add action to save all selected and changed rows
+    if ($region.hasClass('SAVE_SELECTED')) {
+        actions.add({
+            name    : 'SAVE_SELECTED',
+            action  : function(event, element) {
+                var region_id   = event.delegateTarget.id.replace('_ig', '');
+                var grid        = apex.region(region_id).widget();
+                var model       = grid.interactiveGrid('getViews', 'grid').model;
+                var gridview    = grid.interactiveGrid('getViews').grid;
+                var selected    = grid.interactiveGrid('getViews').grid.getSelectedRecords();
+                var id;
+                var changed = [];
+                //
+                for (var i = 0; i < selected.length; i++ ) {
+                    id = gridview.model.getRecordId(selected[i]);
+                    changed.push(id);
+                };
+                //
+                model.forEach(function(r) {
+                    for (var i = 0; i < changed.length; i++ ) {
+                        if (changed[i] == gridview.model.getRecordId(r)) {
+                            try {
+                                model.setValue(r, 'ITEM_TYPE', model.getValue(r, 'ITEM_TYPE') + ' ');  // fake change
+                            }
+                            catch(err) {  // deleted rows cant be changed
+                            }
+                        }
+                    }
+                });
+                //
+                grid.interactiveGrid('getActions').invoke('save');
+
+                // refresh grid after save
+                //grid.interactiveGrid('getViews', 'grid').model.clearChanges();
+                //grid.interactiveGrid('getActions').invoke('refresh');
+                grid.interactiveGrid('getCurrentView').model.fetch();
+            }
+        });
+        //
+        action2.controls.push({
+            type        : 'BUTTON',
+            label       : 'Save Selected',
+            id          : 'save_all_rows',
+            icon        : '',
+            action      : 'SAVE_SELECTED',
+        });
+    }
+
     // show refresh button before save button
     action4.controls.push({
         type            : 'BUTTON',
