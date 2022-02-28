@@ -151,36 +151,46 @@ var fold_grid_group = function(grid_id, group_name, group_value) {
 //
 var fix_toolbars = function () {
     $('.a-IG').each(function() {
-        var id = $(this).attr('id').replace('_ig', '');
-        //console.log('GRID MODIFIED', id);
-        fix_toolbar(id);
+        var $parent = $(this).parent();
+        var id      = $parent.attr('id');
+        //
+        if (!$parent.hasClass('ORIGINAL')) {
+            //console.log('GRID MODIFIED', id);
+            fix_toolbar(id);
+        }
     })
 };
 //
 var fix_toolbar = function (region_id) {
+    console.group('FIX_TOOLBAR', region_id);
+    //
+    var $region     = $('#' + region_id);
     var widget      = apex.region(region_id).widget();
     var actions     = widget.interactiveGrid('getActions');
     var toolbar     = widget.interactiveGrid('getToolbar');
-    var config      = $.extend(true, {}, toolbar.toolbar('option'));
+    var config      = $.apex.interactiveGrid.copyDefaultToolbar();
+    var action1     = config.toolbarFind('actions1');
+    var action2     = config.toolbarFind('actions2');
+    var action3     = config.toolbarFind('actions3');
+    var action4     = config.toolbarFind('actions4');
     //
-    config.data     = $.apex.interactiveGrid.copyDefaultToolbar();
-    var action1     = config.data.toolbarFind('actions1');
-    var action2     = config.data.toolbarFind('actions2');
-    var action3     = config.data.toolbarFind('actions3');
-    var action4     = config.data.toolbarFind('actions4');
+    //console.log('TOOLBAR DATA - ORIGINAL', config_bak.data);
+    //console.log('ACTIONS', widget.interactiveGrid('getActions').list());
 
     // manipulate buttons
     // https://docs.oracle.com/en/database/oracle/application-express/20.1/aexjs/interactiveGrid.html#actions-section
     //
     // grid actions
-    // apex.region("ID").widget().interactiveGrid("getActions").list()
+    // widget.interactiveGrid('getActions').list()
+    //console.log('ACTIONS', widget.interactiveGrid('getActions').list());
     //
     // row actions
-    // apex.region("ID").widget().interactiveGrid("getViews").grid.rowActionMenu$.menu("option")
+    // widget.interactiveGrid('getViews').grid.rowActionMenu$.menu('option')
     //
 
     // hide some buttons
     actions.hide('reset-report');
+    actions.show('change-rows-per-page');
 
     // modify add row button as a plus sign without text
     for (var i = 0; i < action3.controls.length; i++) {
@@ -215,8 +225,9 @@ var fix_toolbar = function (region_id) {
 
     // update toolbar
     //actions.set('edit', true);
-    toolbar.toolbar('option', 'data', config.data);
+    toolbar.toolbar('option', 'data', config);
     toolbar.toolbar('refresh');
+    console.groupEnd();
 };
 
 
