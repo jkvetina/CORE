@@ -186,9 +186,9 @@ var fix_toolbar = function (region_id) {
     for (var i = 0; i < action3.controls.length; i++) {
         var button = action3.controls[i];
         if (button.action == 'selection-add-row') {
-            button.icon             = 'fa fa-plus ICON_ONLY';
-            button.iconBeforeLabel  = true;
-            button.label            = ' ';
+            button.icon         = 'fa fa-plus';
+            button.iconOnly     = true;
+            button.label        = ' ';
             break;
         }
     }
