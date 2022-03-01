@@ -34,7 +34,6 @@ wwv_flow_api.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_grid_column_span=>6
 ,p_plug_display_point=>'BODY'
-,p_plug_source=>'List of objects in &P950_SCHEMA. schema.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -309,8 +308,21 @@ wwv_flow_api.create_page_item(
 ,p_name=>'P950_SCHEMA'
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(14218446056378932)
-,p_display_as=>'NATIVE_HIDDEN'
-,p_attribute_01=>'Y'
+,p_prompt=>'Current Schema'
+,p_display_as=>'NATIVE_SELECT_LIST'
+,p_lov=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT',
+'    app.get_owner(app.get_app_id()) AS schema,',
+'    app.get_owner(app.get_app_id()) AS schema_',
+'FROM DUAL;',
+''))
+,p_cHeight=>1
+,p_colspan=>4
+,p_field_template=>wwv_flow_api.id(9142775823569991)
+,p_item_template_options=>'#DEFAULT#'
+,p_lov_display_extra=>'NO'
+,p_attribute_01=>'NONE'
+,p_attribute_02=>'N'
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(14431206414036864)
