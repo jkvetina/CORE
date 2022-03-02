@@ -284,3 +284,10 @@ ul.t-Tabs.t-Tabs--simple .is-active .t-Tabs-link {
     outline:                none;
 }
 
+.t-TabsRegion-items > div {
+    display:                none;
+}
+.t-TabsRegion-items > div.apex-rds-slider {
+    display:                block;
+}
+
