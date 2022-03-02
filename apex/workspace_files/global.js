@@ -283,6 +283,11 @@ var fix_toolbar = function (region_id) {
         });
     }
 
+    action4.controls.unshift({
+        type    : 'SELECT',
+        action  : 'change-rows-per-page'
+    });
+
     // show refresh button before save button
     action4.controls.push({
         type            : 'BUTTON',
