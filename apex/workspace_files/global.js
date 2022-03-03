@@ -24,18 +24,11 @@ var wait_for_element = function(search, start, fn, disconnect) {
 //
 var apex_page_loaded = function() {
     //
-    // WAIT FOR SUCCESS MESSAGE
-    //
-    const search    = '#APEX_SUCCESS_MESSAGE.u-visible > .t-Body-alert > #t_Alert_Success';
-    const start     = 'APEX_SUCCESS_MESSAGE';
-
-    //
     // SHOW NOTIFICATIONS
     //
     var item_success        = 'P0_MESSAGE_SUCCESS';
     var item_error          = 'P0_MESSAGE_ERROR';
     var item_alert          = 'P0_MESSAGE_ALERT';
-    // confirm
     var item_callback       = 'P0_MESSAGE_CALLBACK';  // contains function name
     //
     var item_success_value  = apex.item(item_success).getValue();
@@ -46,13 +39,21 @@ var apex_page_loaded = function() {
     // catch error close event
     apex.message.setThemeHooks({
         beforeShow: function(pMsgType, pElement$) {  // beforeShow, beforeHide
+            //console.log('MESSAGE:', pMsgType, pElement$);
+
+            // unescape HTML in error message
+            var $err = $('#APEX_ERROR_MESSAGE');
+            $err.html($('<textarea />').html($err.html()).text());
+
+            // translate message ?
+            //
+
             //if (pMsgType === apex.message.TYPE.ERROR) {  // SUCCESS, ERROR
             if (pMsgType === apex.message.TYPE.SUCCESS) {
                 setTimeout(() => {
                     apex.message.hidePageSuccess();  // hide message
                 }, 3000);
             }
-            console.log('MESSAGE:', pMsgType, pElement$);
         },
         beforeHide: function(pMsgType, pElement$) {  // beforeShow, beforeHide
             //if (pMsgType === apex.message.TYPE.ERROR) {  // SUCCESS, ERROR
