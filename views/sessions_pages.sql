@@ -11,9 +11,11 @@ p AS (
     SELECT
         l.page_id,
         l.user_id,
+        --
         TO_NUMBER(SUBSTR(l.module_timer, 1, 2)) * 1440 +
         TO_NUMBER(SUBSTR(l.module_timer, 4, 2)) * 60 +
-        TO_NUMBER(SUBSTR(l.module_timer, 7, 2)) + TO_NUMBER('0.' || SUBSTR(l.module_timer, 10, 3)) AS page_timer
+        TO_NUMBER(SUBSTR(l.module_timer, 7, 2)) +
+        TO_NUMBER('0,' || SUBSTR(l.module_timer, 10, 3), '999D999', 'NLS_NUMERIC_CHARACTERS='',.''') AS page_timer
     FROM logs l
     JOIN x
         ON x.app_id         = l.app_id
