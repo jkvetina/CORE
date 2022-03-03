@@ -99,7 +99,7 @@ FROM (
     --
     UNION ALL
     SELECT
-        x.column_item_like || RTRIM(c.name, '_') AS item_name,
+        REPLACE(REPLACE(x.column_item_like || RTRIM(c.name, '_'), '#'), '$') AS item_name,
         c.page_id,
         MIN(c.heading) AS value_en
         --
