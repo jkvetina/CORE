@@ -29,7 +29,7 @@ p AS (
 r AS (
     SELECT
         n.page_id,
-        a.page_title,
+        app.get_page_title(n.page_id)                       AS page_title,
         COUNT(p.page_timer)                                 AS count_requests,
         COUNT(DISTINCT p.user_id)                           AS count_users,
         ROUND(AVG(p.page_timer), 2)                         AS avg_time,
