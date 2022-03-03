@@ -2853,6 +2853,13 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN APEX_ERROR.T_ERROR_RESULT
     AS
         out_result              APEX_ERROR.T_ERROR_RESULT;
+        /*
+            message             varchar2(32767),            -- Displayed error message
+            additional_info     varchar2(32767),            -- Only used for display_location ON_ERROR_PAGE to display additional error information
+            display_location    varchar2(40),               -- Use constants "used for display_location" below
+            page_item_name      varchar2(255),              -- Associated page item name
+            column_alias        varchar2(255)               -- Associated tabular form column alias
+        */
         --
         v_log_id                NUMBER;                     -- log_id from your log_error function (returning most likely sequence)
         v_action_name           logs.action_name%TYPE;      -- short error type visible to user
