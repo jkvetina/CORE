@@ -321,7 +321,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_app_id           CONSTANT apex_application_pages.application_id%TYPE         := app.get_app_id();
         in_page_id          CONSTANT apex_application_pages.page_id%TYPE                := 947;
         in_group_name       CONSTANT apex_application_page_groups.page_group_name%TYPE  := 'DASHBOARD';
-        in_page_name        CONSTANT apex_application_pages.page_name%TYPE              := 'TRANSLATIONS';
+        in_page_name        CONSTANT apex_application_pages.page_name%TYPE              := 'GENERATED_TRANSLATIONS';
     BEGIN
         app.log_module();
 
