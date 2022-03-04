@@ -1,4 +1,18 @@
 //
+// COPY TO CLIPBOARD
+//
+var copy_to_clipboard = function (text) {
+    var dummy = document.createElement('textarea');
+    document.body.appendChild(dummy);
+    dummy.value = text;
+    dummy.select();
+    document.execCommand('copy');
+    document.body.removeChild(dummy);
+}
+
+
+
+//
 // WAIT FOR ELEMENT TO EXIST
 //
 var wait_for_element = function(search, start, fn, disconnect) {
