@@ -526,6 +526,53 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    PROCEDURE auto_translate (
+        in_app_id               translated_items.app_id%TYPE,
+        in_page_id              translated_items.page_id%TYPE,
+        in_lang_id              VARCHAR2,
+        in_limit                NUMBER                          := NULL
+    )
+    AS
+        v_translated            translated_items.value_en%TYPE;    
+    BEGIN
+        app.log_module(in_app_id, in_page_id, in_lang_id);
+        --
+        FOR c IN (
+            SELECT
+                t.*,
+                app_actions.get_live_translation(t.value_en, in_lang_id) AS new_value
+            FROM translated_items t
+            WHERE t.app_id          = in_app_id
+                AND t.page_id       = NVL(in_page_id, t.page_id)
+                AND t.value_en      IS NOT NULL
+                AND (
+                    (t.value_cz IS NULL AND in_lang_id = 'CZ') OR
+                    (t.value_sk IS NULL AND in_lang_id = 'SK') OR
+                    (t.value_pl IS NULL AND in_lang_id = 'PL') OR
+                    (t.value_hu IS NULL AND in_lang_id = 'HU')
+                )
+                AND ROWNUM          <= NVL(in_limit, 50)
+        ) LOOP
+            UPDATE translated_items t
+            SET t.value_cz          = CASE WHEN in_lang_id = 'CZ' THEN c.new_value ELSE t.value_cz END,
+                t.value_sk          = CASE WHEN in_lang_id = 'SK' THEN c.new_value ELSE t.value_sk END,
+                t.value_pl          = CASE WHEN in_lang_id = 'PL' THEN c.new_value ELSE t.value_pl END,
+                t.value_hu          = CASE WHEN in_lang_id = 'HU' THEN c.new_value ELSE t.value_hu END
+            WHERE t.app_id          = c.app_id
+                AND t.page_id       = c.page_id
+                AND t.item_name     = c.item_name;
+        END LOOP;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
     PROCEDURE save_users (
         in_action                       CHAR,
         out_user_id             IN OUT  users_overview.out_user_id%TYPE,

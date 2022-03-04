@@ -136,6 +136,18 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+    --
+    -- Auto translate empty values
+    --
+    PROCEDURE auto_translate (
+        in_app_id               translated_items.app_id%TYPE,
+        in_page_id              translated_items.page_id%TYPE,
+        in_lang_id              VARCHAR2,
+        in_limit                NUMBER                          := NULL
+    );
+
+
+
 
 
 
