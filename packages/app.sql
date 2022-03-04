@@ -280,7 +280,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
             AND t.page_id       IN (0, COALESCE(in_page_id, app.get_page_id()))
             AND t.item_name     = in_name;
         --
-        RETURN COALESCE(out_value, out_default, '{' || in_name || '}');
+        RETURN
+            CASE WHEN in_name LIKE 'HELP\_%' ESCAPE '\' THEN '<span class="HELP">' END ||
+            COALESCE(out_value, out_default, '{' || in_name || '}') ||
+            CASE WHEN in_name LIKE 'HELP\_%' ESCAPE '\' THEN '</span>' END;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
