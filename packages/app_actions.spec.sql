@@ -125,6 +125,17 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
+    --
+    -- Get live translation from Deepl
+    --
+    FUNCTION get_live_translation (
+        in_text         VARCHAR2,
+        in_lang         VARCHAR2
+    )
+    RETURN VARCHAR2;
+
+
+
 
 
 

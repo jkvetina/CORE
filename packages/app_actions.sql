@@ -504,6 +504,28 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    FUNCTION get_live_translation (
+        in_text         VARCHAR2,
+        in_lang         VARCHAR2
+    )
+    RETURN VARCHAR2
+    AS
+        l_secret        CONSTANT VARCHAR2(64) := '772636e8-841a-3ffe-f472-8c377aabfc0d:fx';
+        --
+        r               VARCHAR2(4000);
+    BEGIN
+        r := APEX_WEB_SERVICE.MAKE_REST_REQUEST (
+            p_url           => 'https://api-free.deepl.com/v2/translate?auth_key=' || l_secret || '&'
+                                || 'text=' || UTL_URL.ESCAPE(in_text) || '&'
+                                || 'target_lang=' || REPLACE(in_lang, 'CZ', 'CS') || '&'
+                                || 'source_lang=' || 'EN',
+            p_http_method   => 'GET'
+        );
+        RETURN JSON_VALUE(JSON_QUERY(r, '$.translations[0]' RETURNING VARCHAR2(4000) PRETTY), '$.text');
+    END;
+
+
+
     PROCEDURE save_users (
         in_action                       CHAR,
         out_user_id             IN OUT  users_overview.out_user_id%TYPE,
