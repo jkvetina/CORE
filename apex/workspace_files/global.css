@@ -291,3 +291,8 @@ ul.t-Tabs.t-Tabs--simple .is-active .t-Tabs-link {
     display:                block;
 }
 
+/* TABS HELP */
+span.HELP {
+    display:                none;
+}
+
