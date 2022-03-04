@@ -276,7 +276,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             MIN(t.value_en) KEEP (DENSE_RANK FIRST ORDER BY t.item_name DESC, t.page_id DESC)
         INTO out_value, out_default
         FROM translated_items t
-        WHERE t.app_id          = COALESCE(in_app_id, app.get_app_id())
+        WHERE t.app_id          = COALESCE(in_app_id, app.get_real_app_id())
             AND t.page_id       IN (0, COALESCE(in_page_id, app.get_page_id()))
             AND t.item_name     = in_name;
         --
