@@ -282,7 +282,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         FOR c IN (
             SELECT
                 t.item_name,
-                app.get_translated_item(t.item_name) AS item_value
+                t.item_value
             FROM translations_current t
         ) LOOP
             app.set_item (

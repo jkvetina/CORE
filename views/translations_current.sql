@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW translations_current AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_app_id()        AS app_id,
+        app.get_real_app_id()   AS app_id,
         app.get_page_id()       AS page_id,
         app.get_user_lang()     AS lang_id
     FROM DUAL
@@ -9,17 +9,9 @@ WITH x AS (
 SELECT
     t.page_id,
     t.item_name,
-    i.item_name                 AS page_item_name,
-    a.item_name                 AS app_item_name
+    app.get_translated_item(t.item_name, in_app_id => x.app_id) AS item_value
 FROM translated_items t
 JOIN x
     ON x.app_id                 = t.app_id
-    AND (x.page_id              = t.page_id OR t.page_id = 0)
-LEFT JOIN apex_application_page_items i
-    ON i.application_id         = t.app_id
-    AND i.page_id               IN (947, t.page_id)
-    AND i.item_name             = t.item_name
-LEFT JOIN apex_application_items a
-    ON a.application_id         = t.app_id
-    AND a.item_name             = t.item_name;
+    AND (x.page_id              = t.page_id OR t.page_id = 0);
 
