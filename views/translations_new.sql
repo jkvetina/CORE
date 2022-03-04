@@ -6,7 +6,8 @@ WITH x AS (
     FROM DUAL
 ),
 t AS (
-    SELECT 
+    SELECT
+        x.app_id,
         t.item_type,
         t.item_name,
         t.page_id,
@@ -32,7 +33,11 @@ SELECT
     t.item_type,
     t.item_name,
     t.page_id,
-    t.value_en
+    t.value_en,
+    --
+    '<a href="#" onclick="copy_to_clipboard(''&' || t.item_name ||
+        CASE WHEN t.item_name LIKE 'HELP\_%' ESCAPE '\' THEN '!RAW' END ||
+        '.''); return false;">' || app.get_icon('fa-copy') || '</a>' AS action_copy
 FROM t
 UNION ALL
 --
@@ -41,12 +46,15 @@ SELECT
     --
     i.item_name,
     i.page_id,
-    i.value_en
+    i.value_en,
+    --
+    '<a href="#" onclick="copy_to_clipboard(''&' || t.item_name ||
+        CASE WHEN t.item_name LIKE 'HELP\_%' ESCAPE '\' THEN '!RAW' END ||
+        '.''); return false;">' || app.get_icon('fa-copy') || '</a>' AS action_copy
 FROM translated_items i
-JOIN x
-    ON x.app_id         = i.app_id
-    AND x.page_id       != i.page_id
 JOIN t
-    ON t.item_name      = i.item_name
-WHERE i.item_name       NOT IN ('PAGE_NAME');
+    ON t.app_id         = i.app_id
+    AND t.item_name     = i.item_name
+WHERE i.page_id         != t.page_id  --= 0
+    AND i.item_name     NOT IN ('PAGE_NAME');
 

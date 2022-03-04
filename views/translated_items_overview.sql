@@ -12,14 +12,15 @@ SELECT
     --
     REGEXP_SUBSTR(REGEXP_REPLACE(t.item_name, '^T[_]'), '^([^_]+)', 1, 1, NULL, 1) AS item_type,
     --
-    CASE WHEN i.item_name IS NOT NULL THEN 'Y' END AS is_page_item,
-    CASE WHEN a.item_name IS NOT NULL THEN 'Y' END AS is_app_item,
-    --
     t.value_en,
     t.value_cz,
     t.value_sk,
     t.value_pl,
-    t.value_hu
+    t.value_hu,
+    --
+    '<a href="#" onclick="copy_to_clipboard(''&' || t.item_name ||
+        CASE WHEN t.item_name LIKE 'HELP\_%' ESCAPE '\' THEN '!RAW' END ||
+        '.''); return false;">' || app.get_icon('fa-copy') || '</a>' AS action_copy
 FROM translated_items t
 JOIN x
     ON x.app_id             = t.app_id
