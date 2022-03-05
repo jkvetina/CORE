@@ -115,7 +115,7 @@ FROM (
     --
     UNION ALL
     SELECT
-        x.group_item_like || REGEXP_REPLACE(REPLACE(UPPER(c.heading), ' ', '_'), '[^A-Z0-9_]+', '') AS item_name,
+        x.group_item_like || REGEXP_REPLACE(REPLACE(REGEXP_REPLACE(UPPER(c.heading), '^(&' || x.group_item_like || ')', '&'), ' ', '_'), '[^A-Z0-9_]+', '') AS item_name,
         c.page_id,
         c.heading AS value_en
         --
