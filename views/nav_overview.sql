@@ -44,6 +44,12 @@ t AS (
         LEFT JOIN apex_application_page_items i
             ON i.application_id         = n.app_id
             AND i.item_name             = 'P' || TO_CHAR(n.page_id) || '_JAVASCRIPT_TARGET'
+        WHERE (n.app_id, n.page_id)     NOT IN (
+            SELECT
+                app.get_core_app_id()   AS app_id,
+                947                     AS page_id
+            FROM DUAL
+        )
         CONNECT BY n.parent_id          = PRIOR n.page_id
             AND n.app_id                = PRIOR n.app_id
         START WITH n.parent_id          IS NULL
