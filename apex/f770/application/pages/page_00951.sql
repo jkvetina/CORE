@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220226152344'
+,p_last_upd_yyyymmddhh24miss=>'20220305082448'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24927693292543629)
@@ -3054,8 +3054,9 @@ wwv_flow_api.create_region_column(
 ,p_group_id=>wwv_flow_api.id(15125238812615735)
 ,p_use_group_for=>'BOTH'
 ,p_attribute_05=>'BOTH'
-,p_is_required=>true
-,p_max_length=>128
+,p_is_required=>false
+,p_link_target=>'f?p=&APP_ID.:951:&SESSION.::&DEBUG.:951:P951_SEARCH_TABLES,P951_SEARCH_COLUMNS:,&COLUMN_NAME.'
+,p_link_text=>'&COLUMN_NAME.'
 ,p_enable_filter=>true
 ,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
 ,p_filter_is_required=>false
