@@ -220,6 +220,66 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    PROCEDURE save_nav_overview (
+        in_action               CHAR,
+        in_app_id               navigation.app_id%TYPE,
+        in_page_id              navigation.page_id%TYPE,
+        in_parent_id            navigation.parent_id%TYPE,
+        in_order#               navigation.order#%TYPE,
+        in_is_hidden            navigation.is_hidden%TYPE,
+        in_is_reset             navigation.is_reset%TYPE,
+        in_is_shared            navigation.is_shared%TYPE
+    ) AS
+        rec                     navigation%ROWTYPE;
+        v_log_id                logs.log_id%TYPE;
+    BEGIN
+        v_log_id := app.log_module_json (
+            'action',           in_action,
+            'app_id',           in_app_id,
+            'page_id',          in_page_id,
+            'parent_id',        in_parent_id,
+            'order#',           in_order#,
+            'is_hidden',        in_is_hidden,
+            'is_reset',         in_is_reset,
+            'is_shared',        in_is_shared
+        );
+        --
+        rec.app_id              := COALESCE(in_app_id, app.get_app_id());
+        rec.page_id             := in_page_id;
+        rec.parent_id           := in_parent_id;
+        rec.order#              := in_order#;
+        rec.is_hidden           := in_is_hidden;
+        rec.is_reset            := in_is_reset;
+        rec.is_shared           := in_is_shared;
+        rec.updated_by          := app.get_user_id();
+        rec.updated_at          := SYSDATE;
+        --
+        IF in_action = 'D' THEN
+            DELETE FROM navigation t
+            WHERE t.app_id      = in_app_id
+                AND t.page_id   = in_page_id;
+        ELSE
+            UPDATE navigation t
+            SET ROW = rec
+            WHERE t.app_id      = in_app_id
+                AND t.page_id   = in_page_id;
+            --
+            IF SQL%ROWCOUNT = 0 THEN
+                INSERT INTO navigation
+                VALUES rec;
+            END IF;
+        END IF;
+        --
+        app.log_success(v_log_id);
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
     PROCEDURE init_filters
     AS
     BEGIN

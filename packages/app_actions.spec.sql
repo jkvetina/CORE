@@ -98,6 +98,22 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
     --
+    -- Save changes on Navigation page
+    --
+    PROCEDURE save_nav_overview (
+        in_action               CHAR,
+        in_app_id               navigation.app_id%TYPE,
+        in_page_id              navigation.page_id%TYPE,
+        in_parent_id            navigation.parent_id%TYPE,
+        in_order#               navigation.order#%TYPE,
+        in_is_hidden            navigation.is_hidden%TYPE,
+        in_is_reset             navigation.is_reset%TYPE,
+        in_is_shared            navigation.is_shared%TYPE
+    );
+
+
+
+    --
     -- Compute filters used on page region
     --
     PROCEDURE init_filters;
