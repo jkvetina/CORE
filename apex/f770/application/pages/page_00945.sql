@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9823062898204869)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220305080154'
+,p_last_upd_yyyymmddhh24miss=>'20220305195922'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24140000721306134)
@@ -253,7 +253,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>true
 ,p_item_type=>'NATIVE_DISPLAY_ONLY'
-,p_heading=>'Copy'
+,p_heading=>'&COLUMN_ACTION_COPY.'
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>70
 ,p_value_alignment=>'CENTER'
@@ -763,7 +763,7 @@ wwv_flow_api.create_region_column(
 ,p_data_type=>'VARCHAR2'
 ,p_is_query_only=>false
 ,p_item_type=>'NATIVE_DISPLAY_ONLY'
-,p_heading=>'Copy'
+,p_heading=>'&COLUMN_ACTION_COPY.'
 ,p_heading_alignment=>'CENTER'
 ,p_display_sequence=>150
 ,p_value_alignment=>'CENTER'
@@ -2150,7 +2150,7 @@ wwv_flow_api.create_page_button(
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9145249029569999)
-,p_button_image_alt=>'Auto Translate'
+,p_button_image_alt=>'&BUTTON_AUTO_TRANSLATE.'
 ,p_button_position=>'BODY'
 ,p_button_redirect_url=>'f?p=&APP_ID.:945:&SESSION.::&DEBUG.::P945_AUTOTRANSLATE:Y'
 ,p_button_condition=>'P945_LANG'
