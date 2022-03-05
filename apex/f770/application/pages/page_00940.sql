@@ -38,7 +38,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23157653094829539)
-,p_plug_name=>'Events'
+,p_plug_name=>'&REGION_EVENTS.'
 ,p_region_name=>'TAB_EVENTS'
 ,p_parent_plug_id=>wwv_flow_api.id(24354422549954718)
 ,p_region_template_options=>'#DEFAULT#'
@@ -51,16 +51,14 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21827346720427653)
-,p_plug_name=>'Events'
+,p_plug_name=>'&REGION_EVENTS.'
 ,p_parent_plug_id=>wwv_flow_api.id(23157653094829539)
 ,p_icon_css_classes=>'fa-tags'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'Business* events (separated from common logs) so you can track them independently<br />',
-'and increase alertness of related people via Subscriptions.'))
+,p_plug_source=>'&HELP_EVENTS!RAW.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -68,6 +66,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23156042208829523)
 ,p_plug_name=>'Events [GRID]'
+,p_region_name=>'EVENTS'
 ,p_parent_plug_id=>wwv_flow_api.id(23157653094829539)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
@@ -329,7 +328,7 @@ wwv_flow_api.create_ig_report(
 ,p_static_id=>'232468'
 ,p_type=>'PRIMARY'
 ,p_default_view=>'GRID'
-,p_rows_per_page=>50
+,p_rows_per_page=>100
 ,p_show_row_number=>false
 ,p_settings_area_expanded=>false
 );
@@ -412,7 +411,7 @@ wwv_flow_api.create_ig_report_column(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23157750092829540)
-,p_plug_name=>'Subscriptions'
+,p_plug_name=>'&REGION_SUBSCRIPTIONS.'
 ,p_region_name=>'TAB_SUBSCRIPTIONS'
 ,p_parent_plug_id=>wwv_flow_api.id(24354422549954718)
 ,p_region_template_options=>'#DEFAULT#'
@@ -425,16 +424,14 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23157847743829541)
-,p_plug_name=>'Subscriptions'
+,p_plug_name=>'&REGION_SUBSCRIPTIONS.'
 ,p_parent_plug_id=>wwv_flow_api.id(23157750092829540)
 ,p_icon_css_classes=>'fa-envelope-plus'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>50
 ,p_plug_display_point=>'BODY'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'Subscribe role to event and send notifications based on schedule.',
-'You can finetune recepients with Evaluation function.'))
+,p_plug_source=>'&HELP_SUBSCRIPTIONS!RAW.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -442,6 +439,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23158084324829543)
 ,p_plug_name=>'Subscriptions [GRID]'
+,p_region_name=>'SUBSCRIPTIONS'
 ,p_parent_plug_id=>wwv_flow_api.id(23157750092829540)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
@@ -484,19 +482,19 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_region_column_group(
  p_id=>wwv_flow_api.id(23305064686761006)
-,p_heading=>'Functions'
+,p_heading=>'&GROUP_FUNCTIONS.'
 );
 wwv_flow_api.create_region_column_group(
  p_id=>wwv_flow_api.id(23305184629761007)
-,p_heading=>'Subscription Info'
+,p_heading=>'&GROUP_SUBSCRIPTION_INFO.'
 );
 wwv_flow_api.create_region_column_group(
  p_id=>wwv_flow_api.id(23305789993761013)
-,p_heading=>'Evaluation'
+,p_heading=>'&GROUP_EVALUATION.'
 );
 wwv_flow_api.create_region_column_group(
  p_id=>wwv_flow_api.id(24136925841306103)
-,p_heading=>'Results'
+,p_heading=>'&GROUP_RESULTS.'
 );
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(23158237264829545)
@@ -888,7 +886,7 @@ wwv_flow_api.create_ig_report(
 ,p_static_id=>'233102'
 ,p_type=>'PRIMARY'
 ,p_default_view=>'GRID'
-,p_rows_per_page=>50
+,p_rows_per_page=>100
 ,p_show_row_number=>false
 ,p_settings_area_expanded=>false
 );
@@ -1009,7 +1007,7 @@ wwv_flow_api.create_ig_report_column(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24354546685954719)
-,p_plug_name=>'Events Log'
+,p_plug_name=>'&REGION_EVENTS_LOG.'
 ,p_region_name=>'TAB_EVENTS_LOG'
 ,p_parent_plug_id=>wwv_flow_api.id(24354422549954718)
 ,p_region_template_options=>'#DEFAULT#'
@@ -1022,7 +1020,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21640682102592259)
-,p_plug_name=>'Events Log'
+,p_plug_name=>'&REGION_EVENTS_LOG.'
 ,p_parent_plug_id=>wwv_flow_api.id(24354546685954719)
 ,p_icon_css_classes=>'fa-clipboard-list'
 ,p_region_template_options=>'#DEFAULT#'
@@ -1036,7 +1034,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(21641234808592265)
 ,p_plug_name=>'Events Log [GRID]'
-,p_region_name=>'LOG_EVENTS'
+,p_region_name=>'EVENTS_LOG'
 ,p_parent_plug_id=>wwv_flow_api.id(24354546685954719)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
@@ -1084,18 +1082,6 @@ wwv_flow_api.create_page_plug(
 ,p_prn_page_footer_alignment=>'CENTER'
 ,p_prn_border_color=>'#666666'
 );
-wwv_flow_api.component_end;
-end;
-/
-begin
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
-,p_default_workspace_id=>9014660246496943
-,p_default_application_id=>770
-,p_default_id_offset=>0
-,p_default_owner=>'CORE'
-);
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(21827806662427658)
 ,p_name=>'LOG_ID'
@@ -1120,6 +1106,18 @@ wwv_flow_api.create_region_column(
 ,p_is_primary_key=>false
 ,p_duplicate_value=>true
 ,p_include_in_export=>true
+);
+wwv_flow_api.component_end;
+end;
+/
+begin
+wwv_flow_api.component_begin (
+ p_version_yyyy_mm_dd=>'2021.04.15'
+,p_release=>'21.1.7'
+,p_default_workspace_id=>9014660246496943
+,p_default_application_id=>770
+,p_default_id_offset=>0
+,p_default_owner=>'CORE'
 );
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(21827916696427659)
@@ -1463,6 +1461,7 @@ wwv_flow_api.create_ig_report_column(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(22534970866307725)
 ,p_plug_name=>'Events [CHART]'
+,p_region_name=>'EVENTS_CHART'
 ,p_parent_plug_id=>wwv_flow_api.id(24354546685954719)
 ,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader js-removeLandmark:t-Region--scrollBody'
 ,p_escape_on_http_output=>'Y'
@@ -1524,7 +1523,7 @@ wwv_flow_api.create_jet_chart_series(
  p_id=>wwv_flow_api.id(11411758875181953)
 ,p_chart_id=>wwv_flow_api.id(11410011903181950)
 ,p_seq=>10
-,p_name=>'Events'
+,p_name=>'&CHART_EVENTS.'
 ,p_location=>'REGION_SOURCE'
 ,p_items_value_column_name=>'COUNT_EVENTS'
 ,p_items_label_column_name=>'CHART_LABEL'
@@ -1534,8 +1533,6 @@ wwv_flow_api.create_jet_chart_series(
 ,p_marker_shape=>'circle'
 ,p_assigned_to_y2=>'off'
 ,p_items_label_rendered=>false
-,p_items_label_display_as=>'PERCENT'
-,p_threshold_display=>'onIndicator'
 );
 wwv_flow_api.create_jet_chart_axis(
  p_id=>wwv_flow_api.id(11410516346181951)
@@ -1577,7 +1574,7 @@ wwv_flow_api.create_jet_chart_axis(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24354703225954721)
-,p_plug_name=>'Schedules'
+,p_plug_name=>'&REGION_SCHEDULES.'
 ,p_region_name=>'TAB_SCHEDULES'
 ,p_parent_plug_id=>wwv_flow_api.id(24354422549954718)
 ,p_region_template_options=>'#DEFAULT#'
@@ -1590,21 +1587,14 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23307018575761026)
-,p_plug_name=>'Schedules'
+,p_plug_name=>'&REGION_SCHEDULES.'
 ,p_parent_plug_id=>wwv_flow_api.id(24354703225954721)
 ,p_icon_css_classes=>'fa-alarm-clock'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'Specify when the notifications will be send. Months can be numbers or ranges representing months separated with comma (1-12, 1-3, 4-6).',
-'Same rules apply to Days (1-31), but 31 is considered as last day of every month.',
-'Weekdays are similar (1-7 for Monday to Sunday) or MON, TUE, WED, THU, FRI, SAT, SUN names or even ranges (MON-FRI, SAT-SUN).',
-'Hours can be specified as 0-23, minutes as 0-59. Lists and ranges are also possible (hours: 0, 12 to send at midnight and noon or 8-17 to send in every hour during working hours) or (minutes: 0, 15, 30, 45 to send 4 times per hour). You can specify e'
-||'xact combination in Hours as HH:MM (from 00:00 to 23:59). Time is in server timezone, current tIme on server is: &P940_SERVER_TIME..',
-'You must fill Minutes or Interval (number of minutes from last notification). Other fields are optional. Empty field (except Interval) represents any value. All fields in row must match to trigger the notification.',
-''))
+,p_plug_source=>'&HELP_SCHEDULES!RAW.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -1612,6 +1602,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(23307164817761027)
 ,p_plug_name=>'Schedules [GRID]'
+,p_region_name=>'SCHEDULES'
 ,p_parent_plug_id=>wwv_flow_api.id(24354703225954721)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
@@ -1654,7 +1645,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_region_column_group(
  p_id=>wwv_flow_api.id(23309041318761046)
-,p_heading=>'Schedule'
+,p_heading=>'&GROUP_SCHEDULE.'
 );
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(23307392074761029)
@@ -2019,6 +2010,7 @@ wwv_flow_api.create_ig_report(
 ,p_static_id=>'235072'
 ,p_type=>'PRIMARY'
 ,p_default_view=>'GRID'
+,p_rows_per_page=>100
 ,p_show_row_number=>false
 ,p_settings_area_expanded=>false
 );
@@ -2148,7 +2140,7 @@ wwv_flow_api.create_ig_report_column(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24356516497954739)
-,p_plug_name=>'Templates'
+,p_plug_name=>'&REGION_TEMPLATES.'
 ,p_region_name=>'TAB_TEMPLATES'
 ,p_parent_plug_id=>wwv_flow_api.id(24354422549954718)
 ,p_region_template_options=>'#DEFAULT#'
@@ -2161,16 +2153,14 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(47381275321706779)
-,p_plug_name=>'Templates'
+,p_plug_name=>'&REGION_TEMPLATES.'
 ,p_parent_plug_id=>wwv_flow_api.id(24356516497954739)
 ,p_icon_css_classes=>'fa-envelope-cursor'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'Templates mainly used for e-mails. You can use #TAGS# and replace them via Process function.',
-''))
+,p_plug_source=>'&HELP_TEMPLATES!RAW.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -2178,6 +2168,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(48167105574941765)
 ,p_plug_name=>'Templates [GRID]'
+,p_region_name=>'TEMPLATES'
 ,p_parent_plug_id=>wwv_flow_api.id(24356516497954739)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_component_template_options=>'#DEFAULT#'
@@ -2219,18 +2210,6 @@ wwv_flow_api.create_page_plug(
 ,p_prn_page_footer_alignment=>'CENTER'
 ,p_prn_border_color=>'#666666'
 );
-wwv_flow_api.component_end;
-end;
-/
-begin
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
-,p_default_workspace_id=>9014660246496943
-,p_default_application_id=>770
-,p_default_id_offset=>0
-,p_default_owner=>'CORE'
-);
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(48167306060941767)
 ,p_name=>'APP_ID'
@@ -2250,6 +2229,18 @@ wwv_flow_api.create_region_column(
 ,p_default_expression=>'app.get_app_id()'
 ,p_duplicate_value=>true
 ,p_include_in_export=>false
+);
+wwv_flow_api.component_end;
+end;
+/
+begin
+wwv_flow_api.component_begin (
+ p_version_yyyy_mm_dd=>'2021.04.15'
+,p_release=>'21.1.7'
+,p_default_workspace_id=>9014660246496943
+,p_default_application_id=>770
+,p_default_id_offset=>0
+,p_default_owner=>'CORE'
 );
 wwv_flow_api.create_region_column(
  p_id=>wwv_flow_api.id(48167358886941768)
@@ -2539,6 +2530,7 @@ wwv_flow_api.create_ig_report(
 ,p_static_id=>'238233'
 ,p_type=>'PRIMARY'
 ,p_default_view=>'GRID'
+,p_rows_per_page=>100
 ,p_show_row_number=>false
 ,p_settings_area_expanded=>false
 );
@@ -2650,7 +2642,7 @@ wwv_flow_api.create_ig_report_column(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24515529153735608)
-,p_plug_name=>'Queue'
+,p_plug_name=>'&REGION_QUEUE.'
 ,p_region_name=>'TAB_QUEUE'
 ,p_parent_plug_id=>wwv_flow_api.id(24354422549954718)
 ,p_region_template_options=>'#DEFAULT#'
@@ -2663,16 +2655,14 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24515626348735609)
-,p_plug_name=>'Queue'
+,p_plug_name=>'&REGION_QUEUE.'
 ,p_parent_plug_id=>wwv_flow_api.id(24515529153735608)
 ,p_icon_css_classes=>'fa-envelope-arrow-up'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'Queued e-mails. We don''t send e-mails right away.',
-''))
+,p_plug_source=>'&HELP_QUEUE!RAW.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -2680,6 +2670,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24515724203735610)
 ,p_plug_name=>'Queue [GRID]'
+,p_region_name=>'QUEUE'
 ,p_parent_plug_id=>wwv_flow_api.id(24515529153735608)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9078290074569925)
@@ -3267,6 +3258,7 @@ wwv_flow_api.create_ig_report(
 ,p_static_id=>'245691'
 ,p_type=>'PRIMARY'
 ,p_default_view=>'GRID'
+,p_rows_per_page=>100
 ,p_show_row_number=>false
 ,p_settings_area_expanded=>true
 );
@@ -3379,18 +3371,6 @@ wwv_flow_api.create_ig_report_column(
 ,p_is_visible=>false
 ,p_is_frozen=>false
 );
-wwv_flow_api.component_end;
-end;
-/
-begin
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
-,p_default_workspace_id=>9014660246496943
-,p_default_application_id=>770
-,p_default_id_offset=>0
-,p_default_owner=>'CORE'
-);
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(24580514693328122)
 ,p_view_id=>wwv_flow_api.id(24569267726328095)
@@ -3406,6 +3386,18 @@ wwv_flow_api.create_ig_report_column(
 ,p_column_id=>wwv_flow_api.id(24517220959735625)
 ,p_is_visible=>false
 ,p_is_frozen=>false
+);
+wwv_flow_api.component_end;
+end;
+/
+begin
+wwv_flow_api.component_begin (
+ p_version_yyyy_mm_dd=>'2021.04.15'
+,p_release=>'21.1.7'
+,p_default_workspace_id=>9014660246496943
+,p_default_application_id=>770
+,p_default_id_offset=>0
+,p_default_owner=>'CORE'
 );
 wwv_flow_api.create_ig_report_column(
  p_id=>wwv_flow_api.id(24582386157328126)
@@ -3504,7 +3496,7 @@ wwv_flow_api.create_page_button(
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
-,p_button_image_alt=>'Refresh'
+,p_button_image_alt=>'&BUTTON_REFRESH.'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:940:&SESSION.::&DEBUG.:940::'
 ,p_icon_css_classes=>'fa-refresh'
@@ -3517,7 +3509,7 @@ wwv_flow_api.create_page_button(
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
-,p_button_image_alt=>'Refresh'
+,p_button_image_alt=>'&BUTTON_REFRESH.'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:940:&SESSION.::&DEBUG.:940::'
 ,p_icon_css_classes=>'fa-refresh'
@@ -3530,7 +3522,7 @@ wwv_flow_api.create_page_button(
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
-,p_button_image_alt=>'Refresh'
+,p_button_image_alt=>'&BUTTON_REFRESH.'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:940:&SESSION.::&DEBUG.:940:P940_SHOW_SUBSCRIPTIONS:Y'
 ,p_icon_css_classes=>'fa-refresh'
@@ -3543,7 +3535,7 @@ wwv_flow_api.create_page_button(
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
-,p_button_image_alt=>'Refresh'
+,p_button_image_alt=>'&BUTTON_REFRESH.'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:940:&SESSION.::&DEBUG.:940::'
 ,p_icon_css_classes=>'fa-refresh'
@@ -3556,7 +3548,7 @@ wwv_flow_api.create_page_button(
 ,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#'
 ,p_button_template_id=>wwv_flow_api.id(9144574670569995)
-,p_button_image_alt=>'Refresh'
+,p_button_image_alt=>'&BUTTON_REFRESH.'
 ,p_button_position=>'RIGHT_OF_TITLE'
 ,p_button_redirect_url=>'f?p=&APP_ID.:940:&SESSION.::&DEBUG.:940::'
 ,p_icon_css_classes=>'fa-refresh'
