@@ -1594,6 +1594,12 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec.page_id             := in_page_id;
         rec.item_name           := in_item_name;
         rec.value_en            := COALESCE(in_value_en, INITCAP(REPLACE(REGEXP_REPLACE(rec.item_name, '^[^_]+[_]', ''), '_', ' ')));
+        --
+        rec.value_cz            := app_actions.get_live_translation(rec.value_en, 'CZ');
+        rec.value_sk            := app_actions.get_live_translation(rec.value_en, 'SK');
+        rec.value_pl            := app_actions.get_live_translation(rec.value_en, 'PL');
+        rec.value_hu            := app_actions.get_live_translation(rec.value_en, 'HU');
+        --
         rec.updated_by          := app.get_user_id();
         rec.updated_at          := SYSDATE;
         --
