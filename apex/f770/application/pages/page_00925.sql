@@ -52,6 +52,7 @@ wwv_flow_api.create_page_plug(
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(49094175907245979)
 ,p_plug_name=>'Available Applications [CARDS]'
+,p_region_name=>'AVAILABLE_APPS'
 ,p_parent_plug_id=>wwv_flow_api.id(24353498590954708)
 ,p_region_template_options=>'#DEFAULT#:margin-left-md:margin-right-md'
 ,p_component_template_options=>'#DEFAULT#'
@@ -113,7 +114,7 @@ wwv_flow_api.create_page_plug(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24353523930954709)
-,p_plug_name=>'Applications'
+,p_plug_name=>'&REGION_APPLICATIONS.'
 ,p_parent_plug_id=>wwv_flow_api.id(24353326601954707)
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9049155795569902)
@@ -2175,14 +2176,14 @@ wwv_flow_api.create_ig_report_filter(
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(49095696714245995)
-,p_plug_name=>'Applications'
+,p_plug_name=>'&REGION_APPLICATIONS.'
 ,p_parent_plug_id=>wwv_flow_api.id(24353523930954709)
 ,p_icon_css_classes=>'fa-map-o'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_api.id(9070356145569920)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
-,p_plug_source=>'Applications in the same APEX workspace.'
+,p_plug_source=>'&HELP_APPLICATIONS.'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_plug_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_attribute_01=>'N'
