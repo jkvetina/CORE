@@ -599,25 +599,30 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         FOR c IN (
             SELECT
-                t.*,
-                app_actions.get_live_translation(t.value_en, in_lang_id) AS new_value
+                t.app_id,
+                t.page_id,
+                t.item_name,
+                CASE WHEN t.value_cz IS NULL THEN app_actions.get_live_translation(t.value_en, 'CZ') END AS value_cz,
+                CASE WHEN t.value_sk IS NULL THEN app_actions.get_live_translation(t.value_en, 'SK') END AS value_sk,
+                CASE WHEN t.value_pl IS NULL THEN app_actions.get_live_translation(t.value_en, 'PL') END AS value_pl,
+                CASE WHEN t.value_hu IS NULL THEN app_actions.get_live_translation(t.value_en, 'HU') END AS value_hu
             FROM translated_items t
             WHERE t.app_id          = in_app_id
                 AND t.page_id       = NVL(in_page_id, t.page_id)
                 AND t.value_en      IS NOT NULL
                 AND (
-                    (t.value_cz IS NULL AND in_lang_id = 'CZ') OR
-                    (t.value_sk IS NULL AND in_lang_id = 'SK') OR
-                    (t.value_pl IS NULL AND in_lang_id = 'PL') OR
-                    (t.value_hu IS NULL AND in_lang_id = 'HU')
+                    (t.value_cz IS NULL AND (in_lang_id = 'CZ' OR in_lang_id IS NULL)) OR
+                    (t.value_sk IS NULL AND (in_lang_id = 'SK' OR in_lang_id IS NULL)) OR
+                    (t.value_pl IS NULL AND (in_lang_id = 'PL' OR in_lang_id IS NULL)) OR
+                    (t.value_hu IS NULL AND (in_lang_id = 'HU' OR in_lang_id IS NULL))
                 )
                 AND ROWNUM          <= NVL(in_limit, 50)
         ) LOOP
             UPDATE translated_items t
-            SET t.value_cz          = CASE WHEN in_lang_id = 'CZ' THEN c.new_value ELSE t.value_cz END,
-                t.value_sk          = CASE WHEN in_lang_id = 'SK' THEN c.new_value ELSE t.value_sk END,
-                t.value_pl          = CASE WHEN in_lang_id = 'PL' THEN c.new_value ELSE t.value_pl END,
-                t.value_hu          = CASE WHEN in_lang_id = 'HU' THEN c.new_value ELSE t.value_hu END
+            SET t.value_cz          = NVL(c.value_cz, t.value_cz),
+                t.value_sk          = NVL(c.value_sk, t.value_sk),
+                t.value_pl          = NVL(c.value_pl, t.value_pl),
+                t.value_hu          = NVL(c.value_hu, t.value_hu)
             WHERE t.app_id          = c.app_id
                 AND t.page_id       = c.page_id
                 AND t.item_name     = c.item_name;
