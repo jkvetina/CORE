@@ -26,7 +26,7 @@ wwv_flow_api.create_page(
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_dialog_width=>'1024'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220222183109'
+,p_last_upd_yyyymmddhh24miss=>'20220306133719'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(16023674651727221)
@@ -139,8 +139,10 @@ wwv_flow_api.create_report_region(
 ,p_display_point=>'BODY'
 ,p_source_type=>'NATIVE_SQL_REPORT'
 ,p_query_type=>'TABLE'
-,p_query_table=>'USER_SOURCE_VIEWS'
-,p_query_where=>'name = :P961_VIEW_NAME'
+,p_query_table=>'OBJ_VIEWS_SOURCE'
+,p_query_where=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'owner       = app.get_owner()',
+'AND name    = :P961_VIEW_NAME'))
 ,p_query_order_by=>'LINE'
 ,p_include_rowid_column=>false
 ,p_display_when_condition=>'P961_SHOW_VIEW'
@@ -156,8 +158,16 @@ wwv_flow_api.create_report_region(
 ,p_plug_query_strip_html=>'N'
 );
 wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(16226177939514150)
+ p_id=>wwv_flow_api.id(32964662504841121)
 ,p_query_column_id=>1
+,p_column_alias=>'OWNER'
+,p_column_display_sequence=>50
+,p_hidden_column=>'Y'
+,p_derived_column=>'N'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(16226177939514150)
+,p_query_column_id=>2
 ,p_column_alias=>'NAME'
 ,p_column_display_sequence=>10
 ,p_hidden_column=>'Y'
@@ -165,7 +175,7 @@ wwv_flow_api.create_report_columns(
 );
 wwv_flow_api.create_report_columns(
  p_id=>wwv_flow_api.id(16465470495696702)
-,p_query_column_id=>2
+,p_query_column_id=>3
 ,p_column_alias=>'LINE'
 ,p_column_display_sequence=>30
 ,p_column_heading=>'Line'
@@ -177,7 +187,7 @@ wwv_flow_api.create_report_columns(
 );
 wwv_flow_api.create_report_columns(
  p_id=>wwv_flow_api.id(16465549614696703)
-,p_query_column_id=>3
+,p_query_column_id=>4
 ,p_column_alias=>'TEXT'
 ,p_column_display_sequence=>40
 ,p_column_heading=>'Text'
@@ -633,14 +643,12 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_SOURCE_VIEW'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'-- refresh view',
-'--app.refresh_user_source_views(:P961_VIEW_NAME, in_force => TRUE);',
-'',
 '-- prepare view for copy paste',
 'FOR c IN (',
 '    SELECT t.text',
-'    FROM user_source_views t',
-'    WHERE t.name = :P961_VIEW_NAME',
+'    FROM obj_views_source t',
+'    WHERE t.owner       = app.get_owner()',
+'        AND t.name      = :P961_VIEW_NAME',
 '    ORDER BY t.line',
 ') LOOP',
 '    :P961_CLOB_SOURCE := :P961_CLOB_SOURCE || c.text || CHR(10);',
