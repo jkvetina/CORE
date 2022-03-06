@@ -95,7 +95,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         out_owner               apex_applications.owner%TYPE;
     BEGIN
-        RETURN COALESCE(app.get_item('G_CURR_OWNER'), app.get_owner(app.get_core_app_id()));
+        RETURN COALESCE(app.get_item('G_CURR_OWNER'), app.get_owner(app.get_app_id()));
     END;
 
 
@@ -576,6 +576,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         --
         app.set_user_id();                      -- convert user_login to user_id
         rec.user_id := app.get_user_id();       -- update needed
+        --
+        IF app.get_item('G_CURR_OWNER') IS NULL THEN
+            app.set_item('G_CURR_OWNER', app.get_owner(app.get_app_id()));
+        END IF;
 
         --
         -- any app/page items set here will be overwriten if clear cache is on
@@ -2621,15 +2625,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 d.cpu_used,
                 d.errors,
                 d.output
-            FROM user_scheduler_job_run_details d
-            JOIN user_scheduler_job_log j
-                ON j.log_id         = d.log_id
+            FROM all_scheduler_job_run_details d
+            JOIN all_scheduler_job_log j
+                ON j.owner          = d.owner
+                AND j.log_id        = d.log_id
                 AND j.log_date      >= SYSDATE - NVL(in_interval, 1/24)
             JOIN logs l
                 ON l.created_at     >= SYSDATE - NVL(in_interval, 1/24)
                 AND l.flag          = app.flag_scheduler
                 AND l.action_name   IS NULL
                 AND l.arguments     = d.job_name
+            WHERE d.owner           = app.get_owner()
         ) LOOP
             UPDATE logs l
             SET l.action_name       = d.status,
@@ -3009,18 +3015,20 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- remove old partitions
         FOR c IN (
             SELECT p.table_name, p.partition_name
-            FROM user_tab_partitions p,
+            FROM all_tab_partitions p,
                 -- trick to convert LONG to VARCHAR2 on the fly
                 XMLTABLE('/ROWSET/ROW'
                     PASSING (DBMS_XMLGEN.GETXMLTYPE(
-                        'SELECT p.high_value'                                       || CHR(10) ||
-                        'FROM user_tab_partitions p'                                || CHR(10) ||
-                        'WHERE p.table_name = ''' || p.table_name || ''''           || CHR(10) ||
-                        '    AND p.partition_name = ''' || p.partition_name || ''''
+                        'SELECT p.high_value'                                           || CHR(10) ||
+                        'FROM all_tab_partitions p'                                     || CHR(10) ||
+                        'WHERE p.table_owner        = app.get_owner()'                  || CHR(10) ||
+                        '    AND p.table_name       = ''' || p.table_name || ''''       || CHR(10) ||
+                        '    AND p.partition_name   = ''' || p.partition_name || ''''
                     ))
                     COLUMNS high_value VARCHAR2(4000) PATH 'HIGH_VALUE'
                 ) h
-            WHERE p.table_name = app.logs_table_name
+            WHERE p.table_owner     = app.get_owner()
+                AND p.table_name    = app.logs_table_name
                 AND TO_DATE(REGEXP_SUBSTR(h.high_value, '(\d{4}-\d{2}-\d{2})'), 'YYYY-MM-DD') <= TRUNC(SYSDATE) - COALESCE(in_age, app.logs_max_age)
         ) LOOP
             -- delete old data in batches
@@ -3160,7 +3168,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         -- better version of DBMS_UTILITY.FORMAT_CALL_STACK
         FOR i IN REVERSE NVL(in_offset, 2) .. UTL_CALL_STACK.DYNAMIC_DEPTH LOOP  -- 2 = ignore this function, 3 = ignore caller
-            CONTINUE WHEN in_skip_others AND NVL(UTL_CALL_STACK.OWNER(i), '-') NOT IN (app.get_owner(app.get_app_id()), app.get_owner(app.get_core_app_id()));
+            CONTINUE WHEN in_skip_others AND NVL(UTL_CALL_STACK.OWNER(i), '-') NOT IN (app.get_owner(), app.get_core_owner());
             --
             out_module  := SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(i)), 1, app.length_module);
             out_stack   := out_stack || out_module || CASE WHEN in_line_numbers THEN ' [' || TO_CHAR(UTL_CALL_STACK.UNIT_LINE(i)) || ']' END || in_splitter;
@@ -3288,8 +3296,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         -- I bet you didnt expected this
         SELECT REGEXP_SUBSTR(s.text, ':=\s*''([^'']+)', 1, 1, NULL, 1) INTO out_flag
-        FROM user_source s
-        WHERE s.name            = $$PLSQL_UNIT
+        FROM all_source s
+        WHERE s.owner           = app.get_core_owner()
+            AND s.name          = $$PLSQL_UNIT
             AND s.type          = 'PACKAGE'
             AND s.line          <= 100
             AND s.text          LIKE '%flag_%CONSTANT%logs.flag\%TYPE%' ESCAPE '\'
@@ -3575,21 +3584,21 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- create DML log table
         IF app.is_debug_on() THEN
-            app.log_debug('DML', app.get_owner(app.get_app_id()) || '.' || in_table_name);
-            app.log_debug('ERR', app.get_owner(app.get_app_id()), app.get_dml_table(in_table_name));
+            app.log_debug('DML', app.get_owner() || '.' || in_table_name);
+            app.log_debug('ERR', app.get_owner(), app.get_dml_table(in_table_name));
         END IF;
         --
         DBMS_ERRLOG.CREATE_ERROR_LOG (
-            dml_table_name          => app.get_owner(app.get_app_id()) || '.' || in_table_name,
-            err_log_table_owner     => app.get_owner(app.get_app_id()),
+            dml_table_name          => app.get_owner() || '.' || in_table_name,
+            err_log_table_owner     => app.get_owner(),
             err_log_table_name      => app.get_dml_table(in_table_name),
             skip_unsupported        => TRUE
         );
         --
-        IF app.get_owner(app.get_app_id()) != app.dml_tables_owner THEN
+        IF app.get_owner() != app.dml_tables_owner THEN
             EXECUTE IMMEDIATE
                 'GRANT ALL ON ' || app.get_dml_table(in_table_name) ||
-                ' TO ' || app.get_owner(app.get_app_id());
+                ' TO ' || app.get_owner();
         END IF;
         --
         app.log_success();
@@ -3633,7 +3642,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
             FROM user_tables t
             JOIN all_tables a
-                ON a.owner          = COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()), USER)
+                ON a.owner          = COALESCE(app.dml_tables_owner, app.get_owner(), USER)
                 AND a.table_name    = app.get_dml_table(t.table_name)
                 AND a.table_name    != t.table_name
             JOIN all_tab_cols c
@@ -3746,7 +3755,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN COALESCE(app.dml_tables_owner, app.get_owner(app.get_app_id()));
+        RETURN COALESCE(app.dml_tables_owner, app.get_owner());
     END;
 
 
@@ -4080,8 +4089,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- check object existance
         BEGIN
             SELECT 'Y' INTO is_valid
-            FROM user_procedures p
-            WHERE RTRIM(p.object_name || '.' || p.procedure_name, '.') = UPPER(v_object_name)
+            FROM all_procedures p
+            WHERE p.owner           = app.get_owner()
+                AND RTRIM(p.object_name || '.' || p.procedure_name, '.') = UPPER(v_object_name)
                 AND p.object_type   IN ('PACKAGE', 'PROCEDURE')
                 AND p.overload      IS NULL;
         EXCEPTION
@@ -4092,8 +4102,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- check object arguments
         SELECT COUNT(*) INTO v_args
-        FROM user_arguments a
-        WHERE RTRIM(a.package_name || '.' || a.object_name, '.') = UPPER(v_object_name)
+        FROM all_arguments a
+        WHERE a.owner           = app.get_owner()
+            AND RTRIM(a.package_name || '.' || a.object_name, '.') = UPPER(v_object_name)
             AND a.position      > 0
             AND a.in_out        = 'IN';
         --
