@@ -1692,7 +1692,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         FOR c IN (
             SELECT r.page_id, i.item_name, app.get_item(i.item_name) AS item_value
-            FROM user_source_views s
+            FROM obj_views_source s
             JOIN apex_application_page_items i
                 ON i.item_name          = app.get_item_name(REPLACE(REGEXP_SUBSTR(s.text, '''(\$?[A-Z0-9_]+)[^'']'), ''''), i.page_id, i.application_id)
             JOIN apex_application_page_regions r
@@ -1705,6 +1705,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             WHERE r.application_id      = COALESCE(in_app_id, app.get_app_id())
                 AND r.page_id           = COALESCE(in_page_id, app.get_page_id())
                 AND r.static_id         = in_region_id
+                AND s.owner             = app.get_owner(r.application_id)
         ) LOOP
             IF c.item_value IS NOT NULL THEN
                 out_filters := out_filters ||
@@ -3852,118 +3853,102 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE refresh_user_source_views (
-        in_view_name            VARCHAR2        := NULL,
-        in_force                BOOLEAN         := FALSE
+    FUNCTION get_long_string (
+        in_table_name           VARCHAR2,
+        in_column_name          VARCHAR2,
+        in_where_col1_name      VARCHAR2,
+        in_where_val1           VARCHAR2,
+        in_where_col2_name      VARCHAR2    := NULL,
+        in_where_val2           VARCHAR2    := NULL,
+        in_owner                VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2 AS
+        l_query                 VARCHAR2(4000);
+        l_cursor                INTEGER         := DBMS_SQL.OPEN_CURSOR;
+        l_buflen                PLS_INTEGER     := 4000;
+        l_result                PLS_INTEGER;
+        --
+        out_value               VARCHAR2(4000);
+        out_value_len           PLS_INTEGER;
+    BEGIN
+        l_query :=
+            'SELECT ' || in_column_name ||
+            ' FROM '  || in_table_name ||
+            ' WHERE ' || in_where_col1_name || ' = :val1';
+        --
+        IF in_where_col2_name IS NOT NULL THEN
+            l_query := l_query || ' AND ' || in_where_col2_name || ' = :val2';
+        END IF;
+        --
+        IF in_owner IS NOT NULL THEN
+            l_query := l_query || ' AND owner = :owner';
+        END IF;
+        --
+        DBMS_SQL.PARSE(l_cursor, l_query, DBMS_SQL.NATIVE);
+        DBMS_SQL.BIND_VARIABLE(l_cursor, ':val1', in_where_val1);
+        --
+        IF in_where_col2_name IS NOT NULL THEN
+            DBMS_SQL.BIND_VARIABLE(l_cursor, ':val2', in_where_val2);
+        END IF;
+        --
+        IF in_owner IS NOT NULL THEN
+            DBMS_SQL.BIND_VARIABLE(l_cursor, ':owner', in_owner);
+        END IF;
+        --
+        DBMS_SQL.DEFINE_COLUMN_LONG(l_cursor, 1);
+        --
+        l_result := DBMS_SQL.EXECUTE(l_cursor);
+        IF DBMS_SQL.FETCH_ROWS(l_cursor) > 0 THEN
+            DBMS_SQL.COLUMN_VALUE_LONG(l_cursor, 1, l_buflen, 0, out_value, out_value_len);
+        END IF;
+        DBMS_SQL.CLOSE_CURSOR(l_cursor);
+        --
+        RETURN out_value;
+    END;
+
+
+
+    PROCEDURE rebuild_obj_views_source (
+        in_owner                apex_applications.owner%TYPE    := NULL
     )
     AS
-        PRAGMA AUTONOMOUS_TRANSACTION;
-        --
-        in_table_name           CONSTANT user_objects.object_name%TYPE := 'USER_SOURCE_VIEWS';  -- @TODO: remove hardcoded name
-        --
-        v_table_time            user_objects.last_ddl_time%TYPE;
-        v_views_time            user_objects.last_ddl_time%TYPE;
-        --
-        PROCEDURE clob_to_lines (
-            in_name         VARCHAR2,
-            in_clob         CLOB,
-            in_offset       NUMBER          := NULL
-        )
-        AS
-            clob_len        PLS_INTEGER     := DBMS_LOB.GETLENGTH(in_clob);
-            clob_line       PLS_INTEGER     := 1;
-            offset          PLS_INTEGER     := 1;
-            amount          PLS_INTEGER     := 32767;
-            buffer          VARCHAR2(32767);
-        BEGIN
-            WHILE offset < clob_len LOOP
-                IF INSTR(in_clob, CHR(10), offset) = 0 THEN
-                    amount := clob_len - offset + 1;
-                ELSE
-                    amount := INSTR(in_clob, CHR(10), offset) - offset;
-                END IF;
-                --
-                IF amount = 0 THEN
-                    buffer := '';
-                ELSE
-                    DBMS_LOB.READ(in_clob, amount, offset, buffer);
-                END IF;
-                --
-                -- @TODO: CREATE & RETURN COLLECTION INSTEAD
-                --
-                IF clob_line > 1 THEN
-                    INSERT INTO user_source_views (name, line, text)
-                    VALUES (
-                        in_name,
-                        clob_line - 1 - NVL(in_offset, 0),
-                        REPLACE(REPLACE(CASE WHEN clob_line = 2 THEN LTRIM(buffer) ELSE buffer END, CHR(13), ''), CHR(10), '')
-                    );
-                END IF;
-                --
-                clob_line := clob_line + 1;
-                IF INSTR(in_clob, CHR(10), offset) = clob_len THEN
-                    buffer := '';
-                END IF;
-                --
-                offset := offset + amount + 1;
-            END LOOP;
-        END;
     BEGIN
-        app.log_module(in_view_name, CASE WHEN in_force THEN 'Y' END);
-
-        -- compare timestamps
-        IF NOT in_force THEN
-            SELECT o.last_ddl_time INTO v_table_time
-            FROM user_objects o
-            WHERE o.object_name     = NVL(in_table_name, o.object_name)
-                AND o.object_type   = 'TABLE';
-            --
-            SELECT MAX(o.last_ddl_time) INTO v_views_time
-            FROM user_objects o
-            WHERE o.object_type     = 'VIEW';
-
-            -- refresh not needed
-            IF v_table_time > v_views_time THEN
-                app.log_result('SKIPPING', in_view_name);
-                RETURN;
-            END IF;
-        ELSE
-            -- in force mode cleanup whole table
-            DELETE FROM user_source_views;  -- truncate?
-        END IF;
-
-        -- refresh table content
+        app.log_module(in_owner);
+        --
+        DELETE FROM obj_views_source t
+        WHERE t.owner = NVL(in_owner, t.owner);
+        --
         FOR c IN (
             SELECT
-                v.view_name,
-                DBMS_METADATA.GET_DDL('VIEW', v.view_name) AS content
-            FROM user_views v
-            JOIN user_objects o
-                ON o.object_name        = v.view_name
-                AND o.object_type       = 'VIEW'
-                AND (o.last_ddl_time    >= v_table_time OR v_table_time IS NULL)
+                t.owner,
+                t.view_name AS name,
+                app.get_long_string('ALL_VIEWS', 'TEXT', 'VIEW_NAME', t.view_name, in_owner => t.owner) || ';' AS text
+            FROM all_views t
+            JOIN (
+                SELECT DISTINCT
+                    a.owner
+                FROM apex_applications a
+            ) a
+                ON a.owner = t.owner
+            WHERE t.owner = NVL(in_owner, t.owner)
         ) LOOP
-            DELETE FROM user_source_views t
-            WHERE t.name = c.view_name;
-            --
-            clob_to_lines(c.view_name, REGEXP_REPLACE(c.content, '^(\s*)', ''));
+            INSERT INTO obj_views_source (owner, name, line, text)
+            SELECT
+                c.owner,
+                c.name,
+                LEVEL AS line,
+                REGEXP_SUBSTR(c.text, '^.*$', 1, LEVEL, 'm') AS text
+            FROM DUAL
+            CONNECT BY REGEXP_SUBSTR(c.text, '^.*$', 1, LEVEL, 'm') IS NOT NULL
+                AND PRIOR c.name        = c.name
+                AND PRIOR SYS_GUID()    IS NOT NULL;
         END LOOP;
-        --
-        COMMIT;
-
-        -- alter table to update last refresh date, but avoid APP package invalidation
-        IF in_table_name IS NOT NULL THEN
-            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' ADD tmp_' || log_id.CURRVAL || ' NUMBER(1) INVISIBLE';
-            EXECUTE IMMEDIATE 'ALTER TABLE ' || in_table_name || ' SET UNUSED (tmp_' || log_id.CURRVAL || ')';
-        END IF;
         --
         app.log_success();
     EXCEPTION
     WHEN app.app_exception THEN
-        ROLLBACK;
         RAISE;
     WHEN OTHERS THEN
-        ROLLBACK;
         app.raise_error();
     END;
 
@@ -3983,8 +3968,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
         IF v_package_name IS NULL THEN
             RETURN;
         END IF;
-        --
-        app.refresh_user_source_views();
         --
         q := 'CREATE OR REPLACE PACKAGE '       || LOWER(v_package_name) || ' AS' || CHR(10);
         b := 'CREATE OR REPLACE PACKAGE BODY '  || LOWER(v_package_name) || ' AS' || CHR(10);

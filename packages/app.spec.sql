@@ -1507,11 +1507,26 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
-    -- Refresh views source (convert views source from LONG to searchable lines)
+    -- Convert LONG to VARCHAR2
     --
-    PROCEDURE refresh_user_source_views (
-        in_view_name            VARCHAR2        := NULL,
-        in_force                BOOLEAN         := FALSE
+    FUNCTION get_long_string (
+        in_table_name           VARCHAR2,
+        in_column_name          VARCHAR2,
+        in_where_col1_name      VARCHAR2,
+        in_where_val1           VARCHAR2,
+        in_where_col2_name      VARCHAR2    := NULL,
+        in_where_val2           VARCHAR2    := NULL,
+        in_owner                VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2;
+
+
+
+    --
+    -- Rebuild source lines for views
+    --
+    PROCEDURE rebuild_obj_views_source (
+        in_owner                apex_applications.owner%TYPE    := NULL
     );
 
 

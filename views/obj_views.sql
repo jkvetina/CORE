@@ -3,6 +3,7 @@ WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()                            AS app_id,
         app.get_core_app_id()                       AS core_app_id,
+        app.get_owner()                             AS owner,
         app.get_item('$VIEW_NAME')                  AS view_name,
         --
         UPPER(app.get_item('$SEARCH_VIEWS'))        AS search_views,
@@ -11,7 +12,7 @@ WITH x AS (
     FROM DUAL
 ),
 r AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         d.name AS view_name,
         --
         NULLIF(SUM(CASE WHEN d.referenced_type IN ('TABLE', 'VIEW') THEN 1 ELSE 0 END), 0) AS count_references,
@@ -25,25 +26,28 @@ r AS (
             THEN app_actions.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
             WITHIN GROUP (ORDER BY d.referenced_name)
             AS referenced_views
-    FROM user_dependencies d
-    CROSS JOIN x
+    FROM all_dependencies d
+    JOIN x
+        ON x.owner      = d.owner
     WHERE d.type        = 'VIEW'
         AND d.name      = NVL(x.view_name, d.name)
         AND (d.name     LIKE '%' || x.search_views || '%' ESCAPE '\' OR x.search_views IS NULL)
     GROUP BY d.name
 ),
 u AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         d.referenced_name       AS view_name,
         --
         LISTAGG(app_actions.get_html_a(app_actions.get_object_link(d.type, d.name), d.name), ', ')
             WITHIN GROUP (ORDER BY d.name) AS used_in_objects
-    FROM user_dependencies d
+    FROM all_dependencies d
+    JOIN x
+        ON x.owner              = d.owner
     WHERE d.referenced_type     = 'VIEW'
     GROUP BY d.referenced_name
 ),
 p AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         r.table_name,
         LISTAGG(DISTINCT app_actions.get_html_a(app.get_page_url(910, 'P910_PAGE_ID', r.page_id), r.page_id), ', ')
             WITHIN GROUP (ORDER BY r.page_id) AS used_on_pages
@@ -54,39 +58,43 @@ p AS (
     GROUP BY r.table_name
 ),
 s AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         s.name                  AS view_name,
         COUNT(s.line)           AS count_lines,
         --
         MAX(CASE WHEN LOWER(s.text) LIKE '%' || x.search_source || '%' ESCAPE '\' THEN 'Y' END) AS is_found_text
-    FROM user_source_views s
-    CROSS JOIN x
+    FROM obj_views_source s
+    JOIN x
+        ON x.owner              = s.owner
     GROUP BY s.name
 ),
 v AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         v.view_name,
         v.read_only,
         v.bequeath,
         o.last_ddl_time
-    FROM user_views v
-    JOIN user_objects o
-        ON o.object_name        = v.view_name
+    FROM all_views v
+    JOIN all_objects o
+        ON o.owner              = v.owner
+        AND o.object_name       = v.view_name
         AND o.object_type       = 'VIEW'
-    CROSS JOIN x
+    JOIN x
+        ON x.owner              = v.owner
     WHERE v.view_name           = NVL(x.view_name, v.view_name)
         AND (v.view_name        LIKE '%' || x.search_views || '%' ESCAPE '\' OR x.search_views IS NULL)
 ),
 c AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         c.table_name            AS view_name,
         COUNT(c.column_name)    AS count_columns,
         --
         LOWER(LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id)) AS list_columns,
         --
         MAX(CASE WHEN c.column_name LIKE x.search_columns || '%' ESCAPE '\' THEN 'Y' END) AS is_found_column
-    FROM user_tab_cols c
-    CROSS JOIN x
+    FROM all_tab_cols c
+    JOIN x
+        ON x.owner              = c.owner
     WHERE c.table_name          = NVL(x.view_name, c.table_name)
         AND (c.table_name       LIKE '%' || x.search_views || '%' ESCAPE '\' OR x.search_views IS NULL)
     GROUP BY c.table_name
