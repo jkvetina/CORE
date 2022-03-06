@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220306064528'
+,p_last_upd_yyyymmddhh24miss=>'20220306104327'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218446056378932)
@@ -345,24 +345,8 @@ wwv_flow_api.create_page_da_action(
 ,p_attribute_02=>'Y'
 );
 wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(32963972351841114)
-,p_process_sequence=>10
-,p_process_point=>'AFTER_HEADER'
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'SET_OWNER'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'--app.log_action(''SET_OWNER'', :P950_SCHEMA);',
-'--',
-'app.set_owner(:P950_SCHEMA);',
-''))
-,p_process_clob_language=>'PLSQL'
-,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when=>'P950_SCHEMA'
-,p_process_when_type=>'ITEM_IS_NOT_NULL'
-);
-wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(14431206414036864)
-,p_process_sequence=>20
+,p_process_sequence=>10
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ACTION_RECOMPILE'
@@ -381,7 +365,7 @@ wwv_flow_api.create_page_process(
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(14430832154036864)
-,p_process_sequence=>30
+,p_process_sequence=>20
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'ACTION_RECOMPILE_FORCE'
@@ -406,7 +390,7 @@ wwv_flow_api.create_page_process(
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(22086589223580633)
-,p_process_sequence=>40
+,p_process_sequence=>30
 ,p_process_point=>'AFTER_HEADER'
 ,p_process_type=>'NATIVE_PLSQL'
 ,p_process_name=>'INIT_DEFAULTS'
@@ -416,8 +400,10 @@ wwv_flow_api.create_page_process(
 'FROM user_objects o',
 'WHERE o.status != ''VALID'';',
 '',
-'-- help message',
-':P950_SCHEMA := COALESCE(:P950_SCHEMA, app.get_owner(app.get_app_id()));',
+'-- change schema',
+':P950_SCHEMA := COALESCE(:P950_SCHEMA, app.get_owner());',
+'--',
+'app.set_owner(:P950_SCHEMA);',
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
