@@ -1195,32 +1195,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         -- get auth cheme, procedure...
         SELECT
-            MIN(p.authorization_scheme),
-            MIN(f.package_name),            -- package_name
-            MIN(f.object_name),             -- procedure_name
-            MIN(f.pls_type),
-            MIN(a.argument_name)            -- argument_name            
+            n.auth_scheme,
+            n.package_name,
+            n.procedure_name,
+            n.data_type,
+            n.argument_name
         INTO v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument
-        FROM apex_application_pages p
-        LEFT JOIN user_procedures s
-            ON s.object_name                IN ('A' || TO_CHAR(in_app_id), 'APP', 'AUTH')   -- packages
-            AND s.procedure_name            = p.authorization_scheme
-        LEFT JOIN user_arguments f
-            ON f.object_name                = s.procedure_name
-            AND f.package_name              = s.object_name
-            AND f.overload                  IS NULL
-            AND f.position                  = 0
-            AND f.argument_name             IS NULL
-            AND f.in_out                    = 'OUT'
-        LEFT JOIN user_arguments a
-            ON a.object_name                = f.package_name
-            AND a.package_name              = f.object_name
-            AND a.overload                  IS NULL
-            AND a.position                  = 1
-            AND a.data_type                 = 'NUMBER'
-            AND a.in_out                    = 'IN'
-        WHERE p.application_id              = in_app_id
-            AND p.page_id                   = in_page_id;
+        FROM nav_availability_mvw n
+        WHERE n.application_id      = in_app_id
+            AND n.page_id           = in_page_id;
 
         -- log current page
         IF app.is_debug_on() AND in_page_id = app.get_page_id() THEN
