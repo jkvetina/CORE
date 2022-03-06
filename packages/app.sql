@@ -61,6 +61,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION get_core_owner
+    RETURN apex_applications.owner%TYPE
+    AS
+    BEGIN
+        RETURN app.core_owner;
+    END;
+
+
+
     FUNCTION get_owner (
         in_app_id               apps.app_id%TYPE
     )
@@ -77,6 +86,26 @@ CREATE OR REPLACE PACKAGE BODY app AS
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
+    END;
+
+
+
+    FUNCTION get_owner
+    RETURN apex_applications.owner%TYPE
+    AS
+        out_owner               apex_applications.owner%TYPE;
+    BEGIN
+        RETURN COALESCE(app.get_item('G_CURR_OWNER'), app.get_owner(app.get_core_app_id()));
+    END;
+
+
+
+    PROCEDURE set_owner (
+        in_owner                apex_applications.owner%TYPE
+    )
+    AS
+    BEGIN
+        app.set_item('G_CURR_OWNER', in_owner);
     END;
 
 

@@ -4,7 +4,8 @@ SELECT
     COUNT(*)                AS count_objects,
     --
     app_actions.get_object_link(o.object_type) AS page_link
-FROM user_objects o
-WHERE o.object_type NOT IN ('PACKAGE BODY', 'TABLE PARTITION')
+FROM all_objects o
+WHERE o.owner               = app.get_owner()
+    AND o.object_type       NOT IN ('PACKAGE BODY', 'TABLE PARTITION')
 GROUP BY o.object_type;
 

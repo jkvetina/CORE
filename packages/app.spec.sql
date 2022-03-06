@@ -31,6 +31,7 @@ CREATE OR REPLACE PACKAGE app AS
 
     -- CORE application alias
     core_alias                  CONSTANT VARCHAR2(30)           := 'CORE';  -- better than hardcode app number
+    core_owner                  CONSTANT VARCHAR2(30)           := 'CORE';
 
     -- code for app exception
     app_exception_code          CONSTANT PLS_INTEGER            := -20000;
@@ -131,6 +132,14 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Get CORE owner/schema
+    --
+    FUNCTION get_core_owner
+    RETURN apex_applications.owner%TYPE;
+
+
+
+    --
     -- Return current schema owner (because APEX dont like using USER)
     --
     FUNCTION get_owner (
@@ -138,6 +147,23 @@ CREATE OR REPLACE PACKAGE app AS
     )
     RETURN apex_applications.owner%TYPE
     RESULT_CACHE;
+
+
+
+    --
+    -- Get current owner/schema
+    --
+    FUNCTION get_owner
+    RETURN apex_applications.owner%TYPE;
+
+
+
+    --
+    -- Set current owner/schema
+    --
+    PROCEDURE set_owner (
+        in_owner                apex_applications.owner%TYPE
+    );
 
 
 
