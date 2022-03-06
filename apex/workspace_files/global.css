@@ -1,6 +1,7 @@
 /* FIX HEADER IN HERO REGION */
 .t-HeroRegion-wrap {
     padding-top:            2rem;
+    margin-bottom:         -1rem;
 }
 .t-HeroRegion-wrap .t-HeroRegion-title {
     line-height:            2;
@@ -25,7 +26,7 @@ div.t-Dialog-body .t-HeroRegion {
     display:                none;
 }
 .t-HeroRegion-col .t-HeroRegion-title {
-    margin-bottom: 1rem;
+    margin-bottom:          0rem;
 }
 .t-HeroRegion-col.t-HeroRegion-col--content button.RIGHT {
     float:                  right;
