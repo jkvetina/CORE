@@ -36,6 +36,11 @@ BEGIN
             EXECUTE IMMEDIATE
                 'GRANT SELECT ON ' || in_owner || '.' || t.object_name || ' TO ' || in_user;
         END IF;
+        --
+        IF t.object_type = 'PACKAGE' THEN
+            EXECUTE IMMEDIATE
+                'GRANT DEBUG ON ' || in_owner || '.' || t.object_name || ' TO ' || in_user;
+        END IF;
     END LOOP;
 END;
 /
