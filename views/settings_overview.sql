@@ -5,11 +5,14 @@ WITH x AS (
         app.get_settings_prefix()       AS prefix,
         app.get_item('$SETTING_NAME')   AS setting_name,
         app.get_app_id()                AS app_id,
+        app.get_owner()                 AS owner,
         app.is_developer_y()            AS is_dev
     FROM DUAL
 ),
 p AS (
-    SELECT p.procedure_name, a.data_type
+    SELECT /*+ MATERIALIZE */
+        p.procedure_name,
+        a.data_type
     FROM user_procedures p
     JOIN user_arguments a
         ON a.package_name   = p.object_name
@@ -19,7 +22,7 @@ p AS (
         ON x.package_name   = p.object_name
 ),
 r AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         t.procedure_name,
         COUNT(*)            AS references
     FROM (
@@ -31,13 +34,14 @@ r AS (
     GROUP BY t.procedure_name
 ),
 v AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         t.procedure_name,
         COUNT(*)            AS references
     FROM (
         SELECT REPLACE(RTRIM(REGEXP_SUBSTR(UPPER(s.text), x.package_name || '\.' || REPLACE(x.prefix, '_', '\_') || '[^(]*')), x.package_name || '.', '') AS procedure_name
-        FROM user_source_views s
-        CROSS JOIN x
+        FROM obj_views_source s
+        JOIN x
+            ON x.owner      = s.owner
         WHERE UPPER(s.text) LIKE '%' || x.package_name || '.' || x.prefix || '%'
     ) t
     GROUP BY t.procedure_name
