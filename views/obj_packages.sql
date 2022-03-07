@@ -1,25 +1,30 @@
 CREATE OR REPLACE VIEW obj_packages AS
-WITH s AS (
+WITH x AS (
     SELECT /*+ MATERIALIZE */
+        app.get_owner()         AS owner
+    FROM DUAL
+),
+s AS (
+    SELECT /*+ MATERIALIZE */
+        s.owner,
         s.name                  AS package_name,
         COUNT(s.line)           AS count_lines
-    FROM user_source s
-    JOIN (
-        SELECT m.package_name
-        FROM obj_modules m
-        GROUP BY m.package_name
-    ) m
+    FROM all_source s
+    JOIN x
+        ON x.owner              = s.owner
+        AND s.type              = 'PACKAGE BODY'
+    JOIN obj_modules m
         ON m.package_name       = s.name
-    WHERE s.type                = 'PACKAGE BODY'
-    GROUP BY s.name
+    GROUP BY s.owner, s.name
 ),
 f AS (
     SELECT /*+ MATERIALIZE */
         a.package_name,
         SUM(CASE WHEN a.position = 0 THEN 1 ELSE 0 END) AS count_functions
     FROM s
-    LEFT JOIN user_arguments a
-        ON a.package_name       = s.package_name
+    LEFT JOIN all_arguments a
+        ON a.owner              = s.owner
+        AND a.package_name      = s.package_name
     GROUP BY a.package_name
 )
 SELECT
@@ -41,14 +46,17 @@ SELECT
     -- @TODO: references?
     --
     NULL                        AS desc_        -- @TODO: get from specification
-FROM user_objects o
-JOIN user_procedures p
-    ON p.object_name            = o.object_name
-    AND o.object_type           = 'PACKAGE'
+FROM all_objects o
+JOIN all_procedures p
+    ON p.owner                  = o.owner
+    AND p.object_name           = o.object_name
 JOIN s
-    ON s.package_name           = p.object_name
+    ON s.owner                  = p.owner
+    AND s.package_name          = p.object_name
 JOIN f
     ON f.package_name           = p.object_name
+WHERE o.owner                   = s.owner
+    AND o.object_type           = 'PACKAGE'
 GROUP BY p.object_name;
 --
 COMMENT ON TABLE obj_packages IS 'List of packages';

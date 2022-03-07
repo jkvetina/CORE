@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW obj_modules AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
+        app.get_owner()                             AS owner,
         app.get_item('$PACKAGE_NAME')               AS package_name,
         app.get_item('$MODULE_NAME')                AS module_name,
         app.get_item('$MODULE_TYPE')                AS module_type,
@@ -15,6 +16,7 @@ WITH x AS (
 i AS (
     -- find modules and start lines in spec and body
     SELECT /*+ MATERIALIZE */
+        i.owner,
         i.object_name,
         i.object_type,
         i.name                  AS module_name,
@@ -28,13 +30,17 @@ i AS (
         p.subprogram_id,
         p.authid,
         p.result_cache
-    FROM user_identifiers i
-    JOIN user_source s
-        ON s.name               = i.object_name
+    FROM all_identifiers i
+    JOIN x
+        ON x.owner              = i.owner
+    JOIN all_source s
+        ON s.owner              = i.owner
+        AND s.name              = i.object_name
         AND s.type              = i.object_type
         AND s.line              = i.line
-    JOIN user_procedures p                          -- only public procedures
-        ON p.object_name        = i.object_name
+    JOIN all_procedures p                           -- only public procedures
+        ON p.owner              = i.owner
+        AND p.object_name       = i.object_name
         AND p.procedure_name    = i.name
     WHERE i.type                IN ('PROCEDURE', 'FUNCTION')
         AND i.object_type       IN ('PACKAGE', 'PACKAGE BODY')
@@ -62,9 +68,10 @@ s AS (
         s.line,
         s.text,
         CASE WHEN LOWER(s.text) LIKE '%' || x.search_source || '%' ESCAPE '\' THEN 'Y' END AS is_found_text
-    FROM user_source s
+    FROM all_source s
     JOIN x
-        ON s.name       = NVL(x.package_name, s.name)
+        ON x.owner      = s.owner
+        AND s.name      = NVL(x.package_name, s.name)
         AND (s.name     LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
 ),
 e AS (
@@ -82,6 +89,7 @@ e AS (
 t AS (
     -- calculate module start and end lines
     SELECT /*+ MATERIALIZE */
+        p.owner,
         p.object_name       AS package_name,
         p.module_name,
         p.module_type,
@@ -101,7 +109,7 @@ t AS (
         ON e.name       = p.object_name
         AND e.type      = p.object_type
         AND e.line      BETWEEN p.start_line AND NVL(p.end_line, 999999)
-    GROUP BY p.object_name, p.module_name, p.module_type, p.subprogram_id, p.overload, p.authid, p.result_cache
+    GROUP BY p.owner, p.object_name, p.module_name, p.module_type, p.subprogram_id, p.overload, p.authid, p.result_cache
 ),
 a AS (
     -- arguments
@@ -117,8 +125,9 @@ a AS (
         MAX(CASE WHEN a.argument_name = x.argument_name THEN 'Y' END)                               AS is_arg_match
     FROM t
     CROSS JOIN x
-    LEFT JOIN user_arguments a
-        ON a.package_name       = t.package_name
+    LEFT JOIN all_arguments a
+        ON a.owner              = x.owner
+        AND a.package_name      = t.package_name
         AND a.object_name       = t.module_name
         AND a.subprogram_id     = t.subprogram_id
     GROUP BY t.package_name, t.module_name, t.module_type, t.subprogram_id
@@ -156,9 +165,10 @@ g AS (
         s.line,
         RTRIM(REGEXP_REPLACE(s.text, '^\s*--\s*###\s*', ''))    AS group_name,
         RPAD(' ', ROW_NUMBER() OVER(ORDER BY s.line DESC))      AS group_sort
-    FROM user_source s
+    FROM all_source s
     JOIN x
-        ON s.name           = NVL(x.package_name, s.name)
+        ON x.owner          = s.owner
+        AND s.name          = NVL(x.package_name, s.name)
         AND (s.name         LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
     WHERE s.type            = 'PACKAGE'
         AND REGEXP_LIKE(s.text, '^\s*--\s*###')
@@ -188,8 +198,9 @@ q AS (
         --
         COUNT(*)            AS count_statements
     FROM t
-    JOIN user_statements s
-        ON s.object_name    = t.package_name
+    JOIN all_statements s
+        ON s.owner          = t.owner
+        AND s.object_name   = t.package_name
         AND s.object_type   = 'PACKAGE BODY'
         AND s.line          BETWEEN t.body_start AND t.body_end
     GROUP BY t.package_name, t.module_name, t.subprogram_id

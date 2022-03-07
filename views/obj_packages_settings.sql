@@ -18,8 +18,9 @@ WITH s AS (
         CASE WHEN s.nls_length_semantics = 'CHAR'                   THEN 'Y' END AS is_nls_char,
         --
         s.plsql_ccflags
-    FROM user_plsql_object_settings s
-    WHERE s.type LIKE 'PACKAGE%'
+    FROM all_plsql_object_settings s
+    WHERE s.owner       = app.get_owner()
+        AND s.type      LIKE 'PACKAGE%'
 )
 SELECT 
     CASE
