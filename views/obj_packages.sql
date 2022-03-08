@@ -1,63 +1,27 @@
 CREATE OR REPLACE VIEW obj_packages AS
-WITH x AS (
-    SELECT /*+ MATERIALIZE */
-        app.get_owner()         AS owner
-    FROM DUAL
-),
-s AS (
-    SELECT /*+ MATERIALIZE */
-        s.owner,
-        s.name                  AS package_name,
-        COUNT(s.line)           AS count_lines
-    FROM all_source s
-    JOIN x
-        ON x.owner              = s.owner
-        AND s.type              = 'PACKAGE BODY'
-    JOIN obj_modules m
-        ON m.package_name       = s.name
-    GROUP BY s.owner, s.name
-),
-f AS (
-    SELECT /*+ MATERIALIZE */
-        a.package_name,
-        SUM(CASE WHEN a.position = 0 THEN 1 ELSE 0 END) AS count_functions
-    FROM s
-    LEFT JOIN all_arguments a
-        ON a.owner              = s.owner
-        AND a.package_name      = s.package_name
-    GROUP BY a.package_name
-)
 SELECT
-    p.object_name               AS package_name,
+    t.package_name,
     --
     CASE
-        WHEN REGEXP_LIKE(p.object_name, '^A\d+$')           THEN 'CORE - Application roles...'
-        WHEN REGEXP_LIKE(p.object_name, '^S\d+$')           THEN 'CORE - Application settings'
-        WHEN p.object_name IN ('APP', 'APP_ACTIONS', 'GEN') THEN 'CORE'
+        WHEN REGEXP_LIKE(t.package_name, '^A\d+$')              THEN 'CORE - Application roles...'
+        WHEN REGEXP_LIKE(t.package_name, '^S\d+$')              THEN 'CORE - Application settings'
+        WHEN t.package_name IN ('APP', 'APP_ACTIONS', 'GEN')    THEN 'CORE'
         END AS package_group,
     --
-    NULLIF(COUNT(p.procedure_name) - MIN(f.count_functions), 0) AS count_procedures,
+    NULLIF(COUNT(*) - SUM(CASE WHEN t.is_function IS NOT NULL THEN 1 ELSE 0 END), 0)    AS count_procedures,
+    NULLIF(SUM(CASE WHEN t.is_function IS NOT NULL THEN 1 ELSE 0 END), 0)               AS count_functions,
     --
-    NULLIF(MIN(f.count_functions), 0)   AS count_functions,
-    MAX(s.count_lines)                  AS count_lines,
-    MAX(o.last_ddl_time)                AS last_ddl_time,
+    SUM(t.count_lines)          AS count_lines,
+    SUM(t.count_statements)     AS count_statements,
     --
-    -- @TODO: dependencies?
-    -- @TODO: references?
+    MAX(o.last_ddl_time)        AS last_ddl_time,
     --
-    NULL                        AS desc_        -- @TODO: get from specification
-FROM all_objects o
-JOIN all_procedures p
-    ON p.owner                  = o.owner
-    AND p.object_name           = o.object_name
-JOIN s
-    ON s.owner                  = p.owner
-    AND s.package_name          = p.object_name
-JOIN f
-    ON f.package_name           = p.object_name
-WHERE o.owner                   = s.owner
-    AND o.object_type           = 'PACKAGE'
-GROUP BY p.object_name;
+    NULL AS desc_
+FROM obj_modules t
+JOIN all_objects o
+    ON o.owner          = t.owner
+    AND o.object_name   = t.package_name
+GROUP BY t.package_name;
 --
 COMMENT ON TABLE obj_packages IS 'List of packages';
 
