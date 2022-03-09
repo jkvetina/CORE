@@ -21,6 +21,7 @@ FROM obj_modules t
 JOIN all_objects o
     ON o.owner          = t.owner
     AND o.object_name   = t.package_name
+    AND o.object_type   = 'PACKAGE'
 GROUP BY t.package_name;
 --
 COMMENT ON TABLE obj_packages IS 'List of packages';

@@ -12,6 +12,49 @@ WITH x AS (
         UPPER(app.get_item('$SEARCH_ARGUMENTS'))    AS search_arguments,
         LOWER(app.get_item('$SEARCH_SOURCE'))       AS search_source
     FROM DUAL
+),
+t AS (
+    SELECT /*+ MATERIALIZE */
+        t.*,
+        x.argument_name,
+        x.search_arguments,
+        x.search_source
+    FROM obj_modules_mvw t
+    JOIN x
+        ON x.owner              = t.owner
+        AND t.package_name      = NVL(x.package_name, t.package_name)
+        AND t.module_name       = NVL(x.module_name, t.module_name)
+        --AND SUBSTR(t.module_type, 1, 1)     = NVL(x.module_type, SUBSTR(t.module_type, 1, 1))
+        --
+        AND (t.package_name LIKE x.search_packages || '%' ESCAPE '\'    OR x.search_packages    IS NULL)
+        AND (t.module_name  LIKE x.search_modules  || '%' ESCAPE '\'    OR x.search_modules     IS NULL)
+),
+a AS (
+    SELECT /*+ MATERIALIZE */
+        t.package_name,
+        t.module_name,
+        t.subprogram_id
+    FROM t
+    JOIN all_arguments a
+        ON a.owner              = t.owner
+        AND a.package_name      = t.package_name
+        AND a.object_name       = t.module_name
+        AND a.subprogram_id     = t.subprogram_id
+        AND a.argument_name     LIKE t.search_arguments || '%' ESCAPE '\'
+        AND (a.argument_name    = t.argument_name OR t.argument_name IS NULL)
+    GROUP BY t.package_name, t.module_name, t.subprogram_id
+),
+s AS (
+    SELECT /*+ MATERIALIZE */
+        t.package_name,
+        t.module_name,
+        t.subprogram_id
+    FROM t
+    JOIN all_source s
+        ON s.owner      = t.owner
+        AND s.name      = t.package_name
+        AND s.line      BETWEEN t.body_start AND t.body_end
+        AND s.text      LIKE '%' || t.search_source  || '%' ESCAPE '\'
 )
 SELECT
     t.owner,
@@ -19,8 +62,7 @@ SELECT
     t.module_name,
     t.subprogram_id,
     t.overload,
-    NULL AS group_name,
-    --
+    t.group_name,
     t.is_function,
     t.is_private,
     t.is_autonomous,
@@ -36,54 +78,26 @@ SELECT
     t.count_lines,
     t.count_statements,
     t.comment_
-FROM obj_modules_mvw t
-JOIN x
-    ON x.owner = t.owner
-    AND t.package_name                  = NVL(x.package_name, t.package_name)
-    AND t.module_name                   = NVL(x.module_name, t.module_name)
-    --AND SUBSTR(t.module_type, 1, 1)     = NVL(x.module_type, SUBSTR(t.module_type, 1, 1))
-    --
-    AND (t.package_name LIKE x.search_packages || '%' ESCAPE '\'    OR x.search_packages    IS NULL)
-    AND (t.module_name  LIKE x.search_modules  || '%' ESCAPE '\'    OR x.search_modules     IS NULL)
-    --
-    -- group name
-    --
-JOIN all_arguments a
-    ON a.owner              = x.owner
-    AND a.package_name      = t.package_name
-    AND a.object_name       = t.module_name
-    AND a.subprogram_id     = t.subprogram_id
-    --
-    AND (a.argument_name LIKE x.search_arguments || '%' ESCAPE '\')
-    AND (a.argument_name = x.argument_name OR x.argument_name IS NULL)
-    --
-JOIN all_source s
-    ON s.owner      = t.owner
-    AND s.name      = t.package_name
-    AND s.line      BETWEEN t.body_start AND t.body_end
-    AND (s.text     LIKE '%' || x.search_source  || '%' ESCAPE '\' OR x.search_source IS NULL)
-    --
-GROUP BY
-    t.owner,
-    t.package_name,
-    t.module_name,
-    t.subprogram_id,
-    t.overload,
-    t.is_function,
-    t.is_private,
-    t.is_autonomous,
-    t.is_cached,
-    t.is_definer,
-    t.args_in,
-    t.args_out,
-    t.spec_start,
-    t.spec_end,
-    t.spec_lines,
-    t.body_start,
-    t.body_end,
-    t.count_lines,
-    t.count_statements,
-    t.comment_;
+FROM t
+WHERE (
+        (t.package_name, t.module_name, t.subprogram_id) IN (
+            SELECT a.package_name, a.module_name, a.subprogram_id
+            FROM a
+        )
+        OR (
+            t.argument_name         IS NULL
+            AND t.search_arguments  IS NULL
+        )
+    )
+    AND (
+        (t.package_name, t.module_name, t.subprogram_id) IN (
+            SELECT s.package_name, s.module_name, s.subprogram_id
+            FROM s
+        )
+        OR (
+            t.search_source IS NULL
+        )
+    );
 --
 COMMENT ON TABLE obj_modules                    IS 'Find package modules (procedures and functions) and their boundaries (start-end lines)';
 --

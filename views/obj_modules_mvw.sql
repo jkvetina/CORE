@@ -8,7 +8,7 @@ WITH w AS (
     FROM apex_applications a
     WHERE a.owner NOT LIKE 'APEX%'
 ),
-p AS (
+i AS (
     -- find modules and start lines in spec and body
     SELECT /*+ MATERIALIZE */
         i.owner,
@@ -18,23 +18,34 @@ p AS (
         i.type                  AS module_type,
         i.line                  AS start_line,
         --
-        LEAD(i.line) OVER (PARTITION BY i.object_name, i.object_type ORDER BY p.subprogram_id, i.line) - 1      AS end_line,
-        ROW_NUMBER() OVER (PARTITION BY i.object_name, i.object_type, p.subprogram_id ORDER BY p.subprogram_id) AS overload_check,
-        --
-        NVL(p.overload, 1)      AS overload,
-        p.subprogram_id,
-        p.authid,
-        p.result_cache
+        LEAD(i.line) OVER (PARTITION BY i.object_name, i.object_type ORDER BY i.line) - 1       AS end_line,
+        ROW_NUMBER() OVER (PARTITION BY i.object_name, i.object_type, i.name ORDER BY i.line)   AS overload
     FROM all_identifiers i
     JOIN w
         ON w.owner              = i.owner
-    JOIN all_procedures p                           -- only public procedures
-        ON p.owner              = i.owner
-        AND p.object_name       = i.object_name
-        AND p.procedure_name    = i.name
     WHERE i.type                IN ('PROCEDURE', 'FUNCTION')
         AND i.object_type       IN ('PACKAGE', 'PACKAGE BODY')
         AND i.usage             IN ('DEFINITION', 'DECLARATION')
+),
+p AS (
+    SELECT /*+ MATERIALIZE */
+        i.owner,
+        i.object_name,
+        i.object_type,
+        i.module_name,
+        i.module_type,
+        i.start_line,
+        i.end_line,
+        p.overload,
+        p.subprogram_id,
+        p.authid,
+        p.result_cache
+    FROM i
+    JOIN all_procedures p                           -- only public procedures
+        ON p.owner              = i.owner
+        AND p.object_name       = i.object_name
+        AND p.procedure_name    = i.module_name
+        AND NVL(p.overload, 1)  = i.overload
 ),
 e AS (
     -- find ending lines
@@ -96,20 +107,6 @@ a AS (
         AND a.subprogram_id     = t.subprogram_id
     GROUP BY t.owner, t.package_name, t.module_name, t.module_type, t.subprogram_id
 ),
-g AS (
-    -- group for related modules
-    SELECT /*+ MATERIALIZE */
-        s.owner,
-        s.name,
-        s.line,
-        RTRIM(REGEXP_REPLACE(s.text, '^\s*--\s*###\s*', ''))    AS group_name,
-        RPAD(' ', ROW_NUMBER() OVER(ORDER BY s.line DESC))      AS group_sort
-    FROM all_source s
-    JOIN w
-        ON w.owner              = s.owner
-    WHERE s.type                = 'PACKAGE'
-        AND REGEXP_LIKE(s.text, '^\s*--\s*###')
-),
 q AS (
     -- search statements
     SELECT /*+ MATERIALIZE */
@@ -167,6 +164,7 @@ SELECT
     t.module_name,
     t.subprogram_id,
     t.overload,
+    g.group_name,
     --
     CASE WHEN t.module_type = 'FUNCTION'    THEN 'Y' END AS is_function,
     CASE WHEN b.line IS NOT NULL            THEN 'Y' END AS is_private,
@@ -214,4 +212,46 @@ LEFT JOIN all_source n
     AND n.type                  = 'PACKAGE BODY'
     AND n.line                  BETWEEN t.body_start AND t.body_end
     AND REGEXP_LIKE(n.text, 'PRAGMA\s+AUTONOMOUS_TRANSACTION')
-;
+LEFT JOIN (
+    SELECT
+        t.owner,
+        t.package_name,
+        t.module_name,
+        t.subprogram_id,
+        t.overload,
+        MIN(g.group_sort || g.group_name) KEEP (DENSE_RANK FIRST ORDER BY g.line DESC) AS group_name
+    FROM (
+        -- group for related modules
+        SELECT /*+ MATERIALIZE */
+            s.owner,
+            s.name,
+            s.line,
+            RTRIM(REGEXP_REPLACE(s.text, '^\s*--\s*###\s*', ''))    AS group_name,
+            RPAD(' ', ROW_NUMBER() OVER(ORDER BY s.line DESC))      AS group_sort
+        FROM all_source s
+        JOIN w
+            ON w.owner              = s.owner
+        WHERE s.type                = 'PACKAGE'
+            AND REGEXP_LIKE(s.text, '^\s*--\s*###')
+    ) g
+    JOIN t
+        ON t.owner      = t.owner
+    WHERE g.name        = t.package_name
+        AND g.line      < t.spec_start
+    GROUP BY
+        t.owner,
+        t.package_name,
+        t.module_name,
+        t.subprogram_id,
+        t.overload
+) g
+    ON g.owner                  = t.owner
+    AND g.package_name          = t.package_name
+    AND g.module_name           = t.module_name
+    AND g.subprogram_id         = t.subprogram_id;
+--
+BEGIN
+    DBMS_MVIEW.REFRESH('OBJ_MODULES_MVW', 'C', parallelism => 4);   -- 52s on free cloud
+END;
+/
+
