@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW obj_arguments AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
+        app.get_owner()                             AS owner,
         app.get_item('$PACKAGE_NAME')               AS package_name,
         app.get_item('$MODULE_NAME')                AS module_name,
         app.get_item('$MODULE_TYPE')                AS module_type,     -- @TODO: implement
@@ -27,9 +28,10 @@ SELECT
     a.default_value,
     --
     ROW_NUMBER() OVER(ORDER BY a.package_name, a.subprogram_id, a.object_name, a.overload, a.position) AS sort#
-FROM user_arguments a
+FROM all_arguments a
 JOIN x
-    ON a.package_name       = NVL(x.package_name, a.package_name)
+    ON a.owner              = x.owner
+    AND a.package_name      = NVL(x.package_name, a.package_name)
     AND a.object_name       = NVL(x.module_name, a.object_name)
     AND a.argument_name     = NVL(x.argument_name, a.argument_name)
     --
