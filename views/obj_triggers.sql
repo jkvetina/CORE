@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW obj_triggers AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
+        app.get_owner()                 AS owner,
         app.get_app_id()                AS app_id,
         app.get_item('$TABLE_NAME')     AS table_name,
         app.get_item('$TRIGGER_NAME')   AS trigger_name,
@@ -62,19 +63,24 @@ SELECT
     r.count_deleted,
     --
     o.last_ddl_time
-FROM user_tables t
-CROSS JOIN x
-LEFT JOIN user_triggers g
-    ON g.table_name     = t.table_name
+FROM all_tables t
+JOIN x
+    ON x.owner          = t.owner
+LEFT JOIN all_triggers g
+    ON g.owner          = x.owner
+    AND g.table_name    = t.table_name
     AND g.trigger_name  = NVL(x.trigger_name, g.trigger_name)
-LEFT JOIN user_objects o
-    ON o.object_name    = g.trigger_name
-LEFT JOIN user_mviews v
-    ON v.mview_name     = t.table_name
+LEFT JOIN all_objects o
+    ON o.owner          = g.owner
+    AND o.object_name   = g.trigger_name
+LEFT JOIN all_mviews v
+    ON v.owner          = t.owner
+    AND v.mview_name    = t.table_name
 LEFT JOIN r
     ON r.table_name     = g.table_name
-LEFT JOIN user_tab_comments c
-    ON c.table_name     = t.table_name
+LEFT JOIN all_tab_comments c
+    ON c.owner          = t.owner
+    AND c.table_name    = t.table_name
 WHERE t.table_name      = NVL(x.table_name, t.table_name)
     AND t.table_name    != app.get_dml_table(t.table_name)
     AND v.mview_name    IS NULL;
