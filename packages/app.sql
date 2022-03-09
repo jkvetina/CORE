@@ -4096,7 +4096,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 AND p.overload      IS NULL;
         EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            app.log_warning('PROCEDURE_MISSING');
+            app.log_debug('PROCEDURE_MISSING');
             RETURN;
         END;
 
