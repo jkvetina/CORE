@@ -1411,6 +1411,13 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
+
+
+
+
+    -- ### Mail support
+    --
+
     --
     -- Send UTF_8 email with compressed attachements
     --
@@ -1426,6 +1433,19 @@ CREATE OR REPLACE PACKAGE app AS
         in_attach_data          CLOB            := NULL,
         in_compress             BOOLEAN         := FALSE
     );
+
+
+
+    --
+    -- Send HTTP request
+    --
+    FUNCTION send_request (
+        in_url              VARCHAR2,
+        in_method           VARCHAR2    := NULL,
+        in_content_type     VARCHAR2    := NULL,
+        in_payload          VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2;
 
 
 

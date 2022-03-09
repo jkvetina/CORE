@@ -3516,6 +3516,109 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
+    FUNCTION send_request (
+        in_url              VARCHAR2,
+        in_method           VARCHAR2    := NULL,
+        in_content_type     VARCHAR2    := NULL,
+        in_payload          VARCHAR2    := NULL
+    )
+    RETURN VARCHAR2
+    AS
+        http_req        UTL_HTTP.REQ;
+        http_resp       UTL_HTTP.RESP;
+        --
+        out_content     VARCHAR2(32767);    -- could be CLOB
+        v_buffer        VARCHAR2(32767);
+    BEGIN
+        IF app.app_proxy IS NOT NULL THEN
+            UTL_HTTP.SET_PROXY(app.app_proxy);
+        END IF;
+        --
+        IF app.app_wallet IS NOT NULL THEN
+            UTL_HTTP.SET_WALLET(app.app_wallet);
+        END IF;
+
+        -- send headers
+        BEGIN
+            http_req := UTL_HTTP.BEGIN_REQUEST(in_url, NVL(UPPER(in_method), 'GET'), 'HTTP/1.1');
+            --APEX_WEB_SERVICE.MAKE_REST_REQUEST
+        EXCEPTION
+        WHEN OTHERS THEN
+            --
+            -- parse callstack
+            --
+            app.raise_error (
+                CASE SQLCODE
+                    WHEN -24247 THEN 'MISSING_ACL_ISSUE'    -- ORA-24247: network access denied by access control list (ACL)
+                    WHEN -29024 THEN 'CERTIFICATE_ISSUE'    -- ORA-29024: Certificate validation failure
+                    ELSE 'CONNECTION_ERROR'
+                    END,
+                APEX_STRING_UTIL.GET_DOMAIN(in_url)
+            );
+        END;
+        --
+        UTL_HTTP.SET_BODY_CHARSET(http_req, 'UTF-8');
+
+        -- extra headers for SOAP request
+        UTL_HTTP.SET_HEADER(http_req, 'Accept',             '*/*');
+        UTL_HTTP.SET_HEADER(http_req, 'Accept-Encoding',    'gzip, deflate');
+        UTL_HTTP.SET_HEADER(http_req, 'Cache-Control',      'no-cache');
+        UTL_HTTP.SET_HEADER(http_req, 'Content-Type',       NVL(in_content_type, 'application/x-www-form-urlencoded'));
+        UTL_HTTP.SET_HEADER(http_req, 'Content-Length',     LENGTH(in_payload));
+        UTL_HTTP.SET_HEADER(http_req, 'Connection',         'keep-alive');
+        UTL_HTTP.SET_HEADER(http_req, 'User-Agent',         'Godzilla');
+
+        -- send payload
+        IF in_payload IS NOT NULL THEN
+            UTL_HTTP.WRITE_TEXT(http_req, in_payload);
+        END IF;
+
+        -- get response
+        http_resp := UTL_HTTP.GET_RESPONSE(http_req);
+        DBMS_OUTPUT.PUT_LINE(http_resp.status_code);
+        --
+        IF http_resp.status_code >= 300 THEN
+            app.raise_error('WRONG_RESPONSE_CODE', http_resp.status_code);
+        END IF;
+
+        -- get response
+        --DBMS_LOB.CREATETEMPORARY(out_content, TRUE);
+        BEGIN
+            v_buffer := NULL;
+            LOOP
+                UTL_HTTP.READ_TEXT(http_resp, v_buffer, 32767);
+                --IF v_buffer IS NOT NULL AND LENGTH(v_buffer) > 0 THEN
+                    --DBMS_LOB.WRITEAPPEND(out_content, LENGTH(v_buffer), v_buffer);
+                    out_content := v_buffer; EXIT;
+                --END IF;
+            END LOOP;
+        EXCEPTION
+        WHEN UTL_HTTP.END_OF_BODY THEN
+            UTL_HTTP.END_RESPONSE(http_resp);
+        END;
+
+        -- quit
+        UTL_HTTP.END_RESPONSE(http_resp);
+        --
+        RETURN out_content;
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        BEGIN
+            UTL_HTTP.END_RESPONSE(http_resp);
+            --
+            RETURN out_content;
+        EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+        END;
+        --
+        app.raise_error();
+    END;
+
+
+
     FUNCTION clob_to_blob (
         in_clob CLOB
     )
