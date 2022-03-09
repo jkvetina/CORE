@@ -95,7 +95,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         out_owner               apex_applications.owner%TYPE;
     BEGIN
-        RETURN COALESCE(app.get_item('G_CURR_OWNER'), app.get_owner(app.get_app_id()));
+        RETURN COALESCE(app.get_item('G_CURR_OWNER'), app.get_owner(app.get_app_id()), APEX_UTIL.GET_DEFAULT_SCHEMA, USER);
     END;
 
 
