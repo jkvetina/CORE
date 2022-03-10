@@ -1,19 +1,22 @@
 CREATE OR REPLACE VIEW obj_indexes_missing AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_owner()                 AS owner,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 ),
 f AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         t.table_name,
         t.constraint_name                                               AS index_name,
         LISTAGG(t.column_name, ', ') WITHIN GROUP (ORDER BY t.position) AS cols
-    FROM user_cons_columns t
-    JOIN user_constraints n
-        ON n.constraint_name    = t.constraint_name
+    FROM all_cons_columns t
+    JOIN all_constraints n
+        ON n.owner              = t.owner
+        AND n.constraint_name   = t.constraint_name
     JOIN x
-        ON n.table_name         = NVL(x.table_name, n.table_name)
+        ON x.owner              = n.owner
+        AND n.table_name        = NVL(x.table_name, n.table_name)
     WHERE n.constraint_type     = 'R'
         AND n.table_name        NOT IN (SELECT object_name FROM RECYCLEBIN)
     GROUP BY t.table_name, t.constraint_name
@@ -34,9 +37,10 @@ SELECT
 FROM f
 LEFT JOIN (
     SELECT i.table_name, i.index_name, LISTAGG(i.column_name, ', ') WITHIN GROUP (ORDER BY i.column_position) AS cols
-    FROM user_ind_columns i
+    FROM all_ind_columns i
     JOIN x
-        ON i.table_name     = NVL(x.table_name, i.table_name)
+        ON x.owner          = i.table_owner
+        AND i.table_name    = NVL(x.table_name, i.table_name)
     GROUP BY i.table_name, i.index_name
 ) i
     ON i.table_name     = f.table_name

@@ -1,19 +1,22 @@
 CREATE OR REPLACE VIEW obj_indexes AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_owner()                 AS owner,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 ),
 c AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
+        c.table_owner,
         c.table_name,
         c.index_name,
         LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_position) AS list_columns
-    FROM user_ind_columns c
+    FROM all_ind_columns c
     JOIN x
-        ON c.table_name     = NVL(x.table_name, c.table_name)
+        ON x.owner          = c.table_owner
+        AND c.table_name    = NVL(x.table_name, c.table_name)
     WHERE c.table_name      NOT IN (SELECT object_name FROM RECYCLEBIN)
-    GROUP BY c.table_name, c.index_name
+    GROUP BY c.table_owner, c.table_name, c.index_name
 )
 SELECT
     i.table_name,
@@ -34,9 +37,10 @@ SELECT
     i.leaf_blocks,
     i.tablespace_name,
     i.last_analyzed
-FROM user_indexes i
+FROM all_indexes i
 JOIN c
-    ON c.table_name         = i.table_name
+    ON c.table_owner        = i.table_owner
+    AND c.table_name        = i.table_name
     AND c.index_name        = i.index_name
 WHERE i.generated           = 'N';
 
