@@ -97,6 +97,10 @@ CREATE OR REPLACE PACKAGE app AS
         TABLE OF logs.log_id%TYPE
         INDEX BY VARCHAR2(40);
 
+    -- proxy and wallet setup
+    app_proxy                   CONSTANT VARCHAR2(256)          := '';
+    app_wallet                  CONSTANT VARCHAR2(256)          := '';
+
 
 
 
