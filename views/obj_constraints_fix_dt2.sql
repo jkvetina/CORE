@@ -1,7 +1,8 @@
 CREATE OR REPLACE VIEW obj_constraints_fix_dt2 AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_owner()                 AS owner,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 ),
 s AS (
@@ -20,11 +21,15 @@ s AS (
                 --
             ELSE a.data_type
         END AS data_type        
-    FROM user_tab_columns a
-    JOIN user_tables t
-        ON t.table_name         = a.table_name
-    LEFT JOIN user_mviews m
-        ON m.mview_name         = a.table_name
+    FROM all_tab_columns a
+    JOIN x
+        ON x.owner              = a.owner
+    JOIN all_tables t
+        ON t.owner              = a.owner
+        AND t.table_name        = a.table_name
+    LEFT JOIN all_mviews m
+        ON m.owner              = a.owner
+        AND m.mview_name        = a.table_name
     LEFT JOIN obj_constraints_fix_dt1 d
         ON d.foreign_table      = a.table_name
         AND d.foreign_column    = a.column_name
@@ -33,7 +38,7 @@ s AS (
         AND d.foreign_table     IS NULL                     -- skip columns marked as FK errors
 ),
 t AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         s.column_name,
         s.data_type,
         --
@@ -43,15 +48,17 @@ t AS (
 ),
 r AS (
     -- unmatching column data types
-    SELECT t.*
+    SELECT /*+ MATERIALIZE */
+        t.*
     FROM t
     CROSS JOIN x
     WHERE (
             t.column_name IN (
                 SELECT c.column_name
-                FROM user_tab_cols c
+                FROM all_tab_cols c
                 JOIN x
-                    ON x.table_name = c.table_name
+                    ON x.owner          = c.owner
+                    AND x.table_name    = c.table_name
             )
             OR x.table_name IS NULL
         )

@@ -1,7 +1,8 @@
 CREATE OR REPLACE VIEW obj_constraints_fix_dt1 AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_owner()                 AS owner,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 ),
 s AS (
@@ -23,14 +24,19 @@ s AS (
         n.constraint_type,
         c.constraint_name,
         n.r_constraint_name
-    FROM user_tab_columns a
-    JOIN user_tables t
-        ON t.table_name         = a.table_name
-    JOIN user_cons_columns c
-        ON c.table_name         = a.table_name
+    FROM all_tab_columns a
+    JOIN x
+        ON x.owner              = a.owner
+    JOIN all_tables t
+        ON t.owner              = a.owner
+        AND t.table_name        = a.table_name
+    JOIN all_cons_columns c
+        ON c.owner              = a.owner
+        AND c.table_name        = a.table_name
         AND c.column_name       = a.column_name
-    JOIN user_constraints n
-        ON n.constraint_name    = c.constraint_name
+    JOIN all_constraints n
+        ON n.owner              = c.owner
+        AND n.constraint_name   = c.constraint_name
         AND n.constraint_type   IN ('P', 'R')
     ORDER BY a.table_name, n.constraint_type, n.constraint_name, a.column_name
 )

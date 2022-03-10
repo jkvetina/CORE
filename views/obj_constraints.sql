@@ -1,46 +1,53 @@
 CREATE OR REPLACE VIEW obj_constraints AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_owner()                 AS owner,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 ),
 n AS (
-    SELECT XMLTYPE(DBMS_XMLGEN.GETXML('SELECT c.constraint_name AS name, c.search_condition AS text
-FROM user_constraints c
-WHERE c.table_name = NVL(''' || x.table_name || ''', c.table_name)
+    SELECT /*+ MATERIALIZE */
+        XMLTYPE(DBMS_XMLGEN.GETXML('SELECT c.constraint_name AS name, c.search_condition AS text
+FROM all_constraints c
+WHERE c.owner = ''' || x.owner || '''
+    AND c.table_name = NVL(''' || x.table_name || ''', c.table_name)
     AND c.constraint_type = ''C''
 ')) AS constraint_source
     FROM x
 ),
 s AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         EXTRACTVALUE(s.object_value, '/ROW/NAME') AS constraint_name,
         EXTRACTVALUE(s.object_value, '/ROW/TEXT') AS search_condition
     FROM n
     CROSS JOIN TABLE(XMLSEQUENCE(EXTRACT(n.constraint_source, '/ROWSET/ROW'))) s
 ),
 p AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         n.table_name,
         n.constraint_name,
         k.table_name                                                    AS primary_table,
         LISTAGG(p.column_name, ', ') WITHIN GROUP (ORDER BY p.position) AS primary_cols,
         n.r_constraint_name                                             AS primary_constraint
-    FROM user_constraints n
+    FROM all_constraints n
     JOIN x
-        ON n.table_name         = NVL(x.table_name, n.table_name)
-    JOIN user_cons_columns c
-        ON c.constraint_name    = n.constraint_name
-    JOIN user_cons_columns p
-        ON p.constraint_name    = n.r_constraint_name
+        ON x.owner              = n.owner
+        AND n.table_name        = NVL(x.table_name, n.table_name)
+    JOIN all_cons_columns c
+        ON c.owner              = n.owner
+        AND c.constraint_name   = n.constraint_name
+    JOIN all_cons_columns p
+        ON p.owner              = n.owner
+        AND p.constraint_name   = n.r_constraint_name
         AND p.position          = c.position
-    JOIN user_constraints k
-        ON k.constraint_name    = n.r_constraint_name
+    JOIN all_constraints k
+        ON k.owner              = n.owner
+        AND k.constraint_name   = n.r_constraint_name
     WHERE n.constraint_type     = 'R'
     GROUP BY n.table_name, n.constraint_name, k.table_name, n.r_constraint_name
 ),
 c AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         n.table_name,
         n.constraint_name,
         n.constraint_type,
@@ -53,11 +60,13 @@ c AS (
         MAX(CASE WHEN n.deferrable = 'DEFERRABLE'       THEN 'Y' END) AS is_deferred,
         --
         MAX(n.delete_rule) AS delete_rule
-    FROM user_constraints n
+    FROM all_constraints n
     JOIN x
-        ON n.table_name         = NVL(x.table_name, n.table_name)
-    JOIN user_cons_columns c
-        ON c.constraint_name    = n.constraint_name
+        ON x.owner              = n.owner
+        AND n.table_name        = NVL(x.table_name, n.table_name)
+    JOIN all_cons_columns c
+        ON c.owner              = n.owner
+        AND c.constraint_name   = n.constraint_name
     LEFT JOIN s
         ON s.constraint_name    = n.constraint_name
         AND s.search_condition  = '"' || c.column_name || '" IS NOT NULL'
