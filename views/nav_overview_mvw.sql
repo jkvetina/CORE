@@ -64,21 +64,10 @@ SELECT
     --
     t.page_alias,
     --
-    CASE WHEN r.page_id IS NULL
-        THEN REPLACE(LTRIM(RPAD('-', t.depth * 4), '-'), ' ', '&' || 'nbsp; ') ||
-            app.get_page_name (
-                in_app_id       => n.app_id,
-                in_page_id      => n.page_id,
-                in_name         => t.page_name
-            )
-        END AS page_name,
+    CASE WHEN r.page_id IS NULL THEN t.depth END AS depth,
     --
-    app.get_page_title (
-        in_app_id       => n.app_id,
-        in_page_id      => n.page_id,
-        in_title        => t.page_title
-    ) AS page_title,
-    --
+    t.page_name,
+    t.page_title,
     t.page_css_classes AS css_class,
     t.page_template,
     --
@@ -158,10 +147,9 @@ SELECT
     NVL(t.page_root, n.page_id) || ' ' || n.page_group AS page_group,
     n.page_alias,
     --
-    CASE WHEN n.parent_id IS NOT NULL
-        THEN REPLACE(LTRIM(RPAD('-', (t.depth + 1) * 4), '-'), ' ', '&' || 'nbsp; ')
-        END || app.get_page_name(in_app_id => n.app_id, in_page_id => n.page_id, in_name => n.page_name) AS page_name,
+    CASE WHEN n.parent_id IS NOT NULL THEN t.depth + 1 END AS depth,
     --
+    n.page_name,
     n.page_title,
     n.css_class,
     n.page_template,

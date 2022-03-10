@@ -13,8 +13,22 @@ SELECT
     n.order#,
     n.page_group,
     n.page_alias,
-    n.page_name,
-    n.page_title,
+
+    CASE WHEN n.depth IS NOT NULL
+        THEN REPLACE(LTRIM(RPAD('-', n.depth * 4), '-'), ' ', '&' || 'nbsp; ') ||
+            app.get_page_name (
+                in_app_id       => n.app_id,
+                in_page_id      => n.page_id,
+                in_name         => n.page_name
+            )
+        END AS page_name,
+    --
+    app.get_page_title (
+        in_app_id       => n.app_id,
+        in_page_id      => n.page_id,
+        in_title        => n.page_title
+    ) AS page_title,
+    --
     n.css_class,
     n.page_template,
     n.is_hidden,
