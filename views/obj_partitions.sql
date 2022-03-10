@@ -1,23 +1,25 @@
 CREATE OR REPLACE VIEW obj_partitions AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_owner()                 AS owner,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 ),
 p AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         p.*,
         --
         'SELECT p.high_value'                                       || CHR(10) ||
-        'FROM user_tab_partitions p'                                || CHR(10) ||
-        'WHERE p.table_name = ''' || p.table_name || ''''           || CHR(10) ||
+        'FROM all_tab_partitions p'                                 || CHR(10) ||
+        'WHERE p.table_owner = ''' || x.owner || ''''               || CHR(10) ||
+        '    AND p.table_name = ''' || p.table_name || ''''         || CHR(10) ||
         '    AND p.partition_name = ''' || p.partition_name || '''' AS query_
-    FROM user_tab_partitions p
+    FROM all_tab_partitions p
     JOIN x
         ON x.table_name = p.table_name
 ),
 r AS (
-    SELECT
+    SELECT /*+ MATERIALIZE */
         p.partition_name,
         LTRIM(RTRIM(h.high_value, ' )'), '( ') AS high_value
     FROM p,
