@@ -1,9 +1,9 @@
 CREATE OR REPLACE VIEW obj_views AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
+        app.get_owner()                             AS owner,
         app.get_app_id()                            AS app_id,
         app.get_core_app_id()                       AS core_app_id,
-        app.get_owner()                             AS owner,
         app.get_item('$VIEW_NAME')                  AS view_name,
         --
         UPPER(app.get_item('$SEARCH_VIEWS'))        AS search_views,
@@ -134,8 +134,9 @@ LEFT JOIN r ON r.view_name      = v.view_name
 LEFT JOIN u ON u.view_name      = v.view_name
 LEFT JOIN p ON p.table_name     = v.view_name
 LEFT JOIN s ON s.view_name      = v.view_name
-LEFT JOIN user_tab_comments c
-    ON c.table_name             = v.view_name
+LEFT JOIN all_tab_comments c
+    ON c.owner                  = x.owner
+    AND c.table_name            = v.view_name
 --
 WHERE (c.is_found_column = 'Y'  OR x.search_columns IS NULL)
     AND (s.is_found_text = 'Y'  OR x.search_source IS NULL);
