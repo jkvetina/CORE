@@ -1,9 +1,9 @@
 CREATE OR REPLACE VIEW obj_tables_ref_pages AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_app_id()                    AS app_id,
-        app.get_owner(app.get_app_id())     AS owner_,
-        app.get_item('$TABLE_NAME')         AS table_name
+        app.get_owner()                 AS owner,
+        app.get_app_id()                AS app_id,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 )
 SELECT
@@ -17,7 +17,7 @@ SELECT
     --
     CASE WHEN r.table_name = x.table_name
         THEN 0
-        ELSE ROW_NUMBER() OVER (ORDER BY r.page_id, r.region_name) END AS sort#
+        ELSE ROW_NUMBER() OVER (ORDER BY r.page_id, r.region_name) END AS sort#     ------- order#
 FROM apex_application_page_regions r
 JOIN apex_application_pages p
     ON p.application_id     = r.application_id
@@ -29,9 +29,9 @@ WHERE r.query_type_code     = 'TABLE'
         r.table_name        = x.table_name
         OR r.table_name     IN (
             SELECT DISTINCT d.name                  AS view_name
-            FROM user_dependencies d
-            CROSS JOIN x
-            WHERE d.referenced_owner                = x.owner_
+            FROM all_dependencies d
+            JOIN x
+                ON x.owner                          = d.referenced_owner
                 AND d.type                          = 'VIEW'
             CONNECT BY NOCYCLE d.referenced_name    = PRIOR d.name
                 AND d.referenced_type               = 'VIEW'

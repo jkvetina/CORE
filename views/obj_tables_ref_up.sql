@@ -1,7 +1,8 @@
 CREATE OR REPLACE VIEW obj_tables_ref_up AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_item('$TABLE_NAME') AS table_name
+        app.get_owner()                 AS owner,
+        app.get_item('$TABLE_NAME')     AS table_name
     FROM DUAL
 ),
 t AS (
@@ -10,10 +11,13 @@ t AS (
         p.table_name            AS referenced_table,
         p.constraint_name       AS primary_key_name,
         r.constraint_name       AS foreign_key_name
-    FROM user_constraints r
-    JOIN user_constraints p
-        ON r.r_constraint_name  = p.constraint_name
+    FROM all_constraints r
+    JOIN all_constraints p
+        ON r.owner              = p.owner
+        AND r.r_constraint_name = p.constraint_name
         AND r.constraint_type   = 'R'
+    JOIN x
+        ON x.owner              = p.owner
     WHERE p.constraint_type     = 'P'
 )
 SELECT
@@ -21,9 +25,10 @@ SELECT
     t.table_name,
     NULL                        AS foreign_key_name,
     NULL                        AS primary_key_name
-FROM user_tables t
+FROM all_tables t
 JOIN x
-    ON x.table_name             = t.table_name
+    ON x.owner                  = t.owner
+    AND x.table_name            = t.table_name
 UNION ALL
 --
 SELECT
