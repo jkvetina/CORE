@@ -1,11 +1,11 @@
 CREATE OR REPLACE VIEW settings_overview AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
+        app.get_owner(app.get_app_id()) AS owner,
+        app.get_app_id()                AS app_id,
         app.get_settings_package()      AS package_name,
         app.get_settings_prefix()       AS prefix,
         app.get_item('$SETTING_NAME')   AS setting_name,
-        app.get_app_id()                AS app_id,
-        app.get_owner()                 AS owner,
         app.is_developer_y()            AS is_dev
     FROM DUAL
 ),
@@ -13,13 +13,15 @@ p AS (
     SELECT /*+ MATERIALIZE */
         p.procedure_name,
         a.data_type
-    FROM user_procedures p
-    JOIN user_arguments a
-        ON a.package_name   = p.object_name
+    FROM all_procedures p
+    JOIN all_arguments a
+        ON a.owner          = p.owner
+        AND a.package_name  = p.object_name
         AND a.object_name   = p.procedure_name
         AND a.position      = 0
     JOIN x
-        ON x.package_name   = p.object_name
+        ON x.owner          = p.owner
+        AND x.package_name  = p.object_name
 ),
 r AS (
     SELECT /*+ MATERIALIZE */
@@ -27,8 +29,9 @@ r AS (
         COUNT(*)            AS references
     FROM (
         SELECT REPLACE(RTRIM(REGEXP_SUBSTR(UPPER(s.text), x.package_name || '\.' || REPLACE(x.prefix, '_', '\_') || '[^(]*')), x.package_name || '.', '') AS procedure_name
-        FROM user_source s
-        CROSS JOIN x
+        FROM all_source s
+        JOIN x
+            ON x.owner      = s.owner
         WHERE UPPER(s.text) LIKE '%' || x.package_name || '.' || x.prefix || '%'
     ) t
     GROUP BY t.procedure_name
