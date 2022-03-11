@@ -1244,10 +1244,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 'IS_PAGE_AVAILABLE',
                 in_app_id,
                 in_page_id,
-                v_auth_scheme,
-                v_package_name || '.' || v_procedure_name,
-                v_data_type,
-                v_page_argument
+                NVL(v_auth_scheme, '-'),
+                NVL(v_package_name || '.' || v_procedure_name, '-'),
+                NVL(v_data_type, '-'),
+                NVL(v_page_argument, '-')
             );
         END IF;
 
@@ -1267,6 +1267,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
             --
         ELSIF v_procedure_name IS NULL THEN
             app.log_warning('AUTH_PROCEDURE_MISSING', in_app_id, in_page_id, v_auth_scheme);
+            --
+            IF app.is_developer() THEN  -- show in menu, allow access
+                RETURN 'Y';
+            END IF;
             --
             RETURN 'N';  -- hide, auth function is set on page but missing in AUTH package
         END IF;
