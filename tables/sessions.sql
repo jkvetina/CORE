@@ -1,7 +1,7 @@
 --DROP TABLE sessions PURGE;
 CREATE TABLE sessions (
     app_id              NUMBER(4)       CONSTRAINT nn_sessions_app_id       NOT NULL,
-    session_id          NUMBER          CONSTRAINT nn_sessions_session_id   NOT NULL,
+    session_id          INTEGER         CONSTRAINT nn_sessions_session_id   NOT NULL,
     user_id             VARCHAR2(30)    CONSTRAINT nn_sessions_user_id      NOT NULL,
     --
     created_at          DATE            CONSTRAINT nn_sessions_created_at   NOT NULL,

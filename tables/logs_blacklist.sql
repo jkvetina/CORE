@@ -1,6 +1,6 @@
 --DROP TABLE logs_blacklist CASCADE CONSTRAINTS PURGE;
 CREATE TABLE logs_blacklist (
-    app_id              NUMBER(4)       CONSTRAINT nn_logs_blacklist_app_id     NOT NULL,
+    app_id              NUMBER(4),      -- CONSTRAINT nn_logs_blacklist_app_id     NOT NULL,
     flag                CHAR(1),
     user_id             VARCHAR2(30),
     page_id             NUMBER(6),

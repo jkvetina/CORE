@@ -6,7 +6,7 @@ CREATE TABLE log_events (
     app_id              NUMBER(4)       CONSTRAINT nn_log_events_app_id        NOT NULL,
     page_id             NUMBER(6)       CONSTRAINT nn_log_events_page_id       NOT NULL,
     user_id             VARCHAR2(30)    CONSTRAINT nn_log_events_user_id       NOT NULL,
-    session_id          NUMBER          CONSTRAINT nn_log_events_session_id    NOT NULL,
+    session_id          INTEGER         CONSTRAINT nn_log_events_session_id    NOT NULL,
     --
     event_id            VARCHAR2(30)    CONSTRAINT nn_log_events_event_id      NOT NULL,
     event_value         NUMBER,

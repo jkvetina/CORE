@@ -2,10 +2,9 @@
 UPDATE sessions                 SET log_id          = NULL;
 UPDATE uploaded_file_sheets     SET result_log_id   = NULL;
 --
-DROP TABLE logs_events  PURGE;
-DROP TABLE logs_lobs    PURGE;
-DROP TABLE logs_setup   PURGE;
-DROP TABLE logs         PURGE;
+DROP TABLE log_events       PURGE;
+DROP TABLE logs_blacklist   PURGE;
+DROP TABLE logs             PURGE;
 --
 SELECT * FROM logs ORDER BY 1 DESC;
 */
@@ -25,7 +24,7 @@ CREATE TABLE logs (
     arguments           VARCHAR2(2000),
     payload             VARCHAR2(4000),
     --
-    session_id          NUMBER,
+    session_id          INTEGER,
     created_at          TIMESTAMP       CONSTRAINT nn_logs_created_at   NOT NULL,
     --
     CONSTRAINT pk_logs
