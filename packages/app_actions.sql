@@ -220,6 +220,48 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    PROCEDURE refresh_nav_views (
+        in_log_id           logs.log_id%TYPE,
+        in_user_id          logs.user_id%TYPE,
+        in_app_id           logs.app_id%TYPE
+    )
+    AS
+    BEGIN
+        DBMS_MVIEW.REFRESH('NAV_OVERVIEW_MVW',      'C', parallelism => 2);
+        DBMS_MVIEW.REFRESH('NAV_AVAILABILITY_MVW',  'C', parallelism => 2);
+        --
+        app_actions.send_message (
+            in_app_id       => in_app_id,
+            in_user_id      => in_user_id,
+            in_message      => 'Materialized views refreshed'
+            
+        );
+        --
+        app.log_success(TO_CHAR(in_log_id));
+    END;
+
+
+
+    PROCEDURE refresh_nav_views
+    AS
+        v_log_id            logs.log_id%TYPE;
+        v_query             VARCHAR2(32767);
+    BEGIN
+        v_log_id := app.log_module();
+        --
+        app.create_job (
+            in_job_name     => 'RECALC_MVW_NAV',
+            in_statement    => 'app_actions.refresh_nav_views(' || v_log_id || ', ''' || app.get_user_id() || ''', ' || app.get_app_id() || ');'
+        );
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
     PROCEDURE save_nav_overview (
         in_action               CHAR,
         in_app_id               navigation.app_id%TYPE,
@@ -1737,6 +1779,80 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         out_message                 := rec.message;
         --
         app.log_success(v_log_id);
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE ajax_ping
+    AS
+    BEGIN
+        APEX_JSON.OPEN_OBJECT();
+        --
+        -- APEX_APPLICATION.G_X01, APEX_APPLICATION.G_X02, APEX_APPLICATION.G_X03
+        --
+        APEX_JSON.WRITE('status',   'SUCCESS');
+        --
+        FOR c IN (
+            SELECT m.*
+            FROM user_messages m
+            WHERE m.app_id              = app.get_app_id()
+                AND m.user_id           = app.get_user_id()
+                AND (m.session_id       = app.get_session_id() OR m.session_id IS NULL)
+                AND m.delivered_at      IS NULL
+            ORDER BY m.created_at DESC
+            FETCH FIRST 1 ROWS ONLY
+        ) LOOP
+            APEX_JSON.WRITE('message',  c.message_payload);
+            APEX_JSON.WRITE('type',     c.message_type);
+            --
+            UPDATE user_messages m
+            SET m.delivered_at          = SYSDATE
+            WHERE m.app_id              = c.app_id
+                AND m.user_id           = c.user_id
+                AND m.message_id        = c.message_id;
+        END LOOP;
+        --
+        APEX_JSON.CLOSE_OBJECT();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
+    PROCEDURE send_message (
+        in_user_id          user_messages.user_id%TYPE,
+        in_message          user_messages.message_payload%TYPE,
+        in_type             user_messages.message_type%TYPE         := NULL,
+        in_session_id       user_messages.session_id%TYPE           := NULL,
+        in_app_id           user_messages.app_id%TYPE               := NULL,
+        in_message_id       user_messages.message_id%TYPE           := NULL
+    )
+    AS
+        v_log_id            logs.log_id%TYPE;
+    BEGIN
+        v_log_id := app.log_module();
+        --
+        INSERT INTO user_messages (app_id, user_id, message_id, message_type, message_payload, session_id, created_at, created_by)
+        VALUES (
+            COALESCE(in_app_id, app.get_app_id()),
+            in_user_id,
+            COALESCE(in_message_id, log_id.NEXTVAL),
+            COALESCE(in_type, 'SUCCESS'),
+            in_message,
+            in_session_id,
+            SYSDATE,
+            app.get_user_id()
+        );
+        --
+        app.log_success();
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;

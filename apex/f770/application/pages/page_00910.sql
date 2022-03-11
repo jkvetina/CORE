@@ -23,7 +23,7 @@ wwv_flow_api.create_page(
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_page_comment=>'Navigation setup page'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220306094513'
+,p_last_upd_yyyymmddhh24miss=>'20220311201303'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(24141119524306145)
@@ -3300,8 +3300,7 @@ wwv_flow_api.create_page_process(
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'app.log_action(''PUBLISH_CHANGES'');',
 '--',
-'DBMS_MVIEW.REFRESH(''NAV_AVAILABILITY_MVW'',  ''C'', parallelism => 2);',
-'DBMS_MVIEW.REFRESH(''NAV_OVERVIEW_MVW'',      ''C'', parallelism => 2);',
+'app_actions.refresh_nav_views();',
 '--',
 'app.log_success();',
 ''))

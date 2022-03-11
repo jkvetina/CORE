@@ -17,6 +17,7 @@ prompt --install
 @@application/shared_components/logic/application_processes/init_translations.sql
 @@application/shared_components/logic/application_processes/init_globals.sql
 @@application/shared_components/logic/application_processes/init_filters.sql
+@@application/shared_components/logic/application_processes/ajax_ping.sql
 @@application/shared_components/logic/application_items/g_curr_owner.sql
 @@application/shared_components/logic/application_items/g_footer.sql
 @@application/shared_components/logic/application_items/g_today.sql

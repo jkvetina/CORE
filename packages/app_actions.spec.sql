@@ -98,6 +98,19 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
     --
+    -- Refresh navigation MVW in a background job and inform user
+    --
+    PROCEDURE refresh_nav_views (
+        in_log_id           logs.log_id%TYPE,
+        in_user_id          logs.user_id%TYPE,
+        in_app_id           logs.app_id%TYPE
+    );
+    --
+    PROCEDURE refresh_nav_views;
+
+
+
+    --
     -- Save changes on Navigation page
     --
     PROCEDURE save_nav_overview (
@@ -473,6 +486,27 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_value_sk                 translated_messages_overview.value_sk%TYPE,
         in_value_pl                 translated_messages_overview.value_pl%TYPE,
         in_value_hu                 translated_messages_overview.value_hu%TYPE
+    );
+
+
+
+    --
+    -- Ping procedure to keep communicate with users via AJAX
+    --
+    PROCEDURE ajax_ping;
+
+
+
+    --
+    -- Send message to user
+    --
+    PROCEDURE send_message (
+        in_user_id          user_messages.user_id%TYPE,
+        in_message          user_messages.message_payload%TYPE,
+        in_type             user_messages.message_type%TYPE         := NULL,
+        in_session_id       user_messages.session_id%TYPE           := NULL,
+        in_app_id           user_messages.app_id%TYPE               := NULL,
+        in_message_id       user_messages.message_id%TYPE           := NULL
     );
 
 END;
