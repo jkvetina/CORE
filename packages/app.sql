@@ -3013,8 +3013,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- remove old sessions
-        DELETE FROM sessions s
-        WHERE s.created_at <= TRUNC(SYSDATE) - NVL(in_age, app.logs_max_age);
+        DELETE FROM sessions t
+        WHERE t.created_at < TRUNC(SYSDATE) - NVL(in_age, app.logs_max_age);
+
+        -- remove old messages
+        DELETE FROM user_messages t
+        WHERE t.created_at < TRUNC(SYSDATE) - 1;
 
         -- remove old partitions
         FOR c IN (
