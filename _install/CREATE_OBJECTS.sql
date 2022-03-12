@@ -165,3 +165,17 @@ COMMIT;
 
 
 
+--
+-- REFRESH ALL MVW
+--
+BEGIN
+    FOR c IN (
+        SELECT m.mview_name
+        FROM user_mviews m
+        ORDER BY 1
+    ) LOOP
+        DBMS_MVIEW.REFRESH(c.mview_name, 'C', parallelism => 1);
+    END LOOP;
+END;
+/
+

@@ -29,6 +29,7 @@ prompt --install
 @@application/shared_components/navigation/tabs/standard.sql
 @@application/shared_components/navigation/tabs/parent.sql
 @@application/shared_components/user_interface/lovs/login_remember_username.sql
+@@application/shared_components/user_interface/lovs/lov_core_app_schemas.sql
 @@application/shared_components/user_interface/lovs/lov_core_events_event_id_event_name.sql
 @@application/shared_components/user_interface/lovs/lov_core_flags_name_value.sql
 @@application/shared_components/user_interface/lovs/lov_core_languages.sql

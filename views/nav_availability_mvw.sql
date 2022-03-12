@@ -4,9 +4,12 @@ BUILD DEFERRED
 REFRESH ON DEMAND COMPLETE
 AS
 WITH w AS (
-    SELECT a.owner, a.application_id
+    SELECT /*+ MATERIALIZE */
+        a.owner,
+        a.application_id
     FROM apex_applications a
-    WHERE a.owner NOT LIKE 'APEX%'
+    JOIN lov_app_schemas s
+        ON s.owner      = a.owner
 )
 SELECT
     p.application_id,

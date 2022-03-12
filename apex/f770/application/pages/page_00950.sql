@@ -22,7 +22,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(9556407311505078)
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220306104327'
+,p_last_upd_yyyymmddhh24miss=>'20220312183327'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(14218446056378932)
@@ -310,14 +310,7 @@ wwv_flow_api.create_page_item(
 ,p_item_plug_id=>wwv_flow_api.id(14218446056378932)
 ,p_prompt=>'Current Schema'
 ,p_display_as=>'NATIVE_SELECT_LIST'
-,p_lov=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT',
-'    a.owner,',
-'    a.owner AS owner_',
-'FROM apex_applications a',
-'GROUP BY a.owner',
-'ORDER BY 1;',
-''))
+,p_named_lov=>'LOV_CORE_APP_SCHEMAS'
 ,p_cHeight=>1
 ,p_colspan=>4
 ,p_field_template=>wwv_flow_api.id(9142775823569991)

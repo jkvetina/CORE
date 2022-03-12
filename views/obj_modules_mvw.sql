@@ -3,12 +3,7 @@ CREATE MATERIALIZED VIEW obj_modules_mvw
 BUILD DEFERRED
 REFRESH ON DEMAND COMPLETE
 AS
-WITH w AS (
-    SELECT DISTINCT a.owner
-    FROM apex_applications a
-    WHERE a.owner NOT LIKE 'APEX%'
-),
-i AS (
+WITH i AS (
     -- find modules and start lines in spec and body
     SELECT /*+ MATERIALIZE */
         i.owner,
@@ -21,8 +16,8 @@ i AS (
         LEAD(i.line) OVER (PARTITION BY i.object_name, i.object_type ORDER BY i.line) - 1       AS end_line,
         ROW_NUMBER() OVER (PARTITION BY i.object_name, i.object_type, i.name ORDER BY i.line)   AS overload
     FROM all_identifiers i
-    JOIN w
-        ON w.owner              = i.owner
+    JOIN lov_app_schemas s
+        ON s.owner              = i.owner
     WHERE i.type                IN ('PROCEDURE', 'FUNCTION')
         AND i.object_type       IN ('PACKAGE', 'PACKAGE BODY')
         AND i.usage             IN ('DEFINITION', 'DECLARATION')
@@ -55,8 +50,8 @@ e AS (
         s.type,
         s.line
     FROM all_source s
-    JOIN w
-        ON w.owner              = s.owner
+    JOIN lov_app_schemas o
+        ON o.owner              = s.owner
     WHERE (
         (s.type = 'PACKAGE BODY' AND REGEXP_LIKE(UPPER(s.text), '^\s*END(\s+[A-Z0-9_]+)?\s*;')) OR
         (s.type = 'PACKAGE'      AND REGEXP_LIKE(UPPER(s.text), ';'))
@@ -229,8 +224,8 @@ LEFT JOIN (
             RTRIM(REGEXP_REPLACE(s.text, '^\s*--\s*###\s*', ''))    AS group_name,
             RPAD(' ', ROW_NUMBER() OVER(ORDER BY s.line DESC))      AS group_sort
         FROM all_source s
-        JOIN w
-            ON w.owner              = s.owner
+        JOIN lov_app_schemas o
+            ON o.owner              = s.owner
         WHERE s.type                = 'PACKAGE'
             AND REGEXP_LIKE(s.text, '^\s*--\s*###')
     ) g
@@ -249,9 +244,4 @@ LEFT JOIN (
     AND g.package_name          = t.package_name
     AND g.module_name           = t.module_name
     AND g.subprogram_id         = t.subprogram_id;
---
-BEGIN
-    DBMS_MVIEW.REFRESH('OBJ_MODULES_MVW', 'C', parallelism => 4);   -- 52s on free cloud
-END;
-/
 
