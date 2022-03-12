@@ -134,6 +134,35 @@ var apex_page_loaded = function() {
             attributes: true
         });
     });
+    //
+    // PING FOR LOGGED USERS
+    //
+    if (apex.item('P0_MESSAGE').node) {
+        (function loop(i) {
+            setTimeout(function() {
+                apex.server.process (
+                    'AJAX_PING',
+                    {
+                        x01: 1,
+                        x02: 2,
+                        x03: 3,
+                        //p_arg_names: [''],// set items?
+                        //p_arg_values: [''],
+                    },  // params
+                    {
+                        async       : true,
+                        dataType    : 'json',
+                        success     : function(data) {
+                            if (data.message && data.status == 'SUCCESS') {
+                                apex.message.showPageSuccess(data.message);
+                            }
+                        }
+                    }
+                );
+                loop(i);
+            }, 10000);  // 10sec forever
+        })();
+    }
 };
 
 
