@@ -228,8 +228,8 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     )
     AS
     BEGIN
-        DBMS_MVIEW.REFRESH('NAV_OVERVIEW_MVW',      'C', parallelism => 2);
         DBMS_MVIEW.REFRESH('NAV_AVAILABILITY_MVW',  'C', parallelism => 2);
+        DBMS_MVIEW.REFRESH('NAV_OVERVIEW_MVW',      'C', parallelism => 2);
         --
         app_actions.send_message (
             in_app_id       => in_app_id,

@@ -4,7 +4,7 @@ BUILD DEFERRED
 REFRESH ON DEMAND COMPLETE
 AS
 WITH w AS (
-    SELECT /*+ MATERIALIZE */
+    SELECT
         a.owner,
         a.application_id
     FROM apex_applications a
