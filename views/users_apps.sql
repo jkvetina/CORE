@@ -55,6 +55,7 @@ p AS (
         a.last_updated_on
     FROM apex_applications a
     CROSS JOIN x
+    WHERE a.owner NOT LIKE 'APEX%'
 )
 SELECT
     CASE WHEN p.app_id IS NULL
