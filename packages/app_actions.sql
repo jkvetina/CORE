@@ -680,6 +680,54 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 
 
+    PROCEDURE auto_translate_messages (
+        in_app_id               translated_items.app_id%TYPE,
+        in_lang_id              VARCHAR2,
+        in_limit                NUMBER                          := NULL
+    )
+    AS
+        v_translated            translated_items.value_en%TYPE;    
+    BEGIN
+        app.log_module(in_app_id, in_lang_id);
+        --
+        FOR c IN (
+            SELECT
+                t.app_id,
+                t.message,
+                CASE WHEN t.value_cz IS NULL THEN app_actions.get_live_translation(t.value_en, 'CZ') END AS value_cz,
+                CASE WHEN t.value_sk IS NULL THEN app_actions.get_live_translation(t.value_en, 'SK') END AS value_sk,
+                CASE WHEN t.value_pl IS NULL THEN app_actions.get_live_translation(t.value_en, 'PL') END AS value_pl,
+                CASE WHEN t.value_hu IS NULL THEN app_actions.get_live_translation(t.value_en, 'HU') END AS value_hu
+            FROM translated_messages t
+            WHERE t.app_id          = in_app_id
+                AND t.value_en      IS NOT NULL
+                AND (
+                    (t.value_cz IS NULL AND (in_lang_id = 'CZ' OR in_lang_id IS NULL)) OR
+                    (t.value_sk IS NULL AND (in_lang_id = 'SK' OR in_lang_id IS NULL)) OR
+                    (t.value_pl IS NULL AND (in_lang_id = 'PL' OR in_lang_id IS NULL)) OR
+                    (t.value_hu IS NULL AND (in_lang_id = 'HU' OR in_lang_id IS NULL))
+                )
+                AND ROWNUM          <= NVL(in_limit, 50)
+        ) LOOP
+            UPDATE translated_messages t
+            SET t.value_cz          = NVL(c.value_cz, t.value_cz),
+                t.value_sk          = NVL(c.value_sk, t.value_sk),
+                t.value_pl          = NVL(c.value_pl, t.value_pl),
+                t.value_hu          = NVL(c.value_hu, t.value_hu)
+            WHERE t.app_id          = c.app_id
+                AND t.message       = c.message;
+        END LOOP;
+        --
+        app.log_success();
+    EXCEPTION
+    WHEN app.app_exception THEN
+        RAISE;
+    WHEN OTHERS THEN
+        app.raise_error();
+    END;
+
+
+
     PROCEDURE save_users (
         in_action                       CHAR,
         out_user_id             IN OUT  users_overview.out_user_id%TYPE,

@@ -166,7 +166,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
     --
-    -- Auto translate empty values
+    -- Auto translate empty item values
     --
     PROCEDURE auto_translate (
         in_app_id               translated_items.app_id%TYPE,
@@ -175,6 +175,17 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_limit                NUMBER                          := NULL
     );
 
+
+
+
+    --
+    -- Auto translate empty messages
+    --
+    PROCEDURE auto_translate_messages (
+        in_app_id               translated_items.app_id%TYPE,
+        in_lang_id              VARCHAR2,
+        in_limit                NUMBER                          := NULL
+    );
 
 
 
