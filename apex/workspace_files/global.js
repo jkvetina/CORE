@@ -153,14 +153,24 @@ var apex_page_loaded = function() {
                         async       : true,
                         dataType    : 'json',
                         success     : function(data) {
-                            if (data.message && data.status == 'SUCCESS') {
-                                apex.message.showPageSuccess(data.message);
+                            if (data.message) {
+                                if (data.status == 'SUCCESS') {
+                                    apex.message.showPageSuccess(data.message);
+                                }
+                                else if (data.status == 'WARNING' || data.status == 'ERROR') {
+                                    apex.message.showErrors([{
+                                        type:       apex.message.TYPE.ERROR,
+                                        location:   ['page'],
+                                        message:    data.message,
+                                        unsafe:     false
+                                    }]);
+                                }
                             }
                         }
                     }
                 );
                 loop(i);
-            }, 10000);  // 10sec forever
+            }, 6000);  // 6sec forever
         })();
     }
 };

@@ -238,6 +238,17 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         );
         --
         app.log_success(TO_CHAR(in_log_id));
+    EXCEPTION
+    WHEN OTHERS THEN
+        app_actions.send_message (
+            in_app_id       => in_app_id,
+            in_user_id      => in_user_id,
+            in_message      => app.get_translated_message('MVW_FAILED', in_app_id, in_lang_id),
+            in_type         => 'WARNING'
+        );
+        COMMIT;
+        --
+        app.raise_error();
     END;
 
 
@@ -1848,8 +1859,6 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         -- APEX_APPLICATION.G_X01, APEX_APPLICATION.G_X02, APEX_APPLICATION.G_X03
         --
-        APEX_JSON.WRITE('status',   'SUCCESS');
-        --
         FOR c IN (
             SELECT m.*
             FROM user_messages m
@@ -1861,7 +1870,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             FETCH FIRST 1 ROWS ONLY
         ) LOOP
             APEX_JSON.WRITE('message',  c.message_payload);
-            APEX_JSON.WRITE('type',     c.message_type);
+            APEX_JSON.WRITE('status',   NVL(c.message_type, 'SUCCESS'));
             --
             UPDATE user_messages m
             SET m.delivered_at          = SYSDATE

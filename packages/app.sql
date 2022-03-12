@@ -348,7 +348,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         RETURN COALESCE(out_value, out_default, in_name);
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RETURN NULL;
+        RETURN in_name;
     END;
 
 
