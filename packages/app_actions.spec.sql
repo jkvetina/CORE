@@ -103,7 +103,8 @@ CREATE OR REPLACE PACKAGE app_actions AS
     PROCEDURE refresh_nav_views (
         in_log_id           logs.log_id%TYPE,
         in_user_id          logs.user_id%TYPE,
-        in_app_id           logs.app_id%TYPE
+        in_app_id           logs.app_id%TYPE,
+        in_lang_id          users.lang_id%TYPE
     );
     --
     PROCEDURE refresh_nav_views;
@@ -177,7 +178,6 @@ CREATE OR REPLACE PACKAGE app_actions AS
 
 
 
-
     --
     -- Auto translate empty messages
     --
@@ -186,6 +186,7 @@ CREATE OR REPLACE PACKAGE app_actions AS
         in_lang_id              VARCHAR2,
         in_limit                NUMBER                          := NULL
     );
+
 
 
 

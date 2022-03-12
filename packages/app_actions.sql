@@ -223,7 +223,8 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     PROCEDURE refresh_nav_views (
         in_log_id           logs.log_id%TYPE,
         in_user_id          logs.user_id%TYPE,
-        in_app_id           logs.app_id%TYPE
+        in_app_id           logs.app_id%TYPE,
+        in_lang_id          users.lang_id%TYPE
     )
     AS
     BEGIN
@@ -233,8 +234,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         app_actions.send_message (
             in_app_id       => in_app_id,
             in_user_id      => in_user_id,
-            in_message      => 'Materialized views refreshed'
-            
+            in_message      => app.get_translated_message('MVW_REFRESHED', in_app_id, in_lang_id)
         );
         --
         app.log_success(TO_CHAR(in_log_id));
@@ -251,7 +251,12 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         app.create_job (
             in_job_name     => 'RECALC_MVW_NAV',
-            in_statement    => 'app_actions.refresh_nav_views(' || v_log_id || ', ''' || app.get_user_id() || ''', ' || app.get_app_id() || ');'
+            in_statement    => 'app_actions.refresh_nav_views('
+                || v_log_id || ', '''
+                || app.get_user_id() || ''', '
+                || app.get_app_id() || ', '''
+                || app.get_user_lang() || ''''
+                || ');'
         );
     EXCEPTION
     WHEN app.app_exception THEN
