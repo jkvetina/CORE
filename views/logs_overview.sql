@@ -15,7 +15,7 @@ WITH x AS (
 p AS (
     SELECT /*+ MATERIALIZE */
         p.page_id,
-        NULLIF(p.page_group || ' - ', ' - ') || p.page_title AS page_title
+        NULLIF(p.page_group || ' - ', ' - ') || p.page_alias AS page_title
     FROM apex_application_pages p
     JOIN x
         ON x.app_id     = p.application_id
@@ -35,7 +35,6 @@ SELECT
     l.payload,
     l.session_id,
     l.created_at,
-    --
     p.page_title
 FROM logs l
 JOIN x
@@ -46,7 +45,7 @@ JOIN x
     AND l.flag          = NVL(x.flag, l.flag)
     AND l.page_id       = NVL(x.page_id, l.page_id)
     AND l.user_id       = NVL(x.user_id, l.user_id)
-    AND l.session_id    = NVL(x.session_id, l.session_id)
+    AND (l.session_id   = NVL(x.session_id, l.session_id)   OR (l.session_id  IS NULL AND x.session_id  IS NULL))
     AND (l.module_name  = NVL(x.module_name, l.module_name) OR (l.module_name IS NULL AND x.module_name IS NULL))
     AND (l.action_name  = NVL(x.action_name, l.action_name) OR (l.action_name IS NULL AND x.action_name IS NULL))
 LEFT JOIN p
