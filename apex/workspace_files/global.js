@@ -38,6 +38,15 @@ var wait_for_element = function(search, start, fn, disconnect) {
 //
 var apex_page_loaded = function() {
     //
+    // COPY TEXT FROM GRID, WELL COPY EVERYTHING JUST A TEXT
+    //
+    document.addEventListener('copy', (event) => {
+        //console.log('ORIGINAL:', document.getSelection());
+        event.clipboardData.setData('text/plain', $(document.activeElement)[0].innerText || window.getSelection());
+        event.preventDefault();
+    });
+
+    //
     // SHOW NOTIFICATIONS
     //
     var item_success        = 'P0_MESSAGE_SUCCESS';
