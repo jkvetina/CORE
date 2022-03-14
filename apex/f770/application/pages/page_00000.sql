@@ -49,6 +49,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
@@ -61,6 +62,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_sequence=>20
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
@@ -741,6 +743,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_grid_row_css_classes=>'HIDDEN'
 ,p_plug_display_point=>'REGION_POSITION_05'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
