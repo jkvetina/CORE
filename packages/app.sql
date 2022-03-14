@@ -4044,13 +4044,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 t.view_name AS name,
                 app.get_long_string('ALL_VIEWS', 'TEXT', 'VIEW_NAME', t.view_name, in_owner => t.owner) || ';' AS text
             FROM all_views t
-            JOIN (
-                SELECT DISTINCT
-                    a.owner
-                FROM apex_applications a
-            ) a
-                ON a.owner = t.owner
-            WHERE t.owner = NVL(in_owner, t.owner)
+            JOIN lov_app_schemas s
+                ON s.owner      = t.owner
+            WHERE t.owner       = NVL(in_owner, t.owner)
         ) LOOP
             INSERT INTO obj_views_source (owner, name, line, text)
             SELECT
