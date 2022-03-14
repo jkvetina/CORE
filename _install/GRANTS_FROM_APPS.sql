@@ -6,6 +6,9 @@ CREATE SYNONYM app_actions  FOR core.app_actions;
 CREATE SYNONYM gen          FOR core.gen;
 CREATE SYNONYM recompile    FOR core.recompile;
 CREATE SYNONYM nav_top      FOR core.nav_top;
+--
+CREATE SYNONYM sett         FOR core.s200;
+CREATE SYNONYM s200         FOR core.s200;
 
 
 
@@ -26,20 +29,20 @@ BEGIN
     ) LOOP
         IF t.object_type IN ('TABLE', 'VIEW') THEN
             EXECUTE IMMEDIATE
-                'GRANT SELECT, UPDATE, INSERT, DELETE ON ' || in_owner || '.' || t.object_name || ' TO ' || in_user;
+                APEX_STRING.FORMAT('GRANT SELECT, UPDATE, INSERT, DELETE ON %s.%s TO %s', in_owner, t.object_name, in_user);
             --
         ELSIF t.object_type IN ('PROCEDURE', 'FUNCTION', 'PACKAGE') THEN
             EXECUTE IMMEDIATE
-                'GRANT EXECUTE ON ' || in_owner || '.' || t.object_name || ' TO ' || in_user;
+                APEX_STRING.FORMAT('GRANT EXECUTE ON %s.%s TO %s', in_owner, t.object_name, in_user);
             --
         ELSIF t.object_type IN ('SEQUENCE') THEN
             EXECUTE IMMEDIATE
-                'GRANT SELECT ON ' || in_owner || '.' || t.object_name || ' TO ' || in_user;
+                APEX_STRING.FORMAT('GRANT SELECT ON %s.%s TO %s', in_owner, t.object_name, in_user);
         END IF;
         --
         IF t.object_type = 'PACKAGE' THEN
             EXECUTE IMMEDIATE
-                'GRANT DEBUG ON ' || in_owner || '.' || t.object_name || ' TO ' || in_user;
+                APEX_STRING.FORMAT('GRANT DEBUG ON %s.%s TO %s', in_owner, t.object_name, in_user);
         END IF;
     END LOOP;
 END;
