@@ -1866,6 +1866,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 AND m.user_id           = app.get_user_id()
                 AND (m.session_id       = app.get_session_id() OR m.session_id IS NULL)
                 AND m.delivered_at      IS NULL
+                AND m.message_type      != 'CHAT'
             ORDER BY m.created_at DESC
             FETCH FIRST 1 ROWS ONLY
         ) LOOP
