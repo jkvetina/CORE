@@ -1902,13 +1902,17 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     BEGIN
         v_log_id := app.log_module();
         --
+        IF LTRIM(RTRIM(in_message)) IS NULL THEN
+            RETURN;
+        END IF;
+        --
         INSERT INTO user_messages (app_id, user_id, message_id, message_type, message_payload, session_id, created_at, created_by)
         VALUES (
             COALESCE(in_app_id, app.get_app_id()),
             in_user_id,
             COALESCE(in_message_id, log_id.NEXTVAL),
             COALESCE(in_type, 'SUCCESS'),
-            in_message,
+            LTRIM(RTRIM(in_message)),
             in_session_id,
             SYSDATE,
             app.get_user_id()
