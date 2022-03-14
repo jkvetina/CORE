@@ -304,7 +304,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         --
         rec.app_id              := COALESCE(in_app_id, app.get_app_id());
         rec.page_id             := in_page_id;
-        rec.parent_id           := in_parent_id;
+        rec.parent_id           := NULLIF(in_parent_id, 0);
         rec.order#              := in_order#;
         rec.is_hidden           := in_is_hidden;
         rec.is_reset            := in_is_reset;
