@@ -38,7 +38,7 @@ FROM user_messages m
 JOIN x
     ON x.app_id         = m.app_id
     AND x.user_id       = m.user_id
-    --AND x.session_id    = m.session_id
+    AND x.session_id    = m.session_id
 WHERE m.message_type    = 'CHAT'
 ORDER BY m.created_at DESC
 FETCH FIRST 20 ROWS ONLY;

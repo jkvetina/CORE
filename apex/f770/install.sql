@@ -152,6 +152,7 @@ prompt --install
 @@application/pages/page_00995.sql
 @@application/pages/page_00996.sql
 @@application/pages/page_00997.sql
+@@application/pages/page_00998.sql
 @@application/pages/page_09999.sql
 @@application/deployment/definition.sql
 @@application/deployment/install/install_install_tables.sql
