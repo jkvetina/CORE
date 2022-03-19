@@ -100,36 +100,34 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_page_id              navigation.page_id%TYPE         := NULL
     )
     AS
+        in_app_id               CONSTANT navigation.app_id%TYPE := app.get_app_id();
     BEGIN
         app.log_module(in_page_id);
 
-        -- remove references
+        -- remove pages and references, related rows
         FOR c IN (
+            SELECT in_app_id AS app_id, p.page_id
+            FROM nav_pages_to_remove p
+            WHERE p.page_id         = NVL(in_page_id, p.page_id)
+            UNION
             SELECT n.app_id, n.page_id
             FROM navigation n
-            JOIN nav_pages_to_remove p
-                ON p.page_id        = n.parent_id
-                AND n.page_id       = NVL(in_page_id, n.page_id)
-            WHERE n.app_id          = app.get_app_id()
+            WHERE n.app_id          = in_app_id
+                AND n.page_id       = in_page_id
         ) LOOP
-            app.log_debug('REMOVING_PARENT', c.page_id);
+            app.log_debug('DELETING', c.app_id, c.page_id);
             --
             UPDATE navigation n
             SET n.parent_id         = NULL
             WHERE n.app_id          = c.app_id
-                AND n.page_id       = c.page_id;
-        END LOOP;
-
-        -- remove rows for pages which dont exists
-        FOR c IN (
-            SELECT p.page_id
-            FROM nav_pages_to_remove p
-            WHERE p.page_id         = NVL(in_page_id, p.page_id)
-        ) LOOP
-            app.log_debug('DELETING', c.page_id);
+                AND n.parent_id     = c.page_id;
+            --
+            DELETE FROM translated_items t
+            WHERE t.app_id          = c.app_id
+                AND t.page_id       = c.page_id;
             --
             DELETE FROM navigation n
-            WHERE n.app_id          = app.get_app_id()
+            WHERE n.app_id          = c.app_id
                 AND n.page_id       = c.page_id;
         END LOOP;
         --
@@ -408,8 +406,9 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 in_value    => COALESCE(c.item_value, CASE WHEN app.is_developer_y() = 'Y' THEN '{' || c.item_name || '}' END),
                 in_raise    => FALSE
             );
+            --
             IF app.is_debug_on() THEN
-                app.log_debug('SET_TRANSLATION', c.item_name, c.item_value);
+                app.log_debug('SET_ITEM', c.item_name, c.item_value);
             END IF;
         END LOOP;
         
@@ -424,7 +423,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
             NULL;
         END;
         --
-        app.set_item('G_FOOTER', v_footer);
+        app.set_item('G_FOOTER', v_footer, in_raise => FALSE);
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;
@@ -1901,7 +1900,14 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
     AS
         v_log_id            logs.log_id%TYPE;
     BEGIN
-        v_log_id := app.log_module();
+        v_log_id := app.log_module_json (
+            'app_id',       in_app_id,
+            'user_id',      in_user_id,
+            'session_id',   in_session_id,
+            'message',      in_message,
+            'message_id',   in_message_id,
+            'type',         in_type
+        );
         --
         IF LTRIM(RTRIM(in_message)) IS NULL THEN
             RETURN;
@@ -1910,11 +1916,11 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         INSERT INTO user_messages (app_id, user_id, message_id, message_type, message_payload, session_id, created_at, created_by)
         VALUES (
             COALESCE(in_app_id, app.get_app_id()),
-            in_user_id,
+            COALESCE(in_user_id, app.get_user_id()),
             COALESCE(in_message_id, log_id.NEXTVAL),
             COALESCE(in_type, 'SUCCESS'),
             LTRIM(RTRIM(in_message)),
-            in_session_id,
+            COALESCE(in_session_id, app.get_session_id()),
             SYSDATE,
             app.get_user_id()
         );
