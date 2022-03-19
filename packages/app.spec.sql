@@ -1234,6 +1234,27 @@ CREATE OR REPLACE PACKAGE app AS
         in_session_id           logs.session_id%TYPE        := NULL
     )
     RETURN logs.log_id%TYPE;
+    --
+
+    PROCEDURE log___ (
+        in_rec              logs%ROWTYPE
+    );
+    --
+    PROCEDURE log___ (
+        in_log_id                   logs.log_id%TYPE            := NULL,
+        in_log_parent               logs.log_parent%TYPE        := NULL,
+        in_app_id                   logs.app_id%TYPE            := NULL,
+        in_page_id                  logs.page_id%TYPE           := NULL,
+        in_user_id                  logs.user_id%TYPE           := NULL,
+        in_flag                     logs.flag%TYPE              := NULL,
+        in_action_name              logs.action_name%TYPE       := NULL,
+        in_module_name              logs.module_name%TYPE       := NULL,
+        in_module_line              logs.module_line%TYPE       := NULL,
+        in_module_timer             logs.module_timer%TYPE      := NULL,
+        in_arguments                logs.arguments%TYPE         := NULL,
+        in_payload                  logs.payload%TYPE           := NULL,
+        in_session_id               logs.session_id%TYPE        := NULL
+    );
 
 
 

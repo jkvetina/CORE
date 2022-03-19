@@ -2786,7 +2786,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
             rec.action_name := 'FATAL_ERROR';
             rec.payload     := DBMS_UTILITY.FORMAT_ERROR_STACK || CHR(10) || DBMS_UTILITY.FORMAT_CALL_STACK;
             --
-            INSERT INTO logs VALUES rec;
+            log___(rec);
+            --
             COMMIT;
         EXCEPTION
         WHEN OTHERS THEN
@@ -2800,6 +2801,67 @@ CREATE OR REPLACE PACKAGE BODY app AS
         DBMS_OUTPUT.PUT_LINE('-- ^');
         --
         RAISE_APPLICATION_ERROR(app.app_exception_code, 'LOG_FAILED', TRUE);
+    END;
+
+
+
+    PROCEDURE log___ (
+        in_rec              logs%ROWTYPE
+    )
+    AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+    BEGIN
+        INSERT INTO logs VALUES in_rec;
+        COMMIT;
+    EXCEPTION
+    WHEN OTHERS THEN
+        COMMIT;
+        RAISE;
+    END;
+
+
+
+    PROCEDURE log___ (
+        in_log_id                   logs.log_id%TYPE            := NULL,
+        in_log_parent               logs.log_parent%TYPE        := NULL,
+        in_app_id                   logs.app_id%TYPE            := NULL,
+        in_page_id                  logs.page_id%TYPE           := NULL,
+        in_user_id                  logs.user_id%TYPE           := NULL,
+        in_flag                     logs.flag%TYPE              := NULL,
+        in_action_name              logs.action_name%TYPE       := NULL,
+        in_module_name              logs.module_name%TYPE       := NULL,
+        in_module_line              logs.module_line%TYPE       := NULL,
+        in_module_timer             logs.module_timer%TYPE      := NULL,
+        in_arguments                logs.arguments%TYPE         := NULL,
+        in_payload                  logs.payload%TYPE           := NULL,
+        in_session_id               logs.session_id%TYPE        := NULL
+    )
+    AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+        --
+        rec                         logs%ROWTYPE;
+    BEGIN
+        rec.log_id                  := COALESCE(in_log_id, log_id.NEXTVAL);
+        rec.log_parent              := in_log_parent;
+        rec.app_id                  := COALESCE(in_app_id, app.get_app_id());
+        rec.page_id                 := in_page_id;
+        rec.user_id                 := COALESCE(in_user_id, app.get_user_id());
+        rec.flag                    := in_flag;
+        rec.action_name             := in_action_name;
+        rec.module_name             := in_module_name;
+        rec.module_line             := in_module_line;
+        rec.module_timer            := in_module_timer;
+        rec.arguments               := in_arguments;
+        rec.payload                 := in_payload;
+        rec.session_id              := COALESCE(in_session_id, app.get_session_id());
+        rec.created_at              := SYSDATE;
+        --
+        INSERT INTO logs VALUES rec;
+        COMMIT;
+    EXCEPTION
+    WHEN OTHERS THEN
+        COMMIT;
+        RAISE;
     END;
 
 
