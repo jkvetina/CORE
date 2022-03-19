@@ -2714,6 +2714,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
             RETURN NULL;    -- skip blacklisted record only if there is no error and debug mode off
         END IF;
 
+        -- dont log some things
+        IF rec.flag = app.flag_error AND in_payload LIKE 'Your session has ended%' THEN
+            RETURN NULL;
+        END IF;
+
         -- retrieve parent log from map
         IF in_parent_id IS NULL AND rec.flag != app.flag_request THEN
             callstack_hash := app.get_hash(app.get_call_stack (
