@@ -2875,20 +2875,17 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
         v_blacklisted          CHAR;
     BEGIN
-        SELECT 'Y' INTO V_blacklisted
+        SELECT MAX('Y') INTO v_blacklisted
         FROM logs_blacklist t
         WHERE (t.app_id         = app.get_app_id()      OR t.app_id         IS NULL)
             AND (t.user_id      = app.get_user_id()     OR t.user_id        IS NULL)
             AND (t.page_id      = app.get_page_id()     OR t.page_id        IS NULL)
             AND (t.flag         = in_flag               OR t.flag           IS NULL)
             --
-            AND (in_module_name LIKE t.module_like ESCAPE '\' OR t.module_like  IS NULL)
-            AND (in_action_name LIKE t.action_like ESCAPE '\' OR t.action_like  IS NULL OR in_action_name IS NULL);
+            AND (in_module_name LIKE NVL(t.module_like, '%') ESCAPE '\' OR t.module_like IS NULL)
+            AND (in_action_name LIKE NVL(t.action_like, '%') ESCAPE '\' OR t.action_like IS NULL);
         --
-        RETURN TRUE;
-    EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN FALSE;
+        RETURN (v_blacklisted = 'Y');
     END;
 
 
