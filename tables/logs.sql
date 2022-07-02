@@ -17,8 +17,8 @@ CREATE TABLE logs (
     user_id             VARCHAR2(30),
     flag                CHAR(1)         CONSTRAINT nn_logs_flag         NOT NULL,
     --
-    action_name         VARCHAR2(32),
-    module_name         VARCHAR2(48),                                               -- 48 chars, DBMS_APPLICATION_INFO limit
+    action_name         VARCHAR2(64),
+    module_name         VARCHAR2(64),                                               -- 48 chars, DBMS_APPLICATION_INFO limit
     module_line         NUMBER(8),
     module_timer        VARCHAR2(12),   -- 00:00:00.000 - INTERVAL DAY(1) TO SECOND(3),
     arguments           VARCHAR2(2000),

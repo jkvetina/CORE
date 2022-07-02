@@ -58,8 +58,8 @@ CREATE OR REPLACE PACKAGE app AS
 
     -- specify maximum length for trim
     length_user                 CONSTANT PLS_INTEGER            := 30;      -- logs.user_id%TYPE
-    length_action               CONSTANT PLS_INTEGER            := 32;      -- logs.action_name%TYPE
-    length_module               CONSTANT PLS_INTEGER            := 48;      -- logs.module_name%TYPE
+    length_action               CONSTANT PLS_INTEGER            := 64;      -- logs.action_name%TYPE, v_$session.action
+    length_module               CONSTANT PLS_INTEGER            := 64;      -- logs.module_name%TYPE
     length_arguments            CONSTANT PLS_INTEGER            := 2000;    -- logs.arguments%TYPE
     length_payload              CONSTANT PLS_INTEGER            := 4000;    -- logs.payload%TYPE
 
