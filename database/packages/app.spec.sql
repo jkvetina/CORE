@@ -1329,6 +1329,15 @@ CREATE OR REPLACE PACKAGE app AS
 
 
     --
+    -- Refresh all materialized views
+    --
+    PROCEDURE refresh_mviews (
+        in_name_like            VARCHAR2 := NULL
+    );
+
+
+
+    --
     -- Returns procedure name which called this function with possible offset
     --
     FUNCTION get_caller_name (
