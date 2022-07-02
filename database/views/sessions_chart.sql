@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW sessions_chart AS
+CREATE OR REPLACE FORCE VIEW sessions_chart AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()                        AS app_id,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW obj_indexes_missing AS
+CREATE OR REPLACE FORCE VIEW obj_indexes_missing AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_owner()                 AS owner,

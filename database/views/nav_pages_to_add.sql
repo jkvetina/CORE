@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW nav_pages_to_add AS
+CREATE OR REPLACE FORCE VIEW nav_pages_to_add AS
 WITH g AS (
     SELECT
         p.page_group,

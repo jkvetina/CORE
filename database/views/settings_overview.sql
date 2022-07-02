@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW settings_overview AS
+CREATE OR REPLACE FORCE VIEW settings_overview AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_owner(app.get_app_id()) AS owner,

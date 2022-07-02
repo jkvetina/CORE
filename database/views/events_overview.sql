@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW events_overview AS
+CREATE OR REPLACE FORCE VIEW events_overview AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()                        AS app_id,

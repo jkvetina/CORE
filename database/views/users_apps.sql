@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW users_apps AS
+CREATE OR REPLACE FORCE VIEW users_apps AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()            AS app_id,

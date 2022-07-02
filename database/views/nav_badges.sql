@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW nav_badges AS
+CREATE OR REPLACE FORCE VIEW nav_badges AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()            AS app_id,

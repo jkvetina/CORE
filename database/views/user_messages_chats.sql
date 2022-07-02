@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW user_messages_chats AS
+CREATE OR REPLACE FORCE VIEW user_messages_chats AS
 SELECT
     m.app_id,
     m.user_id,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW roles_overview AS
+CREATE OR REPLACE FORCE VIEW roles_overview AS
 SELECT
     r.app_id            AS out_app_id,
     r.role_id           AS out_role_id,

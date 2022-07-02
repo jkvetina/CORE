@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW user_messages_chat AS
+CREATE OR REPLACE FORCE VIEW user_messages_chat AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()        AS app_id,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW obj_tables_ref_pages AS
+CREATE OR REPLACE FORCE VIEW obj_tables_ref_pages AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_owner()                 AS owner,

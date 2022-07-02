@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW grants_objects AS
+CREATE OR REPLACE FORCE VIEW grants_objects AS
 SELECT
     r.privilege,
     r.role,

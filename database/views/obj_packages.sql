@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW obj_packages AS
+CREATE OR REPLACE FORCE VIEW obj_packages AS
 SELECT
     t.package_name,
     --

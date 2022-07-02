@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW lov_app_schemas AS
+CREATE OR REPLACE FORCE VIEW lov_app_schemas AS
 SELECT
     a.owner,
     a.owner AS owner_

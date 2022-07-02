@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW translations_slipped AS
+CREATE OR REPLACE FORCE VIEW translations_slipped AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()            AS app_id,

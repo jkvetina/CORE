@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW obj_packages_settings AS
+CREATE OR REPLACE FORCE VIEW obj_packages_settings AS
 WITH s AS (
     SELECT
         s.name          AS object_name,

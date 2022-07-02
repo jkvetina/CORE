@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW nav_regions AS
+CREATE OR REPLACE FORCE VIEW nav_regions AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()                    AS app_id,

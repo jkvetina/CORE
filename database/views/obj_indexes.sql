@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW obj_indexes AS
+CREATE OR REPLACE FORCE VIEW obj_indexes AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_owner()                 AS owner,

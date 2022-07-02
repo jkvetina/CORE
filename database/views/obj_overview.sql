@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW obj_overview AS
+CREATE OR REPLACE FORCE VIEW obj_overview AS
 SELECT
     INITCAP(o.object_type)  AS object_type,
     COUNT(*)                AS count_objects,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW roles_cards AS
+CREATE OR REPLACE FORCE VIEW roles_cards AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_app_id()        AS app_id,

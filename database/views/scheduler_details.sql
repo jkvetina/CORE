@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW scheduler_details AS
+CREATE OR REPLACE FORCE VIEW scheduler_details AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_owner()                 AS owner,

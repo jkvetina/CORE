@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW obj_constraints AS
+CREATE OR REPLACE FORCE VIEW obj_constraints AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_owner()                 AS owner,

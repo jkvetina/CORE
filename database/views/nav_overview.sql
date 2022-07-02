@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW nav_overview AS
+CREATE OR REPLACE FORCE VIEW nav_overview AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
         app.get_page_id()           AS page_id,

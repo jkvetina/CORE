@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW roles_auth_schemes AS
+CREATE OR REPLACE FORCE VIEW roles_auth_schemes AS
 SELECT
     a.application_id                        AS app_id,
     MAX(r.role_id)                          AS role_id,
