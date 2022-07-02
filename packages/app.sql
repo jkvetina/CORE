@@ -578,7 +578,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.user_id := app.get_user_id();       -- update needed
         --
         IF app.get_item('G_CURR_OWNER') IS NULL THEN
-            app.set_item('G_CURR_OWNER', app.get_owner(app.get_app_id()));
+            app.set_item('G_CURR_OWNER', app.get_owner(app.get_app_id()), in_raise => FALSE);
         END IF;
 
         --
