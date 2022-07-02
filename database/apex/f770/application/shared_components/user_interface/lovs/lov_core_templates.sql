@@ -3,16 +3,16 @@ begin
 --   Manifest
 --     LOV_CORE_TEMPLATES
 --   Manifest End
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
+wwv_flow_imp.component_begin (
+ p_version_yyyy_mm_dd=>'2022.04.12'
+,p_release=>'22.1.1'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
 ,p_default_owner=>'CORE'
 );
-wwv_flow_api.create_list_of_values(
- p_id=>wwv_flow_api.id(23870250359957521)
+wwv_flow_imp_shared.create_list_of_values(
+ p_id=>wwv_flow_imp.id(23870250359957521)
 ,p_lov_name=>'LOV_CORE_TEMPLATES'
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
@@ -34,27 +34,27 @@ wwv_flow_api.create_list_of_values(
 ,p_default_sort_column_name=>'TEMPLATE_ID'
 ,p_default_sort_direction=>'ASC'
 );
-wwv_flow_api.create_list_of_values_cols(
- p_id=>wwv_flow_api.id(23871257953996289)
+wwv_flow_imp_shared.create_list_of_values_cols(
+ p_id=>wwv_flow_imp.id(23871257953996289)
 ,p_query_column_name=>'TEMPLATE_GROUP'
 ,p_heading=>'Template Group'
 ,p_display_sequence=>10
 ,p_data_type=>'VARCHAR2'
 );
-wwv_flow_api.create_list_of_values_cols(
- p_id=>wwv_flow_api.id(23871694446996293)
+wwv_flow_imp_shared.create_list_of_values_cols(
+ p_id=>wwv_flow_imp.id(23871694446996293)
 ,p_query_column_name=>'TEMPLATE_ID'
 ,p_heading=>'Template Id'
 ,p_display_sequence=>20
 ,p_data_type=>'VARCHAR2'
 );
-wwv_flow_api.create_list_of_values_cols(
- p_id=>wwv_flow_api.id(23871940773996293)
+wwv_flow_imp_shared.create_list_of_values_cols(
+ p_id=>wwv_flow_imp.id(23871940773996293)
 ,p_query_column_name=>'DESCRIPTION_'
 ,p_heading=>'Description '
 ,p_display_sequence=>30
 ,p_data_type=>'VARCHAR2'
 );
-wwv_flow_api.component_end;
+wwv_flow_imp.component_end;
 end;
 /

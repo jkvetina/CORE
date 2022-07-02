@@ -25,6 +25,7 @@ prompt --install
 @@application/shared_components/logic/application_items/g_tomorrow.sql
 @@application/shared_components/logic/application_items/g_version.sql
 @@application/shared_components/logic/application_items/g_yesterday.sql
+@@application/shared_components/logic/application_computations/g_version.sql
 @@application/shared_components/logic/application_settings.sql
 @@application/shared_components/navigation/tabs/standard.sql
 @@application/shared_components/navigation/tabs/parent.sql
@@ -113,7 +114,6 @@ prompt --install
 @@application/shared_components/user_interface/themes.sql
 @@application/shared_components/user_interface/theme_style.sql
 @@application/shared_components/user_interface/theme_files.sql
-@@application/shared_components/user_interface/theme_display_points.sql
 @@application/shared_components/user_interface/template_opt_groups.sql
 @@application/shared_components/user_interface/template_options.sql
 @@application/shared_components/globalization/language.sql
@@ -149,17 +149,12 @@ prompt --install
 @@application/pages/page_00969.sql
 @@application/pages/page_00970.sql
 @@application/pages/page_00990.sql
+@@application/pages/page_00991.sql
 @@application/pages/page_00995.sql
 @@application/pages/page_00996.sql
 @@application/pages/page_00997.sql
-@@application/pages/page_00998.sql
 @@application/pages/page_09999.sql
 @@application/deployment/definition.sql
-@@application/deployment/install/install_install_tables.sql
-@@application/deployment/install/install_install_views.sql
-@@application/deployment/install/install_install_sequences.sql
-@@application/deployment/install/install_install_packages.sql
-@@application/deployment/install/install_install_data.sql
 @@application/deployment/checks.sql
 @@application/deployment/buildoptions.sql
 @@application/end_environment.sql

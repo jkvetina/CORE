@@ -3,16 +3,16 @@ begin
 --   Manifest
 --     LOV_CORE_SCHEDULES
 --   Manifest End
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
+wwv_flow_imp.component_begin (
+ p_version_yyyy_mm_dd=>'2022.04.12'
+,p_release=>'22.1.1'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
 ,p_default_owner=>'CORE'
 );
-wwv_flow_api.create_list_of_values(
- p_id=>wwv_flow_api.id(24119159536460151)
+wwv_flow_imp_shared.create_list_of_values(
+ p_id=>wwv_flow_imp.id(24119159536460151)
 ,p_lov_name=>'LOV_CORE_SCHEDULES'
 ,p_source_type=>'TABLE'
 ,p_location=>'LOCAL'
@@ -26,27 +26,27 @@ wwv_flow_api.create_list_of_values(
 ,p_default_sort_column_name=>'SCHEDULE_ID'
 ,p_default_sort_direction=>'ASC'
 );
-wwv_flow_api.create_list_of_values_cols(
- p_id=>wwv_flow_api.id(24119589931466015)
+wwv_flow_imp_shared.create_list_of_values_cols(
+ p_id=>wwv_flow_imp.id(24119589931466015)
 ,p_query_column_name=>'SCHEDULE_ID'
 ,p_heading=>'Schedule Id'
 ,p_display_sequence=>10
 ,p_data_type=>'VARCHAR2'
 );
-wwv_flow_api.create_list_of_values_cols(
- p_id=>wwv_flow_api.id(24119958623466017)
+wwv_flow_imp_shared.create_list_of_values_cols(
+ p_id=>wwv_flow_imp.id(24119958623466017)
 ,p_query_column_name=>'SCHEDULE_GROUP'
 ,p_heading=>'Schedule Group'
 ,p_display_sequence=>20
 ,p_data_type=>'VARCHAR2'
 );
-wwv_flow_api.create_list_of_values_cols(
- p_id=>wwv_flow_api.id(24120349566466017)
+wwv_flow_imp_shared.create_list_of_values_cols(
+ p_id=>wwv_flow_imp.id(24120349566466017)
 ,p_query_column_name=>'DESCRIPTION_'
 ,p_heading=>'Description '
 ,p_display_sequence=>30
 ,p_data_type=>'VARCHAR2'
 );
-wwv_flow_api.component_end;
+wwv_flow_imp.component_end;
 end;
 /

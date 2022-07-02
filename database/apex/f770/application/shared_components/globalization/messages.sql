@@ -3,40 +3,40 @@ begin
 --   Manifest
 --     MESSAGES: 770
 --   Manifest End
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
+wwv_flow_imp.component_begin (
+ p_version_yyyy_mm_dd=>'2022.04.12'
+,p_release=>'22.1.1'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
 ,p_default_owner=>'CORE'
 );
 null;
-wwv_flow_api.component_end;
+wwv_flow_imp.component_end;
 end;
 /
 begin
-wwv_flow_api.component_begin (
- p_version_yyyy_mm_dd=>'2021.04.15'
-,p_release=>'21.1.7'
+wwv_flow_imp.component_begin (
+ p_version_yyyy_mm_dd=>'2022.04.12'
+,p_release=>'22.1.1'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
 ,p_default_owner=>'CORE'
 );
-wwv_flow_api.create_message(
- p_id=>wwv_flow_api.id(25002332653328923)
+wwv_flow_imp_shared.create_message(
+ p_id=>wwv_flow_imp.id(25002332653328923)
 ,p_name=>'APEX.IG.CHANGES_SAVED'
 ,p_message_language=>'cs'
 ,p_message_text=>unistr('Ulo\017Eeno [CZ]')
 ,p_is_js_message=>true
 );
-wwv_flow_api.create_message(
- p_id=>wwv_flow_api.id(26178820728351588)
+wwv_flow_imp_shared.create_message(
+ p_id=>wwv_flow_imp.id(26178820728351588)
 ,p_name=>'APEX.IG.CHANGES_SAVED'
 ,p_message_text=>'Saved [EN]'
 ,p_is_js_message=>true
 );
-wwv_flow_api.component_end;
+wwv_flow_imp.component_end;
 end;
 /
