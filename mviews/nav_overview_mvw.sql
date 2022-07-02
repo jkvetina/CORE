@@ -109,19 +109,11 @@ SELECT
     --
     t.comments,
     --
-    'UD' AS allow_changes,  -- U = update, D = delete
-    --
     t.page_root || '.' || TO_CHAR(10000 + t.r#) || '.' || NVL(t.order#, t.page_id) || '.' || n.page_id AS sort_order
 FROM navigation n
 JOIN apps a
     ON a.app_id             = n.app_id
 LEFT JOIN t
     ON t.app_id             = n.app_id
-    AND t.page_id           = n.page_id
-WHERE (n.app_id, n.page_id) NOT IN (
-    SELECT
-        app.get_core_app_id()   AS app_id,
-        947                     AS page_id
-    FROM DUAL
-);
+    AND t.page_id           = n.page_id;
 

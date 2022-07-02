@@ -11,39 +11,40 @@ SELECT
     n.page_id,
     n.parent_id,
     n.order#,
-    n.page_group,
-    n.page_alias,
+    m.page_group,
+    m.page_alias,
     --
-    CASE WHEN n.depth IS NOT NULL
-        THEN REPLACE(LTRIM(RPAD('-', n.depth * 4), '-'), ' ', '&' || 'nbsp; ') ||
+    CASE WHEN m.depth IS NOT NULL
+        THEN REPLACE(LTRIM(RPAD('-', m.depth * 4), '-'), ' ', '&' || 'nbsp; ') ||
             app.get_page_name (
-                in_app_id       => n.app_id,
-                in_page_id      => n.page_id,
-                in_name         => n.page_name
+                in_app_id       => m.app_id,
+                in_page_id      => m.page_id,
+                in_name         => m.page_name
             )
         END AS page_name,
     --
     app.get_page_title (
-        in_app_id       => n.app_id,
-        in_page_id      => n.page_id,
-        in_title        => n.page_title
+        in_app_id       => m.app_id,
+        in_page_id      => m.page_id,
+        in_title        => m.page_title
     ) AS page_title,
     --
-    n.css_class,
-    n.page_template,
+    m.css_class,
+    m.page_template,
     n.is_hidden,
     n.is_reset,
     n.is_shared,
-    n.is_modal,
-    n.is_javascript,
-    n.javascript,
-    n.auth_scheme,
+    m.is_modal,
+    m.is_javascript,
+    m.javascript,
+    m.auth_scheme,
     --
-    CASE WHEN r.page_id IS NULL THEN n.page_url END AS page_url,
+    CASE WHEN r.page_id IS NULL THEN m.page_url END AS page_url,
     --
-    n.comments,
-    n.allow_changes,
-    n.sort_order,
+    m.comments,
+    m.sort_order,
+    --
+    'UD' AS allow_changes,  -- U = update, D = delete
     --
     CASE
         WHEN r.page_id IS NOT NULL
@@ -54,24 +55,33 @@ SELECT
         in_page_id          => 910,
         in_app_id           => x.core_app_id,
         in_names            => 'P' || TO_CHAR(910) || '_REMOVE_PAGE',
-        in_values           => TO_CHAR(n.page_id)
+        in_values           => TO_CHAR(m.page_id)
     ) AS action_url
-FROM nav_overview_mvw n
+FROM navigation n
 CROSS JOIN x
+LEFT JOIN nav_overview_mvw m
+    ON m.app_id             = n.app_id
+    AND m.page_id           = n.page_id
 LEFT JOIN nav_pages_to_remove r
     ON r.page_id            = n.page_id
 WHERE (
-    n.app_id                = x.app_id
-    OR (
-        n.is_shared         = 'Y'
-        AND n.page_id       NOT IN (
-            -- pages from active apps takes priority
-            SELECT n.page_id
-            FROM navigation n
-            WHERE n.app_id      = x.app_id
+        n.app_id            = x.app_id
+        OR (
+            n.is_shared     = 'Y'
+            AND n.page_id   NOT IN (
+                -- pages from active apps takes priority
+                SELECT n.page_id
+                FROM navigation n
+                WHERE n.app_id      = x.app_id
+            )
         )
     )
-)
+    AND (n.app_id, n.page_id) NOT IN (
+        SELECT
+            x.core_app_id   AS app_id,
+            947             AS page_id
+        FROM x
+    )
 --
 UNION ALL
 SELECT
