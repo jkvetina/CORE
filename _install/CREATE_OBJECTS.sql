@@ -2,95 +2,137 @@
 --
 -- TABLES
 --
-@../tables/apps.sql
-@../tables/users.sql
-@../tables/roles.sql
-@../tables/user_roles.sql
+@../database/tables/apps.sql
+@../database/tables/users.sql
+@../database/tables/roles.sql
+@../database/tables/user_roles.sql
 --
-@../tables/events.sql
-@../tables/log_events.sql
-@../tables/logs.sql
-@../tables/logs_blacklist.sql
+@../database/tables/events.sql
+@../database/tables/log_events.sql
+@../database/tables/logs.sql
+@../database/tables/logs_blacklist.sql
 --
-@../tables/navigation.sql
-@../tables/sessions.sql
+@../database/tables/navigation.sql
+@../database/tables/sessions.sql
 --
-@../tables/settings.sql
-@../tables/setting_contexts.sql
-@../tables/user_source_views.sql
+@../database/tables/settings.sql
+@../database/tables/setting_contexts.sql
+@../database/tables/obj_views_source.sql
+--
+@../database/tables/mail_schedules.sql
+@../database/tables/mail_templates.sql
+@../database/tables/mail_subscriptions.sql
+@../database/tables/mail_queue.sql
+--
+@../database/tables/user_messages.sql
+@../database/tables/translated_items.sql
+@../database/tables/translated_messages.sql
 
 --
 -- SEQUENCES
 --
-@../sequences/log_id.sql
+@../database/sequences/log_id.sql
+@../database/sequences/queue_id.sql
 
 --
 -- PACKAGES
 --
-@../packages/app.spec.sql
-@../packages/app_actions.spec.sql
-@../packages/a770.spec.sql
+@../database/packages/app.spec.sql
+@../database/packages/a770.spec.sql
 
 --
--- VIEWS
+-- VIEWS - IGNORE ERRORS
 --
-@../views/roles_overview.sql
-@../views/roles_auth_schemes.sql
-@../views/roles_cards.sql
+@../database/views/dashboard_overview.sql
+@../database/views/events_chart.sql
+@../database/views/events_overview.sql
+@../database/views/grants_objects.sql
+@../database/views/grants_privileges.sql
+@../database/views/logs_overview.sql
+@../database/views/logs_tree.sql
+@../database/views/lov_app_schemas.sql
+@../database/views/nav_badges.sql
+@../database/views/nav_overview.sql
+@../database/views/nav_pages_to_add.sql
+@../database/views/nav_pages_to_remove.sql
+@../database/views/nav_regions.sql
+@../database/views/nav_top.sql
+@../database/views/obj_arguments.sql
+@../database/views/obj_columns.sql
+@../database/views/obj_constraints_fix_dt1.sql
+@../database/views/obj_constraints_fix_dt2.sql
+@../database/views/obj_constraints.sql
+@../database/views/obj_indexes_missing.sql
+@../database/views/obj_indexes.sql
+@../database/views/obj_modules.sql
+@../database/views/obj_overview.sql
+@../database/views/obj_packages_settings.sql
+@../database/views/obj_packages.sql
+@../database/views/obj_partitions.sql
+@../database/views/obj_sequences.sql
+@../database/views/obj_tables_ref_down.sql
+@../database/views/obj_tables_ref_objects.sql
+@../database/views/obj_tables_ref_pages.sql
+@../database/views/obj_tables_ref_up.sql
+@../database/views/obj_tables.sql
+@../database/views/obj_triggers.sql
+@../database/views/obj_view_columns.sql
+@../database/views/obj_views.sql
+@../database/views/roles_auth_schemes.sql
+@../database/views/roles_cards.sql
+@../database/views/roles_overview.sql
+@../database/views/scheduler_details.sql
+@../database/views/scheduler_planned.sql
+@../database/views/scheduler_running.sql
+@../database/views/sessions_chart.sql
+@../database/views/sessions_overview.sql
+@../database/views/sessions_pages.sql
+@../database/views/settings_overview.sql
+@../database/views/translated_items_overview.sql
+@../database/views/translated_messages_overview.sql
+@../database/views/translations_current.sql
+@../database/views/translations_extracts.sql
+@../database/views/translations_new.sql
+@../database/views/translations_slipped.sql
+@../database/views/translations_unused.sql
+@../database/views/user_messages_chat.sql
+@../database/views/user_messages_chats.sql
+@../database/views/users_apps.sql
+@../database/views/users_overview.sql
+
 --
-@../views/users_overview.sql
-@../views/users_apps.sql
+-- PACKAGES
 --
-@../views/sessions_overview.sql
-@../views/sessions_chart.sql
+@../database/packages/app_actions.spec.sql
+
 --
-@../views/settings_overview.sql
+-- MVIEWS
 --
-@../views/dashboard_overview.sql
-@../views/logs_overview.sql
-@../views/logs_tree.sql
---
-@../views/nav_pages_to_add.sql
-@../views/nav_pages_to_remove.sql
-@../views/nav_overview.sql
-@../views/nav_badges.sql
-@../views/nav_top.sql
-@../views/nav_regions.sql
---
-@../views/events_chart.sql
---
-@../views/grants_objects.sql
-@../views/grants_privileges.sql
---
-@../views/scheduler_details.sql
-@../views/scheduler_planned.sql
-@../views/scheduler_running.sql
+@../database/mviews/nav_availability_mvw.sql
+@../database/mviews/nav_overview_mvw.sql
+@../database/mviews/obj_modules_mvw.sql
 
 --
 -- PROCEDURES
 --
-@../procedures/recompile.sql
---@../procedures/process_dml_errors.sql
+@../database/procedures/recompile.sql
+--@../database/procedures/process_dml_errors.sql
 
 --
 -- PACKAGES
 --
-@../packages/app.sql
-@../packages/app_actions.sql
-@../packages/a770.sql
+@../database/packages/app.sql
+@../database/packages/app_actions.sql
+@../database/packages/a770.sql
 
 --
 -- TRIGGERS
 --
-@../triggers/apps__.sql
-@../triggers/events__.sql
-@../triggers/logs_blacklist__.sql
-@../triggers/navigation__.sql
-@../triggers/roles__.sql
-@../triggers/setting_contexts__.sql
-@../triggers/settings__.sql
-@../triggers/user_roles__.sql
-@../triggers/users__.sql
+@../database/triggers/events__.sql
+@../database/triggers/mail_subscriptions__.sql
+@../database/triggers/setting_contexts__.sql
+@../database/triggers/settings__.sql
+@../database/triggers/users__.sql
 
 --
 --
@@ -100,14 +142,15 @@ EXEC recompile;
 --
 -- JOBS
 --
-@../jobs/purge_old_logs.sql
+@../database/jobs/core_purge_logs.sql
+@../database/jobs/core_sync_logs.sql
 
 
 
 --
 -- SEED DATA
 --
-INSERT INTO apps (app_id, app_name, is_active, updated_by, updated_at)
+INSERT INTO apps (app_id, description_, is_visible, updated_by, updated_at)
 VALUES (
     770,
     'CORE',
