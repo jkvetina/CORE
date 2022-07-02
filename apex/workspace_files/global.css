@@ -105,6 +105,11 @@ div.a-Toolbar-group [data-action="edit"] {
     display:                none !important;
 }
 
+/* HIDE REPORT RESET BUTTON */
+div.a-Toolbar-group [data-action="reset-report"] {
+    display:                none !important;
+}
+
 /* HOT BUTTON IN A GRIDD - SAVE BUTTON */
 button.a-Button.a-Toolbar-item.js-actionButton.a-Button--hot.is-active {
     background:             #518D54;
