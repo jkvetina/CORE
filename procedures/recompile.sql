@@ -59,7 +59,7 @@ BEGIN
             SELECT o.object_name, o.object_type
             FROM user_objects o
             WHERE o.status              != 'VALID'
-                AND o.object_type       NOT IN ('SEQUENCE', 'MATERIALIZED VIEW')
+                AND o.object_type       NOT IN ('SEQUENCE')
                 AND o.object_name       != $$PLSQL_UNIT         -- not this procedure
             UNION ALL
             SELECT o.object_name, o.object_type
@@ -141,7 +141,6 @@ BEGIN
     SELECT COUNT(*) INTO v_invalids
     FROM user_objects o
     WHERE o.status          != 'VALID'
-        AND o.object_type   != 'MATERIALIZED VIEW'
         AND o.object_name   != $$PLSQL_UNIT;        -- not this procedure
     --
     DBMS_OUTPUT.PUT_LINE(' -> ' || v_invalids);
@@ -155,7 +154,6 @@ BEGIN
                 SELECT DISTINCT o.object_type, o.object_name
                 FROM user_objects o
                 WHERE o.status      != 'VALID'
-                AND o.object_type   != 'MATERIALIZED VIEW'
                 ORDER BY o.object_type, o.object_name
             )
             GROUP BY object_type
