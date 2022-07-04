@@ -1,7 +1,7 @@
---DROP MATERIALIZED VIEW obj_modules_mvw;
+-- DROP MATERIALIZED VIEW obj_modules_mvw;
 CREATE MATERIALIZED VIEW obj_modules_mvw
 BUILD DEFERRED
-REFRESH ON DEMAND COMPLETE
+REFRESH COMPLETE ON DEMAND
 AS
 WITH i AS (
     -- find modules and start lines in spec and body
