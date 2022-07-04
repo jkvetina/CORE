@@ -411,7 +411,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                 app.log_debug('SET_ITEM', c.item_name, c.item_value);
             END IF;
         END LOOP;
-        
+
         -- show page comment in footer
         BEGIN
             SELECT p.page_comment INTO v_footer
@@ -650,7 +650,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_limit                NUMBER                          := NULL
     )
     AS
-        v_translated            translated_items.value_en%TYPE;    
+        v_translated            translated_items.value_en%TYPE;
     BEGIN
         app.log_module(in_app_id, in_page_id, in_lang_id);
         --
@@ -701,7 +701,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         in_limit                NUMBER                          := NULL
     )
     AS
-        v_translated            translated_items.value_en%TYPE;    
+        v_translated            translated_items.value_en%TYPE;
     BEGIN
         app.log_module(in_app_id, in_lang_id);
         --
@@ -1303,7 +1303,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
         rec.setting_group       := in_c002;
         rec.updated_by          := app.get_user_id();
         rec.updated_at          := SYSDATE;
-    
+
         -- cleanup setting
         DELETE FROM settings s
         WHERE s.app_id              = rec.app_id
@@ -1619,7 +1619,7 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
                     'ALTER TABLE ' || in_table_name ||
                     ' MODIFY ' || in_column_name_old || ' NOT NULL';
             END IF;
-            
+
             -- update column comments
             IF NVL(c.comments, '^!^') != NVL(in_comments, '^!^') THEN
                 app.log_result('UPDATING COMMENTS');
@@ -1935,3 +1935,4 @@ CREATE OR REPLACE PACKAGE BODY app_actions AS
 
 END;
 /
+

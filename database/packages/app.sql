@@ -1155,7 +1155,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             p_request            IN VARCHAR2 DEFAULT NULL,
             p_debug              IN VARCHAR2 DEFAULT NULL,
             p_printer_friendly   IN VARCHAR2 DEFAULT NULL,
-            p_trace              IN VARCHAR2 DEFAULT NULL,       
+            p_trace              IN VARCHAR2 DEFAULT NULL,
             p_triggering_element IN VARCHAR2 DEFAULT 'this',
             p_plain_url          IN BOOLEAN DEFAULT FALSE
             */
@@ -3885,7 +3885,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                             in_operation    => rec.operation
                         )
                     );
-            
+
                     -- remove from DML ERR table
                     IF dml_log_id IS NOT NULL THEN
                         EXECUTE IMMEDIATE
@@ -4366,3 +4366,4 @@ BEGIN
     app.init_map();
 END;
 /
+
