@@ -1,9 +1,9 @@
 CREATE OR REPLACE FORCE VIEW user_messages_chat AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_app_id()        AS app_id,
-        app.get_user_id()       AS user_id,
-        app.get_session_id()    AS session_id
+        COALESCE(app.get_number_item('$APP_ID'),        app.get_app_id())       AS app_id,
+        COALESCE(app.get_item('$USER_ID'),              app.get_user_id())      AS user_id,
+        COALESCE(app.get_number_item('$SESSION_ID'),    app.get_session_id())   AS session_id
     FROM DUAL
 )
 SELECT
