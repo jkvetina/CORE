@@ -1,0 +1,8 @@
+"app_id";"setting_name";"setting_value";"setting_context";"setting_group";"is_numeric";"is_date";"is_private";"description_"
+770;"SMTP_FROM";"Jan Květina <jan.kvetina@gmail.com>";"";"CORE";"";"";"Y";"Sender address"
+770;"SMTP_HOST";"smtp.email.eu-frankfurt-1.oci.oraclecloud.com";"";"CORE";"";"";"Y";"SMTP server"
+770;"SMTP_PORT";"587";"";"CORE";"Y";"";"Y";""
+770;"SMTP_PWD";"XnS{<BVsqP1:9JLofxLZ";"";"CORE";"";"";"Y";"Cloud account password"
+770;"SMTP_USER";"ocid1.user.oc1..aaaaaaaa4cmjjlmlnp6hw2enittbsypwjgl25wnvtsyzk5ctyrbhs56thm6q@ocid1.tenancy.oc1..aaaaaaaa24nurdo5aezubzfxvyqwvjfgjafm63wdvkrrdpnfup767copwz7a.bw.com";"";"CORE";"";"";"Y";"Cloud account username"
+770;"TEST";"DEF";"";"DEMO";"";"";"";""
+780;"TEST_POLL";"1";"";"";"Y";"";"";""

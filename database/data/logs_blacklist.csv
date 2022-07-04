@@ -1,0 +1,4 @@
+"app_id";"flag";"user_id";"page_id";"module_like";"action_like"
+770;"M";"";"";"APP.PROCESS_DML_ERRORS";""
+770;"P";"";"";"APP.CREATE_SESSION";"PLUGIN=%"
+770;"P";"";"";"APP.CREATE_SESSION";"APPLICATION_PROCESS=AJAX_PING"

@@ -1,0 +1,3 @@
+"app_id";"role_id";"role_name";"role_group";"description_";"is_active";"order#"
+770;"IS_ADMINISTRATOR";"Administrator";"";"";"Y";1
+780;"IS_TESTER";"";"";"";"Y";""

@@ -1,0 +1,3 @@
+"app_id";"schedule_id";"schedule_group";"description_";"schedule_month";"schedule_day";"schedule_weekday";"schedule_hour";"schedule_minute";"schedule_interval"
+770;"T2";"";"";"";"";"MON,TUE, FRI";"";"0";""
+770;"TEST";"";"AA";"";"";"MON-FRI";"8-12, 13-17";"";"5"

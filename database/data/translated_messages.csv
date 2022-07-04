@@ -1,0 +1,6 @@
+"app_id";"message";"value_en";"value_cz";"value_sk";"value_pl";"value_hu"
+770;"CONSTRAINT_ERROR|CH_MAIL_SCHEDULES_MIN_OR_INT";"Minute or interval missing";"Chybí minuty nebo interval";"Chýba minúta alebo interval";"Brak minuty lub przedziału czasowego";"Perc vagy intervallum hiányzik"
+770;"ERROR_NO_DATA_FOUND";"No data found";"Nebyly nalezeny žádná data";"Nenašli sa žiadne údaje";"Nie znaleziono danych";"Nem találtak adatot"
+770;"GRID_NO_ROWS_FOUND";"No rows found";"Nebyly nalezeny žádné řádky";"Nenašli sa žiadne riadky";"Nie znaleziono wierszy";"Nem találtunk sorokat"
+770;"MVW_REFRESHED";"Materialized views refreshed";"MVW aktualizován";"Obnovenie materializovaných zobrazení";"Odświeżanie widoków zmaterializowanych";"Materializált nézetek frissítése"
+770;"MVW_SCHEDULED";"Refreshing MVW on background";"Aktualizace MVW na pozadí";"Obnovenie MVW na pozadí";"Odświeżanie MVW w tle";"MVW frissítése a háttérben"
