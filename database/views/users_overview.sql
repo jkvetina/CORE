@@ -95,3 +95,4 @@ WHERE u.user_id = NVL(x.filter_user_id, u.user_id)
     );
 --
 COMMENT ON TABLE users_overview IS '[CORE - DASHBOARD] Users';
+

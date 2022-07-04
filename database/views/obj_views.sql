@@ -140,4 +140,6 @@ LEFT JOIN all_tab_comments c
 --
 WHERE (c.is_found_column = 'Y'  OR x.search_columns IS NULL)
     AND (s.is_found_text = 'Y'  OR x.search_source IS NULL);
+--
+COMMENT ON TABLE obj_views IS '';
 

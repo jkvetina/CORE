@@ -17,5 +17,5 @@ FROM translated_messages t
 JOIN x
     ON x.app_id             = t.app_id;
 --
-COMMENT ON TABLE  translated_messages_overview      IS '[CORE - DASHBOARD] Translate messages/notifications';
+COMMENT ON TABLE translated_messages_overview IS '[CORE - DASHBOARD] Translate messages/notifications';
 

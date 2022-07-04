@@ -39,4 +39,6 @@ LEFT JOIN apex_application_page_items p
     AND p.item_name         = t.item_name
 WHERE a.item_name           IS NULL
     AND p.item_name         IS NULL;
+--
+COMMENT ON TABLE translations_slipped IS '';
 

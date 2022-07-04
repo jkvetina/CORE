@@ -84,4 +84,6 @@ LEFT JOIN all_tab_comments c
 WHERE t.table_name      = NVL(x.table_name, t.table_name)
     AND t.table_name    != app.get_dml_table(t.table_name)
     AND v.mview_name    IS NULL;
+--
+COMMENT ON TABLE obj_triggers IS '';
 

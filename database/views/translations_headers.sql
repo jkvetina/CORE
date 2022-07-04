@@ -39,4 +39,6 @@ WHERE r.page_id             > 0
     AND NVL(r.static_id, p.static_id) IS NOT NULL
     AND r.region_name         NOT LIKE '%&' || REPLACE(x.region_name, '#', r.page_id) || COALESCE(r.static_id, p.static_id, ' ?') || '.%'
     AND r.region_name         NOT LIKE '&%.';
+--
+COMMENT ON TABLE translations_headers IS '';
 

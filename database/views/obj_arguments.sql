@@ -37,4 +37,6 @@ JOIN x
     --
     AND (a.package_name     LIKE x.search_packages || '%' ESCAPE '\' OR x.search_packages IS NULL)
     AND (a.object_name      LIKE x.search_modules  || '%' ESCAPE '\' OR x.search_modules  IS NULL);
+--
+COMMENT ON TABLE obj_arguments IS '';
 

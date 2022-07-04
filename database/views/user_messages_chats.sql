@@ -15,4 +15,6 @@ SELECT
 FROM user_messages m
 WHERE m.message_type    = 'CHAT'
 GROUP BY m.app_id, m.user_id, m.session_id;
+--
+COMMENT ON TABLE user_messages_chats IS '';
 

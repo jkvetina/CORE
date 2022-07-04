@@ -57,4 +57,6 @@ JOIN t
     AND t.item_name     = i.item_name
 WHERE i.page_id         != t.page_id  --= 0
     AND i.item_name     NOT IN ('PAGE_NAME');
+--
+COMMENT ON TABLE translations_new IS '';
 

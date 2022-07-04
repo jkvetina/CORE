@@ -61,4 +61,6 @@ WHERE b.data_type           != s.data_type
         x.table_name        IN (b.table_name, s.table_name)
         OR x.table_name     IS NULL
     );
+--
+COMMENT ON TABLE obj_constraints_fix_dt1 IS '';
 

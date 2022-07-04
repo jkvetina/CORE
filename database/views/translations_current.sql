@@ -14,4 +14,6 @@ FROM translated_items t
 JOIN x
     ON x.app_id                 = t.app_id
     AND (x.page_id              = t.page_id OR t.page_id = 0);
+--
+COMMENT ON TABLE translations_current IS '';
 

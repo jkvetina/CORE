@@ -169,4 +169,6 @@ WHERE t.table_name              = NVL(x.table_name, t.table_name)
     AND (c.is_found_column      = 'Y'  OR x.search_columns      IS NULL)
     AND (c.is_found_data_type   = 'Y'  OR x.search_data_type    IS NULL)
     AND (c.is_found_size        = 'Y'  OR x.search_size         IS NULL);
+--
+COMMENT ON TABLE obj_tables IS '';
 

@@ -39,4 +39,6 @@ WHERE r.query_type_code     = 'TABLE'
                 AND d.referenced_type               = 'TABLE'
         )
     );
+--
+COMMENT ON TABLE obj_tables_ref_pages IS '';
 

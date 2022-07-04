@@ -54,4 +54,6 @@ SELECT
 FROM p
 JOIN r
     ON r.partition_name = p.partition_name;
+--
+COMMENT ON TABLE obj_partitions IS '';
 

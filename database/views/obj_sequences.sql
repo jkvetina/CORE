@@ -51,4 +51,6 @@ JOIN x
     ON x.owner                  = s.sequence_owner
 LEFT JOIN m
     ON m.sequence_name          = s.sequence_name;
+--
+COMMENT ON TABLE obj_sequences IS '';
 

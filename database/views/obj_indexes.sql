@@ -43,4 +43,6 @@ JOIN c
     AND c.table_name        = i.table_name
     AND c.index_name        = i.index_name
 WHERE i.generated           = 'N';
+--
+COMMENT ON TABLE obj_indexes IS '';
 

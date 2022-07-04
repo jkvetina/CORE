@@ -153,4 +153,6 @@ FROM (
     WHERE c.page_id             NOT IN (0, 9999, 947)
     GROUP BY x.chart_item_like, c.page_id, c.series_name
 ) t;
+--
+COMMENT ON TABLE translations_extracts IS '';
 

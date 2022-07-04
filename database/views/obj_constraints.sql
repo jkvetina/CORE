@@ -95,4 +95,6 @@ FROM c
 LEFT JOIN p
     ON p.table_name         = c.table_name
     AND p.constraint_name   = c.constraint_name;
+--
+COMMENT ON TABLE obj_constraints IS '';
 

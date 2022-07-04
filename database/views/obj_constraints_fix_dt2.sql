@@ -91,4 +91,6 @@ JOIN s
     ON s.column_name        = r.column_name
     AND s.data_type         != r.data_type
 GROUP BY x.table_name, r.column_name, r.data_type, s.data_type;
+--
+COMMENT ON TABLE obj_constraints_fix_dt2 IS '';
 

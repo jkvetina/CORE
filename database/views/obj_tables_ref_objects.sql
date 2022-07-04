@@ -16,4 +16,6 @@ JOIN x
     ON x.owner          = d.referenced_owner
     AND x.table_name    = d.referenced_name
 GROUP BY d.name;
+--
+COMMENT ON TABLE obj_tables_ref_objects IS '';
 

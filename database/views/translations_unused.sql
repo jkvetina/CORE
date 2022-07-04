@@ -19,4 +19,6 @@ LEFT JOIN translations_extracts d
 WHERE t.app_id          = x.app_id
     AND t.page_id       = NVL(x.page_id, t.page_id)
     AND d.item_name     IS NULL;
+--
+COMMENT ON TABLE translations_unused IS '';
 

@@ -99,12 +99,12 @@ WHERE (
         )
     );
 --
-COMMENT ON TABLE obj_modules                    IS 'Find package modules (procedures and functions) and their boundaries (start-end lines)';
+COMMENT ON TABLE obj_modules IS 'Find package modules (procedures and functions) and their boundaries (start-end lines)';
 --
 COMMENT ON COLUMN obj_modules.package_name      IS 'Package name';
 COMMENT ON COLUMN obj_modules.module_name       IS 'Module name';
-COMMENT ON COLUMN obj_modules.group_name        IS 'Group name to have similar modules grouped together';
 COMMENT ON COLUMN obj_modules.overload          IS 'Overload ID';
+COMMENT ON COLUMN obj_modules.group_name        IS 'Group name to have similar modules grouped together';
 COMMENT ON COLUMN obj_modules.is_function       IS 'Module type (function)';
 COMMENT ON COLUMN obj_modules.is_private        IS 'Flag for private procedures';
 COMMENT ON COLUMN obj_modules.is_autonomous     IS 'Contains autonomous transaction';

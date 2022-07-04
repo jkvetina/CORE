@@ -42,4 +42,6 @@ JOIN x
 WHERE m.message_type    = 'CHAT'
 ORDER BY m.created_at DESC
 FETCH FIRST 20 ROWS ONLY;
+--
+COMMENT ON TABLE user_messages_chat IS '';
 

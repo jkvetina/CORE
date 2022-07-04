@@ -8,4 +8,6 @@ FROM all_objects o
 WHERE o.owner               = app.get_owner()
     AND o.object_type       NOT IN ('PACKAGE BODY', 'TABLE PARTITION')
 GROUP BY o.object_type;
+--
+COMMENT ON TABLE obj_overview IS '';
 

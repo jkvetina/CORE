@@ -46,4 +46,6 @@ LEFT JOIN (
     ON i.table_name     = f.table_name
     AND i.cols          LIKE f.cols || '%'
 WHERE i.index_name      IS NULL;
+--
+COMMENT ON TABLE obj_indexes_missing IS '';
 

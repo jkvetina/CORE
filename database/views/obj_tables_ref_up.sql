@@ -40,4 +40,6 @@ SELECT
 FROM t
 CONNECT BY NOCYCLE PRIOR t.referenced_table = t.table_name
 START WITH t.table_name = (SELECT x.table_name FROM x);
+--
+COMMENT ON TABLE obj_tables_ref_up IS '';
 

@@ -32,5 +32,5 @@ LEFT JOIN apex_application_items a
     ON a.application_id     = t.app_id
     AND a.item_name         = t.item_name;
 --
-COMMENT ON TABLE  translated_items_overview     IS '[CORE - DASHBOARD] Use page/app items to translate application';
+COMMENT ON TABLE translated_items_overview IS '[CORE - DASHBOARD] Use page/app items to translate application';
 
