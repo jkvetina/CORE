@@ -45,7 +45,7 @@ wwv_flow_imp_page.create_page(
 ,p_dialog_width=>'800'
 ,p_page_component_map=>'03'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220317120819'
+,p_last_upd_yyyymmddhh24miss=>'20220101000000'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(32967553013841150)

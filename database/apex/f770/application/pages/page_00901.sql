@@ -23,8 +23,8 @@ wwv_flow_imp_page.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_imp.id(9556407311505078)
 ,p_page_component_map=>'21'
-,p_last_updated_by=>'jan.kvetina@gmail.com'
-,p_last_upd_yyyymmddhh24miss=>'20220319173825'
+,p_last_updated_by=>'DEV'
+,p_last_upd_yyyymmddhh24miss=>'20220101000000'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(9262174270429022)

@@ -20,8 +20,8 @@ wwv_flow_imp_page.create_page(
 ,p_group_id=>wwv_flow_imp.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_page_component_map=>'17'
-,p_last_updated_by=>'ORDS_PLSQL_GATEWAY'
-,p_last_upd_yyyymmddhh24miss=>'20220624061845'
+,p_last_updated_by=>'DEV'
+,p_last_upd_yyyymmddhh24miss=>'20220101000000'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(11844173440445732)

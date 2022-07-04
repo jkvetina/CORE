@@ -25,7 +25,7 @@ wwv_flow_imp_page.create_page(
 ,p_page_comment=>'UNDER CONSTRUCTION'
 ,p_page_component_map=>'11'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220306091035'
+,p_last_upd_yyyymmddhh24miss=>'20220101000000'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(9264190925429042)

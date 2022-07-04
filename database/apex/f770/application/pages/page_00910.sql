@@ -24,7 +24,7 @@ wwv_flow_imp_page.create_page(
 ,p_page_comment=>'Navigation setup page'
 ,p_page_component_map=>'21'
 ,p_last_updated_by=>'DEV'
-,p_last_upd_yyyymmddhh24miss=>'20220317085007'
+,p_last_upd_yyyymmddhh24miss=>'20220101000000'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(24141119524306145)
