@@ -1,3 +1,5 @@
-CREATE INDEX "CORE"."FK_USERS_ROLES_ROLE_ID" ON "CORE"."USER_ROLES" ("APP_ID", "ROLE_ID")
-  TABLESPACE "DATA"
-/
+CREATE INDEX fk_users_roles_role_id
+    ON user_roles (app_id, role_id)
+    COMPUTE STATISTICS
+    TABLESPACE "DATA";
+

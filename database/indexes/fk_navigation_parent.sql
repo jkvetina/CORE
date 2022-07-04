@@ -1,3 +1,5 @@
-CREATE INDEX "CORE"."FK_NAVIGATION_PARENT" ON "CORE"."NAVIGATION" ("APP_ID", "PARENT_ID")
-  TABLESPACE "DATA"
-/
+CREATE INDEX fk_navigation_parent
+    ON navigation (app_id, parent_id)
+    COMPUTE STATISTICS
+    TABLESPACE "DATA";
+
