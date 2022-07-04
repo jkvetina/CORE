@@ -40,4 +40,3 @@ FROM t
 CONNECT BY NOCYCLE t.referenced_table = PRIOR t.table_name
 START WITH t.referenced_table = (SELECT x.table_name FROM x);
 
-

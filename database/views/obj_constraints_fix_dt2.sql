@@ -20,7 +20,7 @@ s AS (
                 DECODE(a.char_used, 'C', a.char_length || ' CHAR', a.data_length) || ')'
                 --
             ELSE a.data_type
-        END AS data_type        
+        END AS data_type
     FROM all_tab_columns a
     JOIN x
         ON x.owner              = a.owner
@@ -79,7 +79,7 @@ SELECT
                 THEN NULL
                 --
             WHEN x.table_name IS NOT NULL
-                THEN 'fa-check-square' 
+                THEN 'fa-check-square'
             END
         ) AS action_fix,
     --

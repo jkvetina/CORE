@@ -22,7 +22,7 @@ WITH s AS (
     WHERE s.owner       = app.get_owner()
         AND s.type      LIKE 'PACKAGE%'
 )
-SELECT 
+SELECT
     CASE
         WHEN s.is_interpreted           = 'Y'
             AND s.plsql_optimize_level  <= 2
@@ -47,7 +47,7 @@ SELECT
     s.plsql_ccflags
 FROM s
 MINUS
-SELECT 
+SELECT
     CASE
         WHEN s.is_interpreted           = 'Y'
             AND s.plsql_optimize_level  <= 2

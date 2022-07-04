@@ -68,5 +68,5 @@ LEFT JOIN all_col_comments m
 WHERE 1 = 1
     AND (c.is_found_column      = 'Y'  OR x.search_columns      IS NULL)
     --AND (c.is_found_data_type   = 'Y'  OR x.search_data_type    IS NULL)
-    --AND (c.is_found_size        = 'Y'  OR x.search_size         IS NULL)
-;
+    --AND (c.is_found_size        = 'Y'  OR x.search_size         IS NULL);
+

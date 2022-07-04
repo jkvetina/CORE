@@ -1,7 +1,6 @@
 CREATE OR REPLACE FORCE VIEW obj_tables AS
 WITH x AS (
     SELECT /*+ MATERIALIZE */
-        app.get_owner()                             AS owner,
         app.get_item('$TABLE_NAME')                 AS table_name,
         app.get_dml_owner()                         AS dml_owner,
         --
@@ -13,7 +12,7 @@ WITH x AS (
 ),
 c AS (
     -- search for tables, columns, data types, count columns, pass table comment
-    SELECT /*+ MATERIALIZE */
+    SELECT
         c.table_name,
         MAX(m.comments)         AS comments,
         COUNT(*)                AS count_cols,
@@ -21,12 +20,10 @@ c AS (
         MAX(CASE WHEN c.column_name LIKE x.search_columns   || '%' ESCAPE '\'   THEN 'Y' END) AS is_found_column,
         MAX(CASE WHEN c.data_type   LIKE x.search_data_type || '%' ESCAPE '\'   THEN 'Y' END) AS is_found_data_type,
         MAX(CASE WHEN NVL(c.data_precision, c.data_length) = x.search_size      THEN 'Y' END) AS is_found_size
-    FROM all_tab_columns c
-    JOIN x
-        ON x.owner              = c.owner
-    LEFT JOIN all_tab_comments m
-        ON m.owner              = c.owner
-        AND m.table_name        = c.table_name
+    FROM user_tab_columns c
+    LEFT JOIN user_tab_comments m
+        ON m.table_name         = c.table_name
+    CROSS JOIN x
     WHERE c.table_name          = NVL(x.table_name, c.table_name)
         AND (c.table_name       LIKE '%' || x.search_tables || '%' ESCAPE '\' OR x.search_tables IS NULL)
     GROUP BY c.table_name
@@ -38,9 +35,8 @@ n AS (
         NULLIF(SUM(CASE WHEN c.constraint_type = 'P' THEN 1 ELSE 0 END), 0) AS count_pk,
         NULLIF(SUM(CASE WHEN c.constraint_type = 'U' THEN 1 ELSE 0 END), 0) AS count_uq,
         NULLIF(SUM(CASE WHEN c.constraint_type = 'R' THEN 1 ELSE 0 END), 0) AS count_fk
-    FROM all_constraints c
-    JOIN x
-        ON x.owner              = c.owner
+    FROM user_constraints c
+    CROSS JOIN x
     WHERE c.table_name          = NVL(x.table_name, c.table_name)
         AND c.constraint_type   IN ('P', 'U', 'R')
     GROUP BY c.table_name
@@ -50,12 +46,10 @@ i AS (
     SELECT /*+ MATERIALIZE */
         i.table_name,
         COUNT(i.table_name)     AS count_ix
-    FROM all_indexes i
-    JOIN x
-        ON x.owner              = i.owner
-    LEFT JOIN all_constraints c
-        ON c.owner              = i.owner
-        AND c.constraint_name   = i.index_name
+    FROM user_indexes i
+    CROSS JOIN x
+    LEFT JOIN user_constraints c
+        ON c.constraint_name    = i.index_name
     WHERE i.table_name          = NVL(x.table_name, i.table_name)
         AND i.index_type        != 'LOB'
         AND c.constraint_name   IS NULL
@@ -66,9 +60,8 @@ g AS (
     SELECT /*+ MATERIALIZE */
         g.table_name,
         COUNT(g.table_name)     AS count_trg
-    FROM all_triggers g
-    JOIN x
-        ON x.owner              = g.owner
+    FROM user_triggers g
+    CROSS JOIN x
     WHERE g.table_name          = NVL(x.table_name, g.table_name)
     GROUP BY g.table_name
 ),
@@ -77,27 +70,24 @@ p AS (
     SELECT /*+ MATERIALIZE */
         p.table_name,
         COUNT(*) AS partitions
-    FROM all_tab_partitions p
-    JOIN x
-        ON x.owner              = p.table_owner
+    FROM user_tab_partitions p
+    CROSS JOIN x
     WHERE p.table_name          = NVL(x.table_name, p.table_name)
     GROUP BY p.table_name
 ),
 d AS (
     -- dml tables
-    SELECT /*+ MATERIALIZE */
+    SELECT
         t.table_name,
         a.table_name                AS dml_handler,
         NULLIF(COUNT(i.line), 0)    AS count_references
     FROM all_tables a
     JOIN x
         ON x.dml_owner      = a.owner
-    JOIN all_tables t
-        ON a.owner          = t.owner
-        AND a.table_name    = app.get_dml_table(t.table_name)
-    LEFT JOIN all_identifiers i
-        ON i.owner          = a.owner
-        AND i.object_type   = 'PACKAGE BODY'
+    JOIN user_tables t
+        ON a.table_name     = app.get_dml_table(t.table_name)
+    LEFT JOIN user_identifiers i
+        ON i.object_type    = 'PACKAGE BODY'
         AND i.name          = a.table_name
         AND i.type          = 'TABLE'
     GROUP BY t.table_name, a.table_name
@@ -105,9 +95,7 @@ d AS (
 m AS (
     SELECT /*+ MATERIALIZE */
         m.mview_name
-    FROM all_mviews m
-    JOIN x
-        ON x.owner          = m.owner
+    FROM user_mviews m
 )
 --
 SELECT
@@ -161,15 +149,12 @@ SELECT
     t.cache,
     t.result_cache,
     t.buffer_pool
-FROM all_tables t
-JOIN x
-    ON x.owner                  = t.owner
-JOIN all_objects o
-    ON o.owner                  = t.owner
-    AND o.object_name           = t.table_name
+FROM user_tables t
+JOIN user_objects o
+    ON o.object_name            = t.table_name
     AND o.object_type           = 'TABLE'           -- skip views
-JOIN c
-    ON c.table_name             = t.table_name
+CROSS JOIN x
+JOIN c ON c.table_name          = t.table_name
 --
 LEFT JOIN n ON n.table_name     = t.table_name
 LEFT JOIN i ON i.table_name     = t.table_name

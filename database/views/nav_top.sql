@@ -34,7 +34,7 @@ SELECT
         ELSE NVL(n.page_url, '#')
         END AS target,
     --
-    CASE        
+    CASE
         WHEN n.page_id IN (curr.page_id, curr.parent_id, curr.page_root) THEN 'YES'
         END AS is_current_list_entry,
     --

@@ -51,3 +51,4 @@ JOIN x
     ON x.owner                  = s.sequence_owner
 LEFT JOIN m
     ON m.sequence_name          = s.sequence_name;
+

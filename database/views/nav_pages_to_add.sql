@@ -54,7 +54,7 @@ SELECT
                         AND g.page_id       < p.page_id
                         AND g.parent_id     IS NOT NULL
                 )
-    
+
         ),
         CASE WHEN MOD(p.page_id, 100) = 0 THEN p.page_id END
     ) AS order#,
