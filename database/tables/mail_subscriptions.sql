@@ -1,21 +1,21 @@
---DROP TABLE mail_subscriptions PURGE;
 CREATE TABLE mail_subscriptions (
-    app_id              NUMBER(4)       CONSTRAINT nn_mail_subscriptions_app_id         NOT NULL,
-    event_id            VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_event_id       NOT NULL,
-    role_id             VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_role_id        NOT NULL,
-    schedule_id         VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_schedule_id    NOT NULL,
-    template_id         VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_template_id    NOT NULL,
-    eval_function       VARCHAR2(64),   -- to evaluate on each role user if to send or not
+    app_id                          NUMBER(4,0)     CONSTRAINT nn_mail_subscriptions_app_id NOT NULL,
+    event_id                        VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_event_id NOT NULL,
+    role_id                         VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_role_id NOT NULL,
+    schedule_id                     VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_schedule_id NOT NULL,
+    template_id                     VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_template_id NOT NULL,
+    eval_function                   VARCHAR2(64),
+    is_active                       CHAR(1),
+    processed_log_id                NUMBER,
+    processed_at                    DATE,
+    updated_by                      VARCHAR2(30),
+    updated_at                      DATE,
     --
-    is_active           CHAR(1),
-    processed_log_id    NUMBER,
-    processed_at        DATE,
-    --
-    updated_by          VARCHAR2(30),
-    updated_at          DATE,
+    CONSTRAINT ch_mail_subscriptions_is_active
+        CHECK (is_active = 'Y' OR is_active IS NULL),
     --
     CONSTRAINT pk_mail_subscriptions
-        PRIMARY KEY (app_id, event_id, role_id, schedule_id),
+        PRIMARY KEY (app_id, event_id, role_id, schedule_id)
     --
     CONSTRAINT fk_mail_subscriptions_event_id
         FOREIGN KEY (app_id, event_id)
@@ -27,17 +27,10 @@ CREATE TABLE mail_subscriptions (
     --
     CONSTRAINT fk_mail_subscriptions_schedule_id
         FOREIGN KEY (app_id, schedule_id)
-        REFERENCES mail_schedules (app_id, schedule_id),
-    --
-    --CONSTRAINT fk_mail_subscriptions_template_id
-    --    FOREIGN KEY (app_id, template_id)
-    --    REFERENCES mail_templates (app_id, template_id),    -- we dont know the language
-    --
-    CONSTRAINT ch_mail_subscriptions_is_active
-        CHECK (is_active = 'Y' OR is_active IS NULL)
+        REFERENCES mail_schedules (app_id, schedule_id)
 );
 --
-COMMENT ON TABLE  mail_subscriptions                    IS '[CORE] Subscriptions to events based on user roles';
+COMMENT ON TABLE mail_subscriptions IS '[CORE] Subscriptions to events based on user roles';
 --
 COMMENT ON COLUMN mail_subscriptions.app_id             IS 'APEX application ID';
 COMMENT ON COLUMN mail_subscriptions.event_id           IS 'Event id';

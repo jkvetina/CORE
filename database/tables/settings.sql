@@ -1,27 +1,15 @@
---DROP TABLE settings PURGE;
 CREATE TABLE settings (
-    app_id              NUMBER(4)       CONSTRAINT nn_settings_app_id   NOT NULL,
-    setting_name        VARCHAR2(30)    CONSTRAINT nn_settings_id       NOT NULL,
-    --
-    setting_value       VARCHAR2(256),
-    setting_context     VARCHAR2(64),
-    setting_group       VARCHAR2(64),
-    --
-    is_numeric          CHAR(1),
-    is_date             CHAR(1),
-    is_private          CHAR(1),
-    --
-    description_        VARCHAR2(1000),
-    --
-    updated_by          VARCHAR2(30),
-    updated_at          DATE,
-    --
-    CONSTRAINT uq_settings
-        UNIQUE (app_id, setting_name, setting_context),
-    --
-    CONSTRAINT fk_settings_app_id
-        FOREIGN KEY (app_id)
-        REFERENCES apps (app_id),
+    app_id                          NUMBER(4,0)     CONSTRAINT nn_settings_app_id NOT NULL,
+    setting_name                    VARCHAR2(30)    CONSTRAINT nn_settings_id NOT NULL,
+    setting_value                   VARCHAR2(256),
+    setting_context                 VARCHAR2(64),
+    setting_group                   VARCHAR2(64),
+    is_numeric                      CHAR(1),
+    is_date                         CHAR(1),
+    is_private                      CHAR(1),
+    description_                    VARCHAR2(1000),
+    updated_by                      VARCHAR2(30),
+    updated_at                      DATE,
     --
     CONSTRAINT ch_settings_is_active
         CHECK ((is_numeric = 'Y' AND is_date IS NULL) OR is_numeric IS NULL),
@@ -29,12 +17,18 @@ CREATE TABLE settings (
     CONSTRAINT ch_settings_is_date
         CHECK ((is_date = 'Y' AND is_numeric IS NULL) OR is_date IS NULL),
     --
+    CONSTRAINT uq_settings
+        UNIQUE (app_id, setting_name, setting_context)
+    --
     CONSTRAINT ch_settings_is_private
-        CHECK (is_private = 'Y' OR is_private IS NULL)
-)
-STORAGE (BUFFER_POOL KEEP);
+        CHECK (is_private = 'Y' OR is_private IS NULL),
+    --
+    CONSTRAINT fk_settings_app_id
+        FOREIGN KEY (app_id)
+        REFERENCES apps (app_id)
+);
 --
-COMMENT ON TABLE  settings                      IS '[CORE] List of settings shared through whole app';
+COMMENT ON TABLE settings IS '[CORE] List of settings shared through whole app';
 --
 COMMENT ON COLUMN settings.app_id               IS 'Application ID';
 COMMENT ON COLUMN settings.setting_name         IS 'Setting ID';

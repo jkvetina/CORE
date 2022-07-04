@@ -1,18 +1,16 @@
---DROP TABLE user_messages PURGE;
 CREATE TABLE user_messages (
-    app_id              NUMBER(4)       CONSTRAINT nn_user_messages_app_id      NOT NULL,
-    user_id             VARCHAR2(30)    CONSTRAINT nn_user_messages_user_id     NOT NULL,
-    message_id          INTEGER         CONSTRAINT nn_user_messages_message_id  NOT NULL,   -- log_id
-    message_type        VARCHAR2(16),
-    message_payload     VARCHAR2(2000),
-    session_id          INTEGER,
-    --
-    created_by          VARCHAR2(30),
-    created_at          DATE,
-    delivered_at        DATE,
+    app_id                          NUMBER(4,0)     CONSTRAINT nn_user_messages_app_id NOT NULL,
+    user_id                         VARCHAR2(30)    CONSTRAINT nn_user_messages_user_id NOT NULL,
+    message_id                      INTEGER         CONSTRAINT nn_user_messages_message_id NOT NULL,
+    message_type                    VARCHAR2(16),
+    message_payload                 VARCHAR2(2000),
+    session_id                      INTEGER,
+    created_by                      VARCHAR2(30),
+    created_at                      DATE,
+    delivered_at                    DATE,
     --
     CONSTRAINT pk_user_messages
-        PRIMARY KEY (app_id, user_id, message_id),
+        PRIMARY KEY (app_id, user_id, message_id)
     --
     CONSTRAINT fk_user_messages_app_id
         FOREIGN KEY (app_id)
@@ -22,10 +20,9 @@ CREATE TABLE user_messages (
         FOREIGN KEY (user_id)
         REFERENCES users (user_id)
         DEFERRABLE INITIALLY DEFERRED
-)
-STORAGE (BUFFER_POOL KEEP);
+);
 --
-COMMENT ON TABLE  user_messages                     IS '[CORE] Messages for users';
+COMMENT ON TABLE user_messages IS '[CORE] Messages for users';
 --
 COMMENT ON COLUMN user_messages.app_id              IS 'APEX application ID';
 COMMENT ON COLUMN user_messages.user_id             IS 'User ID from USERS table';
