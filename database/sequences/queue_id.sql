@@ -1,6 +1,5 @@
 -- DROP SEQUENCE queue_id;
 CREATE SEQUENCE queue_id
     MINVALUE 1
-    START WITH 10100
     CACHE 100;
 
