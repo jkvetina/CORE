@@ -15,14 +15,15 @@ BEGIN
         job_action          => 'app.sync_logs',
         number_of_arguments => 1,
         start_date          => SYSDATE,
-        repeat_interval     => 'FREQ=MINUTELY;INTERVAL=1',  -- every minute
+        repeat_interval     => 'FREQ=MINUTELY;INTERVAL=1',
         enabled             => FALSE,
+        auto_drop           => TRUE,
         comments            => 'Sync SCHEDULER results and DML errors to LOGS table'
     );
     --
-    DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(in_job_name, argument_position => 1, argument_value => 1/24);
+    DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(in_job_name, argument_position => 1, argument_value => .0416666666666666666666666666666666666667);
     --
-    DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', 5);  -- lower priority
+    DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', 5);
     DBMS_SCHEDULER.ENABLE(in_job_name);
     COMMIT;
     --
@@ -32,4 +33,5 @@ BEGIN
     END IF;
 END;
 /
+
 

@@ -13,13 +13,15 @@ BEGIN
         job_name            => in_job_name,
         job_type            => 'STORED_PROCEDURE',
         job_action          => 'app.refresh_mviews',
+        number_of_arguments => 0,
         start_date          => SYSDATE,
-        repeat_interval     => 'FREQ=DAILY; BYHOUR=0; BYMINUTE=2',  -- 00:02
+        repeat_interval     => 'FREQ=DAILY; BYHOUR=0; BYMINUTE=2',
         enabled             => FALSE,
+        auto_drop           => TRUE,
         comments            => 'Refresh all existing materialized views'
     );
     --
-    DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', 3);  -- normal priority
+    DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', 3);
     DBMS_SCHEDULER.ENABLE(in_job_name);
     COMMIT;
     --
@@ -29,4 +31,5 @@ BEGIN
     END IF;
 END;
 /
+
 

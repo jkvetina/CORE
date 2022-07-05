@@ -13,13 +13,15 @@ BEGIN
         job_name            => in_job_name,
         job_type            => 'STORED_PROCEDURE',
         job_action          => 'app.purge_logs',
+        number_of_arguments => 0,
         start_date          => SYSDATE,
-        repeat_interval     => 'FREQ=DAILY; BYHOUR=2; BYMINUTE=0',  -- 02:00
+        repeat_interval     => 'FREQ=DAILY; BYHOUR=2; BYMINUTE=0',
         enabled             => FALSE,
+        auto_drop           => TRUE,
         comments            => 'Purge old records from LOGS table and related tables'
     );
     --
-    DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', 5);  -- lower priority
+    DBMS_SCHEDULER.SET_ATTRIBUTE(in_job_name, 'JOB_PRIORITY', 5);
     DBMS_SCHEDULER.ENABLE(in_job_name);
     COMMIT;
     --
@@ -29,4 +31,5 @@ BEGIN
     END IF;
 END;
 /
+
 
