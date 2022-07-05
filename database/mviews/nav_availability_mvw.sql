@@ -44,4 +44,5 @@ LEFT JOIN all_arguments a
         )
     )
 GROUP BY p.application_id, p.page_id;
+--
 

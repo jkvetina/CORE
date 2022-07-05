@@ -124,4 +124,5 @@ WHERE (n.app_id, n.page_id) NOT IN (
         947                     AS page_id
     FROM DUAL
 );
+--
 
