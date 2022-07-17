@@ -5,7 +5,7 @@ begin
 --   Manifest End
 wwv_flow_imp.component_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.1'
+,p_release=>'22.1.2'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
@@ -23,7 +23,7 @@ wwv_flow_imp.create_flow(
 ,p_max_session_length_sec=>86400
 ,p_max_session_idle_sec=>14400
 ,p_session_timeout_warning_sec=>600
-,p_compatibility_mode=>'19.2'
+,p_compatibility_mode=>'21.2'
 ,p_flow_language=>'en-gb'
 ,p_flow_language_derived_from=>'SESSION'
 ,p_date_format=>'&FORMAT_DATE.'
@@ -50,7 +50,7 @@ wwv_flow_imp.create_flow(
 ,p_browser_frame=>'D'
 ,p_deep_linking=>'Y'
 ,p_vpd=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'&CORE_SCHEMA..app.create_session();',
+'CORE.app.create_session();',
 ''))
 ,p_vpd_teardown_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '-- some pages cause APP package invalidation',
@@ -58,7 +58,7 @@ wwv_flow_imp.create_flow(
 '    STATE_INVALIDATED EXCEPTION;',
 '    PRAGMA EXCEPTION_INIT(STATE_INVALIDATED, -04061);',
 'BEGIN',
-'    &CORE_SCHEMA..app.exit_session();',
+'    CORE.app.exit_session();',
 'EXCEPTION',
 '--WHEN STATE_INVALIDATED THEN',
 'WHEN OTHERS THEN',
@@ -67,7 +67,7 @@ wwv_flow_imp.create_flow(
 '-- request_id is lost',
 '--',
 '    app.log_warning(''APP_INVALIDATED'');',
-'    &CORE_SCHEMA..app.exit_session();    ',
+'    CORE.app.exit_session();',
 'END;',
 ''))
 ,p_runtime_api_usage=>'T:O:W'

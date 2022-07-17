@@ -45,6 +45,7 @@ prompt --install
 @@application/comments.sql
 @@application/shared_components/navigation/breadcrumbs/breadcrumb.sql
 @@application/shared_components/navigation/breadcrumbentry.sql
+@@application/shared_components/user_interface/templates/page/drawer.sql
 @@application/shared_components/user_interface/templates/page/left_side_column.sql
 @@application/shared_components/user_interface/templates/page/left_and_right_side_columns.sql
 @@application/shared_components/user_interface/templates/page/login.sql
@@ -58,6 +59,8 @@ prompt --install
 @@application/shared_components/user_interface/templates/button/icon.sql
 @@application/shared_components/user_interface/templates/button/text.sql
 @@application/shared_components/user_interface/templates/button/text_with_icon.sql
+@@application/shared_components/user_interface/templates/region/inline_drawer.sql
+@@application/shared_components/user_interface/templates/region/image.sql
 @@application/shared_components/user_interface/templates/region/alert.sql
 @@application/shared_components/user_interface/templates/region/blank_with_attributes.sql
 @@application/shared_components/user_interface/templates/region/blank_with_attributes_no_grid.sql
