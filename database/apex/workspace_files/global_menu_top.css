@@ -161,10 +161,10 @@
  * TOP MENU BORDERS
  */
 #t_Header > #top_header > nav.tabs > ul:first-child {
-    border-left:            1.6rem solid #5e5750;
+    border-left:            1rem solid #5e5750;
 }
 #t_Header > #top_header > nav.tabs > ul:last-child {
-    border-right:           1.6rem solid #5e5750;
+    border-right:           1rem solid #5e5750;
 }
 
 
