@@ -19,6 +19,7 @@ CREATE OR REPLACE PROCEDURE recompile (
     v_warnings          VARCHAR2(32767);
     v_ccflags           VARCHAR2(32767);
     v_invalids          PLS_INTEGER;
+    v_last_type         VARCHAR2(30);
 BEGIN
     /**
      * This package is part of the APP CORE project under MIT licence.
@@ -148,18 +149,16 @@ BEGIN
 
     -- list invalid objects
     IF v_invalids > 0 THEN
+        v_last_type := ' ';
         FOR c IN (
-            SELECT object_type, LISTAGG(object_name, ', ') WITHIN GROUP (ORDER BY object_name) AS objects
-            FROM (
-                SELECT DISTINCT o.object_type, o.object_name
-                FROM user_objects o
-                WHERE o.status      != 'VALID'
-                ORDER BY o.object_type, o.object_name
-            )
-            GROUP BY object_type
-            ORDER BY object_type
+            SELECT DISTINCT o.object_type, o.object_name
+            FROM user_objects o
+            WHERE o.status != 'VALID'
+            ORDER BY o.object_type, o.object_name
         ) LOOP
-            DBMS_OUTPUT.PUT_LINE('  ' || RPAD(c.object_type || ':', 15, ' ') || ' ' || c.objects);
+            DBMS_OUTPUT.PUT_LINE('  ' || LPAD(CASE WHEN c.object_type != v_last_type THEN c.object_type END || ' | ', 20, ' ') || c.object_name);
+            --
+            v_last_type := c.object_type;
         END LOOP;
         DBMS_OUTPUT.PUT_LINE('');
     END IF;
