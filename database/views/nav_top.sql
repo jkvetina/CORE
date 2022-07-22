@@ -63,8 +63,11 @@ SELECT
     --
     n.javascript AS attribute05,                -- javascript action
     --
-    NULL                                                AS attribute06,     -- badge left
-    '<span class="BADGE">' || b.badge || '</badge>'     AS attribute07,     -- badge right
+    NULL                                        AS attribute06,     -- badge left
+    --
+    CASE WHEN b.badge IS NOT NULL
+        THEN '<span class="BADGE">' || b.badge || '</badge>'
+        END AS attribute07,                     -- badge right
     --
     NULL AS attribute08,
     NULL AS attribute09,
@@ -91,28 +94,3 @@ COMMENT ON COLUMN nav_top.attribute06   IS '<a>... #TEXT</a>';
 COMMENT ON COLUMN nav_top.attribute07   IS '<a>#TEXT ...</a>';
 COMMENT ON COLUMN nav_top.attribute08   IS '</a>...';
 
-
-
--- use this in APEX in Dynamic navigation query
-/*
-SELECT
-    lvl,
-    label, 
-    target, 
-    is_current_list_entry,
-    image, 
-    image_attribute,
-    image_alt_attribute,
-    attribute01,
-    attribute02,
-    attribute03,
-    attribute04,
-    attribute05,
-    attribute06,
-    attribute07,
-    attribute08,
-    attribute09,
-    attribute10
-FROM nav_top
-ORDER BY page_group, sort_order;
-*/
