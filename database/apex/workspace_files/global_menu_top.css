@@ -10,13 +10,13 @@
     -moz-user-select:       none;
     -webkit-user-drag:      none;
     -moz-user-drag:         none;
-    margin: 0;
-    padding: 0;
+    margin:                 0;
+    padding:                0;
     color:                  #fff;
 }
 #t_Header > #top_header {
     width:                  100%;
-    height:                 4rem;  /* BAR_HEIGHT */
+    height:                 2.6rem;  /* BAR_HEIGHT */
     z-index:                1000;
     position:               fixed;
     top:                    0;
@@ -76,9 +76,9 @@
 }
 #t_Header > #top_header > nav ul li a {
     display:                block;
-    padding:                1.5rem 1.6rem 0 !important;
+    padding:                0.8rem 1rem 0 !important;
     white-space:            nowrap;
-    height:                 4rem;  /* BAR_HEIGHT */
+    height:                 2.6rem;  /* BAR_HEIGHT */
     line-height:            1rem;
 }
 #t_Header > #top_header > nav ul li ul {
@@ -125,13 +125,13 @@
  */
 #t_Header > #top_header > nav ul li a > span.BADGE {
     position:               relative;
-    top:                    0.75rem;
-    padding:                0 0 0 0.75rem;
-    margin-right:           -0.25rem;
+    top:                    0.65rem;
+    padding:                0 0 0 0.5rem;
+    margin-right:           -0.5rem;
     color:                  #fff;
     font-family:            'Roboto', sans-serif;
     font-weight:            500;
-    font-size:              1.1rem;
+    font-size:              0.7rem;
 }
 
 
@@ -152,7 +152,7 @@
  */
 #t_Header > #top_header > nav ul li {
     background:             #7A9867;
-    font-size:              1.4rem;
+    font-size:              0.9rem;
 }
 
 
