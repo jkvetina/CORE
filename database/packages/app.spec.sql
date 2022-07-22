@@ -29,63 +29,11 @@ CREATE OR REPLACE PACKAGE app AS
      *
      */
 
-    -- CORE application alias
-    core_alias                  CONSTANT VARCHAR2(30)           := 'CORE';  -- better than hardcode app number
-    core_owner                  CONSTANT VARCHAR2(30)           := 'CORE';
-
     -- code for app exception
     app_exception_code          CONSTANT PLS_INTEGER            := -20000;
     app_exception               EXCEPTION;
     --
     PRAGMA EXCEPTION_INIT(app_exception, app_exception_code);   -- as a side effect this will disable listing constants in tree on the left
-
-    -- internal date formats
-    format_date                 CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD';
-    format_date_time            CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD HH24:MI:SS';
-    format_date_short           CONSTANT VARCHAR2(30)           := 'YYYY-MM-DD HH24:MI';
-
-    -- flags
-    flag_request                CONSTANT logs.flag%TYPE         := 'P';     -- APEX request (page rendering, form processing)
-    flag_module                 CONSTANT logs.flag%TYPE         := 'M';     -- start of any module (procedure/function)
-    flag_action                 CONSTANT logs.flag%TYPE         := 'A';     -- start of any APEX action
-    flag_debug                  CONSTANT logs.flag%TYPE         := 'D';     -- debug
-    flag_result                 CONSTANT logs.flag%TYPE         := 'R';     -- result of procedure for debugging purposes
-    flag_warning                CONSTANT logs.flag%TYPE         := 'W';     -- warning
-    flag_error                  CONSTANT logs.flag%TYPE         := 'E';     -- error
-    flag_longops                CONSTANT logs.flag%TYPE         := 'L';     -- longops operation
-    flag_scheduler              CONSTANT logs.flag%TYPE         := 'S';     -- scheduler planned
-    flag_trigger                CONSTANT logs.flag%TYPE         := 'G';     -- called from trigger
-
-    -- specify maximum length for trim
-    length_user                 CONSTANT PLS_INTEGER            := 30;      -- logs.user_id%TYPE
-    length_action               CONSTANT PLS_INTEGER            := 64;      -- logs.action_name%TYPE, v_$session.action
-    length_module               CONSTANT PLS_INTEGER            := 64;      -- logs.module_name%TYPE
-    length_arguments            CONSTANT PLS_INTEGER            := 2000;    -- logs.arguments%TYPE
-    length_payload              CONSTANT PLS_INTEGER            := 4000;    -- logs.payload%TYPE
-
-    -- append callstack for these flags
-    track_callstack             CONSTANT VARCHAR2(30)           := flag_error || flag_warning || flag_module || flag_request || flag_trigger;
-
-    -- transform $NAME to P500_NAME if current page_id = 500
-    page_item_wild              CONSTANT VARCHAR2(4)            := '$';
-    page_item_prefix            CONSTANT VARCHAR2(4)            := 'P';
-
-    -- error log table name and max age fo records
-    logs_table_name             CONSTANT VARCHAR2(30)           := 'LOGS';      -- used in purge_old
-    logs_max_age                CONSTANT PLS_INTEGER            := 7;           -- max logs age in days
-
-    -- settings
-    settings_package            CONSTANT VARCHAR2(30)           := 'S';         -- S### (app_id)
-    settings_prefix             CONSTANT VARCHAR2(30)           := 'GET_';
-
-    -- owner of DML error tables
-    dml_tables_owner            CONSTANT VARCHAR2(30)           := NULL;        -- NULL = same as current owner
-    dml_tables_prefix           CONSTANT VARCHAR2(30)           := '';          -- ERR$
-    dml_tables_postfix          CONSTANT VARCHAR2(30)           := '_E$';
-
-    -- translations
-    transl_page_name            CONSTANT VARCHAR2(30)           := 'PAGE_NAME';
-    transl_page_title           CONSTANT VARCHAR2(30)           := 'PAGE_TITLE';
 
     -- list/array of log_id
     TYPE arr_logs_log_id IS
@@ -96,12 +44,6 @@ CREATE OR REPLACE PACKAGE app AS
     TYPE arr_map_tree IS
         TABLE OF logs.log_id%TYPE
         INDEX BY VARCHAR2(40);
-
-    -- proxy and wallet setup
-    app_proxy                   CONSTANT VARCHAR2(256)          := '';
-    app_wallet                  CONSTANT VARCHAR2(256)          := '';
-
-
 
 
 

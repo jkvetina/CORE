@@ -51,7 +51,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         SELECT a.application_id INTO out_id
         FROM apex_applications a
-        WHERE a.alias = app.core_alias;
+        WHERE a.alias = constants.get_core_alias();
         --
         RETURN out_id;
     EXCEPTION
@@ -65,7 +65,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN apex_applications.owner%TYPE
     AS
     BEGIN
-        RETURN app.core_owner;
+        RETURN constants.get_core_owner();
     END;
 
 
@@ -493,7 +493,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         RETURN CASE
             WHEN app.get_app_id() > 0
-                THEN UPPER(app.settings_package) || app.get_app_id()
+                THEN UPPER(constants.get_settings_package()) || app.get_app_id()
             END;
     END;
 
@@ -503,7 +503,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN UPPER(app.settings_prefix);
+        RETURN UPPER(constants.get_settings_prefix());
     END;
 
 
@@ -870,7 +870,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     ) AS
         v_action_name           logs.action_name%TYPE;
     BEGIN
-        v_action_name := SUBSTR(TO_CHAR(NVL(recent_request_id, 0)) || '|' || TO_CHAR(in_log_id) || '|' || in_action_name, 1, app.length_action);
+        v_action_name := SUBSTR(TO_CHAR(NVL(recent_request_id, 0)) || '|' || TO_CHAR(in_log_id) || '|' || in_action_name, 1, constants.get_length_action());
         --
         IF in_module_name IS NOT NULL THEN
             DBMS_APPLICATION_INFO.SET_MODULE(in_module_name, v_action_name);    -- USERENV.MODULE, USERENV.ACTION
@@ -1053,10 +1053,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
         -- translations
         out_name := REPLACE (
             out_name,
-            '&' || app.transl_page_name || '.',
+            '&' || constants.get_transl_page_name() || '.',
             COALESCE (
-                app.get_translated_item(app.transl_page_name,  in_page_id, in_app_id),
-                app.get_translated_item(app.transl_page_title, in_page_id, in_app_id)
+                app.get_translated_item(constants.get_transl_page_name(),  in_page_id, in_app_id),
+                app.get_translated_item(constants.get_transl_page_title(), in_page_id, in_app_id)
             )
         );
         --
@@ -1085,8 +1085,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- translations
-        out_title := REPLACE(out_title, '&' || app.transl_page_title  || '.', app.get_translated_item(app.transl_page_title, in_page_id, in_app_id));
-        out_title := REPLACE(out_title, '&' || app.transl_page_name   || '.', app.get_translated_item(app.transl_page_name,  in_page_id, in_app_id));
+        out_title := REPLACE(out_title, '&' || constants.get_transl_page_title()  || '.', app.get_translated_item(constants.get_transl_page_title(), in_page_id, in_app_id));
+        out_title := REPLACE(out_title, '&' || constants.get_transl_page_name()   || '.', app.get_translated_item(constants.get_transl_page_name(),  in_page_id, in_app_id));
         --
         RETURN out_title;
     EXCEPTION
@@ -1358,7 +1358,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         v_app_id        := NVL(in_app_id, app.get_real_app_id());
         v_page_id       := NVL(in_page_id, app.get_page_id());
-        v_item_name     := REPLACE(in_name, app.page_item_wild, app.page_item_prefix || v_page_id || '_');
+        v_item_name     := REPLACE(in_name, constants.get_page_item_wild(), constants.get_page_item_prefix() || v_page_id || '_');
 
         -- check if item exists
         BEGIN
@@ -1457,15 +1457,15 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- try different formats
         BEGIN
-            RETURN TO_DATE(l_value, app.format_date_time);                      -- YYYY-MM-DD HH24:MI:SS
+            RETURN TO_DATE(l_value, constants.get_format_date_time());                      -- YYYY-MM-DD HH24:MI:SS
         EXCEPTION
         WHEN OTHERS THEN
             BEGIN
-                RETURN TO_DATE(l_value, app.format_date_short);                 -- YYYY-MM-DD HH24:MI
+                RETURN TO_DATE(l_value, constants.get_format_date_short());                 -- YYYY-MM-DD HH24:MI
             EXCEPTION
             WHEN OTHERS THEN
                 BEGIN
-                    RETURN TO_DATE(SUBSTR(l_value, 1, 10), app.format_date);    -- YYYY-MM-DD
+                    RETURN TO_DATE(SUBSTR(l_value, 1, 10), constants.get_format_date());    -- YYYY-MM-DD
                 EXCEPTION
                 WHEN OTHERS THEN
                     BEGIN
@@ -1488,7 +1488,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN TO_CHAR(COALESCE(in_date, SYSDATE), NVL(in_format, app.format_date));
+        RETURN TO_CHAR(COALESCE(in_date, SYSDATE), NVL(in_format, constants.get_format_date()));
     END;
 
 
@@ -1500,7 +1500,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN TO_CHAR(COALESCE(in_date, SYSDATE), NVL(in_format, app.format_date_time));
+        RETURN TO_CHAR(COALESCE(in_date, SYSDATE), NVL(in_format, constants.get_format_date_time()));
     END;
 
 
@@ -1589,7 +1589,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         app.set_item (
             in_name             => in_name,
-            in_value            => TO_CHAR(in_value, app.format_date_time),
+            in_value            => TO_CHAR(in_value, constants.get_format_date_time()),
             in_raise            => in_raise
         );
     END;
@@ -1840,7 +1840,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- create log
         RETURN app.log__ (
-            in_flag             => app.flag_request,
+            in_flag             => constants.get_flag_request(),
             in_action_name      => app.get_request(),
             in_arguments        => v_args,
             in_payload          => NULL
@@ -1866,7 +1866,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         RETURN app.log__ (
-            in_flag             => app.flag_module,
+            in_flag             => constants.get_flag_module(),
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
                 in_arg3,        in_arg4,
@@ -1897,7 +1897,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_module,
+            in_flag             => constants.get_flag_module(),
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
                 in_arg3,        in_arg4,
@@ -1940,7 +1940,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         RETURN app.log__ (
-            in_flag             => app.flag_module,
+            in_flag             => constants.get_flag_module(),
             in_arguments        => app.get_json_object (
                 in_name01,       in_value01,
                 in_name02,       in_value02,
@@ -1999,7 +1999,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_module,
+            in_flag             => constants.get_flag_module(),
             in_arguments        => app.get_json_object (
                 in_name01,       in_value01,
                 in_name02,       in_value02,
@@ -2048,7 +2048,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         RETURN app.log__ (
-            in_flag             => app.flag_action,
+            in_flag             => constants.get_flag_action(),
             in_action_name      => in_action_name,
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
@@ -2082,7 +2082,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_action,
+            in_flag             => constants.get_flag_action(),
             in_action_name      => in_action_name,
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
@@ -2114,7 +2114,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_debug,
+            in_flag             => constants.get_flag_debug(),
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
                 in_arg3,        in_arg4,
@@ -2145,7 +2145,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_result,
+            in_flag             => constants.get_flag_result(),
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
                 in_arg3,        in_arg4,
@@ -2178,7 +2178,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_warning,
+            in_flag             => constants.get_flag_warning(),
             in_action_name      => in_action_name,
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
@@ -2212,7 +2212,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         RETURN app.log__ (
-            in_flag             => app.flag_error,
+            in_flag             => constants.get_flag_error(),
             in_action_name      => in_action_name,
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
@@ -2246,7 +2246,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_error,
+            in_flag             => constants.get_flag_error(),
             in_action_name      => in_action_name,
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
@@ -2338,7 +2338,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         RETURN app.log__ (
-            in_flag             => app.flag_trigger,
+            in_flag             => constants.get_flag_trigger,
             in_action_name      => in_action_name,
             in_arguments        => app.get_json_list (
                 in_arg1,        in_arg2,
@@ -2395,7 +2395,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             FROM logs l
             WHERE l.log_id          > rec.log_parent
                 AND l.log_parent    = rec.log_parent
-                AND l.flag          = app.flag_longops;
+                AND l.flag          = constants.get_flag_longops();
             --
             v_rindex := REPLACE(REGEXP_SUBSTR(rec.arguments, '\|[^\|]*$'), '|', '');
 
@@ -2410,7 +2410,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
             -- create new longops record
             rec.log_id := app.log__ (
-                in_flag             => app.flag_longops,
+                in_flag             => constants.get_flag_longops(),
                 in_action_name      => in_action_name,
                 in_arguments        => ROUND(NVL(in_progress, 0) * 100, 2) || '%|' || in_note || '|' || v_rindex,
                 in_parent_id        => rec.log_parent
@@ -2521,7 +2521,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         curr_id                 logs.log_id%TYPE;
     BEGIN
         curr_id := app.log__ (
-            in_flag             => app.flag_scheduler,
+            in_flag             => constants.get_flag_scheduler(),
             in_arguments        => REPLACE(in_job_name, '"', ''),
             in_parent_id        => in_log_id
         );
@@ -2636,7 +2636,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 AND j.log_date      >= SYSDATE - NVL(in_interval, 1/24)
             JOIN logs l
                 ON l.created_at     >= SYSDATE - NVL(in_interval, 1/24)
-                AND l.flag          = app.flag_scheduler
+                AND l.flag          = constants.get_flag_scheduler()
                 AND l.action_name   IS NULL
                 AND l.arguments     = d.job_name
             WHERE d.owner           = app.get_owner()
@@ -2695,34 +2695,34 @@ CREATE OR REPLACE PACKAGE BODY app AS
         rec.session_id          := COALESCE(in_session_id,  app.get_session_id());
         rec.flag                := COALESCE(in_flag,        '?');
         --
-        rec.module_name         := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth)), 1, app.length_module);
+        rec.module_name         := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth)), 1, constants.get_length_module());
         rec.module_line         :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth));
         --
-        IF rec.flag = app.flag_error AND rec.module_name = raise_error_procedure THEN
+        IF rec.flag = constants.get_flag_error() AND rec.module_name = raise_error_procedure THEN
             -- make it more usefull for raised errors, shift by one more
-            rec.module_name     := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth + 1)), 1, app.length_module);
+            rec.module_name     := SUBSTR(COALESCE(in_module_name, app.get_caller_name(callstack_depth + 1)), 1, constants.get_length_module());
             rec.module_line     :=        COALESCE(in_module_line, app.get_caller_line(callstack_depth + 1));
         END IF;
         --
-        rec.action_name         := SUBSTR(in_action_name,   1, app.length_action);
-        rec.arguments           := SUBSTR(in_arguments,     1, app.length_arguments);
-        rec.payload             := SUBSTR(in_payload,       1, app.length_payload);
+        rec.action_name         := SUBSTR(in_action_name,   1, constants.get_length_action());
+        rec.arguments           := SUBSTR(in_arguments,     1, constants.get_length_arguments());
+        rec.payload             := SUBSTR(in_payload,       1, constants.get_length_payload());
         rec.created_at          := SYSTIMESTAMP;
 
         -- dont log blacklisted records
-        IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec.flag, rec.module_name, rec.action_name) AND rec.flag NOT IN (app.flag_error, app.flag_warning) THEN
+        IF SQLCODE = 0 AND NOT app.is_debug_on() AND app.is_blacklisted(rec.flag, rec.module_name, rec.action_name) AND rec.flag NOT IN (constants.get_flag_error(), constants.get_flag_warning()) THEN
             RETURN NULL;    -- skip blacklisted record only if there is no error and debug mode off
         END IF;
 
         -- dont log some things
-        IF rec.flag = app.flag_error AND in_payload LIKE 'Your session has ended%' THEN
+        IF rec.flag = constants.get_flag_error() AND in_payload LIKE 'Your session has ended%' THEN
             RETURN NULL;
         END IF;
 
         -- retrieve parent log from map
-        IF in_parent_id IS NULL AND rec.flag != app.flag_request THEN
+        IF in_parent_id IS NULL AND rec.flag != constants.get_flag_request() THEN
             callstack_hash := app.get_hash(app.get_call_stack (
-                in_offset         => callstack_depth + CASE WHEN rec.flag = app.flag_module THEN 1 ELSE 0 END,  -- magic
+                in_offset         => callstack_depth + CASE WHEN rec.flag = constants.get_flag_module() THEN 1 ELSE 0 END,  -- magic
                 in_skip_others    => TRUE,
                 in_line_numbers   => FALSE,
                 in_splitter       => '|'
@@ -2734,7 +2734,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- save new map record for log hierarchy
-        IF rec.flag IN (app.flag_module, app.flag_trigger) THEN
+        IF rec.flag IN (constants.get_flag_module(), constants.get_flag_trigger()) THEN
             callstack_hash := app.get_hash(app.get_call_stack (
                 in_offset         => callstack_depth,
                 in_skip_others    => TRUE,
@@ -2746,24 +2746,24 @@ CREATE OR REPLACE PACKAGE BODY app AS
         END IF;
 
         -- set session things
-        IF rec.flag IN (app.flag_request, app.flag_module) THEN
+        IF rec.flag IN (constants.get_flag_request(), constants.get_flag_module()) THEN
             recent_log_id := rec.log_id;
             --
             app.set_session (
-                in_module_name      => CASE WHEN rec.flag = app.flag_request THEN 'APEX|' || TO_CHAR(rec.app_id) || '|' || TO_CHAR(rec.page_id) ELSE rec.module_name END,
+                in_module_name      => CASE WHEN rec.flag = constants.get_flag_request() THEN 'APEX|' || TO_CHAR(rec.app_id) || '|' || TO_CHAR(rec.page_id) ELSE rec.module_name END,
                 in_action_name      => rec.action_name,
                 in_log_id           => rec.log_id
             );
         END IF;
 
         -- add call stack
-        IF (SQLCODE != 0 OR INSTR(app.track_callstack, rec.flag) > 0) THEN
-            rec.payload := SUBSTR(rec.payload || CHR(10) || '--' || CHR(10) || app.get_shorter_stack(app.get_call_stack()), 1, app.length_payload);
+        IF (SQLCODE != 0 OR INSTR(constants.get_track_callstack(), rec.flag) > 0) THEN
+            rec.payload := SUBSTR(rec.payload || CHR(10) || '--' || CHR(10) || app.get_shorter_stack(app.get_call_stack()), 1, constants.get_length_payload());
         END IF;
 
         -- add error stack
         IF SQLCODE != 0 THEN
-            rec.payload := SUBSTR(rec.payload || CHR(10) || '--' || CHR(10) || app.get_shorter_stack(app.get_error_stack()), 1, app.length_payload);
+            rec.payload := SUBSTR(rec.payload || CHR(10) || '--' || CHR(10) || app.get_shorter_stack(app.get_error_stack()), 1, constants.get_length_payload());
         END IF;
 
         -- print message to console
@@ -2787,7 +2787,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         COMMIT;
         --
         BEGIN
-            rec.flag        := app.flag_error;
+            rec.flag        := constants.get_flag_error();
             rec.action_name := 'FATAL_ERROR';
             rec.payload     := DBMS_UTILITY.FORMAT_ERROR_STACK || CHR(10) || DBMS_UTILITY.FORMAT_CALL_STACK;
             --
@@ -2976,7 +2976,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             v_action_name := SUBSTR(APEX_ERROR.EXTRACT_CONSTRAINT_NAME (
                 p_error             => p_error,
                 p_include_schema    => FALSE
-            ), 1, app.length_action);
+            ), 1, constants.get_length_action());
             --
             out_result.message          := 'CONSTRAINT_ERROR|' || v_action_name;
             out_result.display_location := APEX_ERROR.C_INLINE_IN_NOTIFICATION;
@@ -3002,7 +3002,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             app.get_shorter_stack(p_error.ora_sqlerrm)          || CHR(10) || '--' || CHR(10) ||
             app.get_shorter_stack(p_error.error_statement)      || CHR(10) || '--' || CHR(10),
             --app.get_shorter_stack(p_error.error_backtrace)    || CHR(10) || '--' || CHR(10)
-            1, app.length_payload
+            1, constants.get_length_payload()
         );
         --
         v_log_id := app.log_error (
@@ -3073,12 +3073,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
         -- purge all
         IF in_age < 0 THEN
-            EXECUTE IMMEDIATE 'TRUNCATE TABLE ' || app.logs_table_name || ' CASCADE';
+            EXECUTE IMMEDIATE 'TRUNCATE TABLE ' || constants.get_logs_table_name() || ' CASCADE';
         END IF;
 
         -- remove old sessions
         DELETE FROM sessions t
-        WHERE t.created_at < TRUNC(SYSDATE) - NVL(in_age, app.logs_max_age);
+        WHERE t.created_at < TRUNC(SYSDATE) - NVL(in_age, constants.get_logs_max_age());
 
         -- remove old messages
         DELETE FROM user_messages t
@@ -3100,8 +3100,8 @@ CREATE OR REPLACE PACKAGE BODY app AS
                     COLUMNS high_value VARCHAR2(4000) PATH 'HIGH_VALUE'
                 ) h
             WHERE p.table_owner     = app.get_owner()
-                AND p.table_name    = app.logs_table_name
-                AND TO_DATE(REGEXP_SUBSTR(h.high_value, '(\d{4}-\d{2}-\d{2})'), 'YYYY-MM-DD') <= TRUNC(SYSDATE) - COALESCE(in_age, app.logs_max_age)
+                AND p.table_name    = constants.get_logs_table_name()
+                AND TO_DATE(REGEXP_SUBSTR(h.high_value, '(\d{4}-\d{2}-\d{2})'), 'YYYY-MM-DD') <= TRUNC(SYSDATE) - COALESCE(in_age, constants.get_logs_max_age())
         ) LOOP
             -- delete old data in batches
             FOR i IN 1 .. 100 LOOP
@@ -3212,7 +3212,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN logs.module_name%TYPE
     AS
     BEGIN
-        RETURN SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(NVL(in_offset, 2))), 1, app.length_module);
+        RETURN SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(NVL(in_offset, 2))), 1, constants.get_length_module());
     EXCEPTION
     WHEN BAD_DEPTH THEN
         RETURN NULL;
@@ -3266,7 +3266,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         FOR i IN REVERSE NVL(in_offset, 2) .. UTL_CALL_STACK.DYNAMIC_DEPTH LOOP  -- 2 = ignore this function, 3 = ignore caller
             CONTINUE WHEN in_skip_others AND NVL(UTL_CALL_STACK.OWNER(i), '-') NOT IN (app.get_owner(), app.get_core_owner());
             --
-            out_module  := SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(i)), 1, app.length_module);
+            out_module  := SUBSTR(UTL_CALL_STACK.CONCATENATE_SUBPROGRAM(UTL_CALL_STACK.SUBPROGRAM(i)), 1, constants.get_length_module());
             out_stack   := out_stack || out_module || CASE WHEN in_line_numbers THEN ' [' || TO_CHAR(UTL_CALL_STACK.UNIT_LINE(i)) || ']' END || in_splitter;
         END LOOP;
         --
@@ -3626,12 +3626,12 @@ CREATE OR REPLACE PACKAGE BODY app AS
         out_content     VARCHAR2(32767);    -- could be CLOB
         v_buffer        VARCHAR2(32767);
     BEGIN
-        IF app.app_proxy IS NOT NULL THEN
-            UTL_HTTP.SET_PROXY(app.app_proxy);
+        IF constants.get_app_proxy() IS NOT NULL THEN
+            UTL_HTTP.SET_PROXY(constants.get_app_proxy());
         END IF;
         --
-        IF app.app_wallet IS NOT NULL THEN
-            UTL_HTTP.SET_WALLET(app.app_wallet);
+        IF constants.get_app_wallet() IS NOT NULL THEN
+            UTL_HTTP.SET_WALLET(constants.get_app_wallet());
         END IF;
 
         -- send headers
@@ -3794,7 +3794,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             skip_unsupported        => TRUE
         );
         --
-        IF app.get_owner() != app.dml_tables_owner THEN
+        IF app.get_owner() != constants.get_dml_tables_owner() THEN
             EXECUTE IMMEDIATE
                 'GRANT ALL ON ' || app.get_dml_table(in_table_name) ||
                 ' TO ' || app.get_owner();
@@ -3841,7 +3841,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 LISTAGG(c.column_name, ', ') WITHIN GROUP (ORDER BY c.column_id) AS list_columns
             FROM user_tables t
             JOIN all_tables a
-                ON a.owner          = COALESCE(app.dml_tables_owner, app.get_owner(), USER)
+                ON a.owner          = COALESCE(constants.get_dml_tables_owner(), app.get_owner(), USER)
                 AND a.table_name    = app.get_dml_table(t.table_name)
                 AND a.table_name    != t.table_name
             JOIN all_tab_cols c
@@ -3929,11 +3929,11 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_table_name            all_tables.table_name%TYPE;
         v_valid                 CHAR;
     BEGIN
-        v_table_name := app.dml_tables_prefix ||
+        v_table_name := constants.get_dml_tables_prefix() ||
             REGEXP_REPLACE(REGEXP_REPLACE(in_table_name,
-                '(' || REPLACE(app.dml_tables_postfix, '$', '\$') || ')$', ''),
-                '^(' || REPLACE(app.dml_tables_prefix, '$', '\$') || ')', '') ||
-            app.dml_tables_postfix;
+                '(' || REPLACE(constants.get_dml_tables_postfix(), '$', '\$') || ')$', ''),
+                '^(' || REPLACE(constants.get_dml_tables_prefix(), '$', '\$') || ')', '') ||
+            constants.get_dml_tables_postfix();
         --
         IF in_existing_only THEN
             SELECT 'Y' INTO v_valid
@@ -3954,7 +3954,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN VARCHAR2
     AS
     BEGIN
-        RETURN COALESCE(app.dml_tables_owner, app.get_owner());
+        RETURN COALESCE(constants.get_dml_tables_owner(), app.get_owner());
     END;
 
 
@@ -4189,7 +4189,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         ) LOOP
             -- create specification
             q := q || CHR(10);
-            q := q || '    FUNCTION ' || LOWER(app.settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            q := q || '    FUNCTION ' || LOWER(constants.get_settings_prefix()) || LOWER(c.setting_name) || ' (' || CHR(10);
             q := q || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             q := q || '    )' || CHR(10);
             q := q || '    RETURN ' || CASE
@@ -4200,7 +4200,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
             -- create package body
             b := b || CHR(10);
-            b := b || '    FUNCTION ' || LOWER(app.settings_prefix) || LOWER(c.setting_name) || ' (' || CHR(10);
+            b := b || '    FUNCTION ' || LOWER(constants.get_settings_prefix()) || LOWER(c.setting_name) || ' (' || CHR(10);
             b := b || '        in_context      settings.setting_context%TYPE := NULL' || CHR(10);
             b := b || '    )' || CHR(10);
             b := b || '    RETURN ' || CASE
