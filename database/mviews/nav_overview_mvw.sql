@@ -87,7 +87,7 @@ SELECT
         WHEN t.authorization_scheme IS NULL AND n.page_id NOT IN (0, 9999)
             THEN app.get_icon('fa-warning', 'Auth scheme is missing')
             --
-        ELSE app_actions.get_html_a(app.get_page_url (
+        ELSE nav.get_html_a(app.get_page_url (
             in_page_id      => 920,
             in_app_id       => n.app_id,
             in_names        => 'P920_AUTH_SCHEME',

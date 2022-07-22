@@ -50,7 +50,7 @@ SELECT
     r.role_id,
     r.role_group,
     --
-    app_actions.get_html_a(
+    nav.get_html_a(
         app.get_page_url(920,
             in_names        => 'P920_CREATE_SCHEME,P920_AUTH_SCHEME',
             in_values       => 'Y,' || r.role_id

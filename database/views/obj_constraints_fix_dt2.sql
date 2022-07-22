@@ -68,7 +68,7 @@ SELECT
     r.column_name,
     s.data_type,
     --
-    LISTAGG(app_actions.get_html_a(app_actions.get_object_link('TABLE', s.table_name), s.table_name), ', ')
+    LISTAGG(nav.get_html_a(app_actions.get_object_link('TABLE', s.table_name), s.table_name), ', ')
         WITHIN GROUP (ORDER BY s.table_name) AS list_tables,
     --
     COUNT(s.table_name) AS count_tables,

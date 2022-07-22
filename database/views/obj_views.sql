@@ -18,12 +18,12 @@ r AS (
         NULLIF(SUM(CASE WHEN d.referenced_type IN ('TABLE', 'VIEW') THEN 1 ELSE 0 END), 0) AS count_references,
         --
         LISTAGG(CASE WHEN d.referenced_type = 'TABLE'
-            THEN app_actions.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
+            THEN nav.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
             WITHIN GROUP (ORDER BY d.referenced_name)
             AS referenced_tables,
         --
         LISTAGG(CASE WHEN d.referenced_type = 'VIEW'
-            THEN app_actions.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
+            THEN nav.get_html_a(app_actions.get_object_link(d.referenced_type, d.referenced_name), d.referenced_name) END, ', ')
             WITHIN GROUP (ORDER BY d.referenced_name)
             AS referenced_views
     FROM all_dependencies d
@@ -38,7 +38,7 @@ u AS (
     SELECT /*+ MATERIALIZE */
         d.referenced_name       AS view_name,
         --
-        LISTAGG(app_actions.get_html_a(app_actions.get_object_link(d.type, d.name), d.name), ', ')
+        LISTAGG(nav.get_html_a(app_actions.get_object_link(d.type, d.name), d.name), ', ')
             WITHIN GROUP (ORDER BY d.name) AS used_in_objects
     FROM all_dependencies d
     JOIN x
@@ -49,7 +49,7 @@ u AS (
 p AS (
     SELECT /*+ MATERIALIZE */
         r.table_name,
-        LISTAGG(DISTINCT app_actions.get_html_a(app.get_page_url(910, 'P910_PAGE_ID', r.page_id), r.page_id), ', ')
+        LISTAGG(DISTINCT nav.get_html_a(app.get_page_url(910, 'P910_PAGE_ID', r.page_id), r.page_id), ', ')
             WITHIN GROUP (ORDER BY r.page_id) AS used_on_pages
     FROM apex_application_page_regions r
     JOIN x
