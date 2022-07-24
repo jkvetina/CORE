@@ -142,7 +142,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
     AS
     BEGIN
         RETURN COALESCE (
-            APEX_APPLICATION.G_USER,
+            CASE WHEN INSTR(APEX_APPLICATION.G_USER, '@') > 0
+                THEN LOWER(APEX_APPLICATION.G_USER)
+                ELSE APEX_APPLICATION.G_USER
+                END,
             SYS_CONTEXT('USERENV', 'SESSION_USER'),
             USER
         );
