@@ -11,7 +11,7 @@ CREATE TABLE translated_items (
     updated_at                      DATE,
     --
     CONSTRAINT pk_translated_items
-        PRIMARY KEY (app_id, page_id, item_name)
+        PRIMARY KEY (app_id, page_id, item_name),
     --
     CONSTRAINT ch_translated_items_name
         CHECK (REGEXP_LIKE(item_name, '^([A-Z][A-Z0-9-_]*)$')),

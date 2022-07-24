@@ -13,7 +13,7 @@ CREATE TABLE roles (
         CHECK (is_active = 'Y' OR is_active IS NULL),
     --
     CONSTRAINT pk_roles
-        PRIMARY KEY (app_id, role_id)
+        PRIMARY KEY (app_id, role_id),
     --
     CONSTRAINT fk_roles_app_id
         FOREIGN KEY (app_id)

@@ -11,7 +11,7 @@ CREATE TABLE users (
         CHECK (is_active = 'Y' OR is_active IS NULL),
     --
     CONSTRAINT pk_users
-        PRIMARY KEY (user_id)
+        PRIMARY KEY (user_id),
     --
     CONSTRAINT uq_users_user_login
         UNIQUE (user_login)

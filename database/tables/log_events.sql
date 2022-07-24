@@ -10,7 +10,7 @@ CREATE TABLE log_events (
     created_at                      DATE            CONSTRAINT nn_log_events_created_at NOT NULL,
     --
     CONSTRAINT pk_log_events
-        PRIMARY KEY (log_id)
+        PRIMARY KEY (log_id),
     --
     CONSTRAINT fk_log_events_event_id
         FOREIGN KEY (app_id, event_id)

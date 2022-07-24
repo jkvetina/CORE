@@ -8,7 +8,7 @@ CREATE TABLE setting_contexts (
     updated_at                      DATE,
     --
     CONSTRAINT uq_setting_contexts
-        UNIQUE (app_id, context_id)
+        UNIQUE (app_id, context_id),
     --
     CONSTRAINT fk_setting_contexts_app_id
         FOREIGN KEY (app_id)

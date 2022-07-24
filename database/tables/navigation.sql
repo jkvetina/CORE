@@ -16,7 +16,7 @@ CREATE TABLE navigation (
         CHECK (is_reset = 'Y' OR is_reset IS NULL),
     --
     CONSTRAINT pk_navigation
-        PRIMARY KEY (app_id, page_id)
+        PRIMARY KEY (app_id, page_id),
     --
     CONSTRAINT ch_navigation_is_shared
         CHECK (is_shared = 'Y' OR is_shared IS NULL),

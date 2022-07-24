@@ -6,7 +6,7 @@ CREATE TABLE sessions (
     updated_at                      DATE            CONSTRAINT nn_sessions_updated_at NOT NULL,
     --
     CONSTRAINT pk_sessions
-        PRIMARY KEY (app_id, session_id)
+        PRIMARY KEY (app_id, session_id),
     --
     CONSTRAINT fk_sessions_app_id
         FOREIGN KEY (app_id)

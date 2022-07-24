@@ -6,7 +6,7 @@ CREATE TABLE user_roles (
     updated_at                      DATE,
     --
     CONSTRAINT pk_user_roles
-        PRIMARY KEY (app_id, user_id, role_id)
+        PRIMARY KEY (app_id, user_id, role_id),
     --
     CONSTRAINT fk_users_roles_app_id
         FOREIGN KEY (app_id)

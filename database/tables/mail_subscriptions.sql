@@ -15,7 +15,7 @@ CREATE TABLE mail_subscriptions (
         CHECK (is_active = 'Y' OR is_active IS NULL),
     --
     CONSTRAINT pk_mail_subscriptions
-        PRIMARY KEY (app_id, event_id, role_id, schedule_id)
+        PRIMARY KEY (app_id, event_id, role_id, schedule_id),
     --
     CONSTRAINT fk_mail_subscriptions_event_id
         FOREIGN KEY (app_id, event_id)

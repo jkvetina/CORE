@@ -10,7 +10,7 @@ CREATE TABLE user_messages (
     delivered_at                    DATE,
     --
     CONSTRAINT pk_user_messages
-        PRIMARY KEY (app_id, user_id, message_id)
+        PRIMARY KEY (app_id, user_id, message_id),
     --
     CONSTRAINT fk_user_messages_app_id
         FOREIGN KEY (app_id)

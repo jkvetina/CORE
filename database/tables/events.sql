@@ -12,7 +12,7 @@ CREATE TABLE events (
         CHECK (is_active = 'Y' OR is_active IS NULL),
     --
     CONSTRAINT pk_events
-        PRIMARY KEY (app_id, event_id)
+        PRIMARY KEY (app_id, event_id),
     --
     CONSTRAINT fk_events_app_id
         FOREIGN KEY (app_id)

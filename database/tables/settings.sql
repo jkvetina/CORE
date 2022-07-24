@@ -18,7 +18,7 @@ CREATE TABLE settings (
         CHECK ((is_date = 'Y' AND is_numeric IS NULL) OR is_date IS NULL),
     --
     CONSTRAINT uq_settings
-        UNIQUE (app_id, setting_name, setting_context)
+        UNIQUE (app_id, setting_name, setting_context),
     --
     CONSTRAINT ch_settings_is_private
         CHECK (is_private = 'Y' OR is_private IS NULL),

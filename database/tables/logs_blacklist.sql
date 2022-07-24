@@ -9,7 +9,7 @@ CREATE TABLE logs_blacklist (
     updated_at                      DATE,
     --
     CONSTRAINT uq_logs_blacklist
-        UNIQUE (app_id, user_id, page_id, flag, module_like, action_like)
+        UNIQUE (app_id, user_id, page_id, flag, module_like, action_like),
     --
     CONSTRAINT fk_logs_blacklist_app_id
         FOREIGN KEY (app_id)

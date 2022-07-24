@@ -22,7 +22,7 @@ CREATE TABLE mail_schedules (
         CHECK (REGEXP_LIKE(schedule_interval,   '^(\d+)$') OR schedule_interval IS NULL),
     --
     CONSTRAINT pk_mail_schedules
-        PRIMARY KEY (app_id, schedule_id)
+        PRIMARY KEY (app_id, schedule_id),
     --
     CONSTRAINT ch_mail_schedules_min_or_int
         CHECK ((schedule_minute IS NULL AND schedule_interval IS NOT NULL) OR (schedule_minute IS NOT NULL AND schedule_interval IS NULL)),

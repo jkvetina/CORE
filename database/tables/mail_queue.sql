@@ -18,7 +18,7 @@ CREATE TABLE mail_queue (
     sent_at                         DATE,
     --
     CONSTRAINT pk_mail_queue
-        PRIMARY KEY (queue_id)
+        PRIMARY KEY (queue_id),
     --
     CONSTRAINT fk_mail_queue_app_id
         FOREIGN KEY (app_id)
