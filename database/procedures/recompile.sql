@@ -10,7 +10,9 @@ CREATE OR REPLACE PROCEDURE recompile (
     in_informational    BOOLEAN         := FALSE,
     in_ccflags          VARCHAR2        := NULL,
     in_force            BOOLEAN         := FALSE
-) AS
+)
+AUTHID CURRENT_USER
+AS
     in_force_y          CONSTANT CHAR   := CASE WHEN in_force THEN 'Y' END;
     --
     v_code_type         VARCHAR2(32767);
