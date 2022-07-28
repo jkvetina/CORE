@@ -65,7 +65,7 @@ wwv_flow_imp_page.create_page_plug(
 ,p_plug_template=>wwv_flow_imp.id(9049155795569902)
 ,p_plug_display_sequence=>20
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_plug_required_role=>'!'||wwv_flow_imp.id(9823062898204869)
+,p_plug_required_role=>'!'||wwv_flow_imp.id(9823062898204869)  -- IS_ADMINISTRATOR
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
@@ -76,7 +76,7 @@ wwv_flow_imp_page.create_page_plug(
 ,p_plug_template=>wwv_flow_imp.id(9049155795569902)
 ,p_plug_display_sequence=>30
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_plug_required_role=>wwv_flow_imp.id(9823062898204869)
+,p_plug_required_role=>wwv_flow_imp.id(9823062898204869)  -- IS_ADMINISTRATOR
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
@@ -470,7 +470,7 @@ wwv_flow_imp_page.create_page_da_action(
 '    }',
 ');',
 ''))
-,p_security_scheme=>'!'||wwv_flow_imp.id(9823062898204869)
+,p_security_scheme=>'!'||wwv_flow_imp.id(9823062898204869)  -- IS_ADMINISTRATOR
 );
 wwv_flow_imp_page.create_page_da_action(
  p_id=>wwv_flow_imp.id(36463495749516314)
@@ -500,7 +500,7 @@ wwv_flow_imp_page.create_page_da_action(
 '    }',
 ');',
 ''))
-,p_security_scheme=>wwv_flow_imp.id(9823062898204869)
+,p_security_scheme=>wwv_flow_imp.id(9823062898204869)  -- IS_ADMINISTRATOR
 );
 wwv_flow_imp_page.create_page_da_action(
  p_id=>wwv_flow_imp.id(36248951352846117)
@@ -542,7 +542,7 @@ wwv_flow_imp_page.create_page_process(
 ''))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_security_scheme=>'!'||wwv_flow_imp.id(9823062898204869)
+,p_security_scheme=>'!'||wwv_flow_imp.id(9823062898204869)  -- IS_ADMINISTRATOR
 );
 wwv_flow_imp_page.create_page_process(
  p_id=>wwv_flow_imp.id(36474943634532372)
@@ -565,7 +565,7 @@ wwv_flow_imp_page.create_page_process(
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 ,p_process_when_button_id=>wwv_flow_imp.id(36251976725846147)
-,p_security_scheme=>wwv_flow_imp.id(9823062898204869)
+,p_security_scheme=>wwv_flow_imp.id(9823062898204869)  -- IS_ADMINISTRATOR
 );
 wwv_flow_imp.component_end;
 end;

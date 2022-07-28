@@ -12,7 +12,7 @@ wwv_flow_imp.component_begin (
 ,p_default_owner=>'CORE'
 );
 wwv_flow_imp_shared.create_security_scheme(
- p_id=>wwv_flow_imp.id(9823062898204869)
+ p_id=>wwv_flow_imp.id(9823062898204869)  -- IS_ADMINISTRATOR
 ,p_name=>'IS_ADMINISTRATOR'
 ,p_scheme_type=>'NATIVE_FUNCTION_BODY'
 ,p_attribute_01=>'RETURN a770.is_administrator() = ''Y'';'

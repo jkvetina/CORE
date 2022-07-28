@@ -12,7 +12,7 @@ wwv_flow_imp.component_begin (
 ,p_default_owner=>'CORE'
 );
 wwv_flow_imp_shared.create_security_scheme(
- p_id=>wwv_flow_imp.id(9844735592500475)
+ p_id=>wwv_flow_imp.id(9844735592500475)  -- IS_ACTIVE_USER
 ,p_name=>'IS_ACTIVE_USER'
 ,p_scheme_type=>'NATIVE_FUNCTION_BODY'
 ,p_attribute_01=>'RETURN app.is_active_user();'

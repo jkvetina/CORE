@@ -23,7 +23,7 @@ wwv_flow_imp_page.create_page(
 ,p_group_id=>wwv_flow_imp.id(15841923064543077)
 ,p_step_template=>wwv_flow_imp.id(9037189326569883)
 ,p_page_template_options=>'#DEFAULT#'
-,p_required_role=>wwv_flow_imp.id(9556407311505078)
+,p_required_role=>wwv_flow_imp.id(9556407311505078)  -- IS_DEVELOPER
 ,p_dialog_width=>'1024'
 ,p_page_component_map=>'03'
 ,p_last_updated_by=>'DEV'

@@ -20,7 +20,7 @@ wwv_flow_imp_page.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_group_id=>wwv_flow_imp.id(9240371448352386)
 ,p_page_template_options=>'#DEFAULT#'
-,p_required_role=>wwv_flow_imp.id(9556407311505078)
+,p_required_role=>wwv_flow_imp.id(9556407311505078)  -- IS_DEVELOPER
 ,p_page_comment=>'Navigation setup page'
 ,p_page_component_map=>'21'
 ,p_last_updated_by=>'DEV'
@@ -605,7 +605,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_primary_key=>false
 ,p_duplicate_value=>true
 ,p_include_in_export=>true
-,p_security_scheme=>wwv_flow_imp.id(9556407311505078)
+,p_security_scheme=>wwv_flow_imp.id(9556407311505078)  -- IS_DEVELOPER
 );
 wwv_flow_imp_page.create_region_column(
  p_id=>wwv_flow_imp.id(16023446863727219)

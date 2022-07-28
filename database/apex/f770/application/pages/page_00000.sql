@@ -33,7 +33,7 @@ wwv_flow_imp_page.create_page_plug(
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'REGION_POSITION_05'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_plug_required_role=>wwv_flow_imp.id(9556407311505078)
+,p_plug_required_role=>wwv_flow_imp.id(9556407311505078)  -- IS_DEVELOPER
 ,p_plug_display_condition_type=>'EXPRESSION'
 ,p_plug_display_when_condition=>'app.is_debug_on()'
 ,p_plug_display_when_cond2=>'PLSQL'

@@ -12,7 +12,7 @@ wwv_flow_imp.component_begin (
 ,p_default_owner=>'CORE'
 );
 wwv_flow_imp_shared.create_security_scheme(
- p_id=>wwv_flow_imp.id(9556228749501966)
+ p_id=>wwv_flow_imp.id(9556228749501966)  -- NOBODY
 ,p_name=>'NOBODY'
 ,p_scheme_type=>'NATIVE_FUNCTION_BODY'
 ,p_attribute_01=>'RETURN FALSE;'

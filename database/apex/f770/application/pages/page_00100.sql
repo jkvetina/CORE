@@ -21,7 +21,7 @@ wwv_flow_imp_page.create_page(
 ,p_group_id=>wwv_flow_imp.id(9220021410657411)
 ,p_page_css_classes=>'HOME'
 ,p_page_template_options=>'#DEFAULT#'
-,p_required_role=>wwv_flow_imp.id(9844735592500475)
+,p_required_role=>wwv_flow_imp.id(9844735592500475)  -- IS_ACTIVE_USER
 ,p_page_comment=>'UNDER CONSTRUCTION'
 ,p_page_component_map=>'11'
 ,p_last_updated_by=>'DEV'
