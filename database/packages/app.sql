@@ -3264,7 +3264,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     RETURN logs.payload%TYPE
     AS
         out_stack       VARCHAR2(32767);
-        out_module      logs.module_name%TYPE;
+        out_module      VARCHAR2(2000);
     BEGIN
         -- better version of DBMS_UTILITY.FORMAT_CALL_STACK
         FOR i IN REVERSE NVL(in_offset, 2) .. UTL_CALL_STACK.DYNAMIC_DEPTH LOOP  -- 2 = ignore this function, 3 = ignore caller
