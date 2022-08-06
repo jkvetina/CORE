@@ -146,6 +146,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 THEN LOWER(APEX_APPLICATION.G_USER)
                 ELSE APEX_APPLICATION.G_USER
                 END,
+            SYS_CONTEXT('USERENV', 'PROXY_USER'),
             SYS_CONTEXT('USERENV', 'SESSION_USER'),
             USER
         );
