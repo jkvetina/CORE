@@ -2809,7 +2809,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_CALL_STACK);
         DBMS_OUTPUT.PUT_LINE('-- ^');
         --
-        RAISE_APPLICATION_ERROR(app.app_exception_code, 'LOG_FAILED', TRUE);
+        RAISE_APPLICATION_ERROR(app.app_exception_code, 'LOG_FAILED|' || SQLERRM, TRUE);
     END;
 
 
