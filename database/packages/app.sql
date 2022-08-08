@@ -1704,7 +1704,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
     BEGIN
         FOR c IN (
             SELECT r.page_id, i.item_name, app.get_item(i.item_name) AS item_value
-            FROM obj_views_source s
+            FROM user_source_views s
             JOIN apex_application_page_items i
                 ON i.item_name          = app.get_item_name(REPLACE(REGEXP_SUBSTR(s.text, '''(\$?[A-Z0-9_]+)[^'']'), ''''), i.page_id, i.application_id)
             JOIN apex_application_page_regions r
@@ -4120,14 +4120,14 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE rebuild_obj_views_source (
+    PROCEDURE rebuild_user_source_views (
         in_owner                apex_applications.owner%TYPE    := NULL
     )
     AS
     BEGIN
         app.log_module(in_owner);
         --
-        DELETE FROM obj_views_source t
+        DELETE FROM user_source_views t
         WHERE t.owner = NVL(in_owner, t.owner);
         --
         FOR c IN (
@@ -4140,7 +4140,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 ON s.owner      = t.owner
             WHERE t.owner       = NVL(in_owner, t.owner)
         ) LOOP
-            INSERT INTO obj_views_source (owner, name, line, text)
+            INSERT INTO user_source_views (owner, name, line, text)
             SELECT
                 c.owner,
                 c.name,
