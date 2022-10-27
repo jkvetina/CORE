@@ -2,6 +2,10 @@ DECLARE
     in_job_name             CONSTANT VARCHAR2(30)   := 'CORE_SYNC_LOGS';
     in_run_immediatelly     CONSTANT BOOLEAN        := FALSE;
 BEGIN
+    DBMS_OUTPUT.PUT_LINE('--');
+    DBMS_OUTPUT.PUT_LINE('-- JOB ' || UPPER(in_job_name));
+    DBMS_OUTPUT.PUT_LINE('--');
+    --
     BEGIN
         DBMS_SCHEDULER.DROP_JOB(in_job_name, TRUE);
     EXCEPTION
