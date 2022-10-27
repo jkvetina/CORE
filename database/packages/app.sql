@@ -118,6 +118,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
         v_app_id                apps.app_id%TYPE            := COALESCE(in_app_id, app.get_app_id());
         out_page_id             navigation.page_id%TYPE;
     BEGIN
+        --
+        --APEX_APPLICATION.G_HOME_LINK
+        --
         SELECT TO_NUMBER(REGEXP_SUBSTR(a.home_link, ':(\d+):&' || 'SESSION\.', 1, 1, NULL, 1))
         INTO out_page_id
         FROM apex_applications a
@@ -276,6 +279,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
         BEGIN
+            --
+            --APEX_APPLICATION.G_BROWSER_LANGUAGE
+            --
             RETURN REPLACE(UPPER(SUBSTR(OWA_UTIL.GET_CGI_ENV('HTTP_ACCEPT_LANGUAGE'), 1, 2)), 'CS', 'CZ');
         EXCEPTION
         WHEN OTHERS THEN
@@ -560,8 +566,10 @@ CREATE OR REPLACE PACKAGE BODY app AS
             WHERE a.application_id = rec.app_id;
 
             -- also add first pages into Navigation table
+            /*
             EXECUTE IMMEDIATE
                 'BEGIN app_actions.nav_autoupdate(); END;';  -- to remove dependency
+            */
             --
             UPDATE navigation n
             SET n.order# = CASE
@@ -1213,141 +1221,6 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    FUNCTION is_page_available (
-        in_page_id              navigation.page_id%TYPE,
-        in_app_id               navigation.app_id%TYPE
-    )
-    RETURN CHAR
-    AS
-        v_auth_scheme           apex_application_pages.authorization_scheme%TYPE;
-        v_package_name          user_procedures.object_name%TYPE;
-        v_procedure_name        user_procedures.procedure_name%TYPE;
-        v_data_type             user_arguments.pls_type%TYPE;
-        v_page_argument         user_arguments.argument_name%TYPE;
-        --
-        out_result              CHAR;
-        out_result_bool         BOOLEAN;
-        --
-        PRAGMA UDF;             -- SQL only
-    BEGIN
-        -- get auth cheme, procedure...
-        SELECT
-            n.auth_scheme,
-            n.package_name,
-            n.procedure_name,
-            n.data_type,
-            n.argument_name
-        INTO v_auth_scheme, v_package_name, v_procedure_name, v_data_type, v_page_argument
-        FROM nav_availability_mvw n
-        WHERE n.application_id      = in_app_id
-            AND n.page_id           = in_page_id;
-
-        -- log current page
-        IF app.is_debug_on() AND in_page_id = app.get_page_id() THEN
-            app.log_action (
-                'IS_PAGE_AVAILABLE',
-                in_app_id,
-                in_page_id,
-                NVL(v_auth_scheme, '-'),
-                NVL(v_package_name || '.' || v_procedure_name, '-'),
-                NVL(v_data_type, '-'),
-                NVL(v_page_argument, '-')
-            );
-        END IF;
-
-        -- skip global page and login/logout page
-        IF in_page_id IN (0, 9999) THEN
-            RETURN 'Y';  -- show
-        END IF;
-
-        -- check scheme and procedure
-        IF v_auth_scheme IS NULL THEN
-            app.log_warning('AUTH_SCHEME_MISSING', in_app_id, in_page_id);
-            --
-            RETURN 'Y';  -- show, page has no authorization set
-            --
-        ELSIF v_auth_scheme IN ('MUST_NOT_BE_PUBLIC_USER') THEN
-            RETURN 'Y';  -- show
-            --
-        ELSIF v_procedure_name IS NULL THEN
-            app.log_warning('AUTH_PROCEDURE_MISSING', in_app_id, in_page_id, v_auth_scheme);
-            --
-            IF app.is_developer() THEN  -- show in menu, allow access
-                RETURN 'Y';
-            END IF;
-            --
-            RETURN 'N';  -- hide, auth function is set on page but missing in AUTH package
-        END IF;
-
-        -- call function to evaluate access
-        IF v_data_type = 'BOOLEAN' THEN
-            IF v_page_argument IS NOT NULL THEN
-                -- pass page_id when neeeded
-                EXECUTE IMMEDIATE
-                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '(:page_id); END;'
-                    USING IN in_page_id, OUT out_result_bool;
-            ELSE
-                EXECUTE IMMEDIATE
-                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '; END;'
-                    USING OUT out_result_bool;
-            END IF;
-            --
-            RETURN CASE WHEN out_result_bool THEN 'Y' ELSE 'N' END;
-        ELSE
-            IF v_page_argument IS NOT NULL THEN
-                -- pass page_id when neeeded
-                EXECUTE IMMEDIATE
-                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '(:page_id); END;'
-                    USING IN in_page_id, OUT out_result;
-            ELSE
-                EXECUTE IMMEDIATE
-                    'BEGIN :r := ' || v_package_name || '.' || v_procedure_name || '; END;'
-                    USING OUT out_result;
-            END IF;
-        END IF;
-        --
-        RETURN NVL(out_result, 'N');
-    END;
-
-
-
-    PROCEDURE redirect (
-        in_page_id              NUMBER          := NULL,
-        in_names                VARCHAR2        := NULL,
-        in_values               VARCHAR2        := NULL,
-        in_overload             VARCHAR2        := NULL,    -- JSON object to overload passed items/values
-        in_transform            BOOLEAN         := FALSE,   -- to pass all page items to new page
-        in_reset                BOOLEAN         := TRUE     -- reset page items
-    ) AS
-        out_target              VARCHAR2(32767);
-    BEGIN
-        -- commit otherwise anything before redirect will be rolled back
-        COMMIT;
-
-        -- check if we are in APEX or not
-        HTP.INIT;
-        out_target := app.get_page_url (
-            in_page_id          => in_page_id,
-            in_names            => in_names,
-            in_values           => in_values,
-            in_overload         => in_overload,
-            in_transform        => in_transform,
-            in_reset            => in_reset
-        );
-        --
-        app.log_debug('REDIRECT', app.get_json_list(in_page_id, in_names, in_values, out_target));
-        --
-        APEX_UTIL.REDIRECT_URL(out_target);  -- OWA_UTIL not working on Cloud
-        --
-        APEX_APPLICATION.STOP_APEX_ENGINE;
-        --
-        -- EXCEPTION
-        -- WHEN APEX_APPLICATION.E_STOP_APEX_ENGINE THEN
-        --
-    END;
-
-
-
     FUNCTION get_item_name (
         in_name                 apex_application_page_items.item_name%TYPE,
         in_page_id              apex_application_page_items.page_id%TYPE            := NULL,
@@ -1474,6 +1347,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 WHEN OTHERS THEN
                     BEGIN
                         RETURN TO_DATE(SUBSTR(REPLACE(l_value, '.', '/'), 1, 10), 'DD/MM/YYYY');
+--
+--V('APP_NLS_DATE_FORMAT')
+--
                     EXCEPTION
                     WHEN OTHERS THEN
                         app.raise_error('INVALID_DATE', in_value, in_format);

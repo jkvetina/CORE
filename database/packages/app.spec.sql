@@ -502,40 +502,6 @@ CREATE OR REPLACE PACKAGE app AS
 
 
 
-
-
-    -- ### Navigation
-    --
-
-    --
-    -- Check if user have permissions to access the page
-    --
-    FUNCTION is_page_available (
-        in_page_id              navigation.page_id%TYPE,
-        in_app_id               navigation.app_id%TYPE
-    )
-    RETURN CHAR;
-
-
-
-    --
-    -- Redirect to page and set items if needed
-    --
-    PROCEDURE redirect (
-        in_page_id              NUMBER          := NULL,
-        in_names                VARCHAR2        := NULL,
-        in_values               VARCHAR2        := NULL,
-        in_overload             VARCHAR2        := NULL,    -- JSON object to overload passed items/values
-        in_transform            BOOLEAN         := FALSE,   -- to pass all page items to new page
-        in_reset                BOOLEAN         := TRUE     -- reset page items
-    );
-
-
-
-
-
-
-
     -- ### Functions to work with APEX items
     --
 

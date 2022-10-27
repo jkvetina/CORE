@@ -63,7 +63,7 @@ SELECT
     --
     n.javascript AS attribute05,                -- javascript action
     --
-    NULL                                        AS attribute06,     -- badge left
+    NULL                                                AS attribute06,     -- badge left
     --
     CASE WHEN b.badge IS NOT NULL
         THEN '<span class="BADGE">' || b.badge || '</badge>'
@@ -81,7 +81,7 @@ LEFT JOIN nav_badges b
     ON b.page_id        = n.page_id
 WHERE n.action          IS NULL
     AND n.is_hidden     IS NULL
-    AND 'Y'             = app.is_page_available(n.page_id, n.app_id);
+    AND 'Y'             = nav.is_page_available(n.page_id, n.app_id);
 --
 COMMENT ON TABLE nav_top IS '[CORE - DASHBOARD] Navigation view used for rendering top menu';
 --

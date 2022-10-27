@@ -129,7 +129,8 @@ SELECT
             ELSE r.table_name
             END AS table_name,
     --
-    app_actions.get_object_link(t.object_type, r.table_name) AS table_link,
+    --app_actions.get_object_link(t.object_type, r.table_name) AS table_link,
+    NULL AS table_link,
     --
     CASE
         WHEN r.source_type_code != 'NATIVE_IG'
