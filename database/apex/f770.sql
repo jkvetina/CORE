@@ -14,7 +14,7 @@ whenever sqlerror exit sql.sqlcode rollback
 begin
 wwv_flow_imp.import_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.2'
+,p_release=>'22.1.4'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
@@ -70,8 +70,8 @@ prompt APPLICATION 770 - CORE
 --       Reports:
 --       E-Mail:
 --     Supporting Objects:  Included
---   Version:         22.1.2
---   Instance ID:     9014305257109865
+--   Version:         22.1.4
+--   Instance ID:     
 --
 
 prompt --application/delete_application
@@ -582,7 +582,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/login_remember_username
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(9174805089570134)
+ p_id=>wwv_flow_imp.id(9174805089570134)  -- LOGIN_REMEMBER_USERNAME
 ,p_lov_name=>'LOGIN_REMEMBER_USERNAME'
 ,p_lov_query=>'.'||wwv_flow_imp.id(9174805089570134)||'.'
 ,p_location=>'STATIC'
@@ -598,7 +598,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_app_schemas
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(36134366775466014)
+ p_id=>wwv_flow_imp.id(36134366775466014)  -- LOV_CORE_APP_SCHEMAS
 ,p_lov_name=>'LOV_CORE_APP_SCHEMAS'
 ,p_source_type=>'TABLE'
 ,p_location=>'LOCAL'
@@ -613,7 +613,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_events_event_id_event_name
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(23358048190795242)
+ p_id=>wwv_flow_imp.id(23358048190795242)  -- LOV_CORE_EVENTS (EVENT_ID, EVENT_NAME)
 ,p_lov_name=>'LOV_CORE_EVENTS (EVENT_ID, EVENT_NAME)'
 ,p_source_type=>'TABLE'
 ,p_location=>'LOCAL'
@@ -645,7 +645,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_flags_name_value
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(22069796307284852)
+ p_id=>wwv_flow_imp.id(22069796307284852)  -- LOV_CORE_FLAGS (NAME, VALUE)
 ,p_lov_name=>'LOV_CORE_FLAGS (NAME, VALUE)'
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
@@ -686,7 +686,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_languages
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(22926631492053614)
+ p_id=>wwv_flow_imp.id(22926631492053614)  -- LOV_CORE_LANGUAGES
 ,p_lov_name=>'LOV_CORE_LANGUAGES'
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
@@ -710,7 +710,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_pages_page_id_alias
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(25536977246490292)
+ p_id=>wwv_flow_imp.id(25536977246490292)  -- LOV_CORE_PAGES (PAGE_ID + ALIAS)
 ,p_lov_name=>'LOV_CORE_PAGES (PAGE_ID + ALIAS)'
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
@@ -751,7 +751,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_pages_page_id
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(26277379897705945)
+ p_id=>wwv_flow_imp.id(26277379897705945)  -- LOV_CORE_PAGES (PAGE_ID)
 ,p_lov_name=>'LOV_CORE_PAGES (PAGE_ID)'
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
@@ -774,7 +774,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_pages_page_id_page_name
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(22069438611267708)
+ p_id=>wwv_flow_imp.id(22069438611267708)  -- LOV_CORE_PAGES (PAGE_ID, PAGE_NAME)
 ,p_lov_name=>'LOV_CORE_PAGES (PAGE_ID, PAGE_NAME)'
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
@@ -830,7 +830,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_roles_role_id_role_name
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(23355717957771143)
+ p_id=>wwv_flow_imp.id(23355717957771143)  -- LOV_CORE_ROLES (ROLE_ID, ROLE_NAME)
 ,p_lov_name=>'LOV_CORE_ROLES (ROLE_ID, ROLE_NAME)'
 ,p_source_type=>'TABLE'
 ,p_location=>'LOCAL'
@@ -862,7 +862,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_schedules
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(24119159536460151)
+ p_id=>wwv_flow_imp.id(24119159536460151)  -- LOV_CORE_SCHEDULES
 ,p_lov_name=>'LOV_CORE_SCHEDULES'
 ,p_source_type=>'TABLE'
 ,p_location=>'LOCAL'
@@ -902,7 +902,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_templates
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(23870250359957521)
+ p_id=>wwv_flow_imp.id(23870250359957521)  -- LOV_CORE_TEMPLATES
 ,p_lov_name=>'LOV_CORE_TEMPLATES'
 ,p_lov_query=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'SELECT',
@@ -950,7 +950,7 @@ end;
 prompt --application/shared_components/user_interface/lovs/lov_core_users_active_user_id_user_id
 begin
 wwv_flow_imp_shared.create_list_of_values(
- p_id=>wwv_flow_imp.id(22067838698249746)
+ p_id=>wwv_flow_imp.id(22067838698249746)  -- LOV_CORE_USERS_ACTIVE (USER_ID, USER_ID)
 ,p_lov_name=>'LOV_CORE_USERS_ACTIVE (USER_ID, USER_ID)'
 ,p_source_type=>'TABLE'
 ,p_location=>'LOCAL'
@@ -16933,7 +16933,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_attribute_08=>'640'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22067838698249746)
+,p_lov_id=>wwv_flow_imp.id(22067838698249746)  -- LOV_CORE_USERS_ACTIVE (USER_ID, USER_ID)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -16972,7 +16972,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_attribute_09=>'600'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22069438611267708)
+,p_lov_id=>wwv_flow_imp.id(22069438611267708)  -- LOV_CORE_PAGES (PAGE_ID, PAGE_NAME)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -17010,7 +17010,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_attribute_08=>'480'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22069796307284852)
+,p_lov_id=>wwv_flow_imp.id(22069796307284852)  -- LOV_CORE_FLAGS (NAME, VALUE)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -21905,7 +21905,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_use_group_for=>'BOTH'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22069438611267708)
+,p_lov_id=>wwv_flow_imp.id(22069438611267708)  -- LOV_CORE_PAGES (PAGE_ID, PAGE_NAME)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -26411,7 +26411,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22926631492053614)
+,p_lov_id=>wwv_flow_imp.id(22926631492053614)  -- LOV_CORE_LANGUAGES
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -35595,7 +35595,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(23358048190795242)
+,p_lov_id=>wwv_flow_imp.id(23358048190795242)  -- LOV_CORE_EVENTS (EVENT_ID, EVENT_NAME)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -35636,7 +35636,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(23355717957771143)
+,p_lov_id=>wwv_flow_imp.id(23355717957771143)  -- LOV_CORE_ROLES (ROLE_ID, ROLE_NAME)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -35818,7 +35818,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(24119159536460151)
+,p_lov_id=>wwv_flow_imp.id(24119159536460151)  -- LOV_CORE_SCHEDULES
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -35859,7 +35859,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(23870250359957521)
+,p_lov_id=>wwv_flow_imp.id(23870250359957521)  -- LOV_CORE_TEMPLATES
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -37429,7 +37429,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_is_required=>true
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22926631492053614)
+,p_lov_id=>wwv_flow_imp.id(22926631492053614)  -- LOV_CORE_LANGUAGES
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>false
 ,p_enable_filter=>true
@@ -38891,7 +38891,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(26277379897705945)
+,p_lov_id=>wwv_flow_imp.id(26277379897705945)  -- LOV_CORE_PAGES (PAGE_ID)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -39204,7 +39204,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_use_group_for=>'BOTH'
 ,p_is_required=>true
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(26277379897705945)
+,p_lov_id=>wwv_flow_imp.id(26277379897705945)  -- LOV_CORE_PAGES (PAGE_ID)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -40347,7 +40347,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_value_alignment=>'RIGHT'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(26277379897705945)
+,p_lov_id=>wwv_flow_imp.id(26277379897705945)  -- LOV_CORE_PAGES (PAGE_ID)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -40654,7 +40654,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(26277379897705945)
+,p_lov_id=>wwv_flow_imp.id(26277379897705945)  -- LOV_CORE_PAGES (PAGE_ID)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true

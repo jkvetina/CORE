@@ -5,7 +5,7 @@ begin
 --   Manifest End
 wwv_flow_imp.component_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.2'
+,p_release=>'22.1.4'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
@@ -542,7 +542,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(23358048190795242)
+,p_lov_id=>wwv_flow_imp.id(23358048190795242)  -- LOV_CORE_EVENTS (EVENT_ID, EVENT_NAME)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -583,7 +583,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(23355717957771143)
+,p_lov_id=>wwv_flow_imp.id(23355717957771143)  -- LOV_CORE_ROLES (ROLE_ID, ROLE_NAME)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -765,7 +765,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(24119159536460151)
+,p_lov_id=>wwv_flow_imp.id(24119159536460151)  -- LOV_CORE_SCHEDULES
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -806,7 +806,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_is_required=>true
 ,p_max_length=>30
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(23870250359957521)
+,p_lov_id=>wwv_flow_imp.id(23870250359957521)  -- LOV_CORE_TEMPLATES
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -1090,7 +1090,7 @@ end;
 begin
 wwv_flow_imp.component_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.2'
+,p_release=>'22.1.4'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
@@ -2205,7 +2205,7 @@ end;
 begin
 wwv_flow_imp.component_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.2'
+,p_release=>'22.1.4'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
@@ -2394,7 +2394,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_value_alignment=>'LEFT'
 ,p_is_required=>true
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22926631492053614)
+,p_lov_id=>wwv_flow_imp.id(22926631492053614)  -- LOV_CORE_LANGUAGES
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>false
 ,p_enable_filter=>true
@@ -3354,7 +3354,7 @@ end;
 begin
 wwv_flow_imp.component_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.2'
+,p_release=>'22.1.4'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0

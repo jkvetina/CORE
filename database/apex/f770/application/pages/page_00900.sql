@@ -5,7 +5,7 @@ begin
 --   Manifest End
 wwv_flow_imp.component_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.2'
+,p_release=>'22.1.4'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
@@ -935,7 +935,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_attribute_08=>'640'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22067838698249746)
+,p_lov_id=>wwv_flow_imp.id(22067838698249746)  -- LOV_CORE_USERS_ACTIVE (USER_ID, USER_ID)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -974,7 +974,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_attribute_09=>'600'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22069438611267708)
+,p_lov_id=>wwv_flow_imp.id(22069438611267708)  -- LOV_CORE_PAGES (PAGE_ID, PAGE_NAME)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -1012,7 +1012,7 @@ wwv_flow_imp_page.create_region_column(
 ,p_attribute_08=>'480'
 ,p_is_required=>false
 ,p_lov_type=>'SHARED'
-,p_lov_id=>wwv_flow_imp.id(22069796307284852)
+,p_lov_id=>wwv_flow_imp.id(22069796307284852)  -- LOV_CORE_FLAGS (NAME, VALUE)
 ,p_lov_display_extra=>true
 ,p_lov_display_null=>true
 ,p_enable_filter=>true
@@ -1096,7 +1096,7 @@ end;
 begin
 wwv_flow_imp.component_begin (
  p_version_yyyy_mm_dd=>'2022.04.12'
-,p_release=>'22.1.2'
+,p_release=>'22.1.4'
 ,p_default_workspace_id=>9014660246496943
 ,p_default_application_id=>770
 ,p_default_id_offset=>0
