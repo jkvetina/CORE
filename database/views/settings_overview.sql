@@ -42,7 +42,7 @@ v AS (
         COUNT(*)            AS references
     FROM (
         SELECT REPLACE(RTRIM(REGEXP_SUBSTR(UPPER(s.text), x.package_name || '\.' || REPLACE(x.prefix, '_', '\_') || '[^(]*')), x.package_name || '.', '') AS procedure_name
-        FROM obj_views_source s
+        FROM source_lines s
         JOIN x
             ON x.owner      = s.owner
         WHERE UPPER(s.text) LIKE '%' || x.package_name || '.' || x.prefix || '%'
