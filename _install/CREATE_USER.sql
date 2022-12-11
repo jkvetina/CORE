@@ -14,6 +14,7 @@ GRANT CREATE TRIGGER            TO core;
 GRANT CREATE SEQUENCE           TO core;
 GRANT CREATE PROCEDURE          TO core;
 GRANT CREATE JOB                TO core;
+GRANT CREATE SYNONYM            TO core;
 --
 --GRANT EXECUTE ON DBMS_EPG               TO core;
 --GRANT EXECUTE ON DBMS_CRYPTO            TO core;
