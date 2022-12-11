@@ -1113,8 +1113,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
         in_names                VARCHAR2                    := NULL,
         in_values               VARCHAR2                    := NULL,
         in_overload             VARCHAR2                    := NULL,    -- JSON object to overload passed items/values
-        in_transform            BOOLEAN                     := FALSE,   -- to pass all page items to new page
-        in_reset                BOOLEAN                     := TRUE,    -- reset page items
+        in_reset                CHAR                        := 'Y',     -- reset page items
         in_session_id           sessions.session_id%TYPE    := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL
     )
@@ -1160,7 +1159,7 @@ CREATE OR REPLACE PACKAGE BODY app AS
             p_application       => in_app_id,
             p_session           => COALESCE(in_session_id, app.get_session_id()),
             p_page              => out_page_id,
-            p_clear_cache       => CASE WHEN in_reset THEN out_page_id END,
+            p_clear_cache       => CASE WHEN in_reset = 'Y' THEN out_page_id END,
             p_items             => out_names,
             p_values            => NULLIF(out_values, 'NULL')
             /*

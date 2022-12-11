@@ -462,8 +462,7 @@ CREATE OR REPLACE PACKAGE app AS
         in_names                VARCHAR2                    := NULL,
         in_values               VARCHAR2                    := NULL,
         in_overload             VARCHAR2                    := NULL,    -- JSON object to overload passed items/values
-        in_transform            BOOLEAN                     := FALSE,   -- to pass all page items to new page
-        in_reset                BOOLEAN                     := TRUE,    -- reset page items
+        in_reset                CHAR                        := 'Y',     -- reset page items
         in_session_id           sessions.session_id%TYPE    := NULL,
         in_app_id               navigation.app_id%TYPE      := NULL
     )

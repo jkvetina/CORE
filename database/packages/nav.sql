@@ -75,8 +75,7 @@ CREATE OR REPLACE PACKAGE BODY nav AS
             in_names            => in_names,
             in_values           => in_values,
             in_overload         => in_overload,
-            in_transform        => in_transform,
-            in_reset            => in_reset
+            in_reset            => CASE WHEN in_reset THEN 'Y' END
         );
         --
         app.log_debug('REDIRECT', app.get_json_list(in_page_id, in_names, in_values, out_target));
