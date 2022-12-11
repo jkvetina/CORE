@@ -3995,14 +3995,18 @@ CREATE OR REPLACE PACKAGE BODY app AS
 
 
 
-    PROCEDURE rebuild_user_source_views (
+    PROCEDURE rebuild_source_lines (
         in_owner                apex_applications.owner%TYPE    := NULL
     )
     AS
     BEGIN
         app.log_module(in_owner);
-        --
-        DELETE FROM user_source_views t
+
+        -- @TODO: procedures
+        -- @TODO: jobs
+
+        -- refresh view content
+        DELETE FROM source_lines t
         WHERE t.owner = NVL(in_owner, t.owner);
         --
         FOR c IN (
@@ -4011,11 +4015,9 @@ CREATE OR REPLACE PACKAGE BODY app AS
                 t.view_name AS name,
                 app.get_long_string('ALL_VIEWS', 'TEXT', 'VIEW_NAME', t.view_name, in_owner => t.owner) || ';' AS text
             FROM all_views t
-            JOIN lov_app_schemas s
-                ON s.owner      = t.owner
-            WHERE t.owner       = NVL(in_owner, t.owner)
+            WHERE t.owner = NVL(in_owner, t.owner)
         ) LOOP
-            INSERT INTO user_source_views (owner, name, line, text)
+            INSERT INTO source_lines (owner, name, line, text)
             SELECT
                 c.owner,
                 c.name,

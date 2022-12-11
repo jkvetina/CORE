@@ -1486,7 +1486,7 @@ CREATE OR REPLACE PACKAGE app AS
     --
     -- Rebuild source lines for views
     --
-    PROCEDURE rebuild_user_source_views (
+    PROCEDURE rebuild_source_lines (
         in_owner                apex_applications.owner%TYPE    := NULL
     );
 
