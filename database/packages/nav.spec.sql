@@ -33,10 +33,16 @@ CREATE OR REPLACE PACKAGE nav AS
     -- Check if user have permissions to access the page
     --
     FUNCTION is_page_available (
-        in_page_id              navigation.page_id%TYPE,
-        in_app_id               navigation.app_id%TYPE
+        in_auth_scheme      VARCHAR2,
+        in_app_id           NUMBER,
+        in_page_id          NUMBER,
+        in_procedure_name   VARCHAR2,
+        in_data_type        VARCHAR2,
+        in_page_argument    VARCHAR2
     )
-    RETURN CHAR;
+    RETURN CHAR
+    --AUTHID CURRENT_USER
+    RESULT_CACHE;
 
 
 
