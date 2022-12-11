@@ -270,57 +270,21 @@ CREATE OR REPLACE PACKAGE BODY nav AS
 
 
 
-    PROCEDURE refresh_nav_views (
-        in_log_id           logs.log_id%TYPE,
-        in_user_id          logs.user_id%TYPE,
-        in_app_id           logs.app_id%TYPE,
-        in_lang_id          users.lang_id%TYPE
-    )
-    AS
-    BEGIN
-        DBMS_MVIEW.REFRESH('NAV_AVAILABILITY_MVW',  'C', parallelism => 2);
-        DBMS_MVIEW.REFRESH('NAV_OVERVIEW_MVW',      'C', parallelism => 2);
-        --
-        /*
-        app_actions.send_message (
-            in_app_id       => in_app_id,
-            in_user_id      => in_user_id,
-            in_message      => app.get_translated_message('MVW_REFRESHED', in_app_id, in_lang_id)
-        );*/
-        --
-        app.log_success(TO_CHAR(in_log_id));
-    EXCEPTION
-    WHEN OTHERS THEN
-        /*
-        app_actions.send_message (
-            in_app_id       => in_app_id,
-            in_user_id      => in_user_id,
-            in_message      => app.get_translated_message('MVW_FAILED', in_app_id, in_lang_id),
-            in_type         => 'WARNING'
-        );*/
-        COMMIT;
-        --
-        app.raise_error();
-    END;
-
-
-
     PROCEDURE refresh_nav_views
     AS
-        v_log_id            logs.log_id%TYPE;
-        v_query             VARCHAR2(32767);
     BEGIN
-        v_log_id := app.log_module();
+        app.log_module();
         --
-        app.create_job (
-            in_job_name     => 'RECALC_MVW_NAV',
-            in_statement    => 'nav.refresh_nav_views('
-                || v_log_id || ', '''
-                || app.get_user_id() || ''', '
-                || app.get_app_id() || ', '''
-                || app.get_user_lang() || ''''
-                || ');'
-        );
+        FOR c IN (
+            SELECT v.mview_name
+            FROM user_mviews v
+            WHERE v.mview_name LIKE 'NAV\_%' ESCAPE '\'
+        ) LOOP
+            DBMS_MVIEW.REFRESH(c.mview_name, 'C', parallelism => 2);
+            app.log_result(c.mview_name);
+        END LOOP;
+        --
+        app.log_success();
     EXCEPTION
     WHEN app.app_exception THEN
         RAISE;

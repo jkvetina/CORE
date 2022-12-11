@@ -102,14 +102,7 @@ CREATE OR REPLACE PACKAGE nav AS
 
 
     --
-    -- Refresh navigation MVW in a background job and inform user
-    --
-    PROCEDURE refresh_nav_views (
-        in_log_id           logs.log_id%TYPE,
-        in_user_id          logs.user_id%TYPE,
-        in_app_id           logs.app_id%TYPE,
-        in_lang_id          users.lang_id%TYPE
-    );
+    -- Refresh navigation views
     --
     PROCEDURE refresh_nav_views;
 
