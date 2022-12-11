@@ -1,12 +1,13 @@
+--DROP TABLE translated_messages;
 CREATE TABLE translated_messages (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_translated_messages_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_translated_messages_app_id NOT NULL,
     message                         VARCHAR2(256)   CONSTRAINT nn_translated_messages_message NOT NULL,
     value_en                        VARCHAR2(2000),
     value_cz                        VARCHAR2(2000),
     value_sk                        VARCHAR2(2000),
     value_pl                        VARCHAR2(2000),
     value_hu                        VARCHAR2(2000),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT pk_translated_messages

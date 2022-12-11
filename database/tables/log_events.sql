@@ -1,9 +1,10 @@
+--DROP TABLE log_events;
 CREATE TABLE log_events (
     log_id                          INTEGER         CONSTRAINT nn_log_events_log_id NOT NULL,
     log_parent                      INTEGER,
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_log_events_app_id NOT NULL,
-    page_id                         NUMBER(6,0)     CONSTRAINT nn_log_events_page_id NOT NULL,
-    user_id                         VARCHAR2(30)    CONSTRAINT nn_log_events_user_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_log_events_app_id NOT NULL,
+    page_id                         NUMBER(8,0)     CONSTRAINT nn_log_events_page_id NOT NULL,
+    user_id                         VARCHAR2(128)   CONSTRAINT nn_log_events_user_id NOT NULL,
     session_id                      INTEGER         CONSTRAINT nn_log_events_session_id NOT NULL,
     event_id                        VARCHAR2(30)    CONSTRAINT nn_log_events_event_id NOT NULL,
     event_value                     NUMBER,

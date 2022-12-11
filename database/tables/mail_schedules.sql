@@ -1,5 +1,5 @@
 CREATE TABLE mail_schedules (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_mail_schedules_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_mail_schedules_app_id NOT NULL,
     schedule_id                     VARCHAR2(30)    CONSTRAINT nn_mail_schedules_schedule_id NOT NULL,
     schedule_group                  VARCHAR2(64),
     description_                    VARCHAR2(256),
@@ -9,7 +9,7 @@ CREATE TABLE mail_schedules (
     schedule_hour                   VARCHAR2(128),
     schedule_minute                 VARCHAR2(128),
     schedule_interval               VARCHAR2(128),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_mail_schedules_hour

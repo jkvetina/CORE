@@ -1,11 +1,12 @@
+--DROP TABLE events;
 CREATE TABLE events (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_events_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_events_app_id NOT NULL,
     event_id                        VARCHAR2(30)    CONSTRAINT nn_events_event_id NOT NULL,
     event_name                      VARCHAR2(64),
     event_group                     VARCHAR2(64),
     description_                    VARCHAR2(1000),
     is_active                       CHAR(1),
-    updated_by                      VARCHAR2(30)    DEFAULT NULL,
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_events_is_active

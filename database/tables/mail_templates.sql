@@ -1,5 +1,6 @@
+--DROP TABLE mail_templates;
 CREATE TABLE mail_templates (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_mail_templates_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_mail_templates_app_id NOT NULL,
     template_id                     VARCHAR2(30)    CONSTRAINT nn_mail_templates_template_id NOT NULL,
     lang_id                         VARCHAR2(5)     CONSTRAINT nn_mail_templates_lang_id NOT NULL,
     template_group                  VARCHAR2(64),
@@ -7,7 +8,7 @@ CREATE TABLE mail_templates (
     process_function                VARCHAR2(64),
     mail_subject                    VARCHAR2(256),
     mail_body                       CLOB,
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT pk_mail_templates

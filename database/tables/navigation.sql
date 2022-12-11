@@ -1,12 +1,13 @@
+--DROP TABLE navigation;
 CREATE TABLE navigation (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_navigation_app_id NOT NULL,
-    page_id                         NUMBER(6,0)     CONSTRAINT nn_navigation_page_id NOT NULL,
-    parent_id                       NUMBER(6,0),
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_navigation_app_id NOT NULL,
+    page_id                         NUMBER(8,0)     CONSTRAINT nn_navigation_page_id NOT NULL,
+    parent_id                       NUMBER(8,0),
     order#                          NUMBER(4,0),
     is_hidden                       CHAR(1),
     is_reset                        CHAR(1),
     is_shared                       CHAR(1),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_navigation_is_hidden

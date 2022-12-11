@@ -1,12 +1,12 @@
 CREATE TABLE roles (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_roles_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_roles_app_id NOT NULL,
     role_id                         VARCHAR2(30)    CONSTRAINT nn_roles_role_id NOT NULL,
     role_name                       VARCHAR2(64),
     role_group                      VARCHAR2(64),
     description_                    VARCHAR2(1000),
     is_active                       CHAR(1),
     order#                          NUMBER(4,0),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_roles_is_active

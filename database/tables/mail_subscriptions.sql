@@ -1,5 +1,5 @@
 CREATE TABLE mail_subscriptions (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_mail_subscriptions_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_mail_subscriptions_app_id NOT NULL,
     event_id                        VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_event_id NOT NULL,
     role_id                         VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_role_id NOT NULL,
     schedule_id                     VARCHAR2(30)    CONSTRAINT nn_mail_subscriptions_schedule_id NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE mail_subscriptions (
     is_active                       CHAR(1),
     processed_log_id                NUMBER,
     processed_at                    DATE,
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_mail_subscriptions_is_active

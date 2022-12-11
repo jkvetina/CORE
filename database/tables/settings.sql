@@ -1,5 +1,6 @@
+--DROP TABLE settings;
 CREATE TABLE settings (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_settings_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_settings_app_id NOT NULL,
     setting_name                    VARCHAR2(30)    CONSTRAINT nn_settings_id NOT NULL,
     setting_value                   VARCHAR2(256),
     setting_context                 VARCHAR2(64),
@@ -8,7 +9,7 @@ CREATE TABLE settings (
     is_date                         CHAR(1),
     is_private                      CHAR(1),
     description_                    VARCHAR2(1000),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_settings_is_active

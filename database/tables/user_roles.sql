@@ -1,8 +1,8 @@
 CREATE TABLE user_roles (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_user_roles_app_id NOT NULL,
-    user_id                         VARCHAR2(30)    CONSTRAINT nn_user_roles_user_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_user_roles_app_id NOT NULL,
+    user_id                         VARCHAR2(128)   CONSTRAINT nn_user_roles_user_id NOT NULL,
     role_id                         VARCHAR2(30)    CONSTRAINT nn_user_roles_role_id NOT NULL,
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT pk_user_roles

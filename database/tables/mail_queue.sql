@@ -1,11 +1,11 @@
 CREATE TABLE mail_queue (
     queue_id                        NUMBER(10,0)    CONSTRAINT nn_mail_queue_queue_id NOT NULL,
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_mail_queue_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_mail_queue_app_id NOT NULL,
     event_id                        VARCHAR2(30),
     role_id                         VARCHAR2(30),
     template_id                     VARCHAR2(30),
     schedule_id                     VARCHAR2(30),
-    user_id                         VARCHAR2(30),
+    user_id                         VARCHAR2(128),
     lang_id                         VARCHAR2(5),
     mail_recipient                  VARCHAR2(4000),
     mail_cc                         VARCHAR2(4000),
@@ -13,7 +13,7 @@ CREATE TABLE mail_queue (
     mail_sender                     VARCHAR2(256),
     mail_subject                    VARCHAR2(256),
     mail_body                       CLOB,
-    created_by                      VARCHAR2(30),
+    created_by                      VARCHAR2(128),
     created_at                      DATE,
     sent_at                         DATE,
     --

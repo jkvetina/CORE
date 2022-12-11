@@ -1,8 +1,8 @@
 CREATE TABLE apps (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_apps_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_apps_app_id NOT NULL,
     description_                    VARCHAR2(1000),
     is_visible                      CHAR(1),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_apps_is_visible

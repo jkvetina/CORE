@@ -1,10 +1,10 @@
 CREATE TABLE users (
-    user_id                         VARCHAR2(30)    CONSTRAINT nn_users_user_id NOT NULL,
+    user_id                         VARCHAR2(128)   CONSTRAINT nn_users_user_id NOT NULL,
     user_login                      VARCHAR2(128)   CONSTRAINT nn_users_login NOT NULL,
     user_name                       VARCHAR2(64),
     lang_id                         VARCHAR2(5),
     is_active                       CHAR(1),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT ch_users_is_active

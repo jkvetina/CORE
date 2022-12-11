@@ -1,10 +1,11 @@
+--DROP TABLE setting_contexts;
 CREATE TABLE setting_contexts (
-    app_id                          NUMBER(4,0)     CONSTRAINT nn_setting_contexts_app_id NOT NULL,
+    app_id                          NUMBER(8,0)     CONSTRAINT nn_setting_contexts_app_id NOT NULL,
     context_id                      VARCHAR2(64)    CONSTRAINT nn_setting_contexts_name NOT NULL,
     context_name                    VARCHAR2(64),
     description_                    VARCHAR2(1000),
     order#                          NUMBER(4,0),
-    updated_by                      VARCHAR2(30),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT uq_setting_contexts

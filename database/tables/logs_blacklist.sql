@@ -1,11 +1,12 @@
+--DROP TABLE logs_blacklist;
 CREATE TABLE logs_blacklist (
-    app_id                          NUMBER(4,0),
+    app_id                          NUMBER(8,0),
     flag                            CHAR(1),
     user_id                         VARCHAR2(30),
-    page_id                         NUMBER(6,0),
-    module_like                     VARCHAR2(30),
-    action_like                     VARCHAR2(30),
-    updated_by                      VARCHAR2(30),
+    page_id                         NUMBER(8,0),
+    module_like                     VARCHAR2(64),
+    action_like                     VARCHAR2(64),
+    updated_by                      VARCHAR2(128),
     updated_at                      DATE,
     --
     CONSTRAINT uq_logs_blacklist
