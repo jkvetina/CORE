@@ -63,6 +63,8 @@ BEGIN
             FROM user_objects o
             WHERE o.status              != 'VALID'
                 AND o.object_type       NOT IN ('SEQUENCE')
+                AND (o.object_type      LIKE in_type OR in_type IS NULL)
+                AND (o.object_name      LIKE in_name OR in_name IS NULL)
                 AND o.object_name       != $$PLSQL_UNIT         -- not this procedure
             UNION ALL
             SELECT o.object_name, o.object_type
@@ -143,8 +145,10 @@ BEGIN
     -- show number of invalid objects
     SELECT COUNT(*) INTO v_invalids
     FROM user_objects o
-    WHERE o.status          != 'VALID'
-        AND o.object_name   != $$PLSQL_UNIT;        -- not this procedure
+    WHERE o.status              != 'VALID'
+        AND (o.object_type      LIKE in_type OR in_type IS NULL)
+        AND (o.object_name      LIKE in_name OR in_name IS NULL)
+        AND o.object_name       != $$PLSQL_UNIT;        -- not this procedure
     --
     DBMS_OUTPUT.PUT_LINE(' -> ' || v_invalids);
     DBMS_OUTPUT.PUT_LINE('');
@@ -155,7 +159,10 @@ BEGIN
         FOR c IN (
             SELECT DISTINCT o.object_type, o.object_name
             FROM user_objects o
-            WHERE o.status != 'VALID'
+            WHERE o.status              != 'VALID'
+                AND (o.object_type      LIKE in_type OR in_type IS NULL)
+                AND (o.object_name      LIKE in_name OR in_name IS NULL)
+                AND o.object_name       != $$PLSQL_UNIT;        -- not this procedure
             ORDER BY o.object_type, o.object_name
         ) LOOP
             DBMS_OUTPUT.PUT_LINE('  ' || LPAD(CASE WHEN c.object_type != v_last_type THEN c.object_type END || ' | ', 20, ' ') || c.object_name);
